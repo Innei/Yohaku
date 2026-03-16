@@ -6,6 +6,8 @@
 
 这是一套个人博客的设计语言与视觉体系，建立在「書写·信纸·光影」的隐喻之上。它不是一个功能清单，而是一种关于「如何让阅读发生」的回答。
 
+![Image](https://github.com/user-attachments/assets/bb55b700-5ed6-4af4-964d-a78d5c3a4d1b)
+
 ---
 
 ## 设计哲学
@@ -56,4 +58,4 @@ Yohaku 的完整代码以闭源方式维护于私有仓库 [Innei-dev/Yohaku](ht
 
 ## 许可
 
-2024 Innei. 本仓库内容采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议。
+2026 Innei. 本仓库内容采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议。
