@@ -58,4 +58,4 @@ This public repository serves as an open archive of the design language, documen
 
 ## License
 
-2024 Innei. This repository is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+2026 Innei. This repository is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).

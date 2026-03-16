@@ -58,4 +58,4 @@ Yohaku の完全なコードベースは、プライベートリポジトリ [In
 
 ## ライセンス
 
-2024 Innei. 本リポジトリのコンテンツは [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) ライセンスのもとで公開されています。
+2026 Innei. 本リポジトリのコンテンツは [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) ライセンスのもとで公開されています。
