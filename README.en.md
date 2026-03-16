@@ -8,6 +8,8 @@
 
 This is a design language and visual system for a personal blog, built around the metaphor of *Writing · Letter Paper · Light and Shadow*. It is not a feature list. It is an answer to the question: how do you make reading happen?
 
+![Preview](https://github.com/user-attachments/assets/bb55b700-5ed6-4af4-964d-a78d5c3a4d1b)
+
 ---
 
 ## Design Philosophy
@@ -58,4 +60,4 @@ This public repository serves as an open archive of the design language, documen
 
 ## License
 
-2026 Innei. This repository is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
+2024 Innei. This repository is licensed under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).

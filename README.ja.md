@@ -8,6 +8,8 @@
 
 これは個人ブログのためのデザイン言語とビジュアルシステムです。「書写・信紙・光影」という隐喩のもとに構築されています。機能一覧ではなく、「いかにして読書を生み出すか」という問いへの答えです。
 
+![プレビュー](https://github.com/user-attachments/assets/bb55b700-5ed6-4af4-964d-a78d5c3a4d1b)
+
 ---
 
 ## デザイン哲学
@@ -58,4 +60,4 @@ Yohaku の完全なコードベースは、プライベートリポジトリ [In
 
 ## ライセンス
 
-2026 Innei. 本リポジトリのコンテンツは [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) ライセンスのもとで公開されています。
+2024 Innei. 本リポジトリのコンテンツは [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) ライセンスのもとで公開されています。
