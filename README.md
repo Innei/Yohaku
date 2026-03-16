@@ -22,13 +22,21 @@
 
 ---
 
-## 技术实现
+## 获取完整实现
 
-Yohaku 的完整实现以闭源方式维护于私有仓库 [Innei-dev/Shiroi](https://github.com/Innei-dev/Shiroi)，基于 [Shiro](https://github.com/Innei/Shiro) 开源版本深度重构而来。
+Yohaku 的完整代码以闭源方式维护于私有仓库 [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku)，基于 [Shiro](https://github.com/Innei/Shiro) 深度重构而来。
 
-本仓库作为设计语言的公开存档，记录视觉规范、设计决策与演进历程。
+**赞助后可获得私有仓库的访问权限。**
 
-### 设计规范速览
+[![Sponsor](https://img.shields.io/badge/Sponsor-Innei-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/Innei)
+
+赞助 [github.com/sponsors/Innei](https://github.com/sponsors/Innei) 后，请通过 [Issues](https://github.com/Innei/Yohaku/issues) 或邮件告知你的 GitHub 用户名，我会手动添加仓库访问权限。
+
+本仓库作为设计语言的公开存档，记录视觉规范与设计决策。
+
+---
+
+## 设计规范速览
 
 | 维度 | 浅色 | 深色 |
 |------|------|------|
@@ -37,10 +45,12 @@ Yohaku 的完整实现以闭源方式维护于私有仓库 [Innei-dev/Shiroi](ht
 | 动效缓动 | `cubic-bezier(0.22, 1, 0.36, 1)` | 同左 |
 | 基础字号 | 14px | 同左 |
 
-### 相关项目
+---
+
+## 相关项目
 
 - [Shiro](https://github.com/Innei/Shiro) — 开源前身，Next.js 个人博客系统
-- [Innei-dev/Shiroi](https://github.com/Innei-dev/Shiroi) — Yohaku 的闭源完整实现（私有）
+- [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku) — 完整闭源实现（赞助可访问）
 
 ---
 
