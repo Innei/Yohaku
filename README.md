@@ -51,6 +51,17 @@ Yohaku 的完整代码以闭源方式维护于私有仓库 [Innei-dev/Yohaku](ht
 
 ---
 
+## 开发会话存档（SpecStory）
+
+从私有实现仓库的日常开发中导出的 [SpecStory](https://docs.specstory.com/) 会话 Markdown 已整理为**按年份归档**，便于查阅迭代过程与实现讨论（公开前已对路径与敏感信息脱敏）。
+
+- **入口**：[archive/specstory-sessions](./archive/specstory-sessions/README.md)
+- **体量**：约 370+ 个会话文件（2025–2026，UTC 文件名）
+
+说明、目录结构与脱敏方式见子目录 README。
+
+---
+
 ## 相关项目
 
 - [Shiro](https://github.com/Innei/Shiro) — 开源前身，Next.js 个人博客系统

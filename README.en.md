@@ -51,6 +51,17 @@ This public repository serves as an open archive of the design language, documen
 
 ---
 
+## Development session archive (SpecStory)
+
+[SpecStory](https://docs.specstory.com/) session exports from the private Yohaku implementation workspace are published here, **organized by calendar year** (UTC timestamps in filenames). Paths and sensitive URL fragments are redacted before publication.
+
+- **Entry point:** [archive/specstory-sessions](./archive/specstory-sessions/README.md)
+- **Size:** 370+ Markdown session files (2025–2026)
+
+See the archive README for layout, naming, and redaction notes.
+
+---
+
 ## Related Projects
 
 - [Shiro](https://github.com/Innei/Shiro) — Open-source predecessor, Next.js personal blog system

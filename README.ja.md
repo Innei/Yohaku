@@ -51,6 +51,17 @@ Yohaku の完全なコードベースは、プライベートリポジトリ [In
 
 ---
 
+## 開発セッションアーカイブ（SpecStory）
+
+プライベート実装リポジトリ側からエクスポートした [SpecStory](https://docs.specstory.com/) セッション Markdown を、**暦年ごと**に整理して公開しています（パスや URL 署名などは事前にマスキング済み）。
+
+- **入口**：[archive/specstory-sessions](./archive/specstory-sessions/README.md)
+- **規模**：370 件超のセッションファイル（2025–2026、ファイル名は UTC）
+
+構成・命名・マスキング方針はサブディレクトリの README を参照。
+
+---
+
 ## 関連プロジェクト
 
 - [Shiro](https://github.com/Innei/Shiro) — オープンソースの前身、Next.js 個人ブログシステム
