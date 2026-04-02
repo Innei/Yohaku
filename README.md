@@ -8,7 +8,11 @@
 
 这是一套个人博客的设计语言与视觉体系，建立在「書写·信纸·光影」的隐喻之上。它不是一个功能清单，而是一种关于「如何让阅读发生」的回答。
 
-![设计预览](https://github.com/user-attachments/assets/bb55b700-5ed6-4af4-964d-a78d5c3a4d1b)
+![设计预览 - 首页](./assets/preview-home.png)
+
+![设计预览 - 文章列表](./assets/preview-posts.png)
+
+![设计预览 - 手记](./assets/preview-notes.png)
 
 ---
 

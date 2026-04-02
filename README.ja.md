@@ -8,7 +8,11 @@
 
 これは個人ブログのためのデザイン言語とビジュアルシステムです。「書写・信紙・光影」という隐喩のもとに構築されています。機能一覧ではなく、「いかにして読書を生み出すか」という問いへの答えです。
 
-![プレビュー](https://github.com/user-attachments/assets/bb55b700-5ed6-4af4-964d-a78d5c3a4d1b)
+![プレビュー - ホーム](./assets/preview-home.png)
+
+![プレビュー - 記事一覧](./assets/preview-posts.png)
+
+![プレビュー - ノート](./assets/preview-notes.png)
 
 ---
 

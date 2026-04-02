@@ -8,7 +8,11 @@
 
 This is a design language and visual system for a personal blog, built around the metaphor of *Writing · Letter Paper · Light and Shadow*. It is not a feature list. It is an answer to the question: how do you make reading happen?
 
-![Preview](https://github.com/user-attachments/assets/bb55b700-5ed6-4af4-964d-a78d5c3a4d1b)
+![Preview - Home](./assets/preview-home.png)
+
+![Preview - Posts](./assets/preview-posts.png)
+
+![Preview - Notes](./assets/preview-notes.png)
 
 ---
 
