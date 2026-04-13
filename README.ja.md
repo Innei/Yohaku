@@ -10,15 +10,15 @@
 
 > 下のプレビューは対角線で分割されています——左上がライト、右下がダーク。
 
-![プレビュー - ホーム（ライト / ダーク）](./assets/preview-home.png)
+![プレビュー - ホーム（ライト / ダーク）](./assets/preview-home.ja.png)
 
-![プレビュー - 記事一覧（ライト / ダーク）](./assets/preview-posts.png)
+![プレビュー - 記事一覧（ライト / ダーク）](./assets/preview-posts.ja.png)
 
-![プレビュー - ノート（ライト / ダーク）](./assets/preview-notes.png)
+![プレビュー - ノート（ライト / ダーク）](./assets/preview-notes.ja.png)
 
-![プレビュー - タイムライン（ライト / ダーク）](./assets/preview-timeline.png)
+![プレビュー - タイムライン（ライト / ダーク）](./assets/preview-timeline.ja.png)
 
-![プレビュー - 思考（ライト / ダーク）](./assets/preview-thinking.png)
+![プレビュー - 思考（ライト / ダーク）](./assets/preview-thinking.ja.png)
 
 ---
 

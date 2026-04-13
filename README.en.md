@@ -10,15 +10,15 @@ This is a design language and visual system for a personal blog, built around th
 
 > The previews below are diagonally split — light on the top-left, dark on the bottom-right.
 
-![Preview - Home (light / dark)](./assets/preview-home.png)
+![Preview - Home (light / dark)](./assets/preview-home.en.png)
 
-![Preview - Posts (light / dark)](./assets/preview-posts.png)
+![Preview - Posts (light / dark)](./assets/preview-posts.en.png)
 
-![Preview - Notes (light / dark)](./assets/preview-notes.png)
+![Preview - Notes (light / dark)](./assets/preview-notes.en.png)
 
-![Preview - Timeline (light / dark)](./assets/preview-timeline.png)
+![Preview - Timeline (light / dark)](./assets/preview-timeline.en.png)
 
-![Preview - Thinking (light / dark)](./assets/preview-thinking.png)
+![Preview - Thinking (light / dark)](./assets/preview-thinking.en.png)
 
 ---
 
