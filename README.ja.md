@@ -8,11 +8,17 @@
 
 これは個人ブログのためのデザイン言語とビジュアルシステムです。「書写・信紙・光影」という隐喩のもとに構築されています。機能一覧ではなく、「いかにして読書を生み出すか」という問いへの答えです。
 
-![プレビュー - ホーム](./assets/preview-home.png)
+> 下のプレビューは対角線で分割されています——左上がライト、右下がダーク。
 
-![プレビュー - 記事一覧](./assets/preview-posts.png)
+![プレビュー - ホーム（ライト / ダーク）](./assets/preview-home.png)
 
-![プレビュー - ノート](./assets/preview-notes.png)
+![プレビュー - 記事一覧（ライト / ダーク）](./assets/preview-posts.png)
+
+![プレビュー - ノート（ライト / ダーク）](./assets/preview-notes.png)
+
+![プレビュー - タイムライン（ライト / ダーク）](./assets/preview-timeline.png)
+
+![プレビュー - 思考（ライト / ダーク）](./assets/preview-thinking.png)
 
 ---
 

@@ -8,11 +8,17 @@
 
 This is a design language and visual system for a personal blog, built around the metaphor of *Writing · Letter Paper · Light and Shadow*. It is not a feature list. It is an answer to the question: how do you make reading happen?
 
-![Preview - Home](./assets/preview-home.png)
+> The previews below are diagonally split — light on the top-left, dark on the bottom-right.
 
-![Preview - Posts](./assets/preview-posts.png)
+![Preview - Home (light / dark)](./assets/preview-home.png)
 
-![Preview - Notes](./assets/preview-notes.png)
+![Preview - Posts (light / dark)](./assets/preview-posts.png)
+
+![Preview - Notes (light / dark)](./assets/preview-notes.png)
+
+![Preview - Timeline (light / dark)](./assets/preview-timeline.png)
+
+![Preview - Thinking (light / dark)](./assets/preview-thinking.png)
 
 ---
 

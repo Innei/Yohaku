@@ -8,11 +8,17 @@
 
 这是一套个人博客的设计语言与视觉体系，建立在「書写·信纸·光影」的隐喻之上。它不是一个功能清单，而是一种关于「如何让阅读发生」的回答。
 
-![设计预览 - 首页](./assets/preview-home.png)
+> 下列预览以对角线切分，左上为浅色，右下为深色。
 
-![设计预览 - 文章列表](./assets/preview-posts.png)
+![设计预览 - 首页（浅色 / 深色）](./assets/preview-home.png)
 
-![设计预览 - 手记](./assets/preview-notes.png)
+![设计预览 - 文章列表（浅色 / 深色）](./assets/preview-posts.png)
+
+![设计预览 - 手记（浅色 / 深色）](./assets/preview-notes.png)
+
+![设计预览 - 时光（浅色 / 深色）](./assets/preview-timeline.png)
+
+![设计预览 - 思考（浅色 / 深色）](./assets/preview-thinking.png)
 
 ---
 
