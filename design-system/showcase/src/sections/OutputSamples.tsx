@@ -4,8 +4,7 @@ import { type Lang, t } from '../i18n'
 
 type Sample = {
   id: string
-  href: string
-  pdfHref: string
+  base: string
   title: { zh: string; en: string }
   desc: { zh: string; en: string }
   viewportWidth: number
@@ -15,8 +14,7 @@ type Sample = {
 const samples: Sample[] = [
   {
     id: 'post',
-    href: '/demos/demo-post.html',
-    pdfHref: '/demos/demo-post.pdf',
+    base: '/demos/demo-post',
     title: { zh: '长文', en: 'Long-form Post' },
     desc: {
       zh: '正文页 · 衬线字体 · drop cap · 多页',
@@ -27,8 +25,7 @@ const samples: Sample[] = [
   },
   {
     id: 'resume',
-    href: '/demos/demo-resume.html',
-    pdfHref: '/demos/demo-resume.pdf',
+    base: '/demos/demo-resume',
     title: { zh: '简历', en: 'Resume' },
     desc: {
       zh: 'A4 单页 · 设计工程师简历',
@@ -39,8 +36,7 @@ const samples: Sample[] = [
   },
   {
     id: 'report',
-    href: '/demos/demo-report.html',
-    pdfHref: '/demos/demo-report.pdf',
+    base: '/demos/demo-report',
     title: { zh: '一页报告', en: 'One-page Report' },
     desc: {
       zh: 'A4 单页 · 项目进度报告',
@@ -50,6 +46,11 @@ const samples: Sample[] = [
     viewportHeight: 1123,
   },
 ]
+
+function hrefFor(sample: Sample, lang: Lang, ext: 'html' | 'pdf') {
+  const suffix = lang === 'en' ? '.en' : ''
+  return `${sample.base}${suffix}.${ext}`
+}
 
 function DemoCard({
   sample,
@@ -72,18 +73,22 @@ function DemoCard({
     return () => ro.disconnect()
   }, [sample.viewportWidth])
 
+  const htmlHref = hrefFor(sample, lang, 'html')
+  const pdfHref = hrefFor(sample, lang, 'pdf')
+
   return (
     <article className="demo-card">
       <a
         ref={frameRef}
         className="demo-card__frame"
-        href={sample.href}
+        href={htmlHref}
         target="_blank"
         rel="noreferrer"
       >
         <div className="demo-card__viewport">
           <iframe
-            src={sample.href}
+            key={htmlHref}
+            src={htmlHref}
             title={sample.title[lang]}
             loading="lazy"
             scrolling="no"
@@ -106,7 +111,7 @@ function DemoCard({
       <p className="demo-card__desc">{sample.desc[lang]}</p>
       <a
         className="demo-card__pdf"
-        href={sample.pdfHref}
+        href={pdfHref}
         target="_blank"
         rel="noreferrer"
       >

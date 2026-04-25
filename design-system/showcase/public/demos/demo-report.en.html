@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Yohaku Design System · v0.1 Progress Report</title>
+    <link rel="stylesheet" href="./_shared.css" />
+    <style>
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      html,
+      body {
+        font-size: 14px;
+      }
+
+      .report {
+        max-width: 794px;
+        margin: 0 auto;
+        padding: 48px 56px 56px;
+        background: var(--color-paper);
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+        .report {
+          padding: 18mm 18mm 16mm;
+          max-width: none;
+        }
+      }
+
+      /* Masthead */
+      .masthead {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: end;
+        gap: 24px;
+        padding-bottom: 14px;
+        border-bottom: 1.5px solid var(--color-neutral-9);
+        margin-bottom: 22px;
+      }
+
+      .masthead__brand {
+        font-family: var(--font-serif);
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        margin: 0 0 6px;
+      }
+
+      .masthead__title {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 30px;
+        line-height: 1.15;
+        color: var(--color-neutral-10);
+        letter-spacing: -0.005em;
+      }
+
+      .masthead__title .cn {
+        margin-left: 10px;
+        color: var(--color-accent);
+      }
+
+      .masthead__meta {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        line-height: 1.7;
+        color: var(--color-neutral-7);
+        text-align: right;
+      }
+
+      .masthead__meta .label {
+        color: var(--color-neutral-5);
+        margin-right: 6px;
+      }
+
+      /* Lede */
+      .lede {
+        margin: 0 0 26px;
+        font-family: var(--font-serif);
+        font-size: 15px;
+        line-height: 1.7;
+        color: var(--color-neutral-9);
+      }
+
+      .lede em {
+        font-style: normal;
+        color: var(--color-accent);
+        font-weight: 500;
+      }
+
+      /* Stat strip */
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0;
+        border-top: 0.5px solid var(--color-neutral-4);
+        border-bottom: 0.5px solid var(--color-neutral-4);
+        margin-bottom: 16px;
+        page-break-inside: avoid;
+      }
+
+      .stats__cell {
+        padding: 14px 16px;
+        border-right: 0.5px solid var(--color-neutral-4);
+      }
+
+      .stats__cell:last-child {
+        border-right: none;
+      }
+
+      .stats__num {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-size: 26px;
+        font-weight: 500;
+        color: var(--color-neutral-10);
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .stats__num .accent {
+        color: var(--color-accent);
+      }
+
+      .stats__label {
+        margin: 6px 0 0;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--color-neutral-7);
+      }
+
+      /* Section */
+      .section {
+        margin-bottom: 24px;
+        page-break-inside: avoid;
+      }
+
+      .section:last-child {
+        margin-bottom: 0;
+      }
+
+      .section__head {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .section__num {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--color-accent);
+        letter-spacing: 0.04em;
+      }
+
+      .section__title {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 17px;
+        color: var(--color-neutral-10);
+      }
+
+      .section__body {
+        font-family: var(--font-serif);
+        font-size: 14px;
+        line-height: 1.7;
+        color: var(--color-neutral-9);
+      }
+
+      .section__body p {
+        margin: 0 0 6px;
+      }
+
+      .section__body p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* Two-column on color section */
+      .two-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      /* Color strip */
+      .palette {
+        display: flex;
+        gap: 0;
+        margin: 10px 0 6px;
+      }
+
+      .palette__chip {
+        flex: 1;
+        height: 28px;
+        border: 0.5px solid var(--color-neutral-4);
+      }
+
+      .palette__chip + .palette__chip {
+        border-left: none;
+      }
+
+      .palette__caption {
+        margin: 0;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--color-neutral-7);
+        line-height: 1.5;
+      }
+
+      /* Quote pull */
+      .pull {
+        margin: 18px 0;
+        padding: 10px 0 10px 14px;
+        border-left: 2px solid var(--color-accent);
+        font-family: var(--font-serif);
+        font-size: 15px;
+        line-height: 1.55;
+        color: var(--color-neutral-9);
+        font-style: italic;
+      }
+
+      /* Footer */
+      .report-footer {
+        margin-top: 28px;
+        padding-top: 14px;
+        border-top: 0.5px solid var(--color-neutral-4);
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--color-neutral-7);
+        line-height: 1.7;
+      }
+
+      .report-footer__signature {
+        font-family: var(--font-serif);
+        font-style: italic;
+        color: var(--color-neutral-9);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="report">
+      <header class="masthead">
+        <div>
+          <p class="masthead__brand">YOHAKU · DESIGN SYSTEM PROGRESS</p>
+          <h1 class="masthead__title">
+            v0.1 Progress Report<span class="cn">余白</span>
+          </h1>
+        </div>
+        <div class="masthead__meta">
+          <div><span class="label">Period</span>2026 Q1 · April</div>
+          <div><span class="label">Author</span>Innei</div>
+          <div><span class="label">Audience</span>Design & engineering</div>
+          <div><span class="label">Status</span>v0.1 wrap-up</div>
+        </div>
+      </header>
+
+      <p class="lede">
+        This quarter, Yohaku finished the move from “a personal blog’s design language” to <em>“a typographic system for written content.”</em> The token surface has converged to 30 entries, with 6 atomic components and 5 paragraph snippets. Next is splitting <em>print kits</em> out of the token layer, and rewriting SKILL.md as “core + kits.”
+      </p>
+
+      <div class="stats">
+        <div class="stats__cell">
+          <p class="stats__num">30</p>
+          <p class="stats__label">Tokens</p>
+        </div>
+        <div class="stats__cell">
+          <p class="stats__num">6</p>
+          <p class="stats__label">Atoms</p>
+        </div>
+        <div class="stats__cell">
+          <p class="stats__num">5</p>
+          <p class="stats__label">Snippets</p>
+        </div>
+        <div class="stats__cell">
+          <p class="stats__num"><span class="accent">≤ 5%</span></p>
+          <p class="stats__label">Accent budget</p>
+        </div>
+      </div>
+
+      <section class="section">
+        <header class="section__head">
+          <span class="section__num">01</span>
+          <h2 class="section__title">Shipped this quarter</h2>
+        </header>
+        <div class="section__body">
+          <p>The accent moved from cyan-teal (#33A6B8) to plum (#C56473), placing it in the same warm family as the neutral scale. The neutrals migrated from cool to 60% warmth — paper, not concrete. The 30-token surface is now stable.</p>
+          <p>The Components and Snippets sections are aligned with the apps/web implementation: buttons use accent/8 fill with a 30%-opacity border, inputs use the full --field-* contract, comment bubbles use the asymmetric corner radius.</p>
+        </div>
+      </section>
+
+      <section class="section">
+        <header class="section__head">
+          <span class="section__num">02</span>
+          <h2 class="section__title">Color & type</h2>
+        </header>
+        <div class="two-col">
+          <div class="section__body">
+            <p>Accent: plum #C56473 (dark mode #E095A4). Semantic colors come from traditional Japanese hues: 縹 (info), 若竹 (success), 朽葉 (warning), 蘇芳 (error).</p>
+            <div class="palette">
+              <div class="palette__chip" style="background:#F9F8F5"></div>
+              <div class="palette__chip" style="background:#F0EFEB"></div>
+              <div class="palette__chip" style="background:#E3E1DB"></div>
+              <div class="palette__chip" style="background:#D0CEC6"></div>
+              <div class="palette__chip" style="background:#A8A69F"></div>
+              <div class="palette__chip" style="background:#787670"></div>
+              <div class="palette__chip" style="background:#5C5A55"></div>
+              <div class="palette__chip" style="background:#403F3A"></div>
+              <div class="palette__chip" style="background:#24231F"></div>
+              <div class="palette__chip" style="background:#141312"></div>
+            </div>
+            <p class="palette__caption">Neutrals n-1 → n-10 (warm scale, 60% warmth)</p>
+          </div>
+          <div class="section__body">
+            <p>Three font families: sans / serif / mono. Each carries a full CJK fallback chain. CJK never gets synthetic bold — font-medium (500) is the ceiling.</p>
+            <p>Sans: Inter → PingFang SC → Noto Sans SC. Serif: Noto Serif CJK SC → SongTi SC → Georgia.</p>
+          </div>
+        </div>
+      </section>
+
+      <blockquote class="pull">
+        Subtraction isn’t doing less. It is each addition having been argued for.
+      </blockquote>
+
+      <section class="section">
+        <header class="section__head">
+          <span class="section__num">03</span>
+          <h2 class="section__title">Next quarter</h2>
+        </header>
+        <div class="section__body">
+          <p><strong>Split out a print-kit token layer.</strong> The current tokens use OKLCH and color-mix — fine for browser print, but server-side renderers (e.g. weasyprint) need a hex-mirror version.</p>
+          <p><strong>Reorganize SKILL.md and CHEATSHEET.</strong> Restructure as “core + kits,” spelling out what each kit forbids (e.g. print bans rgba and demands explicit page-break rules).</p>
+          <p><strong>More print samples.</strong> We have a résumé and this report. Up next: a letter, a multi-page portfolio, and a landscape slide deck.</p>
+        </div>
+      </section>
+
+      <footer class="report-footer">
+        <div>
+          <div>This report is typeset by the Yohaku design system. Token source: @yohaku/design-system v0.1 — single source, no drift.</div>
+        </div>
+        <div class="report-footer__signature">— Innei, Hangzhou</div>
+      </footer>
+    </main>
+  </body>
+</html>

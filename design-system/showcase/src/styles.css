@@ -148,7 +148,8 @@ body {
     gap: 2px;
   }
 
-  .toolbar button {
+  .toolbar button,
+  .toolbar__icon {
     padding: 3px 8px;
   }
 
@@ -157,7 +158,8 @@ body {
   }
 }
 
-.toolbar button {
+.toolbar button,
+.toolbar__icon {
   background: none;
   border: none;
   cursor: pointer;
@@ -168,7 +170,16 @@ body {
   transition: color 0.15s ease, background 0.15s ease;
 }
 
-.toolbar button:hover {
+.toolbar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  padding: 4px 8px;
+}
+
+.toolbar button:hover,
+.toolbar__icon:hover {
   color: var(--color-neutral-10);
   background: var(--color-neutral-2);
 }

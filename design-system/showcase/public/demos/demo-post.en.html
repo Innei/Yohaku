@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Writing in the Margins · Yohaku</title>
+    <link rel="stylesheet" href="./_shared.css" />
+    <style>
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      html,
+      body {
+        font-size: 15px;
+      }
+
+      .post-shell {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 48px 32px 56px;
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+        .topnav,
+        .post-footer {
+          display: none !important;
+        }
+        .post-shell {
+          padding: 18mm 22mm 18mm;
+          max-width: none;
+        }
+        .post-author {
+          page-break-after: avoid;
+        }
+        .prose h2 {
+          page-break-after: avoid;
+        }
+        .prose blockquote,
+        .prose ul {
+          page-break-inside: avoid;
+        }
+      }
+
+      .post-meta {
+        display: flex;
+        gap: 16px;
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--color-neutral-7);
+        letter-spacing: 0.04em;
+        margin-bottom: 22px;
+      }
+      .post-meta .accent {
+        color: var(--color-accent);
+      }
+
+      .post-title {
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 38px;
+        line-height: 1.1;
+        letter-spacing: -0.01em;
+        color: var(--color-neutral-10);
+        margin: 0 0 12px;
+      }
+      .post-subtitle {
+        font-family: var(--font-serif);
+        font-size: 16px;
+        line-height: 1.5;
+        color: var(--color-neutral-7);
+        margin: 0 0 24px;
+      }
+
+      .post-author {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--color-hair);
+        margin-bottom: 24px;
+      }
+      .post-author__avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #d0cec6, #a8a69f);
+        flex-shrink: 0;
+      }
+      .post-author__name {
+        font-family: var(--font-serif);
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--color-neutral-10);
+      }
+      .post-author__date {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--color-neutral-7);
+        margin-top: 2px;
+      }
+
+      /* Long-form body */
+      .prose {
+        font-family: var(--font-serif);
+        font-size: 15.5px;
+        line-height: 1.85;
+        color: var(--color-neutral-9);
+      }
+      .prose p {
+        margin: 0 0 1.05em;
+      }
+      .prose p:first-child::first-letter {
+        font-size: 2.6em;
+        float: left;
+        line-height: 1;
+        padding: 4px 8px 0 0;
+        color: var(--color-accent);
+        font-weight: 500;
+      }
+      .prose h2 {
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 20px;
+        line-height: 1.3;
+        color: var(--color-neutral-10);
+        margin: 28px 0 12px;
+        letter-spacing: -0.005em;
+      }
+      .prose h2 .num {
+        color: var(--color-accent);
+        margin-right: 10px;
+        font-feature-settings: 'tnum';
+      }
+      .prose blockquote {
+        margin: 20px 0;
+        padding: 4px 0 4px 16px;
+        border-left: 2px solid var(--color-accent);
+        font-style: italic;
+        color: var(--color-neutral-7);
+      }
+      .prose code {
+        font-family: var(--font-mono);
+        font-size: 0.85em;
+        padding: 1px 5px;
+        border-radius: 3px;
+        background: color-mix(in srgb, var(--color-neutral-10) 6%, transparent);
+        color: var(--color-neutral-9);
+      }
+      .prose strong {
+        font-weight: 500;
+        color: var(--color-neutral-10);
+      }
+      .prose em {
+        font-style: normal;
+        color: var(--color-accent);
+        font-weight: 500;
+      }
+      .prose ul {
+        list-style: none;
+        padding: 0;
+        margin: 16px 0 20px;
+      }
+      .prose ul li {
+        position: relative;
+        padding-left: 18px;
+        margin-bottom: 6px;
+      }
+      .prose ul li::before {
+        content: '—';
+        position: absolute;
+        left: 0;
+        color: var(--color-neutral-5);
+      }
+
+      .post-footer {
+        margin-top: 32px;
+        padding-top: 16px;
+        border-top: 1px solid var(--color-hair);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--color-neutral-7);
+      }
+      .post-footer .tags {
+        display: flex;
+        gap: 12px;
+      }
+      .post-footer .tags a {
+        color: var(--color-accent);
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="topnav">
+      <div class="topnav__brand">
+        <span class="name">Yohaku</span>
+        <span class="cn">余白</span>
+      </div>
+      <div class="topnav__links">
+        <a>posts</a>
+        <a>notes</a>
+        <a>thinking</a>
+        <a>about</a>
+      </div>
+    </nav>
+
+    <article class="post-shell">
+      <div class="post-meta">
+        <span class="accent">Design Note</span>
+        <span>2026·04·25</span>
+        <span>~ 4 min</span>
+      </div>
+
+      <h1 class="post-title">Writing in the Margins</h1>
+      <p class="post-subtitle">
+        A note on restraint in design systems — “less” is not a slogan; it is the residue of every addition having been argued for.
+      </p>
+
+      <div class="post-author">
+        <div class="post-author__avatar"></div>
+        <div>
+          <div class="post-author__name">Innei</div>
+          <div class="post-author__date">2026·04·25 · Hangzhou</div>
+        </div>
+      </div>
+
+      <div class="prose">
+        <p>
+          Every design system begins with a single judgment: what is necessary, and what is redundant. <strong>Yohaku</strong> proposes this — that beyond what you place on the canvas, <em>the empty space is itself the content</em>. This isn’t zen. It is engineering.
+        </p>
+        <p>
+          The split into three neutral tiers is the system’s most central judgment. Tier 1 (1–4) is reserved for surfaces. Tier 2 (5–7) carries borders and icons. Tier 3 (8–10) is where text lives. The contrast between tiers is opened up deliberately, so hierarchy reads from contrast alone — even before you check the value.
+        </p>
+
+        <h2><span class="num">1</span>Restraint is not subtraction</h2>
+        <p>
+          People tend to read restraint as “less.” That is the surface reading. Real restraint is this — every addition must pay the cost of being explained. When you must justify, in writing, why a new shade or a new button variant must exist, you stop at the necessary by yourself.
+        </p>
+        <blockquote>A thousand “no”s for every “yes.”</blockquote>
+        <p>
+          Accent is one shade of plum, <code>#C56473</code>. This isn’t a limit on color; it is color held in check. When attention is rare, every appearance carries weight.
+        </p>
+
+        <h2><span class="num">2</span>Why three tiers hold</h2>
+        <p>
+          The eye tops out around seven to nine distinguishable steps of neutral gray. The 50–950 schema is, deep down, a token system’s arrogance — the system can’t commit, so it hands the choice off to its users. Three tiers do the opposite. Each one means something specific.
+        </p>
+        <ul>
+          <li>Tier 1 (1–4) — surfaces, cards, fills</li>
+          <li>Tier 2 (5–7) — borders, icons, secondary text</li>
+          <li>Tier 3 (8–10) — body, headings, primary weight</li>
+        </ul>
+      </div>
+
+      <footer class="post-footer">
+        <div class="tags">
+          <a>#design-system</a>
+          <a>#yohaku</a>
+          <a>#typography</a>
+        </div>
+        <span>♡ 24 · ✎ 7</span>
+      </footer>
+    </article>
+  </body>
+</html>

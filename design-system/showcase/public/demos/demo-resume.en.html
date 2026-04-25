@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shu-yuan Chen · Design Engineer</title>
+    <link rel="stylesheet" href="./_shared.css" />
+    <style>
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      html,
+      body {
+        font-size: 14px;
+      }
+
+      .resume {
+        max-width: 794px;
+        margin: 0 auto;
+        padding: 48px 56px 56px;
+        background: var(--color-paper);
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+        .resume {
+          padding: 18mm 20mm 16mm;
+          max-width: none;
+        }
+      }
+
+      /* Header */
+      .resume__header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: end;
+        padding-bottom: 16px;
+        border-bottom: 1.5px solid var(--color-neutral-9);
+        margin-bottom: 24px;
+      }
+
+      .resume__name {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 34px;
+        line-height: 1.05;
+        letter-spacing: -0.01em;
+        color: var(--color-neutral-10);
+      }
+
+      .resume__name .cn {
+        margin-left: 12px;
+        font-family: var(--font-serif);
+        font-size: 17px;
+        font-weight: 400;
+        color: var(--color-neutral-7);
+        letter-spacing: 0;
+      }
+
+      .resume__role {
+        margin: 6px 0 0;
+        font-family: var(--font-serif);
+        font-size: 14px;
+        color: var(--color-accent);
+        letter-spacing: 0.02em;
+      }
+
+      .resume__contact {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        line-height: 1.7;
+        color: var(--color-neutral-7);
+        text-align: right;
+      }
+
+      .resume__contact a {
+        color: inherit;
+      }
+
+      .resume__contact span.label {
+        color: var(--color-neutral-5);
+        margin-right: 6px;
+      }
+
+      /* Section */
+      .resume__section {
+        margin-bottom: 22px;
+        page-break-inside: avoid;
+      }
+
+      .resume__section:last-child {
+        margin-bottom: 0;
+      }
+
+      .resume__section-title {
+        margin: 0 0 12px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        padding-bottom: 4px;
+        border-bottom: 0.5px solid var(--color-neutral-4);
+      }
+
+      /* Summary */
+      .resume__summary {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-size: 13.5px;
+        line-height: 1.7;
+        color: var(--color-neutral-9);
+      }
+
+      /* Experience entry */
+      .exp {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 3px 16px;
+        margin-bottom: 15px;
+      }
+
+      .exp:last-child {
+        margin-bottom: 0;
+      }
+
+      .exp__role {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--color-neutral-10);
+      }
+
+      .exp__role .at {
+        color: var(--color-neutral-7);
+        font-weight: 400;
+        margin-left: 4px;
+      }
+
+      .exp__date {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--color-neutral-7);
+        white-space: nowrap;
+      }
+
+      .exp__location {
+        grid-column: 1;
+        margin: 0;
+        font-size: 12px;
+        color: var(--color-neutral-7);
+      }
+
+      .exp__bullets {
+        grid-column: 1 / -1;
+        margin: 6px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .exp__bullets li {
+        position: relative;
+        padding-left: 14px;
+        margin-bottom: 2px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--color-neutral-9);
+      }
+
+      .exp__bullets li::before {
+        content: '—';
+        position: absolute;
+        left: 0;
+        color: var(--color-neutral-5);
+      }
+
+      /* Skills */
+      .skills {
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: 7px 16px;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .skills dt {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--color-neutral-7);
+        letter-spacing: 0.04em;
+        align-self: baseline;
+      }
+
+      .skills dd {
+        margin: 0;
+        color: var(--color-neutral-9);
+      }
+
+      .skills dd .accent {
+        color: var(--color-accent);
+        font-weight: 500;
+      }
+
+      /* Education */
+      .edu {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2px 16px;
+        margin-bottom: 10px;
+      }
+
+      .edu:last-child {
+        margin-bottom: 0;
+      }
+
+      .edu__school {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--color-neutral-10);
+      }
+
+      .edu__date {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--color-neutral-7);
+      }
+
+      .edu__detail {
+        grid-column: 1;
+        margin: 0;
+        font-size: 12px;
+        color: var(--color-neutral-7);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="resume">
+      <header class="resume__header">
+        <div>
+          <h1 class="resume__name">
+            Shu-yuan Chen<span class="cn">陈书远</span>
+          </h1>
+          <p class="resume__role">Design Engineer</p>
+        </div>
+        <div class="resume__contact">
+          <div><span class="label">Email</span>shuyuan@example.com</div>
+          <div><span class="label">Web</span>shuyuan.dev</div>
+          <div><span class="label">Based</span>Hangzhou, China</div>
+          <div><span class="label">GitHub</span>github.com/shuyuan</div>
+        </div>
+      </header>
+
+      <section class="resume__section">
+        <h2 class="resume__section-title">Summary</h2>
+        <p class="resume__summary">
+          Frontend engineer with 7 years of practice and a parallel grounding in visual design. Focused on design systems and AI-assisted design-to-code workflows. Has led design tokens and component library iterations at two listed companies; the systems shipped are used daily by 200+ engineers.
+        </p>
+      </section>
+
+      <section class="resume__section">
+        <h2 class="resume__section-title">Experience</h2>
+
+        <div class="exp">
+          <p class="exp__role">Senior Design Engineer<span class="at">@ Sora Studio</span></p>
+          <span class="exp__date">2023 — Present</span>
+          <p class="exp__location">Remote · Shanghai</p>
+          <ul class="exp__bullets">
+            <li>Led the v1→v2 rewrite of Sora’s design system, introducing OKLCH color space and a single-source design tokens contract.</li>
+            <li>Replaced manual color sync with a token-driven pipeline, saving the team roughly 6 hours/week of color-alignment work.</li>
+            <li>Built the mockup→React AI handoff: designers ship HTML, AI converts to React, engineers review tokens only.</li>
+          </ul>
+        </div>
+
+        <div class="exp">
+          <p class="exp__role">Frontend Engineer<span class="at">@ Lumen Tech</span></p>
+          <span class="exp__date">2020 — 2023</span>
+          <p class="exp__location">Hangzhou</p>
+          <ul class="exp__bullets">
+            <li>Owned implementation for the B2B dashboard; led the migration from Ant Design to an in-house component library.</li>
+            <li>Wired WCAG AA into CI as a lint rule; coverage moved from 31% to 92%.</li>
+            <li>Authored the team’s frontend handbook — adopted as required reading for new hires’ first week.</li>
+          </ul>
+        </div>
+
+        <div class="exp">
+          <p class="exp__role">Independent<span class="at">@ Freelance</span></p>
+          <span class="exp__date">2018 — 2020</span>
+          <p class="exp__location">Remote</p>
+          <ul class="exp__bullets">
+            <li>Shipped 12 standalone sites for small-to-mid brands. Average cycle of 4 weeks; 100% on-time delivery.</li>
+            <li>Open-sourced sora-md, a Markdown editor that reached 2.4k stars.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="resume__section">
+        <h2 class="resume__section-title">Skills</h2>
+        <dl class="skills">
+          <dt>Design system</dt>
+          <dd>
+            <span class="accent">Design tokens · component library · multi-theme · accessibility</span>
+          </dd>
+          <dt>Frontend</dt>
+          <dd>TypeScript · React 19 · Next.js · Vue 3 · Tailwind v4</dd>
+          <dt>Visual</dt>
+          <dd>Figma · typesetting · color theory · OKLCH · print fundamentals</dd>
+          <dt>Tooling</dt>
+          <dd>Vite · Turborepo · pnpm · Playwright · Vitest</dd>
+          <dt>Languages</dt>
+          <dd>Mandarin (native) · English (IELTS 7.5) · Japanese (N3)</dd>
+        </dl>
+      </section>
+
+      <section class="resume__section">
+        <h2 class="resume__section-title">Education</h2>
+        <div class="edu">
+          <p class="edu__school">China Academy of Art · Visual Communication Design</p>
+          <span class="edu__date">2014 — 2018</span>
+          <p class="edu__detail">B.A. · GPA 3.8 / 4.0 · graduation work received departmental honors</p>
+        </div>
+        <div class="edu">
+          <p class="edu__school">Zhejiang University · Computer Science (minor)</p>
+          <span class="edu__date">2015 — 2018</span>
+          <p class="edu__detail">Minor degree · core: algorithms, operating systems, HCI</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

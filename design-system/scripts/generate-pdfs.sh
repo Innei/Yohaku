@@ -52,6 +52,9 @@ generate() {
 
 echo "Generating PDFs from $DEMOS_DIR"
 generate "demo-post"
+generate "demo-post.en"
 generate "demo-resume"
+generate "demo-resume.en"
 generate "demo-report"
+generate "demo-report.en"
 echo "Done."
