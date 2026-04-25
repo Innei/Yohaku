@@ -61,6 +61,19 @@
 
 ## 怎么用
 
+### 作为 npm 包接入
+
+```bash
+pnpm add @yohaku/design-system
+```
+
+```css
+/* 在 Tailwind v4 入口 CSS 里 */
+@import "@yohaku/design-system/tokens.css";
+```
+
+只要这一行，颜色 / 字体 / 间距 token 就接入了——配合 [`design-system/CHEATSHEET.md`](./design-system/CHEATSHEET.md) 里的不变量使用即可。
+
 ### 本地预览
 
 ```bash

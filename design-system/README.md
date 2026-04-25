@@ -2,6 +2,19 @@
 
 Yohaku 设计系统 · static design contract for the Yohaku monorepo.
 
+## Install
+
+```bash
+pnpm add @yohaku/design-system
+```
+
+```css
+/* in your Tailwind v4 entry CSS */
+@import "@yohaku/design-system/tokens.css";
+```
+
+That single import wires up the color / type / spacing tokens. Pair it with the invariants in `CHEATSHEET.md`.
+
 ## What lives here
 
 - `src/tokens.css` — canonical color/typography/spacing tokens (Tailwind v4 `@theme`)

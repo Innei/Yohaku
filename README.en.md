@@ -61,6 +61,19 @@ You can also flip through them in the *Output samples* section on [yohaku.innei.
 
 ## How to use
 
+### Install as a package
+
+```bash
+pnpm add @yohaku/design-system
+```
+
+```css
+/* in your Tailwind v4 entry CSS */
+@import "@yohaku/design-system/tokens.css";
+```
+
+That single import wires up the color / type / spacing tokens — pair it with the invariants in [`design-system/CHEATSHEET.md`](./design-system/CHEATSHEET.md).
+
 ### Local preview
 
 ```bash

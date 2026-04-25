@@ -63,6 +63,19 @@
 
 ## 使い方
 
+### npm パッケージとして導入
+
+```bash
+pnpm add @yohaku/design-system
+```
+
+```css
+/* Tailwind v4 のエントリ CSS で */
+@import "@yohaku/design-system/tokens.css";
+```
+
+これ一行で色 / 文字 / 余白の token が揃います——[`design-system/CHEATSHEET.md`](./design-system/CHEATSHEET.md) の不変式と合わせて使ってください。
+
 ### ローカルプレビュー
 
 ```bash
