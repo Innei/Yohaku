@@ -6,71 +6,99 @@
 
 **Yohaku** (余白) is a Japanese word meaning *negative space* — the intentional emptiness that gives everything else its weight.
 
-This is a design language and visual system for a personal blog, built around the metaphor of *Writing · Letter Paper · Light and Shadow*. It is not a feature list. It is an answer to the question: how do you make reading happen?
+This is a **typographic design system for written content**: one accent, three neutral tiers, the rest is whitespace. Web pages, long-form, letters, reports — anywhere words live.
 
-> The previews below are diagonally split — light on the top-left, dark on the bottom-right.
+- Live showcase: **[yohaku.innei.dev](https://yohaku.innei.dev)**
+- The design contract (tokens, templates, AI skill) lives in [`design-system/`](./design-system/) and is released under MIT.
+- The screenshots below are how the system looks once shipped on the [Yohaku personal site](https://github.com/Innei-dev/Yohaku).
 
-![Preview - Home (light / dark)](./assets/preview-home.en.png)
+> Each preview is split diagonally — light on the top-left, dark on the bottom-right.
 
-![Preview - Posts (light / dark)](./assets/preview-posts.en.png)
+![Preview - Home](./assets/preview-home.en.png)
 
-![Preview - Notes (light / dark)](./assets/preview-notes.en.png)
+![Preview - Posts](./assets/preview-posts.en.png)
 
-![Preview - Timeline (light / dark)](./assets/preview-timeline.en.png)
+![Preview - Notes](./assets/preview-notes.en.png)
 
-![Preview - Thinking (light / dark)](./assets/preview-thinking.en.png)
+![Preview - Timeline](./assets/preview-timeline.en.png)
 
----
-
-## Design Philosophy
-
-The entire site uses **personal writing** as its metaphor. A page unfolds like a letter being opened — text and silence together form the rhythm, content scattered like notes in a journal, never forced into a rigid information grid. When you read, your eyes lead. The page follows.
-
-**Color is restrained.** In light mode, the background approaches the off-white of real paper — easy on the eyes. Dark mode sinks into warm gray, like reading a letter by a small lamp at night. Accent color appears only within the content itself. Buttons, navigation, borders — all quietly step back, asking not to be noticed.
-
-**Animation breathes.** The page unfolds gently as you scroll. Elements don't pop — they surface, like turning a fresh page. On desktop, some elements carry a faint idle breathing, as if stillness itself is alive. On first visit, a full entrance sequence plays. Return visits skip it — no repetition, no interruption.
-
-**Typography has texture.** Headings use serif fonts, carrying the weight of ink on paper. Annotations and dates appear in italic serif, like margin notes scribbled in a corner. The base size is deliberately small; reading density is low. Space is given back to the content.
-
-**Interaction is quiet.** No floating color blocks. No jumping highlights. Hover states deepen color slightly — like a finger pressing gently against paper. Every response says: *I noticed you* — not *look over here*.
+![Preview - Thinking](./assets/preview-thinking.en.png)
 
 ---
 
-## Getting the Full Implementation
+## Principles
 
-The complete codebase is maintained as a private repository at [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku), deeply rebuilt from [Shiro](https://github.com/Innei/Shiro).
+The whole system is built around **writing**. A page unfolds like a letter opening — text and silence form the rhythm, never crammed into a rigid grid. When you read, your eyes lead. The page follows.
 
-**Sponsorship grants access to the private repository.**
+**Color is restrained.** Light mode sits near the off-white of real paper. Dark mode sinks into warm gray, like reading by a small lamp at night. Accent appears only inside content; buttons, navigation, borders all step back.
+
+**Animation breathes.** Content surfaces with the scroll rather than popping in — like turning a fresh page. First visit plays the full entrance; return visits skip it.
+
+**Type has texture.** Headings carry the weight of serif ink; annotations and dates use italic serif, like margin notes. The base size is deliberately small. Space goes back to the content.
+
+**Interaction is quiet.** No floating color blocks, no jumping highlights. Hover deepens color slightly — like a finger pressing on paper. Every response says *I noticed you*, not *look here*.
+
+---
+
+## How to use
+
+```bash
+cd design-system
+pnpm install
+pnpm showcase:dev    # local showcase preview
+pnpm check           # token drift + template lint
+pnpm demo:pdf        # render the demo essay / résumé / report to PDF
+```
+
+Map of what's inside:
+
+| Path | Purpose |
+|------|---------|
+| `design-system/src/tokens.css` | Color / type / spacing tokens (Tailwind v4 `@theme`) |
+| `design-system/SKILL.md` | AI routing rules (mockup / new component / mockup→React / token audit) |
+| `design-system/CHEATSHEET.md` | One-page reference: ten invariants + color/type tables |
+| `design-system/references/` | Full specs (tokens / components / anti-patterns / mockup-to-react) |
+| `design-system/templates/` | HTML mockup starter |
+| `design-system/showcase/` | Live showcase source |
+
+---
+
+## Full implementation · closed-source repo
+
+The complete site implementation is maintained as a private repo at [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku), deeply rebuilt from [Shiro](https://github.com/Innei/Shiro).
+
+**Sponsorship grants access.**
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-Innei-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/Innei)
 
 After sponsoring at [github.com/sponsors/Innei](https://github.com/sponsors/Innei), open an [Issue](https://github.com/Innei/Yohaku/issues) or send an email with your GitHub username — I'll add you to the repository manually.
 
-This public repository serves as an open archive of the design language, documenting visual specs and design decisions.
-
 ---
 
-## Design Spec at a Glance
+## Spec at a glance
 
 | Token | Light | Dark |
 |-------|-------|------|
 | Accent | 浅葱 `#33A6B8` | 桃 `#F596AA` |
-| Background | `#fefefb` (paper white) | `rgb(28,28,30)` (warm night) |
+| Surface | `#fefefb` (paper white) | `rgb(28,28,30)` (warm night) |
+| Neutral | `1–10` (three tiers: surface / border / text) | auto-inverts |
 | Easing | `cubic-bezier(0.22, 1, 0.36, 1)` | same |
 | Base font size | 14px | same |
+
+More in [`design-system/CHEATSHEET.md`](./design-system/CHEATSHEET.md).
 
 ---
 
 ## Dev chats (open archive)
 
-While building Yohaku, I found these AI-assisted chats often more useful than the code alone, so I’m sharing them in [archive/specstory-sessions](./archive/specstory-sessions/README.md), grouped by year.
+While building Yohaku, the AI-assisted chats were often more useful than the final code, so I'm sharing them in [archive/specstory-sessions](./archive/specstory-sessions/README.md), grouped by year.
 
 ---
 
-## Related Projects
+## Related projects
 
-- [Shiro](https://github.com/Innei/Shiro) — Open-source predecessor, Next.js personal blog system
-- [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku) — Full closed-source implementation (sponsor for access)
+- [Shiro](https://github.com/Innei/Shiro) — open-source predecessor, Next.js personal blog system
+- [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku) — full closed-source implementation (sponsor for access)
 
 ---
 
