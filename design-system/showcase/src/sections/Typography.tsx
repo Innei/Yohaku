@@ -130,25 +130,9 @@ export function Typography({ lang }: { lang: Lang }) {
       <h3 className="subhead" style={{ marginTop: 32 }}>
         {t('typeScaleHead', lang)}
       </h3>
-      <div
-        style={{
-          border: '1px solid var(--color-border)',
-          borderRadius: 12,
-          overflow: 'hidden',
-        }}
-      >
-        {scale.map((s, i) => (
-          <div
-            key={s.label}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '120px 1fr 160px',
-              gap: 16,
-              padding: '14px 16px',
-              borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
-              alignItems: 'baseline',
-            }}
-          >
+      <div className="row-list row-list--type">
+        {scale.map((s) => (
+          <div key={s.label} className="row-list__row">
             <code
               style={{
                 fontFamily: 'var(--font-mono)',
@@ -170,15 +154,7 @@ export function Typography({ lang }: { lang: Lang }) {
             >
               {s.role[lang]}
             </p>
-            <p
-              style={{
-                margin: 0,
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.75rem',
-                color: 'var(--color-neutral-7)',
-                textAlign: 'right',
-              }}
-            >
+            <p className="row-list__meta">
               {s.size} · {s.weight} · {s.line}
             </p>
           </div>

@@ -61,7 +61,7 @@ export function CommentThreadSnippet({ lang }: { lang: Lang }) {
         <li
           key={i}
           className="comment"
-          style={c.reply ? { marginLeft: 36 + 16 } : undefined}
+          style={c.reply ? { marginLeft: 'clamp(28px, 8vw, 52px)' } : undefined}
         >
           <div className="comment__row">
             <div className="comment__avatar" aria-hidden="true">

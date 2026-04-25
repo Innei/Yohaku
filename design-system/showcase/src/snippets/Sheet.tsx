@@ -31,7 +31,7 @@ export function SheetSnippet({ lang }: { lang: Lang }) {
     <div
       style={{
         position: 'relative',
-        height: 420,
+        height: 'clamp(340px, 64vw, 420px)',
         borderRadius: 12,
         overflow: 'hidden',
         background:

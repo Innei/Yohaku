@@ -82,25 +82,9 @@ export function Decision({ lang }: { lang: Lang }) {
         <h2 className="section-title">{t('decideTitle', lang)}</h2>
         <p className="section-lede">{t('decideLede', lang)}</p>
       </div>
-      <div
-        style={{
-          border: '1px solid var(--color-border)',
-          borderRadius: 12,
-          overflow: 'hidden',
-        }}
-      >
+      <div className="row-list row-list--decision">
         {rows.map((r, i) => (
-          <div
-            key={i}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '160px 1fr',
-              gap: 24,
-              padding: '12px 16px',
-              borderTop: i === 0 ? 'none' : '1px solid var(--color-border)',
-              alignItems: 'baseline',
-            }}
-          >
+          <div key={i} className="row-list__row">
             <p
               style={{
                 margin: 0,

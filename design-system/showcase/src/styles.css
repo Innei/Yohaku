@@ -13,6 +13,17 @@
   --color-paper: #faf9f5;
   --color-border: rgba(24, 24, 27, 0.1);
 
+  /* Web font hooks — feed Inter + Noto Serif SC into the token chain
+     declared in tokens.css so mobile devices that lack the local fonts
+     still render the intended faces. */
+  --app-font-sans: 'Inter';
+  --app-font-serif: 'Noto Serif SC';
+  --font-mono:
+    'JetBrains Mono', 'OperatorMonoSSmLig Nerd Font', 'Cascadia Code PL',
+    'FantasqueSansMono Nerd Font', 'operator mono', JetBrainsMono,
+    'Fira code Retina', 'Fira code', 'Consolas', Monaco, 'Hannotate SC',
+    monospace;
+
   /* Field system — mirrors apps/web/src/styles/variables.css */
   --field-bg: var(--color-paper);
   --field-border: rgba(0, 0, 0, 0.05);
@@ -104,6 +115,12 @@ body {
   }
 }
 
+@media (max-width: 480px) {
+  .page {
+    padding: 44px 16px 80px;
+  }
+}
+
 .toolbar {
   position: fixed;
   top: 16px;
@@ -120,6 +137,24 @@ body {
   border-radius: 8px;
   font-family: var(--font-mono);
   font-size: 12px;
+}
+
+@media (max-width: 720px) {
+  .toolbar {
+    top: 10px;
+    right: 10px;
+    padding: 3px;
+    font-size: 11px;
+    gap: 2px;
+  }
+
+  .toolbar button {
+    padding: 3px 8px;
+  }
+
+  .toolbar .sep {
+    height: 12px;
+  }
 }
 
 .toolbar button {
@@ -226,8 +261,40 @@ body {
 }
 
 @media (max-width: 720px) {
+  .hero {
+    padding-bottom: 36px;
+    margin-bottom: 56px;
+  }
+
+  .hero__eyebrow {
+    margin-bottom: 16px;
+    font-size: 0.6875rem;
+    gap: 8px;
+  }
+
   .hero__title {
     font-size: clamp(48px, 14vw, 72px);
+    margin-bottom: 14px;
+  }
+
+  .hero__tagline {
+    font-size: 1.0625rem;
+    line-height: 1.5;
+  }
+
+  .hero__tokens {
+    margin-top: 20px;
+    gap: 10px 16px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero__title-cn {
+    display: block;
+    margin-left: 0;
+    margin-top: 4px;
+    font-size: 0.55em;
   }
 }
 
@@ -600,6 +667,83 @@ body {
   font-weight: 500;
   font-size: 1.125rem;
   color: var(--color-neutral-8);
+}
+
+@media (max-width: 720px) {
+  .section {
+    margin-bottom: 56px;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    line-height: 1.25;
+  }
+
+  .section-lede {
+    font-size: 0.9375rem;
+    margin-top: 10px;
+  }
+
+  .section-head {
+    margin-bottom: 18px;
+  }
+
+  .subhead {
+    margin: 28px 0 10px;
+    font-size: 1rem;
+  }
+}
+
+/* Decision / Typography table-style rows. Two-column on desktop, stacked
+   on mobile so neither column is squashed. */
+.row-list {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.row-list__row {
+  display: grid;
+  gap: 24px;
+  padding: 12px 16px;
+  align-items: baseline;
+}
+
+.row-list__row + .row-list__row {
+  border-top: 1px solid var(--color-border);
+}
+
+.row-list--decision .row-list__row {
+  grid-template-columns: 160px 1fr;
+}
+
+.row-list--type .row-list__row {
+  grid-template-columns: 110px 1fr 160px;
+  gap: 16px;
+}
+
+.row-list__meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--color-neutral-7);
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .row-list__row {
+    gap: 6px;
+    padding: 12px 14px;
+  }
+
+  .row-list--decision .row-list__row,
+  .row-list--type .row-list__row {
+    grid-template-columns: 1fr;
+  }
+
+  .row-list__meta {
+    text-align: left;
+  }
 }
 
 /* Color swatches — chip on top, info below (Kami pattern). */
@@ -1010,4 +1154,41 @@ code,
 .snippet-frame__body {
   padding: 24px;
   background: var(--color-paper);
+}
+
+@media (max-width: 720px) {
+  .snippet-frame__head {
+    padding: 6px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .snippet-frame__body {
+    padding: 16px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .comment__avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8125rem;
+  }
+
+  .comment__row {
+    gap: 10px;
+  }
+
+  .shiki-card__header {
+    padding: 8px 12px;
+    min-height: 38px;
+  }
+
+  .shiki-card__pre {
+    font-size: 12px;
+  }
+
+  .shiki-card__lang-text {
+    display: none;
+  }
 }

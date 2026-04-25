@@ -21,7 +21,7 @@ export function ModalSnippet({ lang }: { lang: Lang }) {
     <div
       style={{
         position: 'relative',
-        height: 360,
+        height: 'clamp(280px, 56vw, 360px)',
         borderRadius: 12,
         overflow: 'hidden',
         background:
