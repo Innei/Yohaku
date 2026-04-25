@@ -705,6 +705,71 @@ body {
   }
 }
 
+/* AntiPatterns DO/DON'T table — two columns on desktop, stacked on
+   mobile. Replaces the 3-up card grid that left awkward gaps for the
+   4th item. */
+.anti-list {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.anti-list__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.anti-list__row + .anti-list__row {
+  border-top: 1px solid var(--color-border);
+}
+
+.anti-list__cell {
+  padding: 14px 16px;
+}
+
+.anti-list__cell + .anti-list__cell {
+  border-left: 1px solid var(--color-border);
+}
+
+.anti-list__label {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.anti-list__cell--dont .anti-list__label {
+  color: var(--color-error);
+}
+
+.anti-list__cell--do .anti-list__label {
+  color: var(--color-accent);
+}
+
+.anti-list__text {
+  margin: 0;
+  color: var(--color-neutral-9);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .anti-list__row {
+    grid-template-columns: 1fr;
+  }
+
+  .anti-list__cell + .anti-list__cell {
+    border-left: none;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .anti-list__cell {
+    padding: 12px 14px;
+  }
+}
+
 /* Decision / Typography table-style rows. Two-column on desktop, stacked
    on mobile so neither column is squashed. */
 .row-list {

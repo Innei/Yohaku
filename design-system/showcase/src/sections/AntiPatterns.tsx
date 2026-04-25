@@ -57,65 +57,16 @@ export function AntiPatterns({ lang }: { lang: Lang }) {
         <p className="section-lede">{t('antiLede', lang)}</p>
       </div>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: 16,
-        }}
-      >
+      <div className="anti-list">
         {pairs.map((p, i) => (
-          <div
-            key={i}
-            style={{
-              display: 'grid',
-              gap: 12,
-              padding: 16,
-              border: '1px solid var(--color-border)',
-              borderRadius: 12,
-            }}
-          >
-            <div>
-              <p
-                style={{
-                  margin: 0,
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.75rem',
-                  color: 'var(--color-error)',
-                  fontWeight: 600,
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
-                  marginBottom: 4,
-                }}
-              >
-                {t('antiDontLabel', lang)}
-              </p>
-              <p style={{ margin: 0, color: 'var(--color-neutral-9)', lineHeight: 1.55 }}>
-                {p.dont[lang]}
-              </p>
+          <div key={i} className="anti-list__row">
+            <div className="anti-list__cell anti-list__cell--dont">
+              <p className="anti-list__label">{t('antiDontLabel', lang)}</p>
+              <p className="anti-list__text">{p.dont[lang]}</p>
             </div>
-            <div
-              style={{ height: 1, background: 'var(--color-border)' }}
-              aria-hidden="true"
-            />
-            <div>
-              <p
-                style={{
-                  margin: 0,
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.75rem',
-                  color: 'var(--color-accent)',
-                  fontWeight: 600,
-                  letterSpacing: '0.04em',
-                  textTransform: 'uppercase',
-                  marginBottom: 4,
-                }}
-              >
-                {t('antiDoLabel', lang)}
-              </p>
-              <p style={{ margin: 0, color: 'var(--color-neutral-9)', lineHeight: 1.55 }}>
-                {p.do[lang]}
-              </p>
+            <div className="anti-list__cell anti-list__cell--do">
+              <p className="anti-list__label">{t('antiDoLabel', lang)}</p>
+              <p className="anti-list__text">{p.do[lang]}</p>
             </div>
           </div>
         ))}
