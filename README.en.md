@@ -43,10 +43,11 @@ The whole system is built around **writing**. A page unfolds like a letter openi
 ## How to use
 
 ```bash
-cd design-system
 pnpm install
-pnpm showcase:dev    # local showcase preview
+pnpm dev             # local showcase preview (http://localhost:5173)
+pnpm build           # bundle the showcase to design-system/showcase/dist
 pnpm check           # token drift + template lint
+pnpm test            # run the check.ts unit tests
 pnpm demo:pdf        # render the demo essay / résumé / report to PDF
 ```
 

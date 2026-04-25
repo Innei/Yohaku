@@ -43,10 +43,11 @@
 ## 使い方
 
 ```bash
-cd design-system
 pnpm install
-pnpm showcase:dev    # ローカル showcase プレビュー
+pnpm dev             # ローカル showcase プレビュー（http://localhost:5173）
+pnpm build           # showcase を design-system/showcase/dist にビルド
 pnpm check           # token ドリフト + テンプレート lint
+pnpm test            # check.ts のユニットテスト
 pnpm demo:pdf        # デモ長文 / 履歴書 / レポートを PDF 化
 ```
 

@@ -43,10 +43,11 @@
 ## 怎么用
 
 ```bash
-cd design-system
 pnpm install
-pnpm showcase:dev    # 本地起 showcase
+pnpm dev             # 本地起 showcase（http://localhost:5173）
+pnpm build           # 打包 showcase 到 design-system/showcase/dist
 pnpm check           # 校验 token 漂移 + 模板 lint
+pnpm test            # 跑 check.ts 的单测
 pnpm demo:pdf        # 把 demo 长文 / 简历 / 报告打成 PDF
 ```
 

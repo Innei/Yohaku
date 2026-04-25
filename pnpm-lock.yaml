@@ -6,7 +6,9 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  design-system:
     devDependencies:
       '@tailwindcss/vite':
         specifier: ^4.1.0
