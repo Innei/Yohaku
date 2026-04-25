@@ -34,11 +34,11 @@ function Toolbar() {
     <div className="toolbar" role="toolbar" aria-label="Showcase controls">
       <a
         className="toolbar__icon"
-        href="https://github.com/Innei"
+        href="https://github.com/Innei/Yohaku"
         target="_blank"
         rel="noreferrer noopener"
-        aria-label="Follow Innei on GitHub"
-        title="Follow Innei on GitHub"
+        aria-label="View Yohaku on GitHub"
+        title="View Yohaku on GitHub"
       >
         <GithubIcon />
       </a>

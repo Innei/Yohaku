@@ -45,7 +45,23 @@ The whole system is built around **writing**. A page unfolds like a letter openi
 
 ---
 
+## See it · output samples
+
+`pnpm demo:pdf` renders three common written formats from the same tokens — same paper, same serif, same breathing rhythm.
+
+| Type | About | 中文 | English |
+|------|-------|------|---------|
+| **Long-form post** | Serif body / drop cap / multi-page | [HTML](https://yohaku.innei.dev/demos/demo-post.html) · [PDF](https://yohaku.innei.dev/demos/demo-post.pdf) | [HTML](https://yohaku.innei.dev/demos/demo-post.en.html) · [PDF](https://yohaku.innei.dev/demos/demo-post.en.pdf) |
+| **Resume** | A4 single page · designer-engineer CV | [HTML](https://yohaku.innei.dev/demos/demo-resume.html) · [PDF](https://yohaku.innei.dev/demos/demo-resume.pdf) | [HTML](https://yohaku.innei.dev/demos/demo-resume.en.html) · [PDF](https://yohaku.innei.dev/demos/demo-resume.en.pdf) |
+| **One-page report** | A4 single page · project status | [HTML](https://yohaku.innei.dev/demos/demo-report.html) · [PDF](https://yohaku.innei.dev/demos/demo-report.pdf) | [HTML](https://yohaku.innei.dev/demos/demo-report.en.html) · [PDF](https://yohaku.innei.dev/demos/demo-report.en.pdf) |
+
+You can also flip through them in the *Output samples* section on [yohaku.innei.dev](https://yohaku.innei.dev).
+
+---
+
 ## How to use
+
+### Local preview
 
 ```bash
 pnpm install
@@ -66,6 +82,19 @@ Map of what's inside:
 | `design-system/references/` | Full specs (tokens / components / anti-patterns / mockup-to-react) |
 | `design-system/templates/` | HTML mockup starter |
 | `design-system/showcase/` | Live showcase source |
+
+### As an AI skill
+
+[`design-system/SKILL.md`](./design-system/SKILL.md) is a routing contract for agents like Claude Code or Codex. When you say *"make a Yohaku mockup"*, *"convert this mockup to React"*, or *"audit token compliance"*, it pulls the right slice of `CHEATSHEET.md`, `references/`, and `templates/` into context so the agent ships against the same tokens.
+
+The simplest install is to drop the whole `design-system/` directory into your agent's skill path (e.g. `~/.claude/skills/yohaku-design/`), then trigger it from a normal prompt:
+
+- make a Yohaku-style mockup for X
+- convert this mockup to React
+- design a new Button variant
+- audit this file for token compliance
+
+Full contract: [`design-system/SKILL.md`](./design-system/SKILL.md) and [`design-system/CHEATSHEET.md`](./design-system/CHEATSHEET.md).
 
 ---
 
@@ -95,6 +124,14 @@ More in [`design-system/CHEATSHEET.md`](./design-system/CHEATSHEET.md).
 
 ---
 
+## Background
+
+Yohaku wasn't designed from scratch — it was filed down inside my own blog [Shiro](https://github.com/Innei/Shiro), one decision at a time. The original itch was just typography: replace the template-y card grid with something closer to letter paper, and let long-form text breathe. The longer I worked on it, the more obvious it became that the system was running on a few simple invariants — one accent, three neutral tiers, a breathing easing curve, and the rest is whitespace.
+
+Later I came across [tw93/kami](https://github.com/tw93/kami) — same instinct: a constraint language, a single tonal register, and a bias toward the written word. Kami lands in static documents (PDFs, slides); Yohaku lands in webpages and long-form. Each one was a sanity check on the other. Pulling those invariants out of the application — into tokens, templates, and an AI skill — is what the design-system became: a contract you can hand to an agent or to another human and trust the output.
+
+---
+
 ## Dev chats (open archive)
 
 While building Yohaku, the AI-assisted chats were often more useful than the final code, so I'm sharing them in [archive/specstory-sessions](./archive/specstory-sessions/README.md), grouped by year.
@@ -105,6 +142,12 @@ While building Yohaku, the AI-assisted chats were often more useful than the fin
 
 - [Shiro](https://github.com/Innei/Shiro) — open-source predecessor, Next.js personal blog system
 - [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku) — full closed-source implementation (sponsor for access)
+
+---
+
+## Acknowledgements
+
+- The design-system's HTML design language was inspired by [tw93/kami](https://github.com/tw93/kami) — its writing-first, restrained-whitespace sensibility is an important starting point for Yohaku's typography.
 
 ---
 

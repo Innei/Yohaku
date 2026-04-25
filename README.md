@@ -45,7 +45,23 @@
 
 ---
 
+## 文档样例
+
+`pnpm demo:pdf` 会用同一套 token 把三种常见的书面格式打成 PDF——同样的纸面、同样的衬线、同样的留白节奏。
+
+| 类型 | 说明 | 中文 | English |
+|------|------|------|---------|
+| **长文** | 衬线正文 / drop cap / 多页阅读 | [HTML](https://yohaku.innei.dev/demos/demo-post.html) · [PDF](https://yohaku.innei.dev/demos/demo-post.pdf) | [HTML](https://yohaku.innei.dev/demos/demo-post.en.html) · [PDF](https://yohaku.innei.dev/demos/demo-post.en.pdf) |
+| **简历** | A4 单页 · 设计工程师 | [HTML](https://yohaku.innei.dev/demos/demo-resume.html) · [PDF](https://yohaku.innei.dev/demos/demo-resume.pdf) | [HTML](https://yohaku.innei.dev/demos/demo-resume.en.html) · [PDF](https://yohaku.innei.dev/demos/demo-resume.en.pdf) |
+| **一页报告** | A4 单页 · 项目进度 | [HTML](https://yohaku.innei.dev/demos/demo-report.html) · [PDF](https://yohaku.innei.dev/demos/demo-report.pdf) | [HTML](https://yohaku.innei.dev/demos/demo-report.en.html) · [PDF](https://yohaku.innei.dev/demos/demo-report.en.pdf) |
+
+也可以直接在 [yohaku.innei.dev](https://yohaku.innei.dev) 的 *Output samples* 区块翻一翻。
+
+---
+
 ## 怎么用
+
+### 本地预览
 
 ```bash
 pnpm install
@@ -66,6 +82,19 @@ pnpm demo:pdf        # 把 demo 长文 / 简历 / 报告打成 PDF
 | `design-system/references/` | 完整规范（tokens / components / anti-patterns / mockup-to-react） |
 | `design-system/templates/` | HTML mockup 起手式 |
 | `design-system/showcase/` | 在线 showcase 源码 |
+
+### 当作 AI Skill
+
+[`design-system/SKILL.md`](./design-system/SKILL.md) 是写给 Claude Code / Codex 等 agent 的路由规则——当你说"做一个 Yohaku 风的 mockup"、"把这个 mockup 转成 React"或"检查 token 合规"时，它会把 `CHEATSHEET.md`、`references/`、`templates/` 里相应的上下文加载进来，让 agent 用同一套 token 产出页面。
+
+最简单的接法是把 `design-system/` 整个目录拷到 agent 的 skill 路径下（例如 `~/.claude/skills/yohaku-design/`），然后在对话里直接说出触发词：
+
+- 做一个 Yohaku 风的 mockup
+- 把这个 mockup 转成 React
+- 设计一个新的 Button 变体
+- 检查这个文件的 token 合规
+
+完整契约见 [`design-system/SKILL.md`](./design-system/SKILL.md) 与 [`design-system/CHEATSHEET.md`](./design-system/CHEATSHEET.md)。
 
 ---
 
@@ -95,6 +124,14 @@ Yohaku 的完整网站实现以闭源方式维护于 [Innei-dev/Yohaku](https://
 
 ---
 
+## 背景
+
+Yohaku 不是从零设计的，它是从我自己的博客 [Shiro](https://github.com/Innei/Shiro) 一点点磨出来的。最初只是想换一种排版风格——把模板感的卡片网格换成更像信纸的版面，让长文读起来有节奏。改着改着，发现真正在工作的是几条很简单的不变量：一种主色、三档中性灰、一套呼吸式动效，剩下都是留白。
+
+后来读到 [tw93/kami](https://github.com/tw93/kami)——同样是"约束语言、单一基调、为书写服务"，只是 kami 落在静态文档（PDF、幻灯片）上，Yohaku 落在网页与长文上。两边互为印证。把这些不变量从应用里抽出来，写成 token、模板和 AI skill，就成了现在的 design-system——一份可以交给 agent 也能交给人的设计契约。
+
+---
+
 ## 开发对话归档
 
 做 Yohaku 的过程中，和 AI 一起写的会话往往比最终代码更有用，所以把它们开源在 [archive/specstory-sessions](./archive/specstory-sessions/README.md) 里，按年份归档。
@@ -105,6 +142,12 @@ Yohaku 的完整网站实现以闭源方式维护于 [Innei-dev/Yohaku](https://
 
 - [Shiro](https://github.com/Innei/Shiro) — 开源前身，Next.js 个人博客系统
 - [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku) — 完整闭源实现（赞助可访问）
+
+---
+
+## 鸣谢
+
+- design-system 的 HTML 设计语言受到 [tw93/kami](https://github.com/tw93/kami) 的启发——那种以书写为中心、克制留白的版面气质，是 Yohaku 排版思路的重要起点。
 
 ---
 
