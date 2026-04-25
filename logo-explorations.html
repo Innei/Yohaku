@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yohaku · Logo Explorations (1C + 2A)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+JP:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    :root {
+      --color-neutral-1: #f9f8f5;
+      --color-neutral-2: #f0efeb;
+      --color-neutral-3: #e3e1db;
+      --color-neutral-4: #d0cec6;
+      --color-neutral-5: #a8a69f;
+      --color-neutral-6: #787670;
+      --color-neutral-7: #5c5a55;
+      --color-neutral-8: #403f3a;
+      --color-neutral-9: #24231f;
+      --color-neutral-10: #141312;
+
+      --color-paper: #faf9f5;
+      --color-border: rgba(24, 24, 27, 0.1);
+
+      --font-latin: 'EB Garamond', 'GT Sectra', 'Tiempos', Georgia, serif;
+      --font-cjk: 'Noto Serif JP', 'Noto Serif CJK SC', 'Source Han Serif SC',
+        SongTi SC, STSong, serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+    }
+
+    [data-theme='dark'] {
+      --color-neutral-1: #141312;
+      --color-neutral-2: #24231f;
+      --color-neutral-3: #403f3a;
+      --color-neutral-4: #5c5a55;
+      --color-neutral-5: #787670;
+      --color-neutral-6: #a8a69f;
+      --color-neutral-7: #d0cec6;
+      --color-neutral-8: #e3e1db;
+      --color-neutral-9: #f0efeb;
+      --color-neutral-10: #f9f8f5;
+
+      --color-paper: #18181a;
+      --color-border: rgba(255, 255, 255, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    html { font-size: 14px; line-height: 1.5; letter-spacing: 0.01em; }
+    body {
+      margin: 0;
+      background: var(--color-paper);
+      color: var(--color-neutral-9);
+      font-family: var(--font-latin);
+      min-height: 100vh;
+      transition: background 200ms ease, color 200ms ease;
+    }
+
+    .toolbar {
+      position: fixed; top: 12px; right: 12px; z-index: 10;
+      background: var(--color-neutral-2);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-neutral-7);
+    }
+    .toolbar button {
+      background: none; border: none; cursor: pointer;
+      color: inherit; font: inherit; padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .toolbar button:hover { background: var(--color-neutral-3); }
+
+    main { max-width: 960px; margin: 0 auto; padding: 80px 32px 160px; }
+
+    h1.page {
+      font-family: var(--font-cjk);
+      font-weight: 400;
+      font-size: 28px;
+      letter-spacing: 0.04em;
+      color: var(--color-neutral-9);
+      margin: 0 0 8px;
+    }
+    .page-sub {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-neutral-6);
+      margin: 0 0 80px;
+    }
+
+    section {
+      padding: 56px 0;
+      border-top: 1px solid var(--color-border);
+    }
+    section:first-of-type { border-top: none; padding-top: 0; }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-neutral-5);
+      margin: 0 0 32px;
+    }
+
+    .specimen {
+      padding: 64px 48px;
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      background: var(--color-paper);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 240px;
+    }
+    .specimen.compact { min-height: 120px; padding: 32px; }
+    .specimen .caption {
+      position: absolute;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-neutral-5);
+      letter-spacing: 0.08em;
+    }
+    .specimen-wrap { position: relative; }
+    .specimen-wrap > .caption {
+      display: block;
+      margin: 8px 4px 24px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--color-neutral-6);
+    }
+
+    /* ---------- 1C · wordmark ---------- */
+
+    .wm {
+      display: inline-flex;
+      align-items: baseline;
+      color: var(--color-neutral-9);
+    }
+    .wm .cjk {
+      font-family: var(--font-cjk);
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      padding-right: 0.18em; /* compensate trailing letter-spacing */
+    }
+    .wm .latin {
+      font-family: var(--font-latin);
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--color-neutral-7);
+    }
+    .wm .divider {
+      display: inline-block;
+      width: 1px;
+      align-self: stretch;
+      margin: 0.25em 1.4em;
+      background: var(--color-border);
+    }
+
+    /* size variants */
+    .wm.size-hero .cjk { font-size: 64px; }
+    .wm.size-hero .latin { font-size: 28px; }
+
+    .wm.size-section .cjk { font-size: 36px; }
+    .wm.size-section .latin { font-size: 16px; }
+
+    .wm.size-nav .cjk { font-size: 18px; }
+    .wm.size-nav .latin { font-size: 12px; }
+
+    /* stacked variant */
+    .wm.stacked {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+    .wm.stacked .latin {
+      letter-spacing: 0.16em;
+      text-transform: lowercase;
+    }
+
+    /* ---------- 2 · monogram ---------- */
+
+    .mono {
+      font-family: var(--font-latin);
+      font-weight: 400;
+      color: var(--color-neutral-9);
+      line-height: 1;
+      display: inline-block;
+    }
+    .mono.s-512 { font-size: 320px; }
+    .mono.s-128 { font-size: 96px; }
+    .mono.s-32  { font-size: 28px; }
+    .mono.s-16  { font-size: 14px; }
+
+    /* tail variant: subtle dot at the descender end */
+    .mono.with-dot { position: relative; }
+    .mono.with-dot::after {
+      content: '';
+      position: absolute;
+      width: 0.08em;
+      height: 0.08em;
+      border-radius: 50%;
+      background: currentColor;
+      left: 0.32em;
+      bottom: 0.05em;
+    }
+
+    /* kanji 白 monogram */
+    .kanji {
+      font-family: var(--font-cjk);
+      font-weight: 500;
+      color: var(--color-neutral-9);
+      line-height: 1;
+      display: inline-block;
+    }
+    .kanji.heavy { font-weight: 600; }
+    .kanji.s-512 { font-size: 280px; }
+    .kanji.s-128 { font-size: 96px; }
+    .kanji.s-32  { font-size: 24px; }
+    .kanji.s-16  { font-size: 13px; font-weight: 600; }
+
+    /* 「白」 inside a hairline square frame — 印章 lite */
+    .kanji-frame {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--color-neutral-9);
+      aspect-ratio: 1 / 1;
+      box-sizing: border-box;
+    }
+    .kanji-frame .kanji { font-weight: 500; }
+    .kanji-frame.f-512 { width: 360px; }
+    .kanji-frame.f-512 .kanji { font-size: 220px; }
+    .kanji-frame.f-128 { width: 110px; }
+    .kanji-frame.f-128 .kanji { font-size: 72px; }
+    .kanji-frame.f-32  { width: 32px; border-width: 1px; }
+    .kanji-frame.f-32 .kanji { font-size: 22px; }
+
+    /* 「白」 reverse-cut on solid block — monochrome inkan */
+    .kanji-block {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-neutral-9);
+      color: var(--color-paper);
+      aspect-ratio: 1 / 1;
+    }
+    .kanji-block.b-512 { width: 360px; }
+    .kanji-block.b-512 .kanji { font-size: 220px; color: var(--color-paper); }
+    .kanji-block.b-128 { width: 110px; }
+    .kanji-block.b-128 .kanji { font-size: 72px; color: var(--color-paper); }
+    .kanji-block.b-32  { width: 32px; }
+    .kanji-block.b-32 .kanji { font-size: 22px; color: var(--color-paper); }
+
+    /* ---------- in-context mockups ---------- */
+
+    .ctx-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 720px) { .ctx-row { grid-template-columns: 1fr; } }
+
+    .ctx-card {
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--color-neutral-1);
+    }
+    .ctx-card .ctx-head {
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-neutral-5);
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-paper);
+    }
+    .ctx-card .ctx-body {
+      padding: 28px 24px;
+      background: var(--color-paper);
+    }
+
+    /* fake browser tab */
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px 6px 10px;
+      background: var(--color-neutral-2);
+      border-radius: 8px 8px 0 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-neutral-7);
+      max-width: 240px;
+    }
+    .tab .favicon {
+      width: 16px; height: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-latin);
+      font-size: 14px;
+      color: var(--color-neutral-9);
+    }
+
+    /* fake github avatar */
+    .gh-avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--color-neutral-2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-latin);
+      font-size: 56px;
+      color: var(--color-neutral-9);
+    }
+    .gh-row {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .gh-meta {
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .gh-meta .gh-name {
+      font-family: var(--font-cjk);
+      font-size: 18px;
+      letter-spacing: 0.12em;
+      color: var(--color-neutral-9);
+    }
+    .gh-meta .gh-handle {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-neutral-6);
+    }
+
+    /* fake npm header */
+    .npm-card {
+      padding: 24px;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      background: var(--color-paper);
+    }
+    .npm-card .npm-name {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--color-neutral-7);
+      margin: 0 0 12px;
+    }
+
+    /* hero block */
+    .hero-block {
+      padding: 80px 56px;
+      background: var(--color-neutral-1);
+      border: 1px solid var(--color-border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 48px;
+    }
+    .hero-block .hero-tag {
+      font-family: var(--font-latin);
+      font-style: italic;
+      font-size: 14px;
+      color: var(--color-neutral-6);
+      max-width: 240px;
+      text-align: right;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">
+      light · dark
+    </button>
+  </div>
+
+  <main>
+    <h1 class="page">余白 — logo explorations</h1>
+    <p class="page-sub">1C wordmark · 2A monogram · context mockups · toggle theme top right</p>
+
+    <!-- ============== 1C · wordmark ============== -->
+    <section>
+      <p class="section-label">1C · wordmark</p>
+
+      <div class="specimen-wrap">
+        <span class="caption">a · horizontal, divider</span>
+        <div class="specimen">
+          <div class="wm size-hero">
+            <span class="cjk">余白</span>
+            <span class="divider"></span>
+            <span class="latin">yohaku</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="specimen-wrap">
+        <span class="caption">b · horizontal, no divider — quieter</span>
+        <div class="specimen">
+          <div class="wm size-hero" style="gap: 2.4em;">
+            <span class="cjk">余白</span>
+            <span class="latin">yohaku</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="specimen-wrap">
+        <span class="caption">c · stacked, like a book cover</span>
+        <div class="specimen">
+          <div class="wm stacked size-section">
+            <span class="cjk">余白</span>
+            <span class="latin">yohaku · design system</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="specimen-wrap">
+        <span class="caption">d · at navigation scale (real product context)</span>
+        <div class="specimen compact">
+          <div class="wm size-nav">
+            <span class="cjk">余白</span>
+            <span class="divider"></span>
+            <span class="latin">yohaku</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 2A · monogram (y) ============== -->
+    <section>
+      <p class="section-label">2A · monogram — lowercase y (EB Garamond)</p>
+
+      <div class="specimen-wrap">
+        <span class="caption">at scale — descender shape</span>
+        <div class="specimen" style="gap: 80px;">
+          <span class="mono s-512">y</span>
+        </div>
+      </div>
+
+      <div class="specimen-wrap">
+        <span class="caption">tail variants — plain vs. with descender dot</span>
+        <div class="specimen" style="gap: 120px;">
+          <span class="mono s-128">y</span>
+          <span class="mono s-128 with-dot">y</span>
+        </div>
+      </div>
+
+      <div class="specimen-wrap">
+        <span class="caption">favicon-scale legibility (28px / 14px)</span>
+        <div class="specimen compact" style="gap: 64px; align-items: baseline;">
+          <span class="mono s-32">y</span>
+          <span class="mono s-16">y</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 2B · monogram (白) ============== -->
+    <section>
+      <p class="section-label">2B · monogram — kanji 白 (Noto Serif JP)</p>
+
+      <div class="specimen-wrap">
+        <span class="caption">a · plain — at scale</span>
+        <div class="specimen" style="gap: 80px;">
+          <span class="kanji s-512">白</span>
+        </div>
+      </div>
+
+      <div class="specimen-wrap">
+        <span class="caption">b · weight comparison — regular 500 vs heavy 600</span>
+        <div class="specimen" style="gap: 120px;">
+          <span class="kanji s-128">白</span>
+          <span class="kanji s-128 heavy">白</span>
+        </div>
+      </div>
+
+      <div class="specimen-wrap">
+        <span class="caption">c · hairline square frame — 印章 lite, 完全去色</span>
+        <div class="specimen">
+          <div class="kanji-frame f-512"><span class="kanji">白</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-wrap">
+        <span class="caption">d · reverse-cut on solid block — 阴文 monochrome inkan</span>
+        <div class="specimen">
+          <div class="kanji-block b-512"><span class="kanji">白</span></div>
+        </div>
+      </div>
+
+      <div class="specimen-wrap">
+        <span class="caption">favicon-scale legibility (32px / 24px / 13px)</span>
+        <div class="specimen compact" style="gap: 56px; align-items: center;">
+          <span class="kanji s-32">白</span>
+          <div class="kanji-frame f-32"><span class="kanji">白</span></div>
+          <div class="kanji-block b-32"><span class="kanji">白</span></div>
+          <span class="kanji s-16">白</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== 2C · 白 vs y side-by-side ============== -->
+    <section>
+      <p class="section-label">2C · y 与 白 同台对比</p>
+
+      <div class="specimen-wrap">
+        <span class="caption">大尺寸气质对照</span>
+        <div class="specimen" style="gap: 120px; align-items: baseline;">
+          <span class="mono s-128">y</span>
+          <span class="kanji s-128">白</span>
+          <div class="kanji-frame f-128"><span class="kanji">白</span></div>
+          <div class="kanji-block b-128"><span class="kanji">白</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============== in-context ============== -->
+    <section>
+      <p class="section-label">in context — wordmark + monogram together</p>
+
+      <div class="specimen-wrap">
+        <span class="caption">hero block (docs landing)</span>
+        <div class="specimen" style="padding: 0; min-height: 0;">
+          <div class="hero-block" style="flex: 1;">
+            <div class="wm size-hero">
+              <span class="cjk">余白</span>
+              <span class="divider"></span>
+              <span class="latin">yohaku</span>
+            </div>
+            <p class="hero-tag">The blank space is part of the writing.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="ctx-row">
+        <div class="ctx-card">
+          <div class="ctx-head">browser tab · favicon (y / 白 plain / 白 reverse-cut)</div>
+          <div class="ctx-body" style="display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; min-height: 100px;">
+            <div class="tab">
+              <span class="favicon"><span class="mono" style="font-size: 14px;">y</span></span>
+              <span>余白 · yohaku</span>
+            </div>
+            <div class="tab">
+              <span class="favicon"><span class="kanji" style="font-size: 13px; font-weight: 600;">白</span></span>
+              <span>余白 · yohaku</span>
+            </div>
+            <div class="tab">
+              <span class="favicon">
+                <span class="kanji-block b-32" style="width: 16px; height: 16px;">
+                  <span class="kanji" style="font-size: 11px;">白</span>
+                </span>
+              </span>
+              <span>余白 · yohaku</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ctx-card">
+          <div class="ctx-head">github avatar — y / 白 plain / 白 reverse-cut</div>
+          <div class="ctx-body" style="min-height: 100px; display: flex; gap: 18px; flex-wrap: wrap;">
+            <div class="gh-avatar"><span class="mono" style="font-size: 56px;">y</span></div>
+            <div class="gh-avatar"><span class="kanji" style="font-size: 52px;">白</span></div>
+            <div class="gh-avatar" style="background: var(--color-neutral-9);">
+              <span class="kanji" style="font-size: 52px; color: var(--color-paper);">白</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="specimen-wrap" style="margin-top: 24px;">
+        <span class="caption">npm package readme header</span>
+        <div class="specimen" style="padding: 0; min-height: 0;">
+          <div class="npm-card" style="flex: 1;">
+            <p class="npm-name">@yohaku/design-system</p>
+            <div class="wm size-section">
+              <span class="cjk">余白</span>
+              <span class="divider"></span>
+              <span class="latin">yohaku</span>
+            </div>
+            <p style="font-family: var(--font-latin); font-style: italic; color: var(--color-neutral-6); margin: 16px 0 0; font-size: 13px;">
+              Static design contract — tokens, components, mockup templates.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

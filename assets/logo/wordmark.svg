@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 96" role="img" aria-label="余白 yohaku">
+  <title>余白 yohaku</title>
+  <desc>Yohaku design system wordmark — 1C-b composition. Renders with Noto Serif JP (CJK) and EB Garamond (Latin); falls back to system serif.</desc>
+  <text
+    x="0"
+    y="76"
+    font-family="'Noto Serif JP', 'Source Han Serif', 'Source Han Serif SC', 'Noto Serif CJK SC', serif"
+    font-size="64"
+    font-weight="500"
+    letter-spacing="11.52"
+    fill="#24231f"
+  >余白</text>
+  <text
+    x="294"
+    y="76"
+    font-family="'EB Garamond', 'GT Sectra', 'Tiempos Headline', Georgia, serif"
+    font-size="28"
+    font-weight="400"
+    letter-spacing="1.12"
+    fill="#5c5a55"
+  >yohaku</text>
+</svg>

@@ -56,10 +56,14 @@ The accent is also dynamically injected as `--a` (OKLCH) by `AccentColorStyleInj
 ## Typography
 
 ```css
---font-sans:  Inter (var) → CJK fallback chain (PingFang SC, Microsoft YaHei, Noto Sans SC, Hiragino Sans GB, …)
---font-serif: app-defined → Noto Serif CJK SC → Source Han Serif → SongTi SC → STSong → system serif
---font-mono:  Operator Mono → Cascadia Code PL → JetBrainsMono → Fira Code → Consolas → Monaco → CJK fallback
+--font-sans:       Inter (var) → CJK fallback chain (PingFang SC, Microsoft YaHei, Noto Sans SC, Hiragino Sans GB, …)
+--font-serif:      app-defined → Noto Serif CJK SC → Source Han Serif → SongTi SC → STSong → system serif
+--font-mono:       Operator Mono → Cascadia Code PL → JetBrainsMono → Fira Code → Consolas → Monaco → CJK fallback
+--font-logo-cjk:   Noto Serif JP → Source Han Serif → Noto Serif CJK SC → serif   /* logotype only */
+--font-logo-latin: EB Garamond → GT Sectra → Tiempos Headline → Georgia → serif   /* logotype only */
 ```
+
+`--font-logo-*` are reserved for the wordmark (`templates/snippets/logo.html`); never use them for body or UI text.
 
 | Tailwind class | Size | Use |
 |---|---|---|

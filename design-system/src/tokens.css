@@ -24,6 +24,14 @@
     'FantasqueSansMono Nerd Font', 'operator mono', JetBrainsMono,
     'Fira code Retina', 'Fira code', 'Consolas', Monaco, 'Hannotate SC',
     monospace, -apple-system;
+
+  /* Logo-only typography contract. Logotype declares its own faces;
+     does NOT inherit --font-serif (which is body-weighted Source Han / Noto
+     Serif CJK SC and too heavy as a logotype). */
+  --font-logo-cjk: 'Noto Serif JP', 'Source Han Serif', 'Source Han Serif SC',
+    'Noto Serif CJK SC', serif;
+  --font-logo-latin: 'EB Garamond', 'GT Sectra', 'Tiempos Headline', Georgia,
+    serif;
 }
 
 @theme {

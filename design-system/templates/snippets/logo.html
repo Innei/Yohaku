@@ -1,0 +1,49 @@
+<!--
+  Logo snippet · Yohaku design system
+  Canonical wordmark (1C-b) and square mark.
+  Tokens used: --color-neutral-{7,9}, --color-paper,
+               --font-logo-cjk, --font-logo-latin.
+  Spec: docs/superpowers/specs/2026-04-25-yohaku-logo-design.md
+-->
+
+<!-- Wordmark · primary logo. Use in headers, hero, README, OG card. -->
+<a href="/" aria-label="余白 yohaku" style="
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2.4em;
+  text-decoration: none;
+  font-size: 64px;
+  line-height: 1;
+">
+  <span style="
+    font-family: var(--font-logo-cjk);
+    font-size: 1em;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--color-neutral-9);
+  ">余白</span>
+
+  <span style="
+    font-family: var(--font-logo-latin);
+    font-size: 0.4375em;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: var(--color-neutral-7);
+  ">yohaku</span>
+</a>
+
+<!-- Square mark · use only in 1:1 small-format slots:
+     favicon, GitHub avatar, npm avatar, social card. Never alongside wordmark. -->
+<span aria-label="余白" style="
+  display: inline-flex;
+  width: 64px;
+  height: 64px;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-neutral-9);
+  font-family: var(--font-logo-cjk);
+  font-size: 44px;
+  font-weight: 600;
+  color: var(--color-paper);
+  line-height: 1;
+">白</span>

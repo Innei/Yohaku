@@ -1,4 +1,9 @@
-# 余白 / Yohaku
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/logo/wordmark-dark.svg">
+    <img alt="余白 / Yohaku" src="./assets/logo/wordmark.svg" width="320">
+  </picture>
+</p>
 
 **[简体中文](./README.md) · [English](./README.en.md) · [日本語](./README.ja.md)**
 

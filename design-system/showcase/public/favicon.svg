@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="余白">
+  <title>余白</title>
+  <rect width="32" height="32" fill="#24231f"/>
+  <text
+    x="16"
+    y="16"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="'Noto Serif JP', 'Source Han Serif', 'Source Han Serif SC', 'Noto Serif CJK SC', serif"
+    font-size="22"
+    font-weight="600"
+    fill="#faf9f5"
+  >白</text>
+</svg>
