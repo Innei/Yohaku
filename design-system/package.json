@@ -1,6 +1,6 @@
 {
   "name": "@yohaku/design-system",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Yohaku design system: tokens, AI-readable contract, and HTML mockup templates.",
   "type": "module",
   "exports": {

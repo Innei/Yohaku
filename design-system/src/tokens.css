@@ -37,8 +37,12 @@
 @theme {
   --color-accent: #c56473;
 
-  /* Neutral 色阶 — 素 Pure (3-tier, dark mode auto-inverts in apps/web)
+  /* Neutral 色阶 — 素 Pure (3-tier, dark mode inverts to pure gray in apps/web)
      Tier 1 (1-4): surface/fill   Tier 2 (5-7): border/icon/secondary text   Tier 3 (8-10): body/heading
+     Light mode carries a warm parchment undertone (R > G > B). Dark mode
+     inverts to pure neutral gray (R = G = B) — warmth on dark surfaces
+     reads as olive at low saturation, so the scale resets to neutral and
+     warmth is carried solely by --color-paper.
      n-5 must NEVER be used for text. neutral-50~950 is banned project-wide. */
   --color-neutral-1: #f9f8f5;
   --color-neutral-2: #f0efeb;

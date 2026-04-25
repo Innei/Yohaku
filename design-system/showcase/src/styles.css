@@ -9,6 +9,11 @@
  * For this standalone showcase we mirror the same inversion that
  * templates/scaffold.html uses.
  */
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-neutral-5) transparent;
+}
 :root {
   --color-paper: #faf9f5;
   --color-border: rgba(24, 24, 27, 0.1);
@@ -27,8 +32,7 @@
   /* Field system — mirrors apps/web/src/styles/variables.css */
   --field-bg: var(--color-paper);
   --field-border: rgba(0, 0, 0, 0.05);
-  --field-shadow: 0 1px 1px rgba(0, 0, 0, 0.01),
-    0 3px 10px rgba(0, 0, 0, 0.02);
+  --field-shadow: 0 1px 1px rgba(0, 0, 0, 0.01), 0 3px 10px rgba(0, 0, 0, 0.02);
   --field-gradient: linear-gradient(
     180deg,
     color-mix(in srgb, var(--color-accent) 3%, transparent) 0%,
@@ -44,18 +48,18 @@
 }
 
 [data-theme='dark'] {
-  --color-neutral-1: #141312;
-  --color-neutral-2: #24231f;
-  --color-neutral-3: #403f3a;
-  --color-neutral-4: #5c5a55;
-  --color-neutral-5: #787670;
-  --color-neutral-6: #a8a69f;
-  --color-neutral-7: #d0cec6;
-  --color-neutral-8: #e3e1db;
-  --color-neutral-9: #f0efeb;
-  --color-neutral-10: #f9f8f5;
+  --color-neutral-1: #141414;
+  --color-neutral-2: #242424;
+  --color-neutral-3: #404040;
+  --color-neutral-4: #5c5c5c;
+  --color-neutral-5: #787878;
+  --color-neutral-6: #a8a8a8;
+  --color-neutral-7: #d0d0d0;
+  --color-neutral-8: #e3e3e3;
+  --color-neutral-9: #f0f0f0;
+  --color-neutral-10: #f8f8f8;
 
-  --color-paper: #18181a;
+  --color-paper: #1a1814;
   --color-border: rgba(255, 255, 255, 0.1);
 
   /* Semantic 和色 lifted ~15% for dark surfaces (matches apps/web/variables.css). */
@@ -66,8 +70,7 @@
 
   --field-bg: var(--color-neutral-2);
   --field-border: rgba(255, 255, 255, 0.08);
-  --field-shadow: 0 1px 1px rgba(0, 0, 0, 0.18),
-    0 4px 16px rgba(0, 0, 0, 0.16);
+  --field-shadow: 0 1px 1px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.16);
   --field-gradient: linear-gradient(
     180deg,
     color-mix(in srgb, var(--color-accent) 7%, transparent) 0%,
@@ -167,7 +170,9 @@ body {
   font: inherit;
   padding: 4px 10px;
   border-radius: 4px;
-  transition: color 0.15s ease, background 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .toolbar__icon {
@@ -415,7 +420,9 @@ body {
   background-image: var(--field-gradient);
   border-radius: 12px;
   box-shadow: var(--field-shadow);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .field:focus-within {
@@ -534,7 +541,9 @@ body {
   border-radius: 10px;
   overflow: hidden;
   background: var(--color-paper);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .demo-card__frame:hover {
@@ -1024,7 +1033,8 @@ code,
   border: 1px solid rgba(0, 0, 0, 0.04);
   background: var(--color-paper);
   font-size: 14px;
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.01),
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.01),
     0 3px 10px rgba(0, 0, 0, 0.02);
   --code-accent: var(--color-accent);
   --code-accent-line: color-mix(in srgb, var(--color-accent) 22%, transparent);
@@ -1040,7 +1050,8 @@ code,
 
 [data-theme='dark'] .shiki-card {
   border-color: rgba(255, 255, 255, 0.06);
-  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.18),
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.18),
     0 4px 16px rgba(0, 0, 0, 0.16);
 }
 

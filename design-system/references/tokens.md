@@ -4,36 +4,36 @@ Companion to `CHEATSHEET.md`. Read this when building a new component or auditin
 
 ## Three-tier neutral system
 
-The neutral scale (`#f9f8f5` → `#141312`) carries a deliberate warm undertone (R > G > B, parchment-like), tuned to harmonize with the project page background `#fefefb`. Surface tiers (1–4) carry the most warmth (parchment feel), border/text tiers (5–7) carry mid warmth, body tiers (8–10) recede toward neutral charcoal. Dark mode automatically inverts the scale via `apps/web/src/styles/variables.css`, so `text-neutral-9` reads as warm cream text on warm charcoal in dark mode without changing the class name.
+The neutral scale (`#f9f8f5` → `#141312`) carries a deliberate warm undertone in **light mode** (R > G > B, parchment-like), tuned to harmonize with the project page background `#fefefb`. Surface tiers (1–4) carry the most warmth (parchment feel), border/text tiers (5–7) carry mid warmth, body tiers (8–10) recede toward neutral charcoal. **Dark mode** does not invert the warm scale — instead it resets to pure neutral gray (`#141414` → `#f8f8f8`, R = G = B) because warmth at dark luminance reads as olive at low saturation. Dark-mode warmth is carried solely by `--color-paper`. Use the same `text-neutral-N` classes in both themes.
 
 ### Tier 1 · Surface (1–4)
 
-| Var | Hex | Use |
-|---|---|---|
-| n-1 | `#f9f8f5` | Lightest surface, page background |
-| n-2 | `#f0efeb` | Card surface |
-| n-3 | `#e3e1db` | Hover surface, subtle fill |
-| n-4 | `#d0cec6` | Strong fill behind monochrome icons |
+| Var | Hex (light) | Hex (dark, inverted) | Use |
+|---|---|---|---|
+| n-1 | `#f9f8f5` | `#141414` | Lightest surface, page background |
+| n-2 | `#f0efeb` | `#242424` | Card surface |
+| n-3 | `#e3e1db` | `#404040` | Hover surface, subtle fill |
+| n-4 | `#d0cec6` | `#5c5c5c` | Strong fill behind monochrome icons |
 
 **Tier 1 must never carry text.** A text color this close to the page surface fails contrast even in light mode and inverts unreadably in dark mode.
 
 ### Tier 2 · Border / icon / secondary (5–7)
 
-| Var | Hex | Use |
-|---|---|---|
-| n-5 | `#a8a69f` | Border on solid surfaces. **Never text.** |
-| n-6 | `#787670` | Icon stroke, small label (`<= text-xs`) only |
-| n-7 | `#5c5a55` | Secondary text, caption, metadata |
+| Var | Hex (light) | Hex (dark, inverted) | Use |
+|---|---|---|---|
+| n-5 | `#a8a69f` | `#787878` | Border on solid surfaces. **Never text.** |
+| n-6 | `#787670` | `#a8a8a8` | Icon stroke, small label (`<= text-xs`) only |
+| n-7 | `#5c5a55` | `#d0d0d0` | Secondary text, caption, metadata |
 
 n-5 reads as warm-gray-on-cream border but as warm-gray-on-gray text — invisible in both themes. Reach for n-7 (or n-6 only when constrained to `text-xs`).
 
 ### Tier 3 · Body / heading (8–10)
 
-| Var | Hex | Use |
-|---|---|---|
-| n-8 | `#403f3a` | Body alt, strong secondary text |
-| n-9 | `#24231f` | **Default body color** |
-| n-10 | `#141312` | Headings, max emphasis |
+| Var | Hex (light) | Hex (dark, inverted) | Use |
+|---|---|---|---|
+| n-8 | `#403f3a` | `#e3e3e3` | Body alt, strong secondary text |
+| n-9 | `#24231f` | `#f0f0f0` | **Default body color** |
+| n-10 | `#141312` | `#f8f8f8` | Headings, max emphasis |
 
 n-9 is what you reach for by default for any paragraph. n-10 is reserved for headings and the rare "this needs to win the hierarchy fight" moment.
 
