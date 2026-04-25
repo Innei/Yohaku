@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>陈书远 · 设计工程师</title>
+    <link rel="stylesheet" href="./_shared.css" />
+    <style>
+      @page {
+        size: A4 portrait;
+        margin: 0;
+      }
+
+      html,
+      body {
+        font-size: 14px;
+      }
+
+      .resume {
+        max-width: 794px;
+        margin: 0 auto;
+        padding: 48px 56px 56px;
+        background: var(--color-paper);
+      }
+
+      @media print {
+        body {
+          background: white;
+        }
+        .resume {
+          padding: 18mm 20mm 16mm;
+          max-width: none;
+        }
+      }
+
+      /* Header */
+      .resume__header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 24px;
+        align-items: end;
+        padding-bottom: 16px;
+        border-bottom: 1.5px solid var(--color-neutral-9);
+        margin-bottom: 24px;
+      }
+
+      .resume__name {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 34px;
+        line-height: 1.05;
+        letter-spacing: -0.01em;
+        color: var(--color-neutral-10);
+      }
+
+      .resume__name .en {
+        margin-left: 12px;
+        font-family: var(--font-serif);
+        font-size: 17px;
+        font-weight: 400;
+        color: var(--color-neutral-7);
+        letter-spacing: 0;
+      }
+
+      .resume__role {
+        margin: 6px 0 0;
+        font-family: var(--font-serif);
+        font-size: 14px;
+        color: var(--color-accent);
+        letter-spacing: 0.02em;
+      }
+
+      .resume__contact {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        line-height: 1.7;
+        color: var(--color-neutral-7);
+        text-align: right;
+      }
+
+      .resume__contact a {
+        color: inherit;
+      }
+
+      .resume__contact span.label {
+        color: var(--color-neutral-5);
+        margin-right: 6px;
+      }
+
+      /* Section */
+      .resume__section {
+        margin-bottom: 22px;
+        page-break-inside: avoid;
+      }
+
+      .resume__section:last-child {
+        margin-bottom: 0;
+      }
+
+      .resume__section-title {
+        margin: 0 0 12px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--color-accent);
+        padding-bottom: 4px;
+        border-bottom: 0.5px solid var(--color-neutral-4);
+      }
+
+      /* Summary */
+      .resume__summary {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-size: 13.5px;
+        line-height: 1.7;
+        color: var(--color-neutral-9);
+      }
+
+      /* Experience entry */
+      .exp {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 3px 16px;
+        margin-bottom: 15px;
+      }
+
+      .exp:last-child {
+        margin-bottom: 0;
+      }
+
+      .exp__role {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--color-neutral-10);
+      }
+
+      .exp__role .at {
+        color: var(--color-neutral-7);
+        font-weight: 400;
+        margin-left: 4px;
+      }
+
+      .exp__date {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--color-neutral-7);
+        white-space: nowrap;
+      }
+
+      .exp__location {
+        grid-column: 1;
+        margin: 0;
+        font-size: 12px;
+        color: var(--color-neutral-7);
+      }
+
+      .exp__bullets {
+        grid-column: 1 / -1;
+        margin: 6px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .exp__bullets li {
+        position: relative;
+        padding-left: 14px;
+        margin-bottom: 2px;
+        font-size: 12.5px;
+        line-height: 1.5;
+        color: var(--color-neutral-9);
+      }
+
+      .exp__bullets li::before {
+        content: '—';
+        position: absolute;
+        left: 0;
+        color: var(--color-neutral-5);
+      }
+
+      /* Skills */
+      .skills {
+        display: grid;
+        grid-template-columns: 90px 1fr;
+        gap: 7px 16px;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .skills dt {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--color-neutral-7);
+        letter-spacing: 0.04em;
+        align-self: baseline;
+      }
+
+      .skills dd {
+        margin: 0;
+        color: var(--color-neutral-9);
+      }
+
+      .skills dd .accent {
+        color: var(--color-accent);
+        font-weight: 500;
+      }
+
+      /* Education */
+      .edu {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2px 16px;
+        margin-bottom: 10px;
+      }
+
+      .edu:last-child {
+        margin-bottom: 0;
+      }
+
+      .edu__school {
+        margin: 0;
+        font-family: var(--font-serif);
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--color-neutral-10);
+      }
+
+      .edu__date {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        color: var(--color-neutral-7);
+      }
+
+      .edu__detail {
+        grid-column: 1;
+        margin: 0;
+        font-size: 12px;
+        color: var(--color-neutral-7);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="resume">
+      <header class="resume__header">
+        <div>
+          <h1 class="resume__name">
+            陈书远<span class="en">Shu-yuan Chen</span>
+          </h1>
+          <p class="resume__role">设计工程师 · Design Engineer</p>
+        </div>
+        <div class="resume__contact">
+          <div><span class="label">邮箱</span>shuyuan@example.com</div>
+          <div><span class="label">网站</span>shuyuan.dev</div>
+          <div><span class="label">所在</span>杭州，中国</div>
+          <div><span class="label">GitHub</span>github.com/shuyuan</div>
+        </div>
+      </header>
+
+      <section class="resume__section">
+        <h2 class="resume__section-title">概述</h2>
+        <p class="resume__summary">
+          7 年前端工程师 + 视觉设计经验，专注于设计系统与 AI 协作工作流。曾在两家上市公司主导 design tokens 与组件库迭代，所交付的体系被 200+ 工程师每日使用。
+        </p>
+      </section>
+
+      <section class="resume__section">
+        <h2 class="resume__section-title">经历</h2>
+
+        <div class="exp">
+          <p class="exp__role">资深设计工程师<span class="at">@ Sora Studio</span></p>
+          <span class="exp__date">2023 — 至今</span>
+          <p class="exp__location">远程 · 上海</p>
+          <ul class="exp__bullets">
+            <li>主导 Sora 设计系统从 v1 到 v2 重写，引入 OKLCH 色彩空间和 design tokens 单源约定。</li>
+            <li>把组件库视觉决策从手动同步改为 token-driven，节省团队每周约 6 小时对色对齐时间。</li>
+            <li>搭建 mockup → React 的 AI 协作工作流：设计师产出 HTML，AI 转 React，工程师只审 token。</li>
+          </ul>
+        </div>
+
+        <div class="exp">
+          <p class="exp__role">前端工程师<span class="at">@ Lumen Tech</span></p>
+          <span class="exp__date">2020 — 2023</span>
+          <p class="exp__location">杭州</p>
+          <ul class="exp__bullets">
+            <li>负责 B 端 dashboard 设计实现，主导从 Ant Design 迁移到自研组件库。</li>
+            <li>把无障碍（WCAG AA）作为 lint rule 接入 CI，覆盖率从 31% 提升到 92%。</li>
+            <li>主笔团队前端规范文档，被新人作为入职第一周必读材料。</li>
+          </ul>
+        </div>
+
+        <div class="exp">
+          <p class="exp__role">独立开发<span class="at">@ 自由职业</span></p>
+          <span class="exp__date">2018 — 2020</span>
+          <p class="exp__location">远程</p>
+          <ul class="exp__bullets">
+            <li>为 12 家中小品牌交付独立站，平均工期 4 周，全部按时交付。</li>
+            <li>开源 Markdown 编辑器 sora-md 累计 2.4k stars。</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="resume__section">
+        <h2 class="resume__section-title">技能</h2>
+        <dl class="skills">
+          <dt>设计系统</dt>
+          <dd>
+            <span class="accent">Design tokens · 组件库 · 多主题切换 · 可访问性</span>
+          </dd>
+          <dt>前端</dt>
+          <dd>TypeScript · React 19 · Next.js · Vue 3 · Tailwind v4</dd>
+          <dt>视觉</dt>
+          <dd>Figma · 排版 · 色彩理论 · OKLCH · 印刷设计基础</dd>
+          <dt>工具链</dt>
+          <dd>Vite · Turborepo · pnpm · Playwright · Vitest</dd>
+          <dt>语言</dt>
+          <dd>中文（母语）· 英文（雅思 7.5）· 日文（N3）</dd>
+        </dl>
+      </section>
+
+      <section class="resume__section">
+        <h2 class="resume__section-title">教育</h2>
+        <div class="edu">
+          <p class="edu__school">中国美术学院 · 视觉传达设计</p>
+          <span class="edu__date">2014 — 2018</span>
+          <p class="edu__detail">学士 · GPA 3.8 / 4.0 · 毕设获院级优秀</p>
+        </div>
+        <div class="edu">
+          <p class="edu__school">浙江大学 · 计算机科学（辅修）</p>
+          <span class="edu__date">2015 — 2018</span>
+          <p class="edu__detail">辅修学位 · 主修：算法、操作系统、人机交互</p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

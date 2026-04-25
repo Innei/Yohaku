@@ -1,0 +1,43 @@
+<!--
+  List card snippet · Yohaku design system
+  Use for posts/notes/says feed items.
+  Tokens: --color-neutral-{2,3,7,9,10}, --color-border, --font-mono.
+-->
+<a href="#" style="
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px 24px;
+  padding: 20px 24px;
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.15s ease;
+" onmouseover="this.style.background='var(--color-neutral-2)'" onmouseout="this.style.background='transparent'">
+
+  <h3 style="
+    grid-column: 1;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--color-neutral-10);
+    line-height: 1.35;
+  ">在余白处书写：一篇关于设计系统克制的笔记</h3>
+
+  <span style="
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-neutral-7);
+    white-space: nowrap;
+  ">2026-04-25</span>
+
+  <p style="
+    grid-column: 1;
+    margin: 0;
+    color: var(--color-neutral-7);
+    line-height: 1.55;
+  ">少即多，不是减法的口号，而是每一处加法都被审过的结果。</p>
+</a>

@@ -1,0 +1,59 @@
+<!--
+  Modal snippet · Yohaku design system
+  Tokens: --color-paper, --color-neutral-{2,7,9,10}, --color-border, backdrop-filter.
+-->
+<div style="
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--color-neutral-10) 40%, transparent);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+">
+  <div role="dialog" aria-modal="true" style="
+    width: min(560px, calc(100vw - 32px));
+    background: var(--color-paper);
+    border-radius: 12px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+    padding: 24px;
+    display: grid;
+    gap: 16px;
+  ">
+    <header>
+      <h2 style="
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 500;
+        color: var(--color-neutral-10);
+      ">删此条 say？</h2>
+      <p style="margin: 8px 0 0; color: var(--color-neutral-7); line-height: 1.55;">
+        删讫不可还原。三人已应此条，删后该评论亦逝。
+      </p>
+    </header>
+
+    <footer style="display: flex; justify-content: flex-end; gap: 8px;">
+      <button style="
+        background: var(--color-neutral-2);
+        color: var(--color-neutral-9);
+        border: 1px solid var(--color-border);
+        border-radius: 6px;
+        padding: 8px 16px;
+        font: inherit;
+        cursor: pointer;
+      ">取消</button>
+      <button style="
+        background: var(--color-error);
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font: inherit;
+        font-weight: 500;
+        cursor: pointer;
+      ">删此条</button>
+    </footer>
+  </div>
+</div>

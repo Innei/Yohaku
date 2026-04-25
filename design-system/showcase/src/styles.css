@@ -1,0 +1,1013 @@
+@import 'tailwindcss';
+@import '../../src/tokens.css';
+
+/*
+ * Showcase-only theme bridge.
+ *
+ * The package's tokens.css declares the light-mode scale only; dark mode
+ * inversion + --color-paper / --color-border live in apps/web at runtime.
+ * For this standalone showcase we mirror the same inversion that
+ * templates/scaffold.html uses.
+ */
+:root {
+  --color-paper: #faf9f5;
+  --color-border: rgba(24, 24, 27, 0.1);
+
+  /* Field system — mirrors apps/web/src/styles/variables.css */
+  --field-bg: var(--color-paper);
+  --field-border: rgba(0, 0, 0, 0.05);
+  --field-shadow: 0 1px 1px rgba(0, 0, 0, 0.01),
+    0 3px 10px rgba(0, 0, 0, 0.02);
+  --field-gradient: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent) 3%, transparent) 0%,
+    transparent 26%
+  );
+  --field-border-focus: color-mix(
+    in srgb,
+    var(--color-accent) 35%,
+    transparent
+  );
+  --field-ring: 0 0 0 3px
+    color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+
+[data-theme='dark'] {
+  --color-neutral-1: #141312;
+  --color-neutral-2: #24231f;
+  --color-neutral-3: #403f3a;
+  --color-neutral-4: #5c5a55;
+  --color-neutral-5: #787670;
+  --color-neutral-6: #a8a69f;
+  --color-neutral-7: #d0cec6;
+  --color-neutral-8: #e3e1db;
+  --color-neutral-9: #f0efeb;
+  --color-neutral-10: #f9f8f5;
+
+  --color-paper: #18181a;
+  --color-border: rgba(255, 255, 255, 0.1);
+
+  /* Semantic 和色 lifted ~15% for dark surfaces (matches apps/web/variables.css). */
+  --color-info: #7090b3;
+  --color-success: #8cbea3;
+  --color-warning: #c8a06b;
+  --color-error: #c8767f;
+
+  --field-bg: var(--color-neutral-2);
+  --field-border: rgba(255, 255, 255, 0.08);
+  --field-shadow: 0 1px 1px rgba(0, 0, 0, 0.18),
+    0 4px 16px rgba(0, 0, 0, 0.16);
+  --field-gradient: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent) 7%, transparent) 0%,
+    transparent 26%
+  );
+  --field-border-focus: color-mix(
+    in srgb,
+    var(--color-accent) 35%,
+    transparent
+  );
+  --field-ring: 0 0 0 3px
+    color-mix(in srgb, var(--color-accent) 8%, transparent);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-neutral-9);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Showcase chrome */
+
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 88px 64px 120px;
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 56px 24px 96px;
+  }
+}
+
+.toolbar {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: color-mix(in srgb, var(--color-paper) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.toolbar button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-neutral-7);
+  font: inherit;
+  padding: 4px 10px;
+  border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.toolbar button:hover {
+  color: var(--color-neutral-10);
+  background: var(--color-neutral-2);
+}
+
+.toolbar button[data-active='true'] {
+  color: var(--color-neutral-10);
+  background: var(--color-neutral-2);
+}
+
+.toolbar .sep {
+  width: 1px;
+  height: 16px;
+  background: var(--color-border);
+}
+
+/* Hero — grand, serif-led, Kami-style. */
+.hero {
+  padding-bottom: 48px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 72px;
+}
+
+.hero__eyebrow {
+  margin: 0 0 24px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-neutral-7);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero__eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.hero__title {
+  margin: 0 0 18px;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(64px, 11vw, 112px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--color-neutral-10);
+}
+
+.hero__title-cn {
+  display: inline-block;
+  margin-left: 16px;
+  letter-spacing: 0;
+  color: var(--color-accent);
+}
+
+.hero__tagline {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.3125rem;
+  line-height: 1.45;
+  color: var(--color-neutral-7);
+  max-width: 56ch;
+}
+
+.hero__tokens {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--color-neutral-7);
+}
+
+.hero__tokens span {
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero__tokens b {
+  color: var(--color-neutral-9);
+  font-weight: 500;
+}
+
+@media (max-width: 720px) {
+  .hero__title {
+    font-size: clamp(48px, 14vw, 72px);
+  }
+}
+
+/* Buttons — mirror @yohaku/web's StyledButton */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: default;
+  user-select: none;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn--primary {
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  color: var(--color-accent);
+  border-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.btn--primary:hover {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
+.btn--secondary {
+  background: transparent;
+  color: var(--color-neutral-9);
+  border-color: var(--color-border);
+}
+
+.btn--secondary:hover {
+  background: color-mix(in srgb, var(--color-neutral-10) 3%, transparent);
+  border-color: color-mix(in srgb, var(--color-neutral-10) 18%, transparent);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--color-neutral-7);
+}
+
+.btn--ghost:hover {
+  background: color-mix(in srgb, var(--color-neutral-10) 4%, transparent);
+  color: var(--color-neutral-9);
+}
+
+/* Danger variant — same translucent recipe as primary but on error.
+   Mirrors apps/web pattern (no solid red+white buttons). */
+.btn--danger {
+  background: color-mix(in srgb, var(--color-error) 8%, transparent);
+  color: var(--color-error);
+  border-color: color-mix(in srgb, var(--color-error) 30%, transparent);
+}
+
+.btn--danger:hover {
+  background: color-mix(in srgb, var(--color-error) 12%, transparent);
+  border-color: color-mix(in srgb, var(--color-error) 45%, transparent);
+}
+
+/* Icon Button — mirrors RoundedIconButton (rounded-lg, square, subtle). */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  user-select: none;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-neutral-9);
+  line-height: 0;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.icon-btn:hover {
+  background: color-mix(in srgb, var(--color-neutral-10) 2%, transparent);
+  border-color: color-mix(in srgb, var(--color-neutral-10) 15%, transparent);
+}
+
+.icon-btn:active {
+  transform: translateY(1px);
+}
+
+[data-theme='dark'] .icon-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Input — mirrors apps/web Input + field tokens. */
+.field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--field-border);
+  background: var(--field-bg);
+  background-image: var(--field-gradient);
+  border-radius: 12px;
+  box-shadow: var(--field-shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field:focus-within {
+  border-color: var(--field-border-focus);
+  box-shadow: var(--field-ring);
+}
+
+.field input,
+.field textarea {
+  flex: 1 1 auto;
+  min-width: 0;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  outline: none;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  color: var(--color-neutral-8);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--color-neutral-5);
+}
+
+.field--password input {
+  font-family: var(--font-mono);
+}
+
+.field--password input::placeholder {
+  font-family: var(--font-sans);
+}
+
+/* Tag — mirrors Tag.tsx (rounded-md, px-3 py-2, accent tint). */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--color-neutral-9);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 18%, transparent);
+}
+
+.tag__count {
+  font-size: 0.75rem;
+  color: var(--color-neutral-7);
+}
+
+/* Divider — mirrors Divider.tsx (h-[0.5px] bg-neutral-10/30). */
+.divider {
+  margin: 16px 0;
+  height: 0.5px;
+  border: 0;
+  background: color-mix(in srgb, var(--color-neutral-10) 30%, transparent);
+}
+
+.divider--vertical {
+  display: inline-block;
+  width: 0.5px;
+  height: 20px;
+  margin: 0 16px;
+  vertical-align: middle;
+  background: color-mix(in srgb, var(--color-neutral-10) 30%, transparent);
+}
+
+/* Label — mirrors Label.tsx (font-medium, leading-none). */
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--color-neutral-7);
+}
+
+/* Output Samples — Kami-style demo grid: live iframe thumbnails of full
+   Yohaku pages. Click → opens the standalone HTML in a new tab. */
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .demo-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 560px) {
+  .demo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.demo-card {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+}
+
+.demo-card__frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-paper);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.demo-card__frame:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+[data-theme='dark'] .demo-card__frame:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+}
+
+/* Viewport: iframe renders at logical --vw × --vh, scaled to fit width. */
+.demo-card__viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--color-paper);
+}
+
+.demo-card__iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  transform-origin: top left;
+  pointer-events: none;
+  /* width / height / transform set inline by DemoCard via ResizeObserver */
+}
+
+/* Shield prevents iframe interaction inside the card; whole card is the link. */
+.demo-card__shield {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.demo-card__open {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-paper) 80%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  color: var(--color-neutral-7);
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.demo-card__frame:hover .demo-card__open {
+  opacity: 1;
+}
+
+/* PDF download link below desc */
+.demo-card__pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-accent);
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.demo-card__pdf:hover {
+  opacity: 0.7;
+}
+
+.demo-card__title {
+  margin: 12px 0 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--color-neutral-10);
+}
+
+.demo-card__desc {
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-neutral-7);
+}
+
+/* Section system — modeled on Kami's serif-led hierarchy. */
+.section {
+  margin-bottom: 72px;
+}
+
+.section:last-of-type {
+  margin-bottom: 0;
+}
+
+.section-head {
+  margin-bottom: 24px;
+}
+
+.section-num {
+  margin: 0 0 6px;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
+}
+
+.section-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 2rem;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--color-neutral-10);
+}
+
+.section-lede {
+  margin: 14px 0 0;
+  max-width: 64ch;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--color-neutral-7);
+}
+
+.subhead {
+  margin: 40px 0 14px;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.125rem;
+  color: var(--color-neutral-8);
+}
+
+/* Color swatches — chip on top, info below (Kami pattern). */
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 900px) {
+  .swatches {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.swatch {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-neutral-2);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.swatch:hover {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+}
+
+.swatch__chip {
+  height: 96px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.swatch__info {
+  padding: 12px 14px 14px;
+}
+
+.swatch__name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 0.9375rem;
+  line-height: 1.25;
+  color: var(--color-neutral-10);
+}
+
+.swatch__role {
+  margin: 3px 0 6px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--color-neutral-7);
+}
+
+.swatch__hex {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--color-neutral-6);
+}
+
+.swatch--accent .swatch__name {
+  color: var(--color-accent);
+}
+
+code,
+.mono {
+  font-family: var(--font-mono);
+}
+
+.inline-code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--color-neutral-2);
+  color: var(--color-neutral-9);
+}
+
+/* Comment thread — mirrors apps/web Comment.tsx + Comment.css.
+   Asymmetric rounded-xl bubble (rounded-tl-sm), --field-* tokens,
+   accent owner badge, neutral-3 avatar. */
+.comment-thread {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.comment {
+  position: relative;
+}
+
+.comment__row {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.comment__avatar {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-neutral-3);
+  box-shadow: 0 0 0 2px var(--color-neutral-3);
+  display: grid;
+  place-items: center;
+  color: var(--color-neutral-7);
+  font-weight: 600;
+  font-size: 0.875rem;
+  align-self: flex-end;
+}
+
+.comment__content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.comment__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+}
+
+.comment__name {
+  color: var(--color-neutral-9);
+  font-weight: 600;
+}
+
+.comment__owner-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  color: var(--color-accent);
+}
+
+.comment__time {
+  font-size: 0.71rem;
+  font-weight: 500;
+  color: var(--color-neutral-7);
+  opacity: 0.6;
+}
+
+/* Asymmetric bubble — rounded-xl with sharp top-left, mirrors web. */
+.comment__bubble {
+  position: relative;
+  display: inline-block;
+  max-width: calc(100% - 16px);
+  padding: 8px 12px;
+  border-radius: 12px;
+  border-top-left-radius: 4px;
+  background: var(--field-bg);
+  background-image: var(--field-gradient);
+  border: 1px solid var(--field-border);
+  box-shadow: var(--field-shadow);
+  color: var(--color-neutral-8);
+  font-size: 0.875rem;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+.comment__bubble p {
+  margin: 0;
+}
+
+.comment__reply-btn {
+  margin-top: 8px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--color-neutral-7);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.comment__reply-btn:hover {
+  color: var(--color-neutral-9);
+}
+
+/* Shiki code card — mirrors apps/web/src/components/ui/code-highlighter/shiki/Shiki.css.
+   rounded-xl card, accent topline gradient, surface tint, header w/ filename + lang pill,
+   hairline divider, copy button. */
+.shiki-card {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  background: var(--color-paper);
+  font-size: 14px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.01),
+    0 3px 10px rgba(0, 0, 0, 0.02);
+  --code-accent: var(--color-accent);
+  --code-accent-line: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  --code-accent-soft: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  --code-accent-tint: color-mix(in srgb, var(--color-accent) 3%, transparent);
+  --code-accent-icon: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  --code-accent-foreground: color-mix(
+    in srgb,
+    var(--color-accent) 82%,
+    black 18%
+  );
+}
+
+[data-theme='dark'] .shiki-card {
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.18),
+    0 4px 16px rgba(0, 0, 0, 0.16);
+}
+
+.shiki-card__surface {
+  position: relative;
+  background: var(--color-paper);
+  background-image: linear-gradient(
+    180deg,
+    var(--code-accent-tint),
+    transparent 22%
+  );
+}
+
+.shiki-card__topline {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--code-accent-line) 16%,
+    color-mix(in srgb, var(--code-accent-line) 40%, transparent) 74%,
+    transparent
+  );
+}
+
+.shiki-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+  padding: 10px 14px;
+  font-family: var(--font-sans);
+}
+
+.shiki-card__header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.shiki-card__header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.shiki-card__lang-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: var(--code-accent-icon);
+  color: var(--code-accent-foreground);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.shiki-card__filename {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-neutral-8);
+}
+
+.shiki-card__lang-text {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-neutral-4);
+}
+
+.shiki-card__copy {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--color-neutral-5);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.shiki-card__copy:hover {
+  color: var(--color-neutral-8);
+  border-color: color-mix(in srgb, var(--code-accent) 18%, transparent);
+  background: color-mix(in srgb, var(--code-accent) 6%, white 94%);
+}
+
+.shiki-card__copy:active {
+  transform: translateY(1px);
+}
+
+[data-theme='dark'] .shiki-card__copy {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+[data-theme='dark'] .shiki-card__copy:hover {
+  background: color-mix(in srgb, var(--code-accent) 8%, black);
+}
+
+.shiki-card__divider {
+  margin: 0 14px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.07) 14%,
+    rgba(0, 0, 0, 0.07) 86%,
+    transparent
+  );
+}
+
+[data-theme='dark'] .shiki-card__divider {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08) 14%,
+    rgba(255, 255, 255, 0.08) 86%,
+    transparent
+  );
+}
+
+.shiki-card__pre {
+  margin: 0;
+  padding: 12px 0;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.shiki-card__line {
+  display: block;
+  padding: 0 16px;
+  color: var(--color-neutral-9);
+}
+
+.shiki-card__line--highlighted {
+  position: relative;
+  background: var(--code-accent-soft);
+}
+
+.shiki-card__line--highlighted::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: var(--code-accent);
+}
+
+/* Snippet preview frame — wraps a converted React snippet so it sits in its
+   own card with a label and a "view tokens" hint. */
+.snippet-frame {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-paper);
+}
+
+.snippet-frame__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--color-neutral-2);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-neutral-7);
+}
+
+.snippet-frame__body {
+  padding: 24px;
+  background: var(--color-paper);
+}

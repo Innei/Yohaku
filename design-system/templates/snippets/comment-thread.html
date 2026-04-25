@@ -1,0 +1,97 @@
+<!--
+  Comment thread snippet · Yohaku design system
+  Tokens: --color-neutral-{2,3,7,9,10}, --color-border, --color-accent, --font-mono.
+-->
+<section style="display: grid; gap: 16px; padding: 24px 0;">
+  <article style="
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 12px;
+  ">
+    <div aria-hidden="true" style="
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--color-neutral-3);
+      display: grid;
+      place-items: center;
+      color: var(--color-neutral-7);
+      font-weight: 600;
+      font-size: 0.875rem;
+    ">A</div>
+    <div>
+      <header style="
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 4px;
+      ">
+        <strong style="font-weight: 500; color: var(--color-neutral-10);">Anya</strong>
+        <span style="
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          color: var(--color-neutral-7);
+        ">2 小时前</span>
+      </header>
+      <p style="margin: 0; color: var(--color-neutral-9); line-height: 1.55;">
+        三档 neutral 的设定让阅读节奏有了松紧感。dark mode 自动反转这一点尤其难得。
+      </p>
+      <footer style="margin-top: 8px;">
+        <button style="
+          background: none;
+          border: none;
+          color: var(--color-neutral-7);
+          font: inherit;
+          font-size: 0.875rem;
+          cursor: pointer;
+          padding: 0;
+        ">回此言</button>
+      </footer>
+    </div>
+  </article>
+
+  <article style="
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 12px;
+    margin-left: 48px;
+    padding-left: 16px;
+    border-left: 2px solid var(--color-accent);
+  ">
+    <div aria-hidden="true" style="
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--color-neutral-3);
+      display: grid;
+      place-items: center;
+      color: var(--color-neutral-7);
+      font-weight: 600;
+      font-size: 0.875rem;
+    ">I</div>
+    <div>
+      <header style="
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 4px;
+      ">
+        <strong style="font-weight: 500; color: var(--color-neutral-10);">Innei</strong>
+        <span style="
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          color: var(--color-accent);
+          font-weight: 500;
+        ">作者</span>
+        <span style="
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          color: var(--color-neutral-7);
+        ">1 小时前</span>
+      </header>
+      <p style="margin: 0; color: var(--color-neutral-9); line-height: 1.55;">
+        多谢一阅。原是要避免 50–950 那一档的「色味稀薄」感。
+      </p>
+    </div>
+  </article>
+</section>

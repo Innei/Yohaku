@@ -76,4 +76,7 @@ Yohaku 的完整代码以闭源方式维护于私有仓库 [Innei-dev/Yohaku](ht
 
 ## 许可
 
-2026 Innei. 本仓库内容采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议。
+2026 Innei.
+
+- `design-system/` 子目录下的代码（tokens、脚本、showcase、模板等）采用 [MIT 许可证](./design-system/LICENSE)。
+- 仓库其他部分（README、截图、对话归档等内容）仍然采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议。

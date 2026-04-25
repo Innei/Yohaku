@@ -1,0 +1,40 @@
+{
+  "name": "@yohaku/design-system",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Yohaku design system: tokens, AI-readable contract, and HTML mockup templates.",
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./src/tokens.css",
+    "./skill": "./SKILL.md",
+    "./cheatsheet": "./CHEATSHEET.md"
+  },
+  "files": [
+    "src",
+    "references",
+    "templates",
+    "SKILL.md",
+    "CHEATSHEET.md",
+    "README.md"
+  ],
+  "scripts": {
+    "check": "tsx scripts/check.ts",
+    "test": "tsx --test scripts/check.test.ts",
+    "showcase:dev": "vite --config showcase/vite.config.ts",
+    "showcase:build": "vite build --config showcase/vite.config.ts",
+    "showcase:preview": "vite preview --config showcase/vite.config.ts",
+    "demo:pdf": "bash scripts/generate-pdfs.sh"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.1.0",
+    "tsx": "^4.19.0",
+    "typescript": "^6.0.0",
+    "vite": "^8.0.0"
+  }
+}

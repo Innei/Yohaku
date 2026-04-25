@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Yohaku · Accent Alternates Preview</title>
+    <style>
+      :root {
+        --page-bg: #fefefb;
+        --page-bg-dark: #1c1c1e;
+
+        /* Yohaku 60% warm neutrals */
+        --n-1: #f9f8f5;
+        --n-2: #f0efeb;
+        --n-3: #e3e1db;
+        --n-4: #d0cec6;
+        --n-5: #a8a69f;
+        --n-6: #787670;
+        --n-7: #5c5a55;
+        --n-8: #403f3a;
+        --n-9: #24231f;
+        --n-10: #141312;
+        --border: rgba(40, 36, 28, 0.12);
+
+        --serif: 'Noto Serif CJK SC', 'Source Han Serif SC', 'SongTi SC',
+          STSong, Georgia, serif;
+        --sans: -apple-system, 'PingFang SC', 'Microsoft YaHei',
+          'Noto Sans SC', system-ui, sans-serif;
+        --mono: 'JetBrains Mono', 'SF Mono', Consolas, Monaco, monospace;
+      }
+
+      [data-theme='dark'] {
+        --n-1: #141312;
+        --n-2: #24231f;
+        --n-3: #403f3a;
+        --n-4: #5c5a55;
+        --n-5: #787670;
+        --n-6: #a8a69f;
+        --n-7: #d0cec6;
+        --n-8: #e3e1db;
+        --n-9: #f0efeb;
+        --n-10: #f9f8f5;
+        --border: rgba(240, 238, 231, 0.14);
+      }
+
+      * { box-sizing: border-box; }
+      html { font-size: 14px; }
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        line-height: 1.5;
+        letter-spacing: 0.01em;
+        background: var(--page-bg);
+        color: var(--n-9);
+        min-height: 100vh;
+        transition: background 0.2s ease;
+      }
+      [data-theme='dark'] body { background: var(--page-bg-dark); }
+
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(20px);
+        background: color-mix(in srgb, var(--page-bg) 88%, transparent);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 32px;
+      }
+      [data-theme='dark'] .toolbar {
+        background: color-mix(in srgb, var(--page-bg-dark) 88%, transparent);
+      }
+      .toolbar-inner {
+        max-width: 1120px;
+        margin: 0 auto;
+        display: flex;
+        gap: 16px;
+        align-items: center;
+      }
+      .toolbar .label {
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: 14px;
+        color: var(--n-7);
+        letter-spacing: 0.04em;
+      }
+      .toolbar button {
+        background: var(--n-2);
+        border: 1px solid var(--border);
+        font: inherit;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--n-9);
+        cursor: pointer;
+        padding: 6px 12px;
+        border-radius: 6px;
+      }
+      .toolbar .spacer { flex: 1; }
+
+      .page {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 40px 32px 96px;
+      }
+
+      .head {
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: 28px;
+        line-height: 1.2;
+        margin: 0 0 8px;
+        color: var(--n-10);
+      }
+      .lede {
+        font-family: var(--serif);
+        font-size: 15px;
+        font-weight: 500;
+        line-height: 1.55;
+        margin: 0 0 32px;
+        color: var(--n-7);
+        max-width: 64ch;
+      }
+
+      /* ─── Variant grid ─── */
+      .variants {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+        gap: 16px;
+      }
+
+      .variant {
+        --a: #c56473;
+        background: var(--n-2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      .variant__head {
+        padding: 16px 20px;
+        background: var(--n-1);
+        border-bottom: 1px solid var(--border);
+        display: grid;
+        grid-template-columns: 32px 1fr auto;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .variant__chip {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--a);
+        border: 1px solid var(--border);
+      }
+
+      .variant__name {
+        margin: 0;
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: 16px;
+        color: var(--n-10);
+      }
+
+      .variant__hex {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--n-7);
+      }
+
+      .variant__body {
+        padding: 18px 20px 22px;
+        background: var(--page-bg);
+        display: grid;
+        gap: 14px;
+      }
+      [data-theme='dark'] .variant__body { background: var(--page-bg-dark); }
+
+      /* component samples (use --a from variant) */
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 11px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--n-7);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+      }
+      .eyebrow .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--a);
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        font: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 8px 14px;
+        border-radius: 12px;
+        cursor: pointer;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .btn-primary {
+        background: color-mix(in srgb, var(--a) 8%, transparent);
+        color: var(--a);
+        border-color: color-mix(in srgb, var(--a) 30%, transparent);
+      }
+      .btn-primary:hover {
+        background: color-mix(in srgb, var(--a) 12%, transparent);
+        border-color: color-mix(in srgb, var(--a) 45%, transparent);
+      }
+      .btn-secondary {
+        background: transparent;
+        color: var(--n-9);
+        border-color: var(--border);
+      }
+
+      .quote {
+        margin: 0;
+        padding: 4px 0 4px 14px;
+        border-left: 2px solid var(--a);
+        font-family: var(--serif);
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--n-7);
+      }
+
+      .author-line {
+        margin: 0;
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--n-7);
+      }
+      .author-line strong {
+        color: var(--n-10);
+        font-weight: 500;
+      }
+      .author-line .author-tag {
+        color: var(--a);
+        font-weight: 500;
+        margin: 0 6px;
+      }
+
+      .accent-text {
+        font-family: var(--serif);
+        font-size: 14px;
+        line-height: 1.65;
+        margin: 0;
+        color: var(--n-9);
+      }
+      .accent-text em {
+        font-style: normal;
+        color: var(--a);
+        font-weight: 500;
+      }
+
+      .title-cn {
+        font-family: var(--serif);
+        font-weight: 500;
+        font-size: 28px;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin: 0;
+        color: var(--n-10);
+      }
+      .title-cn .cn {
+        margin-left: 12px;
+        color: var(--a);
+      }
+
+      .footer-note {
+        margin-top: 56px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--n-7);
+        line-height: 1.7;
+      }
+      .footer-note b {
+        color: var(--n-9);
+        font-weight: 500;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <div class="toolbar-inner">
+        <span class="label">ACCENT ALTERNATES</span>
+        <span class="spacer"></span>
+        <button id="theme-toggle">☀ / ☾</button>
+      </div>
+    </div>
+
+    <main class="page">
+      <h1 class="head">Accent · 5 备选</h1>
+      <p class="lede">
+        梅 #C56473 为主，余四为 alternates（AccentColorStyleInjector 随机派一）。覆 rose · purple · olive · sienna · gold 五相，皆为 和色，与暖纸 + 暖灰同族。每卡之样品皆用该色：eyebrow dot · 主按钮（半透 8%）· 引文边 · author 标 · inline 强调 · 标题 cn 字。
+      </p>
+
+      <div class="variants" id="variants"></div>
+
+      <p class="footer-note">
+        <b>切换 light / dark</b> 观二态各 5 色；hover 主按钮观 hover 态。<br>
+        若意定，告吾何配 —— 「全用此 5 色」或「替某色为他」皆可。
+      </p>
+    </main>
+
+    <script>
+      const variants = [
+        {
+          light: '#C56473',
+          dark: '#E095A4',
+          name: { light: '梅 ume', dark: '梅淡' },
+          note: '主 · rose red',
+        },
+        {
+          light: '#745399',
+          dark: '#A088BB',
+          name: { light: '江戸紫 edomurasaki', dark: '江戸紫淡' },
+          note: '紫蓝 · 蓝偏红',
+        },
+        {
+          light: '#76712C',
+          dark: '#ACA559',
+          name: { light: '鶯色 uguisuiro', dark: '鶯色淡' },
+          note: 'olive · 绿偏红',
+        },
+        {
+          light: '#9C5728',
+          dark: '#C7864F',
+          name: { light: '代赭 taisha', dark: '代赭淡' },
+          note: '赭石 · 烧赭褐',
+        },
+        {
+          light: '#C87833',
+          dark: '#E2A06A',
+          name: { light: '金茶 kincha', dark: '金茶淡' },
+          note: '金褐 · 暖橙',
+        },
+      ]
+
+      const grid = document.getElementById('variants')
+      function render() {
+        const isDark = document.documentElement.dataset.theme === 'dark'
+        grid.innerHTML = ''
+        for (const v of variants) {
+          const a = isDark ? v.dark : v.light
+          const name = isDark ? v.name.dark : v.name.light
+          const card = document.createElement('article')
+          card.className = 'variant'
+          card.style.setProperty('--a', a)
+          card.innerHTML = `
+            <header class="variant__head">
+              <div class="variant__chip"></div>
+              <div>
+                <p class="variant__name">${name}</p>
+                <p style="margin:2px 0 0; font-family: var(--mono); font-size: 11px; color: var(--n-7);">${v.note}</p>
+              </div>
+              <span class="variant__hex">${a.toUpperCase()}</span>
+            </header>
+            <div class="variant__body">
+              <h2 class="title-cn">Yohaku<span class="cn">余白</span></h2>
+              <p class="eyebrow"><span class="dot"></span>设计系统 · v0.1</p>
+              <div class="btn-row">
+                <button class="btn btn-primary">主按钮</button>
+                <button class="btn btn-secondary">次按钮</button>
+              </div>
+              <blockquote class="quote">少即多，不是减法的口号，而是每一处加法都被审过的结果。</blockquote>
+              <p class="author-line"><strong>Innei</strong><span class="author-tag">作者</span>· 2 小时前</p>
+              <p class="accent-text">字字皆择，<em>色不溢于五分</em>。</p>
+            </div>
+          `
+          grid.appendChild(card)
+        }
+      }
+
+      document.getElementById('theme-toggle').addEventListener('click', () => {
+        const cur = document.documentElement.dataset.theme
+        document.documentElement.dataset.theme = cur === 'dark' ? 'light' : 'dark'
+        render()
+      })
+
+      render()
+    </script>
+  </body>
+</html>

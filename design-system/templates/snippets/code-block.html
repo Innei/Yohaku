@@ -1,0 +1,47 @@
+<!--
+  Code block snippet · Yohaku design system
+  Tokens: --color-neutral-{1,2,7,9}, --color-border, --font-mono.
+-->
+<figure style="
+  margin: 24px 0;
+  background: var(--color-neutral-1);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+">
+  <header style="
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--color-neutral-2);
+    border-bottom: 1px solid var(--color-border);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-neutral-7);
+  ">
+    <span>tailwindcss.css</span>
+    <button style="
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-neutral-7);
+      font: inherit;
+      padding: 2px 6px;
+      border-radius: 4px;
+    " onmouseover="this.style.background='var(--color-neutral-3)'" onmouseout="this.style.background='none'">复制</button>
+  </header>
+
+  <pre style="
+    margin: 0;
+    padding: 16px 20px;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-neutral-9);
+  "><code>@import 'tailwindcss';
+@import '@yohaku/design-system/tokens.css';
+
+html { font-size: 14px; }</code></pre>
+</figure>

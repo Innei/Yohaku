@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yohaku Mockup Scaffold</title>
+  <style>
+    /*
+     * Mockup tokens — mirror @yohaku/design-system/src/tokens.css.
+     * The verify script (scripts/check.ts) lints these against the package.
+     */
+    :root {
+      --color-neutral-1: #f9f8f5;
+      --color-neutral-2: #f0efeb;
+      --color-neutral-3: #e3e1db;
+      --color-neutral-4: #d0cec6;
+      --color-neutral-5: #a8a69f;
+      --color-neutral-6: #787670;
+      --color-neutral-7: #5c5a55;
+      --color-neutral-8: #403f3a;
+      --color-neutral-9: #24231f;
+      --color-neutral-10: #141312;
+
+      --color-accent: #c56473;
+      --color-info: #3d6896;
+      --color-success: #5e9f7e;
+      --color-warning: #a87a3d;
+      --color-error: #a64953;
+
+      --color-paper: #faf9f5;
+      --color-border: rgba(24, 24, 27, 0.1);
+
+      --font-sans: -apple-system, 'PingFang SC', 'Microsoft YaHei',
+                   'Noto Sans SC', 'Hiragino Sans GB', system-ui, sans-serif;
+      --font-serif: 'Noto Serif CJK SC', 'Source Han Serif SC', SongTi SC,
+                    STSong, Georgia, serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', Consolas, Monaco,
+                   'Hannotate SC', monospace;
+    }
+
+    [data-theme='dark'] {
+      --color-neutral-1: #141312;
+      --color-neutral-2: #24231f;
+      --color-neutral-3: #403f3a;
+      --color-neutral-4: #5c5a55;
+      --color-neutral-5: #787670;
+      --color-neutral-6: #a8a69f;
+      --color-neutral-7: #d0cec6;
+      --color-neutral-8: #e3e1db;
+      --color-neutral-9: #f0efeb;
+      --color-neutral-10: #f9f8f5;
+
+      --color-paper: #18181a;
+      --color-border: rgba(255, 255, 255, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+    html { font-size: 14px; line-height: 1.5; letter-spacing: 0.01em; }
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--color-paper);
+      color: var(--color-neutral-9);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+    }
+
+    .mockup-shell { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+    .toolbar {
+      position: fixed; top: 12px; right: 12px; z-index: 10;
+      background: var(--color-neutral-2);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--color-neutral-7);
+    }
+    .toolbar button {
+      background: none; border: none; cursor: pointer;
+      color: inherit; font: inherit; padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .toolbar button:hover { background: var(--color-neutral-3); }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="document.documentElement.dataset.theme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'">
+      light · dark
+    </button>
+  </div>
+
+  <main class="mockup-shell">
+    <!--
+      Drop snippets from packages/design-system/templates/snippets/ here.
+      Each snippet uses only the CSS vars declared above.
+    -->
+  </main>
+</body>
+</html>

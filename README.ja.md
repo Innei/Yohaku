@@ -76,4 +76,7 @@ Yohaku を作っているうちに、最終的なコードより AI との対話
 
 ## ライセンス
 
-2026 Innei. 本リポジトリのコンテンツは [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) ライセンスのもとで公開されています。
+2026 Innei.
+
+- `design-system/` 以下のコード（トークン、スクリプト、showcase、テンプレートなど）は [MIT License](./design-system/LICENSE) で公開しています。
+- それ以外（README、スクリーンショット、対話アーカイブなど）は引き続き [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) です。

@@ -1,0 +1,81 @@
+<!--
+  Form snippet · Yohaku design system
+  Tokens: --color-neutral-{2,7,9,10}, --color-border, --color-accent.
+-->
+<form style="
+  display: grid;
+  gap: 16px;
+  max-width: 480px;
+" onsubmit="event.preventDefault()">
+
+  <div style="display: grid; gap: 6px;">
+    <label for="comment-name" style="
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-neutral-9);
+    ">名</label>
+    <input id="comment-name" type="text" placeholder="如何称呼你" style="
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--color-neutral-2);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font: inherit;
+      color: var(--color-neutral-9);
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    " onfocus="this.style.borderColor='var(--color-accent)'; this.style.boxShadow='0 0 0 3px color-mix(in srgb, var(--color-accent) 15%, transparent)'"
+      onblur="this.style.borderColor='var(--color-border)'; this.style.boxShadow='none'">
+  </div>
+
+  <div style="display: grid; gap: 6px;">
+    <label for="comment-mail" style="
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-neutral-9);
+    ">邮箱 <span style="color: var(--color-neutral-7); font-weight: 400;">(不公开)</span></label>
+    <input id="comment-mail" type="email" placeholder="you@example.com" style="
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--color-neutral-2);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font: inherit;
+      color: var(--color-neutral-9);
+      outline: none;
+    ">
+  </div>
+
+  <div style="display: grid; gap: 6px;">
+    <label for="comment-body" style="
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-neutral-9);
+    ">所言</label>
+    <textarea id="comment-body" rows="4" placeholder="写下你的想法" style="
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--color-neutral-2);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font: inherit;
+      font-family: inherit;
+      color: var(--color-neutral-9);
+      outline: none;
+      resize: vertical;
+    "></textarea>
+  </div>
+
+  <div style="display: flex; justify-content: flex-end;">
+    <button type="submit" style="
+      background: var(--color-accent);
+      color: #ffffff;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font: inherit;
+      font-weight: 500;
+      cursor: pointer;
+    ">发表</button>
+  </div>
+</form>

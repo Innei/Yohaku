@@ -1,0 +1,184 @@
+/* Yohaku demo · shared chrome.
+   Inline copy of @yohaku/design-system/tokens.css + apps/web runtime tokens
+   so each demo HTML is self-contained when opened directly. */
+
+:root {
+  --color-accent: #c56473;
+
+  --color-neutral-1: #f9f8f5;
+  --color-neutral-2: #f0efeb;
+  --color-neutral-3: #e3e1db;
+  --color-neutral-4: #d0cec6;
+  --color-neutral-5: #a8a69f;
+  --color-neutral-6: #787670;
+  --color-neutral-7: #5c5a55;
+  --color-neutral-8: #403f3a;
+  --color-neutral-9: #24231f;
+  --color-neutral-10: #141312;
+
+  --color-info: #3d6896;
+  --color-success: #5e9f7e;
+  --color-warning: #a87a3d;
+  --color-error: #a64953;
+
+  --color-paper: #fefefb;
+  --color-border: rgba(24, 24, 27, 0.1);
+  --color-hair: rgba(24, 24, 27, 0.08);
+
+  --field-bg: var(--color-paper);
+  --field-border: rgba(0, 0, 0, 0.05);
+  --field-shadow: 0 1px 1px rgba(0, 0, 0, 0.01),
+    0 3px 10px rgba(0, 0, 0, 0.02);
+  --field-gradient: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-accent) 3%, transparent) 0%,
+    transparent 26%
+  );
+
+  --font-serif: 'Source Han Serif SC', 'Songti SC', STSong, Georgia,
+    'Times New Roman', Times, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-mono: 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--color-paper);
+  color: var(--color-neutral-9);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+/* Layout chrome */
+
+.shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 56px 48px 96px;
+}
+
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 48px;
+  border-bottom: 1px solid var(--color-hair);
+}
+
+.topnav__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.topnav__brand .name {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--color-neutral-10);
+}
+
+.topnav__brand .cn {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  color: var(--color-accent);
+}
+
+.topnav__links {
+  display: flex;
+  gap: 24px;
+  font-size: 13px;
+  color: var(--color-neutral-7);
+}
+
+.topnav__links a:hover {
+  color: var(--color-neutral-10);
+}
+
+/* Buttons (mirror StyledButton) */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn--primary {
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  color: var(--color-accent);
+}
+
+.btn--primary:hover {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
+.btn--secondary {
+  background: transparent;
+  border-color: var(--color-border);
+  color: var(--color-neutral-9);
+}
+
+/* Eyebrow / meta typography */
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-neutral-7);
+}
+
+.eyebrow .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-neutral-7);
+}
+
+.divider {
+  margin: 32px 0;
+  height: 0.5px;
+  border: 0;
+  background: color-mix(in srgb, var(--color-neutral-10) 20%, transparent);
+}
