@@ -2,7 +2,7 @@
   "name": "yohaku",
   "private": true,
   "description": "Yohaku — typographic design system for written content. The design contract lives in design-system/.",
-  "packageManager": "pnpm@10.33.0",
+  "packageManager": "pnpm@11.0.0",
   "scripts": {
     "dev": "pnpm --filter @yohaku/design-system showcase:dev",
     "build": "pnpm --filter @yohaku/design-system showcase:build",
