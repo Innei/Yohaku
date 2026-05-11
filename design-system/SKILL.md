@@ -15,6 +15,7 @@ The Yohaku design system: static tokens, component catalog, and section snippets
 | "build component X" / "I need a new Button variant" / "新组件" | **New React component** | `CHEATSHEET.md` + `references/components.md` + `references/anti-patterns.md` |
 | "convert this mockup to React" / "mockup 转 React" / "implement this design" | **Handoff** | `references/mockup-to-react.md` + `references/components.md` |
 | "audit this file for token compliance" / "is this color right?" / "检查 token 合规" | **Token audit** | `references/anti-patterns.md` + `references/tokens.md` |
+| "what size for this text?" / "字号" / "audit typography" / "migrate hardcoded text-[Npx]" | **Type audit** | `references/typography.md` + `CHEATSHEET.md` § Type scale |
 
 If unsure, ask one short question instead of guessing.
 

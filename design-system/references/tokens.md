@@ -74,7 +74,9 @@ These are state colors; do not use them for general decoration. Reach for accent
 
 ## Typography
 
-### Three roles only
+Full spec in `references/typography.md`. This section summarises the contract.
+
+### Three font roles only
 
 ```
 sans:  app default → CJK fallback chain
@@ -86,15 +88,39 @@ mono:  developer-tier mono → CJK fallback for missing glyph boxes
 
 Any `font-family` used to render Chinese or Japanese must include `Noto Serif CJK SC` (or sans equivalent) in its fallback. Even mono needs a CJK family or you get tofu boxes for missing glyphs.
 
+### Type scale — role + px (Geist-style)
+
+`tokens.css` clears Tailwind's default `--text-*` namespace (`--text-*: initial`) and declares role+px tokens with bundled `line-height`. Anchored on `html { font-size: 14px }` in `apps/web`.
+
+| Role | Sizes (px) | Use |
+|---|---|---|
+| `caption` | 10 | Eyebrow uppercase + tracking only. **Use sparingly.** |
+| `label` | 12 | Meta, small label, pagination, footnote |
+| `copy` | 13, 14, 15, 16 | Body family. **`copy-14` is the default body anchor.** |
+| `title` | 20, 24, 28 | Section heading → page H1 |
+| `display` | 36, 48 | Hero, OG renderer |
+| `icon` | sm (14), md (16), lg (18) | `<i>` / icon elements only. No bundled line-height. |
+
+**Bundled `line-height`** ships per token (e.g. `--text-copy-14--line-height: 1.57`). Override with an explicit `leading-[N]` utility when needed. Suggested ranges: caption/label `1.4–1.5`, copy `1.55–1.63`, title `1.29–1.4`, display `1.17–1.22`.
+
+**Tailwind defaults banned.** `text-xs/sm/base/lg/xl/2xl/3xl/4xl/5xl/6xl/7xl/8xl/9xl` are nuked via `--text-*: initial`. Hardcoded `text-[Npx]` is equally banned. Enforcement: apps/web ESLint (`no-restricted-syntax`) + design-system `scripts/check.ts` template lint (added in phase 3).
+
+**Runtime overrides** (live in `apps/web/src/styles/tailwindcss.css`, not in this package):
+- `html { font-size: 14px }` — base anchor.
+- `@media print { html { font-size: 12px } }` — print density.
+- `@media (min-width: 1024px) { input, textarea { font-size: 1rem } }` — mobile-input zoom lock.
+
 ### Weight
 
-- Body: 400.
-- Heading: 500. **Never synthetic bold (`<b>`, `font-bold`) on Chinese text** — it produces uneven faux-bold glyphs in most CJK fonts. Use `font-medium` (500) at most.
+Weight is **not** bundled into type tokens. Apply independently:
+
+- Body: 400 (`font-normal`).
+- Heading: 500 (`font-medium`). **Never synthetic bold (`<b>`, `font-bold`) on Chinese text** — it produces uneven faux-bold glyphs in most CJK fonts.
 - English emphasis: 600 acceptable in narrow contexts (badges, label uppercase).
 
 ### Letter-spacing
 
-`html { letter-spacing: 0.01em; }` is global. Tracking adjustments should be local and intentional (e.g., 0.04em uppercase eyebrow labels).
+`html { letter-spacing: 0.01em; }` is global. Tracking adjustments should be local and intentional (e.g., 0.04em uppercase eyebrow labels paired with `text-caption-10`).
 
 ## Spacing & radius
 
