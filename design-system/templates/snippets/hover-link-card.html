@@ -1,0 +1,315 @@
+<!--
+  Hover link card snippet · Yohaku design system
+  Popover surfaced on hover of inline external links. OG image rendered at
+  natural aspect ratio (capped to [1.0, 3.0]), full popover width.
+
+  Three variants demonstrated below:
+    A · standard ~1.91:1 OG image (GitHub-style)
+    B · ultra-wide banner capped at 3:1 (large maxh defensive)
+    C · text-only fallback (no OG image)
+
+  Tokens: --color-neutral-{1,2,3,7,9,10}, --color-paper, --color-accent,
+          --color-border, --font-sans, --font-mono.
+-->
+<section style="display: grid; gap: 56px; padding: 32px 0;">
+
+  <!-- VARIANT A · standard wide OG image (≈ 1.91:1) -->
+  <div style="display: grid; gap: 16px;">
+    <p style="margin: 0 0 28px; color: var(--color-neutral-9); line-height: 1.7; font-size: 1rem;">
+      此设计与既有
+      <span style="
+        display: inline-flex;
+        align-items: baseline;
+        gap: 4px;
+        color: var(--color-accent);
+        border-bottom: 1px solid currentColor;
+        cursor: pointer;
+      ">
+        <span style="
+          display: inline-block;
+          width: 14px;
+          height: 14px;
+          margin-right: 1px;
+          border-radius: 3px;
+          background: var(--color-neutral-3);
+          vertical-align: -2px;
+        " aria-hidden="true"></span>
+        <span>Lexical 编辑器架构</span>
+      </span>
+      相承。
+    </p>
+
+    <!-- The popover (would be absolutely positioned above the anchor at runtime;
+         shown inline here for inspection). -->
+    <article style="
+      width: 360px;
+      max-width: 400px;
+      overflow: hidden;
+      border-radius: 12px;
+      background: var(--color-paper);
+      box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.18),
+                  0 2px 6px -2px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.18),
+                  0 2px 6px -2px rgba(0, 0, 0, 0.08),
+                  inset 0 0 0 1px var(--color-border);
+      cursor: pointer;
+    ">
+      <!-- OG media: 16:9 wide, full container width -->
+      <div style="
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1.91 / 1;
+        max-height: 280px;
+        overflow: hidden;
+        background: linear-gradient(135deg,
+          var(--color-neutral-3) 0%,
+          var(--color-neutral-2) 100%);
+      ">
+        <!-- Stand-in for <img object-cover>: a labeled fake to show the shape -->
+        <div style="
+          position: absolute; inset: 0;
+          display: grid; place-items: center;
+          color: var(--color-neutral-6);
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          letter-spacing: 0.04em;
+        ">OG image · 1.91 : 1 · object-cover</div>
+      </div>
+
+      <div style="padding: 14px 16px 16px;">
+        <h3 style="
+          margin: 0;
+          font-size: 0.9375rem;
+          font-weight: 500;
+          line-height: 1.4;
+          color: var(--color-neutral-10);
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        ">Lexical: An extensible text editor framework that does things differently</h3>
+
+        <p style="
+          margin: 6px 0 0;
+          font-size: 0.875rem;
+          line-height: 1.5;
+          color: var(--color-neutral-7);
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        ">Lexical is an extensible JavaScript web text-editor framework with an emphasis on reliability, accessibility, and performance. The aim is to provide a best-in-class developer experience.</p>
+
+        <div style="
+          margin-top: 12px;
+          padding-top: 10px;
+          border-top: 1px solid var(--color-border);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          color: var(--color-neutral-7);
+        ">
+          <span aria-hidden="true" style="
+            display: inline-block;
+            width: 14px; height: 14px;
+            border-radius: 3px;
+            background: var(--color-neutral-3);
+          "></span>
+          <span>lexical.dev</span>
+          <span style="color: var(--color-neutral-5);">·</span>
+          <span>doc</span>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- VARIANT B · ultra-wide banner capped at 3:1 -->
+  <div style="display: grid; gap: 16px;">
+    <p style="margin: 0 0 28px; color: var(--color-neutral-9); line-height: 1.7; font-size: 1rem;">
+      若 OG 图过宽（如某些 hero banner），则
+      <span style="
+        display: inline-flex;
+        align-items: baseline;
+        gap: 4px;
+        color: var(--color-accent);
+        border-bottom: 1px solid currentColor;
+        cursor: pointer;
+      ">
+        <span style="
+          display: inline-block;
+          width: 14px; height: 14px;
+          margin-right: 1px;
+          border-radius: 3px;
+          background: var(--color-neutral-3);
+          vertical-align: -2px;
+        " aria-hidden="true"></span>
+        <span>aspect-ratio cap 之</span>
+      </span>
+      ，不令 popover 过高。
+    </p>
+
+    <article style="
+      width: 360px;
+      max-width: 400px;
+      overflow: hidden;
+      border-radius: 12px;
+      background: var(--color-paper);
+      box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.18),
+                  0 2px 6px -2px rgba(0, 0, 0, 0.08),
+                  inset 0 0 0 1px var(--color-border);
+      cursor: pointer;
+    ">
+      <div style="
+        position: relative;
+        width: 100%;
+        aspect-ratio: 3 / 1;
+        max-height: 280px;
+        overflow: hidden;
+        background: linear-gradient(90deg,
+          var(--color-neutral-4) 0%,
+          var(--color-accent) 50%,
+          var(--color-neutral-3) 100%);
+        opacity: 0.78;
+      ">
+        <div style="
+          position: absolute; inset: 0;
+          display: grid; place-items: center;
+          color: rgba(255,255,255,0.92);
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          letter-spacing: 0.04em;
+          text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        ">OG image · capped 3 : 1</div>
+      </div>
+
+      <div style="padding: 14px 16px 16px;">
+        <h3 style="
+          margin: 0;
+          font-size: 0.9375rem;
+          font-weight: 500;
+          line-height: 1.4;
+          color: var(--color-neutral-10);
+        ">Announcing Tailwind CSS v4.0</h3>
+
+        <p style="
+          margin: 6px 0 0;
+          font-size: 0.875rem;
+          line-height: 1.5;
+          color: var(--color-neutral-7);
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        ">A new high-performance engine, first-class CSS variables, and a CSS-first config that finally lets us throw out the JS config file. Built for the modern web from the ground up.</p>
+
+        <div style="
+          margin-top: 12px;
+          padding-top: 10px;
+          border-top: 1px solid var(--color-border);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          color: var(--color-neutral-7);
+        ">
+          <span aria-hidden="true" style="
+            display: inline-block;
+            width: 14px; height: 14px;
+            border-radius: 3px;
+            background: var(--color-neutral-3);
+          "></span>
+          <span>tailwindcss.com</span>
+          <span style="color: var(--color-neutral-5);">·</span>
+          <span>2026</span>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- VARIANT C · text-only fallback (no OG image) -->
+  <div style="display: grid; gap: 16px;">
+    <p style="margin: 0 0 28px; color: var(--color-neutral-9); line-height: 1.7; font-size: 1rem;">
+      无 OG image 之站点，popover 退为纯文本，与
+      <span style="
+        display: inline-flex;
+        align-items: baseline;
+        gap: 4px;
+        color: var(--color-accent);
+        border-bottom: 1px solid currentColor;
+        cursor: pointer;
+      ">
+        <span style="
+          display: inline-block;
+          width: 14px; height: 14px;
+          margin-right: 1px;
+          border-radius: 3px;
+          background: var(--color-neutral-3);
+          vertical-align: -2px;
+        " aria-hidden="true"></span>
+        <span>FallbackCard text-only 分支</span>
+      </span>
+      同形。
+    </p>
+
+    <article style="
+      width: 360px;
+      max-width: 400px;
+      overflow: hidden;
+      border-radius: 12px;
+      background: var(--color-paper);
+      box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.18),
+                  0 2px 6px -2px rgba(0, 0, 0, 0.08),
+                  inset 0 0 0 1px var(--color-border);
+      cursor: pointer;
+    ">
+      <div style="padding: 14px 16px 16px;">
+        <h3 style="
+          margin: 0;
+          font-size: 0.9375rem;
+          font-weight: 500;
+          line-height: 1.4;
+          color: var(--color-neutral-10);
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        ">RFC 7234 — Hypertext Transfer Protocol (HTTP/1.1): Caching</h3>
+
+        <p style="
+          margin: 6px 0 0;
+          font-size: 0.875rem;
+          line-height: 1.5;
+          color: var(--color-neutral-7);
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        ">The Hypertext Transfer Protocol (HTTP) is a stateless application-level request/response protocol that uses extensible semantics and self-descriptive message payloads for flexible interaction with network-based hypertext information systems.</p>
+
+        <div style="
+          margin-top: 12px;
+          padding-top: 10px;
+          border-top: 1px solid var(--color-border);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: var(--font-mono);
+          font-size: 0.75rem;
+          color: var(--color-neutral-7);
+        ">
+          <span aria-hidden="true" style="
+            display: inline-block;
+            width: 14px; height: 14px;
+            border-radius: 3px;
+            background: var(--color-neutral-3);
+          "></span>
+          <span>datatracker.ietf.org</span>
+        </div>
+      </div>
+    </article>
+  </div>
+
+</section>
