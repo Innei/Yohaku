@@ -47,6 +47,16 @@ In dark mode `apps/web/src/styles/variables.css` auto-inverts the scale. Use the
 
 The accent is also dynamically injected as `--a` (OKLCH) by `AccentColorStyleInjector` in `apps/web`. Per-page gradients via `PageColorGradient` use a content seed. These are runtime concerns and do not appear in mockups.
 
+### Letter (paper accents)
+
+| Var | Hex (light) | Use |
+|---|---|---|
+| `--color-letter-warm-deep` | `#8c6239` | Letter caption uppercase + serif italic — date / stats / mood-weather (NoteMetaBar 上行、NoteListItemPaper Letter №) |
+| `--color-letter-warm` | `#b09a78` | Letter caption secondary — AI / lang / © 一族 (NoteMetaBar 下行、fallback for unknown mood/weather hue) |
+| `--color-letter-hairline` | `rgba(140,98,57,0.10)` | letter stripe 之分隔线 (NoteMetaBar 上下行间、NoteLatestRender footer rule) |
+
+Dark mode 用 `#d4a574` / `#8a7860` / `rgba(255,255,255,0.06)`（注入于 `apps/web/src/styles/variables.css` `[data-theme='dark']`）。`hairline` 非 hex，仅作 border / divider 之 token。**勿用于非 letter / paper 语境。**
+
 ### Surface
 
 | Var | Source | Use |

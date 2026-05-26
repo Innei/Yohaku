@@ -61,6 +61,13 @@
   --color-warning: #a87a3d; /* 朽葉 kuchiba */
   --color-error: #a64953;   /* 蘇芳 suoh */
 
+  /* Letter (paper accents) — shared by NoteListItemPaper, NoteLatestRender,
+     NoteMetaBar 之 letter-stationery 调. 勿用于非 letter / paper 语境.
+     Dark overrides live in apps/web variables.css [data-theme='dark']. */
+  --color-letter-warm-deep: #8c6239;
+  --color-letter-warm: #b09a78;
+  --color-letter-hairline: rgba(140, 98, 57, 0.1);
+
   /* border-border utility — value is overridden in apps/web variables.css per theme */
   --color-border: rgba(24, 24, 27, 0.1);
 
