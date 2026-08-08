@@ -2,6 +2,8 @@ import { readdir,readFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
+import { accent, neutral, semantic } from '../src/tokens'
+
 const HEX_RE = /#[\da-f]{3,8}\b/i
 
 const BANNED_NEUTRAL_CLASS =
@@ -108,6 +110,35 @@ export function runChecks(input: {
   return { ok: issues.length === 0, issues }
 }
 
+export function checkNativeParity(tokens: Map<string, string>): string[] {
+  const issues: string[] = []
+  const expect = (name: string, value: string) => {
+    const cssValue = tokens.get(name)
+    if (!cssValue) {
+      issues.push(
+        `native tokens.ts references ${name} but it is not declared in tokens.css`,
+      )
+      return
+    }
+    if (cssValue !== value.toLowerCase()) {
+      issues.push(
+        `drift: ${name} = ${cssValue} in tokens.css vs ${value} in tokens.ts`,
+      )
+    }
+  }
+
+  for (const [step, hex] of Object.entries(neutral.light)) {
+    expect(`--color-neutral-${step}`, hex)
+  }
+  expect('--color-accent', accent.light)
+  expect('--color-info', semantic.light.info)
+  expect('--color-success', semantic.light.success)
+  expect('--color-warning', semantic.light.warning)
+  expect('--color-error', semantic.light.error)
+
+  return issues
+}
+
 async function readTemplates(
   dir: string,
 ): Promise<{ filename: string; html: string }[]> {
@@ -135,6 +166,9 @@ async function main() {
   const templates = await readTemplates(join(root, 'templates'))
 
   const result = runChecks({ tokensCss, cheatsheetMd, templates })
+  const nativeIssues = checkNativeParity(extractTokens(tokensCss))
+  result.issues.push(...nativeIssues)
+  if (nativeIssues.length > 0) result.ok = false
 
   if (!result.ok) {
     console.error('Check failed:')

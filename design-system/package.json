@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     "./tokens.css": "./src/tokens.css",
+    "./tokens": "./src/tokens.ts",
     "./skill": "./SKILL.md",
     "./cheatsheet": "./CHEATSHEET.md"
   },
