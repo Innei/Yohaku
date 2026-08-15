@@ -120,8 +120,8 @@ export const elevation = {
  * content loading only.
  */
 export const motion = {
-  pressScale: 0.96,
-  pressTranslateY: 1,
+  pressScale: 0.985,
+  pressTranslateY: 0,
   responseMs: 320,
 } as const
 
