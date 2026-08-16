@@ -15,6 +15,7 @@ This is a **typographic design system for written content**: one accent, three n
 
 - Live showcase: **[yohaku.innei.dev](https://yohaku.innei.dev)**
 - The design contract (tokens, templates, AI skill) lives in [`design-system/`](./design-system/) and is released under MIT.
+- The iOS client is open source in [`apps/mobile/`](./apps/mobile/): point it at your own mx-core and compile.
 - The screenshots below are how the system looks once shipped on the [Yohaku personal site](https://github.com/Innei-dev/Yohaku).
 
 > Each preview is split diagonally — light on the top-left, dark on the bottom-right.
@@ -83,6 +84,7 @@ pnpm build           # bundle the showcase to design-system/showcase/dist
 pnpm check           # token drift + template lint
 pnpm test            # run the check.ts unit tests
 pnpm demo:pdf        # render the demo essay / résumé / report to PDF
+pnpm --filter @yohaku/mobile start   # iOS client
 ```
 
 Map of what's inside:
@@ -95,6 +97,9 @@ Map of what's inside:
 | `design-system/references/` | Full specs (tokens / components / anti-patterns / mockup-to-react) |
 | `design-system/templates/` | HTML mockup starter |
 | `design-system/showcase/` | Live showcase source |
+| `apps/mobile/` | iOS personal-blog client (Expo, iOS 18+) |
+| `packages/rich-content/` | Article renderer (shared by web and iOS) |
+| `packages/dom-webview/` | Vendored Expo DOM WebView |
 
 ### As an AI skill
 
@@ -111,9 +116,25 @@ Full contract: [`design-system/SKILL.md`](./design-system/SKILL.md) and [`design
 
 ---
 
+## iOS client
+
+The iOS client is open source in [`apps/mobile/`](./apps/mobile/). It is a personal blog reader, not a multi-site product — there is no first-launch “connect your site” flow.
+
+Point [`apps/mobile/src/site.ts`](./apps/mobile/src/site.ts) at your own [mx-core](https://github.com/mx-space/core) and compile locally. Public defaults are an empty API URL and bundle id `dev.yohaku.app`.
+
+Requires **iOS 18+**. There is no Android target.
+
+```bash
+pnpm install
+pnpm --filter @yohaku/mobile start
+pnpm --filter @yohaku/mobile ios   # macOS + Xcode
+```
+
+---
+
 ## Full implementation · closed-source repo
 
-The complete site implementation is maintained as a private repo at [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku), deeply rebuilt from [Shiro](https://github.com/Innei/Shiro).
+The website itself is still maintained as a private repo at [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku), deeply rebuilt from [Shiro](https://github.com/Innei/Shiro). The sponsor model is unchanged.
 
 **Sponsorship grants access.**
 
@@ -169,4 +190,6 @@ While building Yohaku, the AI-assisted chats were often more useful than the fin
 2026 Innei.
 
 - Code under `design-system/` (tokens, scripts, showcase, templates) is released under the [MIT License](./design-system/LICENSE).
+- `apps/mobile/` and `packages/rich-content/` are [MIT](./apps/mobile/LICENSE), copyright Innei.
+- `packages/dom-webview/` keeps the upstream Expo MIT license; see [`VENDOR.md`](./packages/dom-webview/VENDOR.md) for the local changes.
 - The rest of the repository (README, screenshots, chat archives, etc.) remains under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).

@@ -15,6 +15,7 @@
 
 - 在线 showcase: **[yohaku.innei.dev](https://yohaku.innei.dev)**
 - 设计契约（tokens、模板、AI skill）位于 [`design-system/`](./design-system/)，以 MIT 协议开源
+- iOS 客户端已开源，位于 [`apps/mobile/`](./apps/mobile/)：指向你自己的 mx-core 后编译即可
 - 下面的截图是这套系统在 [Yohaku 个人站](https://github.com/Innei-dev/Yohaku) 上的落地
 
 > 预览以对角线切分，左上为浅色，右下为深色。
@@ -83,6 +84,7 @@ pnpm build           # 打包 showcase 到 design-system/showcase/dist
 pnpm check           # 校验 token 漂移 + 模板 lint
 pnpm test            # 跑 check.ts 的单测
 pnpm demo:pdf        # 把 demo 长文 / 简历 / 报告打成 PDF
+pnpm --filter @yohaku/mobile start   # iOS 客户端
 ```
 
 主要内容：
@@ -95,6 +97,9 @@ pnpm demo:pdf        # 把 demo 长文 / 简历 / 报告打成 PDF
 | `design-system/references/` | 完整规范（tokens / components / anti-patterns / mockup-to-react） |
 | `design-system/templates/` | HTML mockup 起手式 |
 | `design-system/showcase/` | 在线 showcase 源码 |
+| `apps/mobile/` | iOS 个人博客客户端（Expo，iOS 18+） |
+| `packages/rich-content/` | 文章渲染（Web / iOS 共用） |
+| `packages/dom-webview/` | 自维护的 Expo DOM WebView |
 
 ### 当作 AI Skill
 
@@ -111,9 +116,25 @@ pnpm demo:pdf        # 把 demo 长文 / 简历 / 报告打成 PDF
 
 ---
 
+## iOS 客户端
+
+iOS 客户端已经开源，在 [`apps/mobile/`](./apps/mobile/)。这是给个人博客用的阅读客户端，不是多站点产品——没有「连接你的站点」的首次启动流程。
+
+把 [`apps/mobile/src/site.ts`](./apps/mobile/src/site.ts) 指到你自己的 [mx-core](https://github.com/mx-space/core)，然后在本机编译。公开默认是空的 API 地址，bundle id 为 `dev.yohaku.app`。
+
+需要 **iOS 18+**。没有 Android。
+
+```bash
+pnpm install
+pnpm --filter @yohaku/mobile start
+pnpm --filter @yohaku/mobile ios   # 需要 macOS + Xcode
+```
+
+---
+
 ## 完整应用 · 闭源仓库
 
-Yohaku 的完整网站实现以闭源方式维护于 [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku)，基于 [Shiro](https://github.com/Innei/Shiro) 深度重构而来。
+网站本体仍以闭源方式维护于 [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku)，基于 [Shiro](https://github.com/Innei/Shiro) 深度重构而来。赞助模型不变。
 
 **赞助后可获得私有仓库的访问权限。**
 
@@ -169,4 +190,6 @@ Yohaku 不是从零设计的，它是从我自己的博客 [Shiro](https://githu
 2026 Innei.
 
 - `design-system/` 子目录下的代码（tokens、脚本、showcase、模板等）采用 [MIT 许可证](./design-system/LICENSE)。
+- `apps/mobile/` 与 `packages/rich-content/` 采用 [MIT 许可证](./apps/mobile/LICENSE)，版权 Innei。
+- `packages/dom-webview/` 沿用上游 Expo MIT，改动说明见 [`VENDOR.md`](./packages/dom-webview/VENDOR.md)。
 - 仓库其他部分（README、截图、对话归档等内容）仍然采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议。
