@@ -1,0 +1,512 @@
+/* ─── alert · 静谧 ──────────────────────────────────────────────────────────── */
+
+/* Tripled class selectors beat @haklex foundation.css resets (the vanilla-extract
+   block class sets `border: none; padding: 0 1em; margin: 2em 0`, and contextual
+   rules like `._14ko36c0 .r8uj4t1k` reach (0,2,0)) regardless of chunk order. */
+.rich-alert.rich-alert.rich-alert {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  border: none;
+  border-left: 1px solid var(--marker-color);
+  border-radius: 0;
+  background: transparent;
+  padding: 4px 0 4px 24px;
+}
+
+.rich-alert-note      { --marker-color: var(--color-info); }
+.rich-alert-tip       { --marker-color: var(--color-success); }
+.rich-alert-important { --marker-color: var(--color-accent); }
+.rich-alert-warning   { --marker-color: var(--color-warning); }
+.rich-alert-caution   { --marker-color: var(--color-error); }
+
+.rich-alert-yohaku-label {
+  font-size: var(--text-caption-10, 10px);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--marker-color);
+  opacity: 0.9;
+}
+
+.rich-alert-content {
+  font-size: var(--text-copy-14, 14px);
+  line-height: var(--text-copy-14--line-height, 1.57);
+  color: var(--color-neutral-9);
+}
+
+.rich-alert-content > .rich-paragraph:first-child { margin-top: 0; }
+.rich-alert-content > .rich-paragraph:last-child { margin-bottom: 0; }
+
+/* ─── banner · 明快 ─────────────────────────────────────────────────────────── */
+
+/* Tripled class: outranks foundation.css `.v10dui0 .rich-banner { margin: 2em 0 }`
+   and any block-level reset regardless of stylesheet order. */
+.rich-banner.rich-banner.rich-banner {
+  position: relative;
+  margin: 1rem 0;
+  padding: 18px 14px;
+  border: none;
+  border-radius: 0;
+  background: var(--marker-tint);
+}
+
+.rich-banner::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--marker-color) 30%,
+    var(--marker-color) 70%,
+    transparent 100%
+  );
+}
+
+.rich-banner-note      { --marker-color: var(--color-info); }
+.rich-banner-tip       { --marker-color: var(--color-success); }
+.rich-banner-important { --marker-color: var(--color-accent); }
+.rich-banner-warning   { --marker-color: var(--color-warning); }
+.rich-banner-caution   { --marker-color: var(--color-error); }
+.rich-banner { --marker-tint: color-mix(in srgb, var(--marker-color) 7%, transparent); }
+
+.rich-banner-inner {
+  position: relative;
+  padding-left: 24px;
+}
+
+/* Hangs in the left padding so header and body share the same left edge. */
+.rich-banner-yohaku-dot {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--marker-color);
+}
+
+.rich-banner-yohaku-header {
+  font-size: var(--text-copy-13, 13px);
+  line-height: var(--text-copy-13--line-height, 1.54);
+  font-weight: 700;
+  color: var(--marker-color);
+  margin-bottom: 4px;
+}
+
+.rich-banner-content {
+  font-size: var(--text-copy-14, 14px);
+  line-height: var(--text-copy-14--line-height, 1.57);
+  color: var(--color-neutral-9);
+}
+
+.rich-banner-content > .rich-paragraph:first-child { margin-top: 0; }
+.rich-banner-content > .rich-paragraph:last-child { margin-bottom: 0; }
+
+.rich-banner-content .rich-content,
+.rich-nestdoc-yohaku .rich-content {
+  max-width: 100%;
+}
+
+/* ─── checklist · 痕 ───────────────────────────────────────────────
+   DOM owned by LexicalListItemOverride — <li class="yohaku-checklist-item"
+   data-checked>. Checked dissolves the box, leaving only the accent trace. */
+
+/* haklex puts both `checklist` (pl:0) and `listUl` (pl:lg) on the checklist
+   <ul>, and `checklist` wins — pin to lg so checklist text and regular list
+   text share one baseline; the item then sits flush like .rich-list-item */
+.rich-checklist {
+  padding-left: var(--rc-space-lg, 24px);
+  list-style: none;
+}
+
+.yohaku-checklist-item {
+  --ck: 1em;
+  --mk: calc(-1 * var(--ck) - 0.4em);
+  position: relative;
+  list-style: none;
+  padding-left: 0.5em;
+  margin-block: 0.75em;
+}
+
+.yohaku-checklist-item::before,
+.yohaku-checklist-item::after {
+  content: '';
+  position: absolute;
+  box-sizing: border-box;
+}
+
+.yohaku-checklist-item::before {
+  left: var(--mk);
+  top: calc((1lh - var(--ck)) / 2);
+  width: var(--ck);
+  height: var(--ck);
+  border-radius: 9999px;
+  border: 1px solid var(--color-neutral-4);
+}
+
+.yohaku-checklist-item::after {
+  left: calc(var(--mk) + var(--ck) * 0.26);
+  top: calc((1lh - var(--ck)) / 2 + var(--ck) * 0.05);
+  width: calc(var(--ck) * 0.36);
+  height: calc(var(--ck) * 0.66);
+  transform: rotate(45deg);
+  transform-origin: center;
+  opacity: 0;
+}
+
+.yohaku-checklist-item[data-checked='true'] {
+  color: var(--color-neutral-6);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--color-neutral-5);
+}
+.yohaku-checklist-item[data-checked='true']::before {
+  border-color: transparent;
+}
+.yohaku-checklist-item[data-checked='true']::after {
+  border-right: 1.8px solid var(--color-accent);
+  border-bottom: 1.8px solid var(--color-accent);
+  opacity: 1;
+}
+
+/* ─── details · 括 ─────────────────────────────────────────────────
+   DOM owned by LexicalDetailsOverride. Corner brackets hang in the prose
+   gutter (negative inline margin) so summary / content stay flush-left
+   with body text. No chevron — the bracket pair carries the open state. */
+
+.yohaku-details {
+  --rd-pad: 18px;
+  --rd-pull: 18px;
+  position: relative;
+  margin: 1rem calc(-1 * var(--rd-pull));
+  padding: 8px var(--rd-pad);
+  interpolate-size: allow-keywords;
+}
+
+/* mobile gutter is too narrow to absorb the bracket pull — drop the negative
+   margin so padding-inline alone carries it (details inset, no overflow) */
+@media (max-width: 1023px) {
+  .yohaku-details {
+    --rd-pull: 0px;
+  }
+}
+
+.yohaku-details::before,
+.yohaku-details::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--color-neutral-5);
+  transition: border-color 0.25s ease;
+  pointer-events: none;
+}
+.yohaku-details::before {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+.yohaku-details::after {
+  right: 0;
+  bottom: 0;
+  border-left: 0;
+  border-top: 0;
+}
+.yohaku-details:not([open]):hover::before,
+.yohaku-details:not([open]):hover::after {
+  border-color: var(--color-neutral-6);
+}
+.yohaku-details[open]::before,
+.yohaku-details[open]::after {
+  border-color: var(--color-accent);
+}
+
+.yohaku-details-summary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  font-weight: 500;
+  color: var(--color-neutral-9);
+  outline: none;
+}
+.yohaku-details-summary::-webkit-details-marker {
+  display: none;
+}
+.yohaku-details-summary::marker {
+  content: '';
+}
+.yohaku-details-summary:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+  outline-offset: 3px;
+}
+
+.yohaku-details-summary-text {
+  text-decoration: underline dashed var(--color-neutral-5);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.25s ease;
+}
+.yohaku-details[open] .yohaku-details-summary-text {
+  text-decoration-style: solid;
+  text-decoration-color: var(--color-accent);
+}
+
+.yohaku-details-content {
+  margin-top: 6px;
+  color: var(--color-neutral-8);
+}
+.yohaku-details-content > .rich-paragraph:first-child {
+  margin-top: 0;
+}
+.yohaku-details-content > .rich-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.yohaku-details::details-content {
+  display: block;
+  height: 0;
+  overflow: hidden;
+  opacity: 0;
+  content-visibility: hidden;
+  transition:
+    height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    content-visibility 0.35s allow-discrete;
+}
+.yohaku-details[open]::details-content {
+  height: auto;
+  opacity: 1;
+  content-visibility: visible;
+}
+
+
+/* ─── chat · 对话 ───────────────────────────────────────────────────────────── */
+
+.rich-chat-yohaku {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin: 1.5rem 0;
+  font-family: var(
+    --app-font-sans,
+    -apple-system,
+    'PingFang SC',
+    'Microsoft YaHei',
+    'Inter',
+    system-ui,
+    sans-serif
+  );
+}
+
+.rich-chat-yohaku-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--text-copy-15, 15px);
+  line-height: var(--text-copy-15--line-height, 1.7);
+  color: var(--color-neutral-9);
+}
+
+.rich-chat-yohaku-turn[data-align='right'] {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.rich-chat-yohaku-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-caption-10, 10px);
+  line-height: var(--text-caption-10--line-height, 1.4);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-neutral-7);
+}
+
+.rich-chat-yohaku-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--color-neutral-6);
+  flex-shrink: 0;
+}
+
+.rich-chat-yohaku-dot[data-tone='accent'] {
+  background: var(--color-accent);
+}
+
+.rich-chat-yohaku-body > :first-child {
+  margin-top: 0;
+}
+.rich-chat-yohaku-body > :last-child {
+  margin-bottom: 0;
+}
+
+.rich-chat-yohaku-userbody .rich-chat-yohaku-body {
+  display: inline-block;
+  max-width: 100%;
+}
+
+.rich-chat-yohaku-userbody .rich-chat-yohaku-body > * {
+  display: inline;
+  margin: 0;
+  padding: 0 2px;
+  background: linear-gradient(
+    transparent 60%,
+    color-mix(in srgb, var(--color-accent) 14%, transparent) 60%
+  );
+}
+
+.rich-chat-yohaku-empty {
+  color: var(--color-neutral-7);
+  font-size: var(--text-label-12, 12px);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+@media (max-width: 600px) {
+  .rich-chat-yohaku {
+    gap: 22px;
+  }
+}
+
+.rich-table-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+@media (max-width: 767px) {
+  .rich-table-scroll {
+    width: 100vw;
+    max-width: 100vw;
+    margin-left: calc(50% - 50vw);
+    padding-left: calc(50vw - 50%);
+  }
+}
+
+.rich-table-scroll th,
+.rich-table-scroll td {
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+
+/* ─── code block · 素 ───────────────────────────────────────────────
+   DOM owned by CodeBlockOverride's plain <pre><code> fallback path — the
+   route taken whenever a host supplies no slots.CodeBlock (e.g. mobile,
+   which has no Shiki dependency to spare). */
+
+.rich-code-block {
+  box-sizing: border-box;
+  margin: 1rem 0;
+  padding: 14px 16px;
+  max-width: 100%;
+  overflow-x: auto;
+  background: var(--color-neutral-2);
+  border: 1px solid var(--color-neutral-4);
+  border-radius: 0;
+}
+
+.rich-code-block code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  tab-size: 2;
+  white-space: pre;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-copy-13, 13px);
+  line-height: var(--text-copy-13--line-height, 1.54);
+  color: var(--color-neutral-9);
+}
+
+.yohaku-code-block {
+  position: relative;
+  margin: 1rem 0;
+}
+
+.yohaku-code-block .rich-code-block {
+  margin: 0;
+}
+
+.yohaku-code-block__shiki pre {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 14px 16px;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-neutral-4);
+}
+
+.yohaku-code-block__shiki code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  tab-size: 2;
+  white-space: pre;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-copy-13, 13px);
+  line-height: var(--text-copy-13--line-height, 1.54);
+}
+
+.dark .yohaku-code-block__shiki pre,
+.dark .yohaku-code-block__shiki pre span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+
+.yohaku-code-block__copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--color-neutral-4);
+  border-radius: 6px;
+  background: var(--color-neutral-1);
+  color: var(--color-neutral-7);
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.yohaku-code-block:hover .yohaku-code-block__copy,
+.yohaku-code-block__copy:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .yohaku-code-block__copy {
+    opacity: 1;
+  }
+}
+
+/* ─── mark ink ──────────────────────────────────────────────────────────────── */
+
+/* data-mark-ink is set by useMarkInk once @highlighters/core paints pen-stroke
+   overlays over the highlight spans; the upstream CSS gradient must yield to
+   them. Without JS the attribute never appears and the gradient stays. */
+[data-mark-ink] .rich-text-highlight {
+  background: none;
+}
+
+/* The selection overlay mounts as a trailing child of the nearest positioned
+   ancestor. `.rich-quote` is positioned, so the appended node knocks the closing
+   paragraph out of the upstream `:last-child` margin collapse and grows the
+   quote for as long as text stays selected. */
+.rich-quote > .rich-paragraph:nth-last-child(1 of :not([data-highlighters-overlay])) {
+  margin-bottom: 0;
+}

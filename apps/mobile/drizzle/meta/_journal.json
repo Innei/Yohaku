@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1786215904591,
+      "tag": "0000_workable_mephistopheles",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1786373956530,
+      "tag": "0001_dry_trauma",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1786458478689,
+      "tag": "0002_serious_whiplash",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1786527228774,
+      "tag": "0003_next_deadpool",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1786787905302,
+      "tag": "0004_sudden_the_captain",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1786806680931,
+      "tag": "0005_purple_dark_phoenix",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "name": "@yohaku/rich-content",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./host": "./src/host.tsx",
+    "./host-contract": "./src/host-contract.ts",
+    "./lexical": "./src/lexical/create-renderer.tsx",
+    "./module-imports": "./src/styles/module-imports.ts",
+    "./block-styles.css": "./src/styles/yohaku-block-styles.css",
+    "./rich.css": "./dist/rich.css",
+    "./src/*": "./src/*"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "scripts": {
+    "build:css": "tailwindcss -i styles/build.css -o dist/rich.css",
+    "check": "pnpm build:css && git diff --exit-code -- dist/rich.css",
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "@haklex/rich-compose": "*",
+    "@haklex/rich-editor": "*",
+    "@haklex/rich-ext-chat": "*",
+    "@haklex/rich-ext-nested-doc": "*",
+    "lexical": "*",
+    "react": "*",
+    "react-dom": "*"
+  },
+  "devDependencies": {
+    "@egoist/tailwindcss-icons": "1.9.2",
+    "@haklex/rich-compose": "0.35.0",
+    "@haklex/rich-editor": "0.35.0",
+    "@haklex/rich-ext-chat": "0.35.0",
+    "@haklex/rich-ext-nested-doc": "0.35.0",
+    "@iconify-json/material-symbols": "1.2.88",
+    "@iconify-json/mingcute": "1.2.8",
+    "@iconify-json/octicon": "1.2.30",
+    "@mx-space/editor": "0.3.0",
+    "@tailwindcss/cli": "^4.3.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "happy-dom": "^20.9.0",
+    "lexical": "^0.49.0",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-tweet": "npm:@innei/react-tweet@3.4.3",
+    "tailwindcss": "^4.3.3",
+    "typescript": "6.0.3",
+    "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "@highlighters/core": "^1.2.0",
+    "@shikijs/langs": "4.4.2",
+    "@shikijs/themes": "4.4.2",
+    "@yohaku/design-system": "workspace:*",
+    "clsx": "2.1.1",
+    "exif-js": "2.3.0",
+    "jsondiffpatch": "^0.7.6",
+    "lightweight-charts": "^5.2.0",
+    "lumeo": "^0.1.1",
+    "markdown-to-jsx": "npm:@innei/markdown-to-jsx-yet@7.7.7-11",
+    "roughjs": "^4.6.6",
+    "shiki": "^4.4.2",
+    "slot-text": "^0.3.3",
+    "tailwind-merge": "3.6.0",
+    "thumbhash": "0.1.1"
+  }
+}

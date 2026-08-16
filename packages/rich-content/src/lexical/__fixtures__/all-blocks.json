@@ -1,0 +1,386 @@
+{
+  "root": {
+    "type": "root",
+    "version": 1,
+    "direction": null,
+    "format": "",
+    "indent": 0,
+    "children": [
+      {
+        "type": "heading",
+        "version": 1,
+        "tag": "h2",
+        "direction": null,
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "version": 1,
+            "text": "Heading",
+            "detail": 0,
+            "format": 0,
+            "mode": "normal",
+            "style": ""
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "version": 1,
+        "direction": null,
+        "format": "",
+        "indent": 0,
+        "textFormat": 0,
+        "textStyle": "",
+        "children": [
+          {
+            "type": "text",
+            "version": 1,
+            "text": "Paragraph body.",
+            "detail": 0,
+            "format": 0,
+            "mode": "normal",
+            "style": ""
+          }
+        ]
+      },
+      {
+        "type": "quote",
+        "version": 1,
+        "direction": null,
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "version": 1,
+            "text": "Quoted text.",
+            "detail": 0,
+            "format": 0,
+            "mode": "normal",
+            "style": ""
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "version": 1,
+        "listType": "check",
+        "tag": "ul",
+        "start": 1,
+        "direction": null,
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "listitem",
+            "version": 1,
+            "checked": false,
+            "value": 1,
+            "direction": null,
+            "format": "",
+            "indent": 0,
+            "children": [
+              {
+                "type": "text",
+                "version": 1,
+                "text": "Todo item",
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": ""
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "details",
+        "version": 1,
+        "open": true,
+        "summary": "More info",
+        "direction": null,
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "paragraph",
+            "version": 1,
+            "direction": null,
+            "format": "",
+            "indent": 0,
+            "children": [
+              {
+                "type": "text",
+                "version": 1,
+                "text": "Hidden content.",
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": ""
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "table",
+        "version": 1,
+        "children": [
+          {
+            "type": "tablerow",
+            "version": 1,
+            "children": [
+              {
+                "type": "tablecell",
+                "version": 1,
+                "headerState": 1,
+                "colSpan": 1,
+                "rowSpan": 1,
+                "children": [
+                  {
+                    "type": "paragraph",
+                    "version": 1,
+                    "direction": null,
+                    "format": "",
+                    "indent": 0,
+                    "children": [
+                      {
+                        "type": "text",
+                        "version": 1,
+                        "text": "H1",
+                        "detail": 0,
+                        "format": 0,
+                        "mode": "normal",
+                        "style": ""
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "code",
+        "version": 1,
+        "language": "ts",
+        "direction": null,
+        "format": "",
+        "indent": 0,
+        "children": [
+          {
+            "type": "text",
+            "version": 1,
+            "text": "const x = 1",
+            "detail": 0,
+            "format": 0,
+            "mode": "normal",
+            "style": ""
+          }
+        ]
+      },
+      {
+        "type": "alert-quote",
+        "version": 1,
+        "alertType": "warning",
+        "content": {
+          "root": {
+            "type": "root",
+            "version": 1,
+            "direction": null,
+            "format": "",
+            "indent": 0,
+            "children": [
+              {
+                "type": "paragraph",
+                "version": 1,
+                "direction": null,
+                "format": "",
+                "indent": 0,
+                "children": [
+                  {
+                    "type": "text",
+                    "version": 1,
+                    "text": "Careful.",
+                    "detail": 0,
+                    "format": 0,
+                    "mode": "normal",
+                    "style": ""
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "banner",
+        "version": 1,
+        "bannerType": "tip",
+        "content": {
+          "root": {
+            "type": "root",
+            "version": 1,
+            "direction": null,
+            "format": "",
+            "indent": 0,
+            "children": [
+              {
+                "type": "paragraph",
+                "version": 1,
+                "direction": null,
+                "format": "",
+                "indent": 0,
+                "children": [
+                  {
+                    "type": "text",
+                    "version": 1,
+                    "text": "Heads up.",
+                    "detail": 0,
+                    "format": 0,
+                    "mode": "normal",
+                    "style": ""
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "type": "poll",
+        "version": 1,
+        "pollId": "p1",
+        "question": "Pick one",
+        "mode": "single",
+        "showResults": "always",
+        "options": [
+          { "id": "o1", "label": "Option A" },
+          { "id": "o2", "label": "Option B" }
+        ]
+      },
+      {
+        "type": "stock",
+        "version": 1,
+        "variant": "snapshot",
+        "symbol": "AAPL"
+      },
+      {
+        "type": "afilmory",
+        "version": 1,
+        "baseUrl": "https://gallery.example.com",
+        "source": {
+          "kind": "list",
+          "items": [{ "id": "ph1", "w": 4, "h": 3, "hash": "abcd" }]
+        },
+        "layout": "grid",
+        "title": "Gallery"
+      },
+      {
+        "type": "map",
+        "version": 1,
+        "title": "Trip",
+        "pois": [{ "lat": 35, "lon": 139, "title": "Point A" }]
+      },
+      {
+        "type": "mermaid",
+        "version": 1,
+        "diagram": "graph TD\n  A --> B\n  B --> C"
+      },
+      {
+        "type": "image",
+        "version": 1,
+        "src": "https://example.com/photo.jpg",
+        "altText": "A photo",
+        "width": 800,
+        "height": 600
+      },
+      {
+        "type": "paragraph",
+        "version": 1,
+        "direction": null,
+        "format": "",
+        "indent": 0,
+        "textFormat": 0,
+        "textStyle": "",
+        "children": [
+          {
+            "type": "text",
+            "version": 1,
+            "text": "See ",
+            "detail": 0,
+            "format": 0,
+            "mode": "normal",
+            "style": ""
+          },
+          {
+            "type": "link",
+            "version": 1,
+            "url": "https://example.com",
+            "rel": "noopener",
+            "target": "_blank",
+            "title": null,
+            "direction": null,
+            "format": "",
+            "indent": 0,
+            "children": [
+              {
+                "type": "text",
+                "version": 1,
+                "text": "Example Site",
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": ""
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "version": 1,
+        "direction": null,
+        "format": "",
+        "indent": 0,
+        "textFormat": 0,
+        "textStyle": "",
+        "children": [
+          {
+            "type": "autolink",
+            "version": 1,
+            "url": "https://bare-url.example.com",
+            "rel": "noopener",
+            "target": "_blank",
+            "direction": null,
+            "format": "",
+            "indent": 0,
+            "children": [
+              {
+                "type": "text",
+                "version": 1,
+                "text": "https://bare-url.example.com",
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": ""
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "link-card",
+        "version": 1,
+        "url": "https://link-card.example.com"
+      },
+      {
+        "type": "totally-unknown",
+        "version": 1
+      }
+    ]
+  }
+}

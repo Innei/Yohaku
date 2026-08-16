@@ -1,4 +1,14 @@
 packages:
   - design-system
+  - apps/*
+  - packages/*
+
 allowBuilds:
-  esbuild: set this to true or false
+  '@parcel/watcher': true
+  better-sqlite3: true
+  esbuild: false
+
+overrides:
+  '@expo/dom-webview': link:./packages/dom-webview
+  react: 19.2.3
+  react-dom: 19.2.3
