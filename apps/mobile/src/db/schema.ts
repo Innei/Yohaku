@@ -63,6 +63,7 @@ export const notes = sqliteTable(
     hasPassword: integer('has_password', { mode: 'boolean' })
       .notNull()
       .default(false),
+    topicId: text('topic_id'),
     readCount: integer('read_count').notNull().default(0),
     likeCount: integer('like_count').notNull().default(0),
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
@@ -97,6 +98,16 @@ export const thinkings = sqliteTable('thinkings', {
     string,
     ApiEnrichment
   > | null>(),
+})
+
+export const topics = sqliteTable('topics', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull(),
+  description: text('description').notNull().default(''),
+  introduce: text('introduce'),
+  icon: text('icon'),
+  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
 })
 
 export const categories = sqliteTable(
@@ -134,6 +145,7 @@ export const readingHistory = sqliteTable('reading_history', {
 export type PostRow = typeof posts.$inferSelect
 export type NoteRow = typeof notes.$inferSelect
 export type ThinkingRow = typeof thinkings.$inferSelect
+export type TopicRow = typeof topics.$inferSelect
 export type CategoryRow = typeof categories.$inferSelect
 export type LikedRefRow = typeof likedRefs.$inferSelect
 export type ReadingHistoryRow = typeof readingHistory.$inferSelect

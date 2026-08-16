@@ -70,6 +70,7 @@ type NavigationHeaderTitleProps = ViewProps & {
   title: string
   titleColor: string
   titleFontSize: number
+  titleFontWeight?: 'bold' | 'heavy' | 'medium' | 'semibold'
 }
 
 export const NavigationHeaderTitle: ComponentType<NavigationHeaderTitleProps> =

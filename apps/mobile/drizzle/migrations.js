@@ -6,6 +6,7 @@ import m0002 from './0002_serious_whiplash.sql'
 import m0003 from './0003_next_deadpool.sql'
 import m0004 from './0004_sudden_the_captain.sql'
 import m0005 from './0005_purple_dark_phoenix.sql'
+import m0006 from './0006_note_topics.sql'
 import journal from './meta/_journal.json'
 
 export default {
@@ -17,5 +18,6 @@ export default {
     m0003,
     m0004,
     m0005,
+    m0006,
   },
 }

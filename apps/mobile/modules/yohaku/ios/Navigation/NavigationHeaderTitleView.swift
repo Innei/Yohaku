@@ -10,6 +10,7 @@ final class NavigationHeaderTitleView: ExpoView {
   private let titleLabel = UILabel()
   private let subtitleLabel = UILabel()
   private var titleFontSize: CGFloat = 16
+  private var titleFontWeight: UIFont.Weight = .semibold
   private var subtitleFontSize: CGFloat = 12
   private var scrollEdgeInteraction: (any UIInteraction)?
 
@@ -104,6 +105,20 @@ final class NavigationHeaderTitleView: ExpoView {
     updateFonts()
   }
 
+  func setTitleFontWeight(_ name: String) {
+    switch name {
+    case "bold":
+      titleFontWeight = .bold
+    case "heavy":
+      titleFontWeight = .heavy
+    case "medium":
+      titleFontWeight = .medium
+    default:
+      titleFontWeight = .semibold
+    }
+    updateFonts()
+  }
+
   func setSubtitleFontSize(_ size: Double) {
     subtitleFontSize = CGFloat(size)
     updateFonts()
@@ -125,7 +140,7 @@ final class NavigationHeaderTitleView: ExpoView {
   }
 
   private func updateFonts() {
-    titleLabel.font = .systemFont(ofSize: titleFontSize, weight: .semibold)
+    titleLabel.font = .systemFont(ofSize: titleFontSize, weight: titleFontWeight)
     subtitleLabel.font = .systemFont(ofSize: subtitleFontSize, weight: .regular)
   }
 

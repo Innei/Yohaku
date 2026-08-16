@@ -28,6 +28,16 @@ export interface ApiPost {
   title: string
 }
 
+export interface ApiTopic {
+  createdAt: string
+  description: string
+  icon: string | null
+  id: string
+  introduce: string | null
+  name: string
+  slug: string
+}
+
 export interface ApiNote {
   content?: string | null
   contentFormat: 'markdown' | 'lexical' | null
@@ -43,6 +53,8 @@ export interface ApiNote {
   summary?: string | null
   text?: string | null
   title: string
+  topic?: ApiTopic | null
+  topicId?: string | null
   weather: string | null
 }
 

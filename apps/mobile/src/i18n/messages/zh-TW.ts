@@ -49,6 +49,16 @@ export const zhTW = {
     olderNotes: '更早的手記',
     readFullNote: '閱讀全文',
   },
+  topic: {
+    indexTitle: '專欄',
+    chip: '專欄 · {name}',
+    chipPrefix: '專欄 ·',
+    inTopic: '此手記收錄於專欄',
+    noteCount: '{count} 篇',
+    updated: '最近更新 {time}',
+    empty: '還沒有專欄',
+    notesEmpty: '這個專欄還沒有手記',
+  },
   detail: {
     bodyFailed: '內文載入失敗，點此重試',
     bodyLoading: '內文載入中…',

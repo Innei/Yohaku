@@ -7,6 +7,8 @@ const LOCALE_SEGMENT = new Set<string>(locales)
 
 const POST_PATH = /^\/posts\/([^/]+)\/([^/]+)\/?$/
 const NOTE_PATH = /^\/notes\/(\d+)\/?$/
+const SERIES_INDEX_PATH = /^\/notes\/series\/?$/
+const SERIES_DETAIL_PATH = /^\/notes\/series\/([^/]+)\/?$/
 const SCHEME = /^[a-z][\d+.a-z-]*:/i
 
 function sitePathname(pathname: string): string {
@@ -30,6 +32,13 @@ function hrefForSitePath(pathname: string): Href | null {
   if (note) {
     return { pathname: '/notes/[nid]', params: { nid: note[1] } }
   }
+  if (SERIES_INDEX_PATH.test(path)) {
+    return { pathname: '/series' }
+  }
+  const series = path.match(SERIES_DETAIL_PATH)
+  if (series) {
+    return { pathname: '/series/[slug]', params: { slug: series[1] } }
+  }
   return null
 }
 
@@ -39,7 +48,7 @@ function pathFromHref(href: Href | null): string | null {
     'params' in href && href.params && typeof href.params === 'object'
       ? (href.params as Record<string, unknown>)
       : {}
-  let path = href.pathname
+  let path: string = href.pathname
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined || value === null) continue
     path = path.replaceAll(`[${key}]`, encodeURIComponent(String(value)))

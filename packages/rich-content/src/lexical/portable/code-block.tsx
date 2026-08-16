@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react'
 
+import { shouldCollapseCode } from './code-collapse'
+import { useExpandHeight } from './tween-height'
+
 function copyText(text: string): void {
   if (navigator.clipboard?.writeText) {
     void navigator.clipboard.writeText(text).catch(() => legacyCopy(text))
@@ -51,13 +54,19 @@ function useShikiHtml(code: string, language?: string): string | null {
 
 export function PortableCodeBlock({
   code,
+  fold = true,
   language,
 }: {
   code: string
+  fold?: boolean
   language?: string
 }) {
   const html = useShikiHtml(code, language)
   const [copied, setCopied] = useState(false)
+  const long = fold && shouldCollapseCode(code)
+  const [expandedFor, setExpandedFor] = useState<string | null>(null)
+  const collapsed = long && expandedFor !== code
+  const { capture, ref } = useExpandHeight(collapsed)
 
   useEffect(() => {
     if (!copied) return
@@ -66,7 +75,13 @@ export function PortableCodeBlock({
   }, [copied])
 
   return (
-    <div className="yohaku-code-block">
+    <div
+      className={
+        long && collapsed
+          ? 'yohaku-code-block yohaku-code-block--collapsed'
+          : 'yohaku-code-block'
+      }
+    >
       <button
         aria-label="Copy code"
         className="yohaku-code-block__copy"
@@ -82,16 +97,31 @@ export function PortableCodeBlock({
           }
         />
       </button>
-      {html ? (
-        <div
-          className="yohaku-code-block__shiki"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
-      ) : (
-        <pre className="rich-code-block">
-          <code>{code}</code>
-        </pre>
-      )}
+      <div className="yohaku-code-block__body" ref={ref}>
+        {html ? (
+          <div
+            className="yohaku-code-block__shiki"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        ) : (
+          <pre className="rich-code-block">
+            <code>{code}</code>
+          </pre>
+        )}
+      </div>
+      {long && collapsed ? (
+        <button
+          className="yohaku-code-block__expand"
+          type="button"
+          onClick={() => {
+            capture()
+            setExpandedFor(code)
+          }}
+        >
+          <i className="i-mingcute-arrow-to-down-line" />
+          <span>展开</span>
+        </button>
+      ) : null}
     </div>
   )
 }

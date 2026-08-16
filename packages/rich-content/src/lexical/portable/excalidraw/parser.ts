@@ -30,13 +30,19 @@ function resolveUrl(
 }
 
 export function parseSnapshot(
-  raw: string | null | undefined,
+  raw: string | object | null | undefined,
   apiUrl: string | undefined,
 ): ParsedSnapshot {
-  if (!raw) return { kind: 'empty' }
+  if (raw === null || raw === undefined || raw === '') return { kind: 'empty' }
+  if (typeof raw === 'object') {
+    const scene = normalizeScene(raw)
+    return scene
+      ? { kind: 'inline', scene }
+      : { kind: 'error', error: 'Invalid snapshot' }
+  }
   const inline = tryParseJson<ExcalidrawScene>(raw)
   if (inline && typeof inline === 'object' && Array.isArray(inline.elements)) {
-    return { kind: 'inline', scene: inline }
+    return { kind: 'inline', scene: normalizeScene(inline) ?? inline }
   }
 
   const [firstLine, ...rest] = raw.split('\n')
@@ -55,7 +61,17 @@ export function parseSnapshot(
 }
 
 export function normalizeScene(input: unknown): ExcalidrawScene | null {
+  if (typeof input === 'string') {
+    return normalizeScene(tryParseJson(input))
+  }
   if (!input || typeof input !== 'object') return null
+  const wrapped = input as { data?: unknown }
+  if (
+    !Array.isArray((input as Partial<ExcalidrawScene>).elements) &&
+    wrapped.data !== undefined
+  ) {
+    return normalizeScene(wrapped.data)
+  }
   const candidate = input as Partial<ExcalidrawScene>
   if (!Array.isArray(candidate.elements)) return null
   return {

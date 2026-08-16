@@ -26,6 +26,15 @@ describe('hrefForExternalUrl', () => {
       pathname: '/notes/[nid]',
       params: { nid: '42' },
     })
+    expect(hrefForExternalUrl('https://example.com/notes/series')).toEqual({
+      pathname: '/series',
+    })
+    expect(
+      hrefForExternalUrl('https://example.com/notes/series/year-summary'),
+    ).toEqual({
+      pathname: '/series/[slug]',
+      params: { slug: 'year-summary' },
+    })
   })
 
   it('strips a locale prefix before matching', () => {
@@ -65,6 +74,12 @@ describe('pathForExternalUrl', () => {
       '/posts/life/tea',
     )
     expect(pathForExternalUrl('https://example.com/notes/9/')).toBe('/notes/9')
+    expect(pathForExternalUrl('https://example.com/notes/series')).toBe(
+      '/series',
+    )
+    expect(
+      pathForExternalUrl('https://example.com/en/notes/series/year-summary'),
+    ).toBe('/series/year-summary')
   })
 })
 
@@ -92,6 +107,10 @@ describe('rewriteIncomingPath', () => {
     expect(rewriteIncomingPath('https://example.com/notes/12')).toBe(
       '/notes/12',
     )
+    expect(rewriteIncomingPath('/notes/series')).toBe('/series')
+    expect(
+      rewriteIncomingPath('https://example.com/notes/series/hokkaido'),
+    ).toBe('/series/hokkaido')
   })
 
   it('sends claimed but unmapped site paths home', () => {

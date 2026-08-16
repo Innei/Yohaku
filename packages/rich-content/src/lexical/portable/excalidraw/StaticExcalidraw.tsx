@@ -21,13 +21,24 @@ export interface StaticExcalidrawProps {
 
 const VIEWPORT_MARGIN = '200px 0px'
 
+function isReactNativeWebView(): boolean {
+  return Boolean(
+    typeof window !== 'undefined' &&
+    (
+      window as unknown as {
+        ReactNativeWebView?: { postMessage?: unknown }
+      }
+    ).ReactNativeWebView,
+  )
+}
+
 export const StaticExcalidraw: FC<StaticExcalidrawProps> = ({
   className,
   data,
   showExpandButton = true,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [entered, setEntered] = useState(false)
+  const [entered, setEntered] = useState(isReactNativeWebView)
 
   useLxgwFont()
 
@@ -45,7 +56,7 @@ export const StaticExcalidraw: FC<StaticExcalidrawProps> = ({
           }
         }
       },
-      { rootMargin: VIEWPORT_MARGIN, threshold: 0.05 },
+      { rootMargin: VIEWPORT_MARGIN, threshold: 0 },
     )
     observer.observe(node)
     return () => observer.disconnect()
@@ -128,6 +139,9 @@ const StaticExcalidrawInner: FC<{
           message={(remoteResource.error as Error)?.message || 'Failed to load'}
         />
       )
+    }
+    if (remoteResource.data !== undefined && !remoteResource.isLoading) {
+      return <ErrorMessage message="Invalid whiteboard data" />
     }
     return <ExcalidrawLoading />
   }

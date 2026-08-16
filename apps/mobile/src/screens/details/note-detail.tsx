@@ -30,6 +30,7 @@ import { ArticleMore } from './article-more'
 import { ArticleNotice } from './article-notice'
 import { ArticleTail } from './article-tail'
 import { useReservedBodyHeight } from './body-slot'
+import { NoteTopicBlock } from './note-topic-block'
 import { useCollapsingTitle } from './use-collapsing-title'
 import { useReadingPresence } from './use-reading-presence'
 import { useRetryableBodyRefresh } from './use-retryable-body-refresh'
@@ -230,6 +231,7 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                 </AppText>
               </View>
             )}
+            <NoteTopicBlock topicId={note.topicId} />
             <ArticleTail
               kind="note"
               likeCount={note.likeCount}

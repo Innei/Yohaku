@@ -30,6 +30,9 @@ importers:
       '@haklex/rich-ext-chat':
         specifier: 0.35.0
         version: 0.35.0(e980afe1a5b2fec76ef6137e12f93265)
+      '@haklex/rich-ext-embed':
+        specifier: 0.35.0
+        version: 0.35.0(29156abe23e66fd4c7ee1b37e93c9e06)
       '@haklex/rich-ext-nested-doc':
         specifier: 0.35.0
         version: 0.35.0(d4c4d73ec42f4823b70b44fa975fb3d2)
@@ -318,6 +321,9 @@ importers:
       '@haklex/rich-ext-chat':
         specifier: 0.35.0
         version: 0.35.0(5d4b24f149d9a10d54f0947a2ebe8227)
+      '@haklex/rich-ext-embed':
+        specifier: 0.35.0
+        version: 0.35.0(b52ce9c5926b255fd5f8a623d9d01608)
       '@haklex/rich-ext-nested-doc':
         specifier: 0.35.0
         version: 0.35.0(37f11a3103ffb01b878cba820b296e5d)
@@ -10600,7 +10606,9 @@ snapshots:
       metro-runtime: 0.84.4
     transitivePeerDependencies:
       - '@babel/core'
+      - bufferutil
       - supports-color
+      - utf-8-validate
 
   '@react-native/normalize-colors@0.74.89': {}
 

@@ -49,6 +49,16 @@ export const ja = {
     olderNotes: '以前の手記',
     readFullNote: '手記を読む',
   },
+  topic: {
+    indexTitle: 'コラム',
+    chip: 'コラム · {name}',
+    chipPrefix: 'コラム ·',
+    inTopic: 'この手記は次のコラムに収録されています',
+    noteCount: '{count} 篇',
+    updated: '最近の更新 {time}',
+    empty: 'コラムはまだありません',
+    notesEmpty: 'このコラムにはまだ手記がありません',
+  },
   detail: {
     bodyFailed: '本文の読み込みに失敗しました。タップで再試行',
     bodyLoading: '本文を読み込み中…',

@@ -10,6 +10,7 @@ import {
   postMetaFromApi,
   pruneBoundary,
   thinkingFromApi,
+  topicFromApi,
 } from './merge'
 
 const created = '2026-08-01T00:00:00.000Z'
@@ -324,7 +325,61 @@ describe('noteMetaFromApi', () => {
     expect(row.excerpt).toBe('概要')
     expect(row.hasPassword).toBe(false)
     expect(row.contentFormat).toBe('markdown')
+    expect(row.topicId).toBeNull()
     expect('text' in row).toBe(false)
+  })
+
+  it('prefers topicId and falls back to the embedded topic', () => {
+    const note: ApiNote = {
+      id: 'n1',
+      nid: 42,
+      title: '手记',
+      contentFormat: 'lexical',
+      mood: null,
+      weather: null,
+      hasPassword: false,
+      readCount: 1,
+      likeCount: 0,
+      createdAt: created,
+      modifiedAt: null,
+      topicId: 't1',
+    }
+    expect(noteMetaFromApi(note, 'zh').topicId).toBe('t1')
+    expect(
+      noteMetaFromApi(
+        {
+          ...note,
+          topicId: null,
+          topic: {
+            id: 't2',
+            name: '北海道',
+            slug: 'hokkaido',
+            description: '',
+            introduce: null,
+            icon: null,
+            createdAt: created,
+          },
+        },
+        'zh',
+      ).topicId,
+    ).toBe('t2')
+  })
+})
+
+describe('topicFromApi', () => {
+  it('maps dates and empty introduce', () => {
+    const row = topicFromApi({
+      id: 't1',
+      name: '北海道',
+      slug: 'hokkaido',
+      description: 'desc',
+      introduce: null,
+      icon: 'https://example.com/i.png',
+      createdAt: created,
+    })
+    expect(row.createdAt).toEqual(new Date(created))
+    expect(row.icon).toBe('https://example.com/i.png')
+    expect(row.introduce).toBeNull()
   })
 })
 

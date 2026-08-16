@@ -26,9 +26,21 @@ export function useCollapsingTitle(
     y: number
   }) => void,
   presenceMarks?: PresenceMark[],
+  options?: {
+    alwaysVisible?: boolean
+    leadingInset?: number
+    reserveBackClearance?: boolean
+    titleFontSize?: number
+    titleFontWeight?: 'bold' | 'heavy' | 'medium' | 'semibold'
+  },
 ) {
+  const alwaysVisible = options?.alwaysVisible === true
+  const leadingInset = options?.leadingInset ?? 0
+  const reserveBackClearance = options?.reserveBackClearance !== false
+  const titleFontSize = options?.titleFontSize
+  const titleFontWeight = options?.titleFontWeight
   const headerHeight = useHeaderHeight()
-  const progress = useSharedValue(0)
+  const progress = useSharedValue(alwaysVisible ? 1 : 0)
   const readPercent = useSharedValue(0)
   const titleBottom = useSharedValue(Number.POSITIVE_INFINITY)
   const metricsRef = useRef(onScrollMetrics)
@@ -43,9 +55,11 @@ export function useCollapsingTitle(
 
   const onScroll = useAnimatedScrollHandler(
     (event) => {
-      const crossing = titleBottom.get() - headerHeight
-      const traveled = event.contentOffset.y - (crossing - FADE_BAND / 2)
-      progress.set(Math.min(1, Math.max(0, traveled / FADE_BAND)))
+      if (!alwaysVisible) {
+        const crossing = titleBottom.get() - headerHeight
+        const traveled = event.contentOffset.y - (crossing - FADE_BAND / 2)
+        progress.set(Math.min(1, Math.max(0, traveled / FADE_BAND)))
+      }
       const contentHeight = event.contentSize.height
       if (contentHeight > 0) {
         const y = event.contentOffset.y
@@ -62,7 +76,7 @@ export function useCollapsingTitle(
         )
       }
     },
-    [headerHeight, reportMetrics, trackMetrics],
+    [alwaysVisible, headerHeight, reportMetrics, trackMetrics],
   )
 
   const onTitleLayout = (event: LayoutChangeEvent) => {
@@ -79,11 +93,15 @@ export function useCollapsingTitle(
       headerTitle: () =>
         title ? (
           <CollapsingHeaderTitle
+            leadingInset={leadingInset}
             marks={presenceMarks}
             progress={progress}
             readPercent={readPercent}
+            reserveBackClearance={reserveBackClearance}
             subtitle={subtitle}
             title={title}
+            titleFontSize={titleFontSize}
+            titleFontWeight={titleFontWeight}
           />
         ) : null,
       scrollEdgeEffects: {
@@ -93,7 +111,17 @@ export function useCollapsingTitle(
           : ('hidden' as const),
       },
     }),
-    [presenceMarks, progress, readPercent, subtitle, title],
+    [
+      leadingInset,
+      presenceMarks,
+      progress,
+      readPercent,
+      reserveBackClearance,
+      subtitle,
+      title,
+      titleFontSize,
+      titleFontWeight,
+    ],
   )
 
   return {

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import type { LayoutChangeEvent } from 'react-native'
 import { StyleSheet, useWindowDimensions, View } from 'react-native'
 
 import { AppText, NativePressable } from '@/components/ui'
-import type { NoteRow } from '@/db/schema'
+import type { NoteRow, TopicRow } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { formatNoteListDate } from '@/lib/datetime'
 import { ArticleMetaLine } from '@/screens/details/article-meta-line'
@@ -11,6 +12,7 @@ import { bodyIsStale } from '@/sync/merge'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
+import { TopicChip } from '../topics/topic-chip'
 import { NotePreview } from './note-preview'
 import { noteShowsInlineBody } from './note-timeline'
 
@@ -21,9 +23,13 @@ const fadeStops = [0.08, 0.2, 0.38, 0.58, 0.78, 0.94] as const
 export function NoteLatest({
   note,
   onOpen,
+  onTitleLayout,
+  topic,
 }: {
   note: NoteRow
   onOpen: () => void
+  onTitleLayout?: (event: LayoutChangeEvent) => void
+  topic: TopicRow | null
 }) {
   const locale = useLocale()
   const t = useTranslations('list')
@@ -67,7 +73,7 @@ export function NoteLatest({
     <View style={styles.root}>
       <View>
         <NativePressable onPress={onOpen}>
-          <View style={styles.heading}>
+          <View style={styles.heading} onLayout={onTitleLayout}>
             <ArticleMetaLine
               parts={[
                 note.weather,
@@ -77,6 +83,9 @@ export function NoteLatest({
             />
             <AppText variant="largeTitle">{note.title}</AppText>
           </View>
+        </NativePressable>
+        {topic ? <TopicChip topic={topic} /> : null}
+        <NativePressable onPress={onOpen}>
           {inline ? (
             <View style={[styles.preview, { maxHeight: cap }]}>
               <View

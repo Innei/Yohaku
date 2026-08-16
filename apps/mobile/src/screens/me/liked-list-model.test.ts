@@ -44,6 +44,7 @@ function note(id: string): NoteRow {
     content: null,
     contentFormat: 'lexical',
     hasPassword: false,
+    topicId: null,
     readCount: 0,
     likeCount: 1,
     createdAt: likedAt,

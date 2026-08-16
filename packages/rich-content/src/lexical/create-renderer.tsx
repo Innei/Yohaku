@@ -75,6 +75,7 @@ import { staticExcalidrawModule } from './portable/excalidraw'
 import { LexicalImageOverride } from './portable/image'
 import { Mermaid } from './portable/mermaid'
 import { LexicalNestedDocOverride } from './portable/nested-doc'
+import { YohakuEmbedNode } from './portable/yohaku-embed-node'
 
 function withBoundary<P extends object>(
   label: string,
@@ -180,9 +181,14 @@ const lexicalLinkCardModule: RichRendererModule = {
   renderers: { LinkCard: LinkCardOverride },
 }
 
+const yohakuEmbedModule: RichRendererModule = {
+  ...embedModule,
+  nodes: [YohakuEmbedNode],
+}
+
 const modules: RichRendererModule[] = [
   configuredDynamicModule,
-  embedModule,
+  yohakuEmbedModule,
   configuredNestedDocModule,
   staticExcalidrawModule,
   yohakuChatModule,

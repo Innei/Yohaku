@@ -27,6 +27,7 @@ export const noteConflictSet = {
   excerpt: sql`excluded.excerpt`,
   contentFormat: sql`excluded.content_format`,
   hasPassword: sql`excluded.has_password`,
+  topicId: sql`excluded.topic_id`,
   readCount: sql`excluded.read_count`,
   likeCount: sql`excluded.like_count`,
   modifiedAt: sql`excluded.modified_at`,
@@ -40,6 +41,14 @@ export const thinkingConflictSet = {
   allowComment: sql`excluded.allow_comment`,
   modifiedAt: sql`excluded.modified_at`,
   enrichments: sql`excluded.enrichments`,
+}
+
+export const topicConflictSet = {
+  name: sql`excluded.name`,
+  slug: sql`excluded.slug`,
+  description: sql`excluded.description`,
+  introduce: sql`excluded.introduce`,
+  icon: sql`excluded.icon`,
 }
 
 export const categoryConflictSet = {

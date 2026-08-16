@@ -49,6 +49,16 @@ export const zh = {
     olderNotes: '更早的手记',
     readFullNote: '阅读全文',
   },
+  topic: {
+    indexTitle: '专栏',
+    chip: '专栏 · {name}',
+    chipPrefix: '专栏 ·',
+    inTopic: '此手记收录于专栏',
+    noteCount: '{count} 篇',
+    updated: '最近更新 {time}',
+    empty: '还没有专栏',
+    notesEmpty: '这个专栏还没有手记',
+  },
   detail: {
     bodyFailed: '正文加载失败，点此重试',
     bodyLoading: '正文加载中…',

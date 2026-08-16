@@ -149,6 +149,89 @@ it('falls back to a plain link when the URL has no enrichment entry', () => {
   expect(html).toContain('href="https://enriched.example.com/post"')
 })
 
+const githubBlob =
+  'https://github.com/Innei/SKILL/blob/main/skills/automation/session-to-skill-and-blog/SKILL.md'
+
+const githubFileParagraph = {
+  children: [
+    {
+      children: [
+        {
+          detail: 0,
+          format: 0,
+          mode: 'normal',
+          style: '',
+          text: githubBlob,
+          type: 'text',
+          version: 1,
+        },
+      ],
+      rel: null,
+      target: null,
+      type: 'autolink',
+      url: githubBlob,
+      version: 1,
+    },
+  ],
+  direction: null,
+  format: '',
+  indent: 0,
+  type: 'paragraph',
+  version: 1,
+}
+
+it('embeds a GitHub blob URL as a file preview instead of a card', () => {
+  const html = renderStatic([githubFileParagraph])
+  expect(html).toContain('data-github-file-embed')
+  expect(html).not.toContain('yohaku-link-card')
+})
+
+it('embeds a github-file embed node through the portable preview', () => {
+  const html = renderStatic([
+    {
+      source: 'github-file',
+      type: 'embed',
+      url: githubBlob,
+      version: 1,
+    },
+  ])
+  expect(html).toContain('data-github-file-embed')
+  expect(html).not.toContain('embed-static-github-file')
+})
+
+it('folds a long GitHub file and keeps the haklex light embed out of the tree', async () => {
+  const originalFetch = globalThis.fetch
+  globalThis.fetch = (async () =>
+    new Response(
+      Array.from({ length: 80 }, (_, i) => `- line ${i}`).join('\n'),
+      {
+        status: 200,
+      },
+    )) as typeof fetch
+  try {
+    await renderClient(
+      [
+        {
+          source: 'github-file',
+          type: 'embed',
+          url: githubBlob,
+          version: 1,
+        },
+      ],
+      baseHost,
+    )
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    })
+    expect(mountEl.querySelector('[data-github-file-embed]')).not.toBeNull()
+    expect(mountEl.querySelector('.yohaku-code-fold--collapsed')).not.toBeNull()
+    expect(mountEl.querySelector('.embed-static-github-file')).toBeNull()
+    expect(mountEl.textContent).toContain('展开')
+  } finally {
+    globalThis.fetch = originalFetch
+  }
+})
+
 const codeNode = {
   children: [
     {
@@ -207,6 +290,19 @@ async function renderClient(nodes: unknown[], host: HostCapabilities) {
     await new Promise((resolve) => setTimeout(resolve, 0))
   })
 }
+
+it('collapses a long code block behind an expand control', () => {
+  const html = renderStatic([
+    {
+      code: Array.from({ length: 24 }, (_, i) => `line ${i}`).join('\n'),
+      language: 'ts',
+      type: 'code-block',
+      version: 1,
+    },
+  ])
+  expect(html).toContain('yohaku-code-block--collapsed')
+  expect(html).toContain('展开')
+})
 
 it('highlights code through shiki once the async bundle resolves', async () => {
   await renderClient([codeNode], baseHost)

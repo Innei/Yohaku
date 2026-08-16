@@ -23,6 +23,7 @@ export interface InkMark {
 // Wide enough that UIKit never nudges the title right to clear the back
 // button — a narrower clearance centers short titles visibly off-axis.
 const BACK_BUTTON_CLEARANCE = 160
+const ACTION_CLEARANCE = 88
 const TITLE_HEIGHT = 40
 const TITLE_SIZE = 16
 const SUBTITLE_SIZE = 12
@@ -37,17 +38,25 @@ const AnimatedNavigationHeaderTitle = Animated.createAnimatedComponent(
 )
 
 export function CollapsingHeaderTitle({
+  leadingInset = 0,
   marks,
   progress,
   readPercent,
+  reserveBackClearance = true,
   subtitle,
   title,
+  titleFontSize = TITLE_SIZE,
+  titleFontWeight = 'semibold',
 }: {
+  leadingInset?: number
   marks?: InkMark[]
   progress: SharedValue<number>
   readPercent?: SharedValue<number>
+  reserveBackClearance?: boolean
   subtitle: string
   title: string
+  titleFontSize?: number
+  titleFontWeight?: 'bold' | 'heavy' | 'medium' | 'semibold'
 }) {
   const { width } = useWindowDimensions()
   const palette = usePalette()
@@ -65,8 +74,10 @@ export function CollapsingHeaderTitle({
       style={[
         styles.frame,
         {
-          width: width - BACK_BUTTON_CLEARANCE,
           height: ink ? TITLE_HEIGHT + INK_GAP + TICK_HEIGHT : TITLE_HEIGHT,
+          paddingLeft: reserveBackClearance ? 0 : leadingInset,
+          paddingRight: reserveBackClearance ? 0 : ACTION_CLEARANCE,
+          width: reserveBackClearance ? width - BACK_BUTTON_CLEARANCE : width,
         },
       ]}
     >
@@ -80,7 +91,8 @@ export function CollapsingHeaderTitle({
         testID="header-title-reveal"
         title={title}
         titleColor={palette.neutral[10]}
-        titleFontSize={TITLE_SIZE}
+        titleFontSize={titleFontSize}
+        titleFontWeight={titleFontWeight}
       />
       {ink ? (
         <TitleInk

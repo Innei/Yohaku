@@ -113,6 +113,10 @@ public class YohakuModule: Module {
         view.setTitleFontSize(size)
       }
 
+      Prop("titleFontWeight") { (view: NavigationHeaderTitleView, name: String) in
+        view.setTitleFontWeight(name)
+      }
+
       Prop("subtitleFontSize") { (view: NavigationHeaderTitleView, size: Double) in
         view.setSubtitleFontSize(size)
       }

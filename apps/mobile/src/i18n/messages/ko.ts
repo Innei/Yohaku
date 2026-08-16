@@ -49,6 +49,16 @@ export const ko = {
     olderNotes: '더 먼 수첩',
     readFullNote: '전문 읽기',
   },
+  topic: {
+    indexTitle: '이야기',
+    chip: '이야기 · {name}',
+    chipPrefix: '이야기 ·',
+    inTopic: '이 수첩은 다음 이야기에 모여 있어요',
+    noteCount: '{count}편',
+    updated: '최근 업데이트 {time}',
+    empty: '아직 이야기가 없어요',
+    notesEmpty: '이 이야기에는 아직 수첩이 없어요',
+  },
   detail: {
     bodyFailed: '본문을 불러오지 못했습니다. 눌러서 다시 시도',
     bodyLoading: '본문 불러오는 중…',

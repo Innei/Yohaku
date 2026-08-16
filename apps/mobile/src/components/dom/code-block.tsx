@@ -1,3 +1,5 @@
+import { shouldCollapseCode } from '@yohaku/rich-content/src/lexical/portable/code-collapse.ts'
+import { useExpandHeight } from '@yohaku/rich-content/src/lexical/portable/tween-height.ts'
 import { type CSSProperties, useEffect, useMemo, useState } from 'react'
 
 import {
@@ -53,13 +55,19 @@ function useShikiHtml(code: string, language?: string): string | null {
 
 export function MobileCodeBlock({
   code,
+  fold = true,
   language,
 }: {
   code: string
+  fold?: boolean
   language?: string
 }) {
   const html = useShikiHtml(code, language)
   const [copied, setCopied] = useState(false)
+  const long = fold && shouldCollapseCode(code)
+  const [expandedFor, setExpandedFor] = useState<string | null>(null)
+  const collapsed = long && expandedFor !== code
+  const { capture, ref } = useExpandHeight(collapsed)
   const label = formatCodeLanguageLabel(language)
   const accent = codeLanguageAccent(language)
   const style = useMemo(
@@ -74,7 +82,14 @@ export function MobileCodeBlock({
   }, [copied])
 
   return (
-    <div className="m-code-block" style={style}>
+    <div
+      style={style}
+      className={
+        long && collapsed
+          ? 'm-code-block m-code-block--collapsed'
+          : 'm-code-block'
+      }
+    >
       <div className="m-code-block__surface">
         <div aria-hidden className="m-code-block__topline" />
         <div
@@ -102,16 +117,31 @@ export function MobileCodeBlock({
           </button>
         </div>
         <div aria-hidden className="m-code-block__divider" />
-        {html ? (
-          <div
-            className="m-code-block__shiki"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        ) : (
-          <pre className="m-code-block__pre">
-            <code>{code}</code>
-          </pre>
-        )}
+        <div className="m-code-block__body" ref={ref}>
+          {html ? (
+            <div
+              className="m-code-block__shiki"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          ) : (
+            <pre className="m-code-block__pre">
+              <code>{code}</code>
+            </pre>
+          )}
+        </div>
+        {long && collapsed ? (
+          <button
+            className="m-code-block__expand"
+            type="button"
+            onClick={() => {
+              capture()
+              setExpandedFor(code)
+            }}
+          >
+            <i className="i-mingcute-arrow-to-down-line" />
+            <span>展开</span>
+          </button>
+        ) : null}
       </div>
     </div>
   )

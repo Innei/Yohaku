@@ -43,6 +43,13 @@
       "when": 1786806680931,
       "tag": "0005_purple_dark_phoenix",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1786903757658,
+      "tag": "0006_note_topics",
+      "breakpoints": true
     }
   ]
 }

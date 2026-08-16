@@ -152,6 +152,23 @@ describe('noteConflictSet', () => {
     expect(row.contentFormat).toBe('lexical')
     expect(row.text).toBe('正文')
     expect(row.bodyVersion).toBe(noteMeta.createdAt.getTime())
+    expect(row.topicId).toBeNull()
+  })
+
+  it('writes topicId from a later list sync', async () => {
+    await db.insert(notes).values(noteMeta)
+    await db
+      .insert(notes)
+      .values({ ...noteMeta, topicId: 't1' })
+      .onConflictDoUpdate({
+        target: [notes.id, notes.lang],
+        set: noteConflictSet,
+      })
+    const [row] = await db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.id, 'n1'), eq(notes.lang, 'zh')))
+    expect(row.topicId).toBe('t1')
   })
 
   it('admits the same nid under a second language', async () => {

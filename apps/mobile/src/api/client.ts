@@ -24,6 +24,7 @@ import type {
   ApiPagination,
   ApiPost,
   ApiSessionUser,
+  ApiTopic,
   ApiTts,
   CommentRefType,
 } from './types'
@@ -181,6 +182,22 @@ export const api = {
     parseThinkingList(await fetchRawJson('/recently', { size })),
   categoryList: () =>
     request<ApiCategory[]>('/categories', withLang({ type: 0 })),
+  topicList: () => request<ApiTopic[]>('/topics/all', withLang()),
+  topicBySlug: (slug: string) =>
+    request<ApiTopic>(`/topics/slug/${encodeURIComponent(slug)}`, withLang()),
+  topicNotes: (
+    topicId: string,
+    page: number,
+    size: number,
+    lang = getLocale(),
+  ) =>
+    requestPaged<ApiNote>(`/notes/topics/${encodeURIComponent(topicId)}`, {
+      lang,
+      page,
+      size,
+      sortBy: 'createdAt',
+      sortOrder: -1,
+    }),
   aggregate: () => request<ApiAggregate>('/aggregate'),
   authProviders: () => request<string[]>('/auth/providers'),
   authSession: () => request<ApiSessionUser | null>('/auth/session'),

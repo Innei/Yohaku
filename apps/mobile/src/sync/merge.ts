@@ -3,7 +3,13 @@ import {
   noticeMetaNeedsBackfill,
   translatedBodyNeedsRefresh,
 } from '@/api/article-meta'
-import type { ApiEnrichment, ApiNote, ApiPost, ApiThinking } from '@/api/types'
+import type {
+  ApiEnrichment,
+  ApiNote,
+  ApiPost,
+  ApiThinking,
+  ApiTopic,
+} from '@/api/types'
 import type { Locale } from '@/i18n/config'
 
 type EnrichmentMap = Record<string, ApiEnrichment> | null
@@ -105,6 +111,7 @@ export function noteMetaFromApi(note: ApiNote, lang: Locale) {
     excerpt: note.summary ?? null,
     contentFormat: note.contentFormat ?? 'markdown',
     hasPassword: note.hasPassword ?? false,
+    topicId: note.topicId ?? note.topic?.id ?? null,
     readCount: note.readCount,
     likeCount: note.likeCount,
     createdAt: new Date(note.createdAt),
@@ -124,6 +131,18 @@ export function noteBodyFromApi(
     bodyVersion: contentVersion(note),
     enrichments,
     articleMeta: extractArticleMeta(meta, note.summary, note.meta?.aiGen),
+  }
+}
+
+export function topicFromApi(topic: ApiTopic) {
+  return {
+    id: topic.id,
+    name: topic.name,
+    slug: topic.slug,
+    description: topic.description ?? '',
+    introduce: topic.introduce ?? null,
+    icon: topic.icon ?? null,
+    createdAt: new Date(topic.createdAt),
   }
 }
 

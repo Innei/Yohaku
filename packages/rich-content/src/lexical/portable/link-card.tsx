@@ -4,6 +4,8 @@ import { LinkFavicon } from '@haklex/rich-editor/static'
 import type { ReactNode } from 'react'
 
 import { useHost } from '../../host'
+import { parseGithubFileUrl } from './github-file'
+import { PortableGithubFileEmbed } from './github-file-embed'
 import { getPlatformFromUrl, platformIconMap } from './platform-icons'
 
 export function PortableLinkCard({
@@ -14,6 +16,10 @@ export function PortableLinkCard({
   url: string
 }) {
   const { enrichments } = useHost()
+  if (url && parseGithubFileUrl(url)) {
+    return <PortableGithubFileEmbed href={url} />
+  }
+
   const entry = url ? enrichments?.[url] : undefined
   if (!entry) return <>{fallback ?? null}</>
 

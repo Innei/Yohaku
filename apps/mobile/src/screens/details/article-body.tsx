@@ -288,6 +288,7 @@ export function ArticleBody({
           renderNonce={nonce}
           theme={palette.theme}
           variant={variant}
+          viewportHeight={windowHeight}
           webUrl={webUrl}
           dom={{
             contentInsetAdjustmentBehavior: 'never',
@@ -341,6 +342,7 @@ export function ArticleBody({
                 locale={locale}
                 theme={palette.theme}
                 variant={variant}
+                viewportHeight={windowHeight}
                 webUrl={webUrl}
                 dom={{
                   contentInsetAdjustmentBehavior: 'never',

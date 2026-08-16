@@ -49,6 +49,16 @@ export const en = {
     olderNotes: 'Older notes',
     readFullNote: 'Read full note',
   },
+  topic: {
+    indexTitle: 'Series',
+    chip: 'Series · {name}',
+    chipPrefix: 'Series ·',
+    inTopic: 'Filed in this series',
+    noteCount: '{count} notes',
+    updated: 'Updated {time}',
+    empty: 'No series yet',
+    notesEmpty: 'No notes in this series',
+  },
   detail: {
     bodyFailed: 'The body failed to load. Tap to retry.',
     bodyLoading: 'Loading the body…',

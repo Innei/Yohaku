@@ -2,10 +2,17 @@ import { and, desc, eq, gte, notInArray } from 'drizzle-orm'
 
 import { apiBaseUrl } from '@/api/base-url'
 import { api } from '@/api/client'
-import type { ApiNote, ApiPost } from '@/api/types'
+import type { ApiNote, ApiPost, ApiTopic } from '@/api/types'
 import { db } from '@/db'
 import type { NoteRow, PostRow } from '@/db/schema'
-import { categories, notes, posts, syncMeta, thinkings } from '@/db/schema'
+import {
+  categories,
+  notes,
+  posts,
+  syncMeta,
+  thinkings,
+  topics,
+} from '@/db/schema'
 import type { Locale } from '@/i18n/config'
 import { getLocale } from '@/i18n/locale-store'
 import { prefetchImages } from '@/lib/image-cache'
@@ -22,6 +29,7 @@ import {
   postMetaFromApi,
   pruneBoundary,
   thinkingFromApi,
+  topicFromApi,
 } from './merge'
 import { setSyncStatus } from './status'
 import {
@@ -29,6 +37,7 @@ import {
   noteConflictSet,
   postConflictSet,
   thinkingConflictSet,
+  topicConflictSet,
 } from './upsert-sets'
 
 const LIST_PAGE_SIZE = 20
@@ -64,6 +73,7 @@ export async function resetAndResync() {
     db.delete(posts),
     db.delete(notes),
     db.delete(thinkings),
+    db.delete(topics),
     db.delete(categories),
     db.delete(syncMeta),
   ])
@@ -79,6 +89,7 @@ async function run({ force }: { force?: boolean }) {
   setSyncStatus('syncing')
   const results = await Promise.allSettled([
     syncCategories(),
+    syncTopics(),
     syncPosts(),
     syncNotes(),
     syncThinkings(),
@@ -173,8 +184,29 @@ export async function ingestPostPage(page: number, lang = getLocale()) {
   return paged
 }
 
+async function upsertTopics(list: ApiTopic[]) {
+  if (list.length === 0) return
+  await db.insert(topics).values(list.map(topicFromApi)).onConflictDoUpdate({
+    target: topics.id,
+    set: topicConflictSet,
+  })
+}
+
+async function syncTopics() {
+  const list = await api.topicList()
+  if (!Array.isArray(list) || list.length === 0) return
+  await upsertTopics(list)
+  await db.delete(topics).where(
+    notInArray(
+      topics.id,
+      list.map((item) => item.id),
+    ),
+  )
+}
+
 async function upsertNoteMetas(list: ApiNote[], lang: Locale) {
   if (list.length === 0) return
+  await upsertTopics(list.flatMap((note) => (note.topic ? [note.topic] : [])))
   await db
     .insert(notes)
     .values(list.map((note) => noteMetaFromApi(note, lang)))
@@ -206,6 +238,22 @@ export async function ingestNotePage(page: number, lang = getLocale()) {
   const paged = await api.noteList(page, noteListPageSize, lang)
   await upsertNoteMetas(paged.data, lang)
   return paged
+}
+
+export async function ingestTopicPage(
+  topicId: string,
+  page: number,
+  lang = getLocale(),
+) {
+  const paged = await api.topicNotes(topicId, page, noteListPageSize, lang)
+  await upsertNoteMetas(paged.data, lang)
+  return paged
+}
+
+export async function refreshTopic(slug: string) {
+  const topic = await api.topicBySlug(slug)
+  await upsertTopics([topic])
+  return topic
 }
 
 async function syncThinkings() {

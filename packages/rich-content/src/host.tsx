@@ -128,7 +128,11 @@ export interface HostCapabilities {
   scrollToAnchor(id: string): void | Promise<void>
   slots?: {
     BlockLinkCard?: ComponentType<{ fallback?: ReactNode; url: string }>
-    CodeBlock?: ComponentType<{ code: string; language?: string }>
+    CodeBlock?: ComponentType<{
+      code: string
+      fold?: boolean
+      language?: string
+    }>
     InlineLink?: ComponentType<InlineLinkProps>
     MapBlock?: ComponentType<MapSlotProps>
     StockKLine?: ComponentType<StockKLineProps>

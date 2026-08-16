@@ -115,6 +115,34 @@
   );
 }
 
+.m-code-block__body {
+  position: relative;
+}
+
+.m-code-block--collapsed .m-code-block__body {
+  max-height: calc(var(--app-viewport-height, 720px) * 0.5);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+
+.m-code-block__expand {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 10px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-neutral-7);
+  font-family: var(--font-sans, system-ui);
+  font-size: 12px;
+}
+
 .m-code-block__shiki,
 .m-code-block__pre {
   max-width: 100%;

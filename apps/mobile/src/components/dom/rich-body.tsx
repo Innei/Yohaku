@@ -100,6 +100,7 @@ interface RichBodyProps {
   renderNonce?: number
   theme: 'dark' | 'light'
   variant: 'article' | 'note'
+  viewportHeight?: number
   webUrl: string
 }
 
@@ -261,6 +262,7 @@ export default function RichBody({
   renderNonce = 0,
   theme,
   variant,
+  viewportHeight,
   onLinkPress,
   onImagePress,
   onNestedDocExpand,
@@ -656,8 +658,11 @@ export default function RichBody({
           ]),
         ),
         color: neutral[theme][9],
+        ...(viewportHeight
+          ? { '--app-viewport-height': `${viewportHeight}px` }
+          : {}),
       }) as CSSProperties,
-    [bodyVariant, theme],
+    [bodyVariant, theme, viewportHeight],
   )
 
   const openInWeb = useMemo(
