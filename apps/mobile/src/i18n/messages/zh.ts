@@ -201,6 +201,19 @@ export const zh = {
   system: {
     dbInitFailed: '数据库初始化失败，请重装应用',
   },
+  push: {
+    sectionTitle: '通知',
+    mainToggle: '推送通知',
+    contentPost: '新文章',
+    contentNote: '新手记',
+    contentRecently: '最近更新',
+    commentReplied: '评论回复',
+    onboardingTitle: '开启推送通知？',
+    onboardingBody:
+      '开启后可收到新文章、手记与评论回复。你可以在「我」里随时调整或关闭。',
+    onboardingConfirm: '开启通知',
+    settingsDeniedHint: '通知已在系统设置中关闭，请在 iOS 设置中允许通知。',
+  },
   yohaku: {
     metaTime: '{count} 分钟',
     metaLiteraryTime: '{count}分而尽',

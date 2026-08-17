@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 
 import { useLogin } from '@/auth/use-login'
+import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
 import { AppText, Button, SinkPressable, WellInput } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import { usePalette } from '@/theme/palette'
@@ -20,7 +21,9 @@ export function LoginSheet() {
   const t = useTranslations('auth')
   const palette = usePalette()
   const router = useRouter()
-  const { providers, busy, signInSocial, signInEmail } = useLogin()
+  const queriesEnabled = useRouteTransitionSettled('login')
+  const { providers, busy, signInSocial, signInEmail } =
+    useLogin(queriesEnabled)
   const [mode, setMode] = useState<'social' | 'email'>('social')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

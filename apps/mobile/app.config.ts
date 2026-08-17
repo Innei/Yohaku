@@ -20,78 +20,108 @@ interface OverlayExpo {
   scheme?: string
 }
 
-const workspaceRoot = findWorkspaceRoot(__dirname)
-const overlayDir = resolveOverlayDir(workspaceRoot)
-const overlay = overlayDir ? overlayFiles(overlayDir) : null
-const overlayExpo = readOverlayExpo(overlay?.expoJson ?? null)
-const site = {
-  bundleId: overlayExpo?.bundleId ?? PUBLIC_BUNDLE_ID,
-  scheme: overlayExpo?.scheme ?? PUBLIC_SCHEME,
-}
-
 function readOverlayExpo(file: string | null): OverlayExpo | null {
   if (!file) return null
   return JSON.parse(fs.readFileSync(file, 'utf8')) as OverlayExpo
 }
 
-const config: ExpoConfig = {
-  name: 'Yohaku',
-  slug: 'yohaku',
-  version: '1.0.0',
-  orientation: 'portrait',
-  icon: overlayExpo?.icon ?? './assets/images/icon.png',
-  scheme: site.scheme,
-  userInterfaceStyle: 'automatic',
-  platforms: ['ios'],
-  ios: {
-    bundleIdentifier: site.bundleId,
-    supportsTablet: false,
-    icon: overlayExpo?.iosIcon ?? './assets/expo.icon',
-    associatedDomains: overlayExpo?.associatedDomains ?? [],
-    config: {
-      usesNonExemptEncryption: false,
-    },
-    infoPlist: {
-      ITSAppUsesNonExemptEncryption: false,
-      UIBackgroundModes: ['audio'],
-    },
-  },
-  plugins: [
-    'expo-router',
-    './plugins/with-ios-scene-lifecycle.cjs',
-    [
-      'expo-splash-screen',
-      {
-        backgroundColor: '#faf9f6',
-        image: './assets/images/splash-icon.png',
-        imageWidth: 76,
-        dark: {
-          backgroundColor: '#282828',
-          image: './assets/images/splash-icon-dark.png',
-        },
-      },
-    ],
-    [
-      'expo-build-properties',
-      {
-        ios: {
-          deploymentTarget: '18.0',
-        },
-      },
-    ],
-    'expo-sqlite',
-    'expo-secure-store',
-    'expo-localization',
-  ],
-  experiments: {
-    typedRoutes: true,
-    reactCompiler: true,
-  },
-  extra: {
-    siteBundleId: site.bundleId,
-    siteScheme: site.scheme,
-    overlayPresent: overlayDir !== null,
-  },
+function apnsEnvironment(): 'development' | 'production' {
+  return process.env.EXPO_PUBLIC_APNS_ENV === 'production'
+    ? 'production'
+    : 'development'
 }
 
-export default config
+export function createAppConfig(): ExpoConfig {
+  const workspaceRoot = findWorkspaceRoot(__dirname)
+  const overlayDir = resolveOverlayDir(workspaceRoot)
+  const overlay = overlayDir ? overlayFiles(overlayDir) : null
+  const overlayExpo = readOverlayExpo(overlay?.expoJson ?? null)
+  const site = {
+    bundleId: overlayExpo?.bundleId ?? PUBLIC_BUNDLE_ID,
+    scheme: overlayExpo?.scheme ?? PUBLIC_SCHEME,
+  }
+  const apns = apnsEnvironment()
+
+  return {
+    name: 'Yohaku',
+    slug: 'yohaku',
+    version: '1.0.0',
+    orientation: 'portrait',
+    icon: overlayExpo?.icon ?? './assets/images/icon.png',
+    scheme: site.scheme,
+    userInterfaceStyle: 'automatic',
+    platforms: ['ios'],
+    locales: {
+      'zh-Hans': './locales/zh-Hans.json',
+      'zh-Hant': './locales/zh-Hant.json',
+      ja: './locales/ja.json',
+      en: './locales/en.json',
+      ko: './locales/ko.json',
+    },
+    ios: {
+      bundleIdentifier: site.bundleId,
+      supportsTablet: false,
+      icon: overlayExpo?.iosIcon ?? './assets/expo.icon',
+      associatedDomains: overlayExpo?.associatedDomains ?? [],
+      config: {
+        usesNonExemptEncryption: false,
+      },
+      infoPlist: {
+        CFBundleAllowMixedLocalizations: true,
+        ITSAppUsesNonExemptEncryption: false,
+        NSUserActivityTypes: ['INSendMessageIntent'],
+        UIBackgroundModes: ['audio', 'remote-notification'],
+      },
+      entitlements: {
+        'aps-environment': apns,
+        'com.apple.developer.usernotifications.communication': true,
+      },
+    },
+    plugins: [
+      'expo-router',
+      '@bacons/apple-targets',
+      './plugins/with-notification-localizations.cjs',
+      './plugins/with-ios-scene-lifecycle.cjs',
+      [
+        'expo-splash-screen',
+        {
+          backgroundColor: '#faf9f6',
+          image: './assets/images/splash-icon.png',
+          imageWidth: 76,
+          dark: {
+            backgroundColor: '#282828',
+            image: './assets/images/splash-icon-dark.png',
+          },
+        },
+      ],
+      [
+        'expo-build-properties',
+        {
+          ios: {
+            deploymentTarget: '18.0',
+          },
+        },
+      ],
+      'expo-sqlite',
+      'expo-secure-store',
+      'expo-localization',
+      [
+        'expo-notifications',
+        {
+          mode: apns,
+        },
+      ],
+    ],
+    experiments: {
+      typedRoutes: true,
+      reactCompiler: true,
+    },
+    extra: {
+      siteBundleId: site.bundleId,
+      siteScheme: site.scheme,
+      overlayPresent: overlayDir !== null,
+    },
+  }
+}
+
+export default createAppConfig()

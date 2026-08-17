@@ -1,7 +1,13 @@
 import type { ApiMyComment } from '@/api/types'
 
 export type MyCommentDestination =
-  | { category: string; commentId: string; kind: 'post'; slug: string }
+  | {
+      category: string
+      commentId: string
+      kind: 'post'
+      postId: string
+      slug: string
+    }
   | { commentId: string; kind: 'note'; nid: number }
   | { kind: 'thinking'; refId: string }
   | { kind: 'unavailable' }
@@ -21,6 +27,7 @@ export function myCommentDestination(
       kind: 'post',
       category,
       slug,
+      postId: comment.refId,
       commentId: comment.id,
     }
   }

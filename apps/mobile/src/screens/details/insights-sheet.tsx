@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native'
 import { apiBaseUrl } from '@/api/base-url'
 import { api } from '@/api/client'
 import InsightsBody from '@/components/dom/insights-body'
+import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
 import { AppText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
 import { presentImagePreview } from '@/lib/image-cache'
@@ -32,7 +33,11 @@ export function InsightsSheet({
   const locale = useLocale()
   const router = useRouter()
   const fontFaces = useWebviewFontFaces()
+  const queriesEnabled = useRouteTransitionSettled(
+    `insights:${locale}:${kind}:${id}`,
+  )
   const query = useQuery({
+    enabled: queriesEnabled,
     queryFn: () => api.insights(id),
     queryKey: ['insights', id, locale],
   })

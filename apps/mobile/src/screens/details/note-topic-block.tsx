@@ -1,30 +1,17 @@
-import { eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useRouter } from 'expo-router'
-import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { AppText, NativePressable } from '@/components/ui'
-import { db } from '@/db'
-import { topics } from '@/db/schema'
+import type { TopicRow } from '@/db/schema'
 import { useTranslations } from '@/i18n'
 import { usePalette } from '@/theme/palette'
 
 import { TopicNameRow } from '../topics/topic-chip'
 
-export function NoteTopicBlock({ topicId }: { topicId: string | null }) {
+export function NoteTopicBlock({ topic }: { topic: TopicRow | null }) {
   const router = useRouter()
   const t = useTranslations('topic')
   const palette = usePalette()
-  const query = useMemo(
-    () =>
-      topicId
-        ? db.select().from(topics).where(eq(topics.id, topicId)).limit(1)
-        : db.select().from(topics).where(eq(topics.id, '')).limit(0),
-    [topicId],
-  )
-  const { data } = useLiveQuery(query, [topicId ?? ''])
-  const topic = data?.[0]
   if (!topic) return null
 
   return (
@@ -33,7 +20,7 @@ export function NoteTopicBlock({ topicId }: { topicId: string | null }) {
       onPress={() =>
         router.push({
           pathname: '/series/[slug]',
-          params: { slug: topic.slug },
+          params: { slug: topic.slug, topicId: topic.id },
         })
       }
     >

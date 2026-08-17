@@ -24,14 +24,17 @@ const ROOM_POLL_MS = 30_000
 
 export function useReadingPresence({
   articleId,
+  enabled = true,
   openOnWeb,
 }: {
   articleId?: string
+  enabled?: boolean
   openOnWeb: boolean
 }) {
-  const roomName = shouldJoinPresenceRoom(articleId, openOnWeb)
-    ? articleRoomName(articleId)
-    : null
+  const roomName =
+    enabled && shouldJoinPresenceRoom(articleId, openOnWeb)
+      ? articleRoomName(articleId)
+      : null
   const lastPercentRef = useRef(0)
   const activeRef = useRef(AppState.currentState === 'active')
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -103,6 +106,7 @@ export function useReadingPresence({
   }, [publish, refetch, roomName, schedule])
 
   useEffect(() => {
+    if (!roomName) return
     const sub = AppState.addEventListener('change', (state) => {
       activeRef.current = state === 'active'
       if (state !== 'active') {
@@ -116,7 +120,7 @@ export function useReadingPresence({
       void refetch()
     })
     return () => sub.remove()
-  }, [publish, refetch])
+  }, [publish, refetch, roomName])
 
   const onScrollMetrics = useCallback(
     ({

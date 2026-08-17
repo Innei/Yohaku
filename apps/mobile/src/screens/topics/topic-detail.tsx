@@ -1,5 +1,3 @@
-import { and, desc, eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -11,12 +9,15 @@ import {
 
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { AppText } from '@/components/ui'
-import { db } from '@/db'
-import { notes, topics } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { formatRelativeTime } from '@/lib/datetime'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
-import { ingestTopicPage, refreshTopic, syncAll } from '@/sync/engine'
+import {
+  ingestTopicPage,
+  refreshTopicById,
+  refreshTopicBySlug,
+  syncAll,
+} from '@/sync/engine'
 import { usePalette } from '@/theme/palette'
 
 import {
@@ -27,32 +28,31 @@ import {
 import { TopicNameRow } from './topic-chip'
 import { TopicBackControl } from './topic-chrome'
 import { TopicYearGroups } from './topic-year-list'
+import { useTopicDetailSnapshot } from './use-topic-detail-snapshot'
 
-export function TopicDetailScreen({ slug }: { slug: string }) {
+export function TopicDetailScreen({
+  slug,
+  topicId,
+}: {
+  slug: string
+  topicId?: string
+}) {
   const locale = useLocale()
   const t = useTranslations('topic')
   const tc = useTranslations('common')
   const palette = usePalette()
-  const topicQuery = useMemo(
-    () => db.select().from(topics).where(eq(topics.slug, slug)).limit(1),
-    [slug],
+  const {
+    failed: snapshotFailed,
+    reload: reloadSnapshot,
+    snapshot,
+    updatesEnabled,
+  } = useTopicDetailSnapshot({ locale, slug, topicId })
+  const topic = snapshot?.topic
+  const topicNotes = snapshot?.notes ?? []
+  const groups = useMemo(
+    () => groupNotesByYear(snapshot?.notes ?? []),
+    [snapshot],
   )
-  const { data: topicRows } = useLiveQuery(topicQuery, [slug])
-  const topic = topicRows?.[0]
-  const notesQuery = useMemo(
-    () =>
-      topic
-        ? db
-            .select()
-            .from(notes)
-            .where(and(eq(notes.topicId, topic.id), eq(notes.lang, locale)))
-            .orderBy(desc(notes.createdAt))
-        : db.select().from(notes).where(eq(notes.id, '')).limit(0),
-    [locale, topic],
-  )
-  const { data } = useLiveQuery(notesQuery, [locale, topic?.id ?? ''])
-  const topicNotes = data ?? []
-  const groups = useMemo(() => groupNotesByYear(data ?? []), [data])
   const [paging, setPaging] = useState({
     fetchedPage: 0,
     slug,
@@ -61,18 +61,29 @@ export function TopicDetailScreen({ slug }: { slug: string }) {
   const total = paging.slug === slug ? paging.total : null
   const fetchedPage = paging.slug === slug ? paging.fetchedPage : 0
   const [loadingMore, setLoadingMore] = useState(false)
-  const [failed, setFailed] = useState(false)
+  const [refreshFailed, setRefreshFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const loadingMoreRef = useRef(false)
   const slugRef = useRef(slug)
   slugRef.current = slug
 
   useEffect(() => {
+    if (!updatesEnabled) return
+
     let cancelled = false
-    void refreshTopic(slug)
-      .then((remote) => ingestTopicPage(remote.id, 1, locale))
+    const refresh = topicId
+      ? Promise.all([
+          refreshTopicById(topicId),
+          ingestTopicPage(topicId, 1, locale),
+        ]).then(([, paged]) => paged)
+      : refreshTopicBySlug(slug).then((remote) =>
+          ingestTopicPage(remote.id, 1, locale),
+        )
+
+    void refresh
       .then((paged) => {
         if (cancelled || slugRef.current !== slug) return
+        setRefreshFailed(false)
         setPaging({
           fetchedPage: paged.pagination.page,
           slug,
@@ -80,12 +91,12 @@ export function TopicDetailScreen({ slug }: { slug: string }) {
         })
       })
       .catch(() => {
-        if (!cancelled) setFailed(true)
+        if (!cancelled) setRefreshFailed(true)
       })
     return () => {
       cancelled = true
     }
-  }, [attempt, locale, slug])
+  }, [attempt, locale, slug, topicId, updatesEnabled])
 
   const onEndReached = useCallback(() => {
     if (!topic || loadingMoreRef.current) return
@@ -170,11 +181,14 @@ export function TopicDetailScreen({ slug }: { slug: string }) {
           )
         }}
       >
-        {failed && !topic ? (
+        {(snapshotFailed || refreshFailed) && !topic ? (
           <AppText
             style={styles.center}
             variant="secondary"
-            onPress={() => setAttempt((value) => value + 1)}
+            onPress={() => {
+              void reloadSnapshot()
+              setAttempt((value) => value + 1)
+            }}
           >
             {tc('retry')}
           </AppText>

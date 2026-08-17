@@ -6,6 +6,11 @@ enum TabBarDomain {
   private static let compactScale: CGFloat = 0.82
   private static let avatarPointSize: CGFloat = 30
   private static var selectionObservation: NSKeyValueObservation?
+  private static var avatarItemObservation: NSKeyValueObservation?
+  private static var avatarImageObservation: NSKeyValueObservation?
+  private static var avatarSelectedImageObservation: NSKeyValueObservation?
+  private static var applyingCircularAvatar = false
+  private static let circularizedImages = NSHashTable<UIImage>.weakObjects()
   private static weak var configuredTabController: UITabBarController?
 
   enum CircularImageError: Error, LocalizedError {
@@ -42,17 +47,7 @@ enum TabBarDomain {
 
     let (data, _) = try await URLSession.shared.data(from: remote)
     guard let image = UIImage(data: data) else { throw CircularImageError.decodeFailed }
-
-    let canvas = CGSize(width: avatarPointSize, height: avatarPointSize)
-    let format = UIGraphicsImageRendererFormat()
-    format.scale = scale
-    format.opaque = false
-    let renderer = UIGraphicsImageRenderer(size: canvas, format: format)
-    let circled = renderer.image { _ in
-      UIBezierPath(ovalIn: CGRect(origin: .zero, size: canvas)).addClip()
-      let fitted = aspectFillRect(image.size, in: canvas)
-      image.draw(in: fitted)
-    }
+    let circled = circularized(image, scale: scale)
 
     guard let png = circled.pngData() else { throw CircularImageError.decodeFailed }
     try png.write(to: dest, options: .atomic)
@@ -123,6 +118,7 @@ enum TabBarDomain {
     tabController.tabBar.isUserInteractionEnabled = true
 
     applyCompactRenderingScale(to: tabController)
+    observeAvatarItem(on: tabController)
 
     if configuredTabController !== tabController {
       selectionObservation = tabController.observe(
@@ -131,6 +127,7 @@ enum TabBarDomain {
       ) { controller, _ in
         DispatchQueue.main.async {
           applyCompactRenderingScale(to: controller)
+          observeAvatarItem(on: controller)
         }
       }
       configuredTabController = tabController
@@ -140,6 +137,73 @@ enum TabBarDomain {
     // same update cycle. Reapply once after that transaction completes.
     DispatchQueue.main.async {
       applyCompactRenderingScale(to: tabController)
+      observeAvatarItem(on: tabController)
+    }
+  }
+
+  private static func observeAvatarItem(on tabController: UITabBarController) {
+    guard
+      let controllers = tabController.viewControllers,
+      controllers.count == expectedItemCount
+    else {
+      return
+    }
+    let me = controllers[expectedItemCount - 1]
+    if avatarItemObservation == nil || configuredTabController !== tabController {
+      avatarItemObservation = me.observe(\.tabBarItem, options: [.initial, .new]) { controller, _ in
+        observeAvatarImages(on: controller.tabBarItem)
+        applyCircularAvatar(to: controller.tabBarItem)
+      }
+    } else {
+      observeAvatarImages(on: me.tabBarItem)
+      applyCircularAvatar(to: me.tabBarItem)
+    }
+  }
+
+  private static func observeAvatarImages(on item: UITabBarItem) {
+    avatarImageObservation = item.observe(\.image, options: [.new]) { item, _ in
+      applyCircularAvatar(to: item)
+    }
+    avatarSelectedImageObservation = item.observe(\.selectedImage, options: [.new]) { item, _ in
+      applyCircularAvatar(to: item)
+    }
+  }
+
+  // UITabBarItem has no corner radius. Screens also does not cancel an in-flight
+  // icon load, so a late square photo can replace a circular bitmap. Clip here
+  // whenever an original-mode image lands on the Me tab.
+  private static func applyCircularAvatar(to item: UITabBarItem) {
+    guard !applyingCircularAvatar else { return }
+    applyingCircularAvatar = true
+    defer { applyingCircularAvatar = false }
+
+    if let next = circularizedIfNeeded(item.image), next !== item.image {
+      item.image = next
+    }
+    if let next = circularizedIfNeeded(item.selectedImage), next !== item.selectedImage {
+      item.selectedImage = next
+    }
+  }
+
+  private static func circularizedIfNeeded(_ image: UIImage?) -> UIImage? {
+    guard let image else { return nil }
+    if circularizedImages.contains(image) { return image }
+    if image.isSymbolImage || image.renderingMode == .alwaysTemplate { return image }
+    let circled = circularized(image).withRenderingMode(image.renderingMode)
+    circularizedImages.add(circled)
+    return circled
+  }
+
+  private static func circularized(_ image: UIImage, scale: CGFloat? = nil) -> UIImage {
+    let resolvedScale = scale ?? (image.scale > 0 ? image.scale : 3)
+    let canvas = CGSize(width: avatarPointSize, height: avatarPointSize)
+    let format = UIGraphicsImageRendererFormat()
+    format.scale = resolvedScale
+    format.opaque = false
+    let renderer = UIGraphicsImageRenderer(size: canvas, format: format)
+    return renderer.image { _ in
+      UIBezierPath(ovalIn: CGRect(origin: .zero, size: canvas)).addClip()
+      image.draw(in: aspectFillRect(image.size, in: canvas))
     }
   }
 
@@ -155,6 +219,10 @@ enum TabBarDomain {
       compactScale,
       1
     )
+
+    if let items = tabBar.items, items.count == expectedItemCount {
+      applyCircularAvatar(to: items[expectedItemCount - 1])
+    }
 
     tabBar.setNeedsLayout()
   }

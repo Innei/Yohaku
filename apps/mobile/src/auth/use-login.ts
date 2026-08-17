@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 
 import { api } from '@/api/client'
 import { getAuthClient } from '@/auth/client'
@@ -8,22 +9,15 @@ import { getSession } from '@/auth/session-store'
 export type LoginBusy =
   { kind: 'social'; provider: string } | { kind: 'email' } | null
 
-export function useLogin() {
-  const [providers, setProviders] = useState<string[] | null>(null)
-  useEffect(() => {
-    let alive = true
-    api
-      .authProviders()
-      .then((list) => {
-        if (alive) setProviders(list)
-      })
-      .catch(() => {
-        if (alive) setProviders([])
-      })
-    return () => {
-      alive = false
-    }
-  }, [])
+export function useLogin(enabled = true) {
+  const providersQuery = useQuery({
+    enabled,
+    queryFn: () => api.authProviders(),
+    queryKey: ['auth', 'providers'],
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  })
+  const providers = providersQuery.isError ? [] : providersQuery.data
 
   const [busy, setBusy] = useState<LoginBusy>(null)
 

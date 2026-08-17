@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-require-imports */
+const { spawnSync } = require('node:child_process')
+const { existsSync } = require('node:fs')
 const { getDefaultConfig } = require('expo/metro-config')
 const path = require('node:path')
 
@@ -15,6 +17,21 @@ const overlaySite =
   overlayDir && overlayFiles(overlayDir).siteTs
     ? overlayFiles(overlayDir).siteTs
     : path.join(projectRoot, 'src/site-overlay.stub.ts')
+
+const richCssPath = path.join(
+  workspaceRoot,
+  'packages/rich-content/dist/rich.css',
+)
+if (!existsSync(richCssPath)) {
+  const result = spawnSync(
+    'pnpm',
+    ['--filter', '@yohaku/rich-content', 'build:css'],
+    { cwd: workspaceRoot, stdio: 'inherit' },
+  )
+  if (result.status !== 0) {
+    throw new Error('Failed to generate @yohaku/rich-content/rich.css')
+  }
+}
 
 const config = getDefaultConfig(projectRoot)
 config.watchFolders = overlayDir ? [workspaceRoot, overlayDir] : [workspaceRoot]

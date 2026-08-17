@@ -50,6 +50,7 @@ export interface WebviewHostDeps {
   onImagePress: (payload: OpenImagePayload) => Promise<void>
   onLinkPress: (url: string) => Promise<void>
   onScrollToAnchor: (id: string) => Promise<void>
+  site?: HostCapabilities['site']
   theme: 'dark' | 'light'
   webOrigin: string
 }
@@ -74,6 +75,7 @@ export function createWebviewHost(deps: WebviewHostDeps): HostCapabilities {
     },
     openLink: (url) => deps.onLinkPress(url),
     scrollToAnchor: (id) => deps.onScrollToAnchor(id),
+    site: deps.site,
     slots: { CodeBlock: MobileCodeBlock },
     theme: deps.theme,
     webOrigin: deps.webOrigin,

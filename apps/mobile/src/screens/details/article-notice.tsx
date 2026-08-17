@@ -18,14 +18,14 @@ type RelatedRoute =
     }
   | {
       pathname: '/posts/[category]/[slug]'
-      params: { category: string; slug: string }
+      params: { category: string; postId: string; slug: string }
     }
 
 function routeFor(ref: ArticleRelatedRef): RelatedRoute | null {
   if (ref.categorySlug && ref.slug) {
     return {
       pathname: '/posts/[category]/[slug]',
-      params: { category: ref.categorySlug, slug: ref.slug },
+      params: { category: ref.categorySlug, postId: ref.id, slug: ref.slug },
     }
   }
   if (ref.nid !== null) {

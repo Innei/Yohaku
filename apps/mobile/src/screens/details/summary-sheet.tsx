@@ -1,12 +1,11 @@
 import { and, eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { SymbolView } from 'expo-symbols'
-import { useMemo } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { AppText } from '@/components/ui'
 import { db } from '@/db'
 import { notes, posts } from '@/db/schema'
+import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
@@ -22,9 +21,10 @@ export function SummarySheet({
   const palette = usePalette()
   const locale = useLocale()
 
-  const query = useMemo(
-    () =>
-      kind === 'post'
+  const { snapshot } = useDatabaseSnapshot({
+    identity: `summary:${locale}:${kind}:${id}`,
+    read: async () => {
+      const rows = await (kind === 'post'
         ? db
             .select({ articleMeta: posts.articleMeta })
             .from(posts)
@@ -34,11 +34,12 @@ export function SummarySheet({
             .select({ articleMeta: notes.articleMeta })
             .from(notes)
             .where(and(eq(notes.id, id), eq(notes.lang, locale)))
-            .limit(1),
-    [kind, id, locale],
-  )
-  const { data } = useLiveQuery(query, [kind, id, locale])
-  const summary = data?.[0]?.articleMeta?.summary ?? null
+            .limit(1))
+      return rows[0]
+    },
+    tables: kind === 'post' ? ['posts'] : ['notes'],
+  })
+  const summary = snapshot?.articleMeta?.summary ?? null
 
   const stamp =
     summary?.source === 'ai'

@@ -33,10 +33,14 @@ export function PostContextLink({
       categorySlug
         ? ({
             pathname: '/posts/[category]/[slug]' as const,
-            params: { category: categorySlug, slug: post.slug },
+            params: {
+              category: categorySlug,
+              postId: post.id,
+              slug: post.slug,
+            },
           } as const)
         : null,
-    [categorySlug, post.slug],
+    [categorySlug, post.id, post.slug],
   )
 
   const openPost = useCallback(() => {
@@ -56,7 +60,7 @@ export function PostContextLink({
     }
     router.push({
       pathname: '/posts/[category]/[slug]',
-      params: { category: categorySlug, slug: post.slug },
+      params: { category: categorySlug, postId: post.id, slug: post.slug },
     })
   }, [categorySlug, post, router, webUrl])
 

@@ -9,10 +9,10 @@ import { hasProviderIcon } from '@/screens/me/provider-icon'
 import { usePalette } from '@/theme/palette'
 import { shadow } from '@/theme/surfaces'
 
-export function CommentLoginInline() {
+export function CommentLoginInline({ enabled = true }: { enabled?: boolean }) {
   const t = useTranslations('auth')
   const palette = usePalette()
-  const { providers, busy, signInSocial } = useLogin()
+  const { providers, busy, signInSocial } = useLogin(enabled)
 
   const social = providers?.filter((p) => hasProviderIcon(p))
 

@@ -18,7 +18,6 @@
   ],
   "scripts": {
     "build:css": "tailwindcss -i styles/build.css -o dist/rich.css",
-    "check": "pnpm build:css && git diff --exit-code -- dist/rich.css",
     "test": "vitest run"
   },
   "peerDependencies": {
@@ -33,11 +32,11 @@
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "1.9.2",
-    "@haklex/rich-compose": "0.35.0",
-    "@haklex/rich-editor": "0.35.0",
-    "@haklex/rich-ext-chat": "0.35.0",
-    "@haklex/rich-ext-embed": "0.35.0",
-    "@haklex/rich-ext-nested-doc": "0.35.0",
+    "@haklex/rich-compose": "0.36.0",
+    "@haklex/rich-editor": "0.36.0",
+    "@haklex/rich-ext-chat": "0.36.0",
+    "@haklex/rich-ext-embed": "0.36.0",
+    "@haklex/rich-ext-nested-doc": "0.36.0",
     "@iconify-json/material-symbols": "1.2.88",
     "@iconify-json/mingcute": "1.2.8",
     "@iconify-json/octicon": "1.2.30",

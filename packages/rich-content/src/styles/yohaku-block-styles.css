@@ -433,7 +433,7 @@
 }
 
 .yohaku-code-fold--collapsed .yohaku-code-fold__body {
-  max-height: calc(var(--app-viewport-height, 720px) * 0.5);
+  max-height: calc(var(--app-viewport-height, 100vh) * 0.5);
   overflow: hidden;
   mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
@@ -466,7 +466,7 @@
 }
 
 .yohaku-code-block--collapsed .yohaku-code-block__body {
-  max-height: calc(var(--app-viewport-height, 720px) * 0.5);
+  max-height: calc(var(--app-viewport-height, 100vh) * 0.5);
   overflow: hidden;
   mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
@@ -570,4 +570,40 @@
    quote for as long as text stays selected. */
 .rich-quote > .rich-paragraph:nth-last-child(1 of :not([data-highlighters-overlay])) {
   margin-bottom: 0;
+}
+
+/* ─── link card · poster wash ───────────────────────────────────────────────── */
+
+/* Provider-tinted gradient over the poster card. `--surface-paper` only exists
+   on web (runtime-injected theme override); the fallback keeps the wash base
+   aligned with LinkCardShell's bg-neutral-1 / dark:bg-neutral-2 in hosts
+   without it (mobile WebView). */
+.yohaku-poster-card-wash {
+  --card-wash-alpha: 0.14;
+  --card-wash-alpha-dim: 0.035;
+  --card-wash-base: var(--surface-paper, var(--color-neutral-1));
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(
+          in oklch,
+          var(--wash-color) calc(var(--card-wash-alpha) * 100%),
+          transparent
+        )
+        0%,
+      color-mix(
+          in oklch,
+          var(--wash-color) calc(var(--card-wash-alpha-dim) * 100%),
+          transparent
+        )
+        50%,
+      transparent 75%
+    ),
+    var(--card-wash-base);
+}
+
+.dark .yohaku-poster-card-wash {
+  --card-wash-alpha: 0.18;
+  --card-wash-alpha-dim: 0.045;
+  --card-wash-base: var(--surface-paper, var(--color-neutral-2));
 }

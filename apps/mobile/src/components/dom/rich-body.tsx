@@ -98,6 +98,7 @@ interface RichBodyProps {
   rangeComments?: RangeComment[]
   ref?: import('react').Ref<unknown>
   renderNonce?: number
+  site?: { ownerAvatar?: string | null; ownerName?: string | null }
   theme: 'dark' | 'light'
   variant: 'article' | 'note'
   viewportHeight?: number
@@ -260,6 +261,7 @@ export default function RichBody({
   blockComments,
   rangeComments,
   renderNonce = 0,
+  site,
   theme,
   variant,
   viewportHeight,
@@ -599,6 +601,9 @@ export default function RichBody({
 
   const canExpandNestedDoc = onNestedDocExpand !== undefined
 
+  const siteOwnerAvatar = site?.ownerAvatar ?? null
+  const siteOwnerName = site?.ownerName ?? null
+
   const host = useMemo(
     () =>
       createWebviewHost({
@@ -610,6 +615,7 @@ export default function RichBody({
         onImagePress: handlers.onImagePress,
         onLinkPress: handlers.onLinkPress,
         onScrollToAnchor: handlers.onScrollToAnchor,
+        site: { ownerAvatar: siteOwnerAvatar, ownerName: siteOwnerName },
         theme,
         webOrigin: bodyWebUrl ? new URL(bodyWebUrl).origin : '',
       }),
@@ -623,6 +629,8 @@ export default function RichBody({
       nestedDocCollapse,
       nestedDocExpand,
       nestedDocLabel,
+      siteOwnerAvatar,
+      siteOwnerName,
       theme,
     ],
   )

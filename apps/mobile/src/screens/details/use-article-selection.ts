@@ -13,11 +13,11 @@ import {
 import type { SelectionSheetState } from '@/screens/comments/selection-comment-sheet'
 import { useCommentAnchorsQuery } from '@/screens/comments/use-comments'
 
-export function useArticleSelection(refId: string) {
+export function useArticleSelection(refId: string, queriesEnabled = true) {
   const tComment = useTranslations('comment')
   const [selectionSheet, setSelectionSheet] =
     useState<SelectionSheetState | null>(null)
-  const anchorsQuery = useCommentAnchorsQuery(refId)
+  const anchorsQuery = useCommentAnchorsQuery(refId, queriesEnabled)
   const rangeComments = rangeCommentsFromRoots(anchorsQuery.data?.data)
   const blockComments = blockCommentsFromRoots(anchorsQuery.data?.data)
   const threadRoots = selectionSheet

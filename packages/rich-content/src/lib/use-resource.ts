@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useSyncExternalStore } from 'react'
 
 interface Entry<T> {
   error?: unknown
@@ -82,23 +82,33 @@ export interface ResourceState<T> {
   isLoading: boolean
 }
 
+const noopSubscribe = () => () => {}
+
+// 渲染期直接读模块级 cache 会被 React Compiler 按 [key] 记忆化，
+// loading→success 的过渡在 bump 式重渲染里永远读到陈旧快照（mobile
+// WebView 卡骨架的根因）——外部可变存储必须走 useSyncExternalStore。
 export function useResource<T>(
   key: string | null,
   fetcher: () => Promise<T>,
 ): ResourceState<T> {
-  const [, bump] = useState(0)
-
-  useEffect(() => {
-    if (!key) return
-    const listener = () => bump((n) => n + 1)
-    const set = listeners.get(key) ?? new Set<() => void>()
-    listeners.set(key, set)
-    set.add(listener)
-    return () => {
-      set.delete(listener)
-      if (set.size === 0) listeners.delete(key)
+  const subscribe = useMemo(() => {
+    if (!key) return noopSubscribe
+    return (onStoreChange: () => void) => {
+      const set = listeners.get(key) ?? new Set<() => void>()
+      listeners.set(key, set)
+      set.add(onStoreChange)
+      return () => {
+        set.delete(onStoreChange)
+        if (set.size === 0) listeners.delete(key)
+      }
     }
   }, [key])
+
+  const entry = useSyncExternalStore(
+    subscribe,
+    () => (key ? (cache.get(key) as Entry<T> | undefined) : undefined),
+    () => (key ? (cache.get(key) as Entry<T> | undefined) : undefined),
+  )
 
   useEffect(() => {
     if (!key) return
@@ -108,7 +118,6 @@ export function useResource<T>(
   }, [key])
 
   if (!key) return { isLoading: false }
-  const entry = cache.get(key) as Entry<T> | undefined
   return {
     data: entry?.value,
     error: entry?.error,

@@ -23,6 +23,7 @@ import type {
   ApiPaged,
   ApiPagination,
   ApiPost,
+  ApiPushActivation,
   ApiSessionUser,
   ApiTopic,
   ApiTts,
@@ -56,7 +57,7 @@ function withLang(params?: QueryParams): QueryParams {
 
 interface RequestInitLite {
   body?: unknown
-  method?: 'GET' | 'POST'
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE'
 }
 
 async function fetchRawJson(
@@ -183,6 +184,8 @@ export const api = {
   categoryList: () =>
     request<ApiCategory[]>('/categories', withLang({ type: 0 })),
   topicList: () => request<ApiTopic[]>('/topics/all', withLang()),
+  topicById: (topicId: string) =>
+    request<ApiTopic>(`/topics/${encodeURIComponent(topicId)}`, withLang()),
   topicBySlug: (slug: string) =>
     request<ApiTopic>(`/topics/slug/${encodeURIComponent(slug)}`, withLang()),
   topicNotes: (
@@ -281,4 +284,9 @@ export const api = {
   },
   getLiveDeskPublicState: () =>
     request<{ state: unknown } | null>('/companion/presence/public'),
+  pushActivate: (body: { activationTicket: string; relayUrl: string }) =>
+    request<ApiPushActivation>('/notifications/push/activate', undefined, {
+      method: 'POST',
+      body,
+    }),
 }

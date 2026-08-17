@@ -206,6 +206,20 @@ export const ja = {
     dbInitFailed:
       'データベースの初期化に失敗しました。アプリを再インストールしてください',
   },
+  push: {
+    sectionTitle: '通知',
+    mainToggle: 'プッシュ通知',
+    contentPost: '新しい記事',
+    contentNote: '新しいノート',
+    contentRecently: '最近の更新',
+    commentReplied: 'コメントへの返信',
+    onboardingTitle: '通知をオンにしますか？',
+    onboardingBody:
+      '新しい記事・ノート・返信をお知らせします。「自分」からいつでも変更できます。',
+    onboardingConfirm: '通知をオン',
+    settingsDeniedHint:
+      'iOS の設定で通知がオフになっています。設定から許可してください。',
+  },
   yohaku: {
     metaTime: '{count} 分',
     metaLiteraryTime: '{count} 分',

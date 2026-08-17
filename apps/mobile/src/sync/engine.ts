@@ -41,6 +41,7 @@ import {
 } from './upsert-sets'
 
 const LIST_PAGE_SIZE = 20
+const BODY_PREFETCH_CONCURRENCY = 4
 const SYNC_THROTTLE_MS = 60_000
 const SYNC_META_KEY = 'all'
 
@@ -250,7 +251,13 @@ export async function ingestTopicPage(
   return paged
 }
 
-export async function refreshTopic(slug: string) {
+export async function refreshTopicById(topicId: string) {
+  const topic = await api.topicById(topicId)
+  await upsertTopics([topic])
+  return topic
+}
+
+export async function refreshTopicBySlug(slug: string) {
   const topic = await api.topicBySlug(slug)
   await upsertTopics([topic])
   return topic
@@ -313,31 +320,40 @@ export async function refreshNoteBody(
 
 async function prefetchBodies() {
   const lang = getLocale()
-  const recentPosts = await db
-    .select()
-    .from(posts)
-    .where(eq(posts.lang, lang))
-    .orderBy(desc(posts.createdAt))
-    .limit(BODY_PREFETCH_COUNT)
-  for (const row of recentPosts) {
-    if (!bodyIsStale(row) || !row.categorySlug) continue
-    try {
-      await refreshPostBody(row)
-    } catch {}
-  }
+  const [recentPosts, recentNotes] = await Promise.all([
+    db
+      .select()
+      .from(posts)
+      .where(eq(posts.lang, lang))
+      .orderBy(desc(posts.createdAt))
+      .limit(BODY_PREFETCH_COUNT),
+    db
+      .select()
+      .from(notes)
+      .where(eq(notes.lang, lang))
+      .orderBy(desc(notes.createdAt))
+      .limit(BODY_PREFETCH_COUNT),
+  ])
 
-  const recentNotes = await db
-    .select()
-    .from(notes)
-    .where(eq(notes.lang, lang))
-    .orderBy(desc(notes.createdAt))
-    .limit(BODY_PREFETCH_COUNT)
-  for (const row of recentNotes) {
-    if (!bodyIsStale(row) || row.hasPassword) continue
-    try {
-      await refreshNoteBody(row)
-    } catch {}
-  }
+  const refreshes = [
+    ...recentPosts
+      .filter((row) => bodyIsStale(row) && Boolean(row.categorySlug))
+      .map((row) => () => refreshPostBody(row)),
+    ...recentNotes
+      .filter((row) => bodyIsStale(row) && !row.hasPassword)
+      .map((row) => () => refreshNoteBody(row)),
+  ]
+  let nextRefresh = 0
+  const workers = Array.from(
+    { length: Math.min(BODY_PREFETCH_CONCURRENCY, refreshes.length) },
+    async () => {
+      while (nextRefresh < refreshes.length) {
+        const refresh = refreshes[nextRefresh++]
+        await refresh().catch(() => {})
+      }
+    },
+  )
+  await Promise.all(workers)
 
   const [freshPosts, freshNotes] = await Promise.all([
     db

@@ -1,44 +1,36 @@
 import { desc, eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { AppText, NativePressable } from '@/components/ui'
 import { db } from '@/db'
 import { notes, posts, readingHistory } from '@/db/schema'
+import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { siteHref } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 
 import { type ReadingListItem, resolveReadingItems } from './reading-list-model'
 
-const historyQuery = db
-  .select()
-  .from(readingHistory)
-  .orderBy(desc(readingHistory.openedAt))
-
 export function ReadingListScreen() {
   const t = useTranslations('me')
   const locale = useLocale()
   const palette = usePalette()
-  const { data: history } = useLiveQuery(historyQuery)
-  const postsQuery = useMemo(
-    () => db.select().from(posts).where(eq(posts.lang, locale)),
-    [locale],
-  )
-  const notesQuery = useMemo(
-    () => db.select().from(notes).where(eq(notes.lang, locale)),
-    [locale],
-  )
-  const { data: postRows } = useLiveQuery(postsQuery, [locale])
-  const { data: noteRows } = useLiveQuery(notesQuery, [locale])
-  const items = useMemo(
-    () => resolveReadingItems(history ?? [], postRows ?? [], noteRows ?? []),
-    [history, postRows, noteRows],
-  )
+  const { snapshot: items } = useDatabaseSnapshot({
+    identity: `reading:${locale}`,
+    read: async () => {
+      const [history, postRows, noteRows] = await Promise.all([
+        db.select().from(readingHistory).orderBy(desc(readingHistory.openedAt)),
+        db.select().from(posts).where(eq(posts.lang, locale)),
+        db.select().from(notes).where(eq(notes.lang, locale)),
+      ])
+      return resolveReadingItems(history, postRows, noteRows)
+    },
+    tables: ['notes', 'posts', 'reading_history'],
+  })
+  const rows = items ?? []
 
   return (
     <EdgeEffectScrollView
@@ -46,13 +38,13 @@ export function ReadingListScreen() {
       style={[styles.screen, { backgroundColor: palette.surface.desk }]}
     >
       <AppText variant="largeTitleSans">{t('reading')}</AppText>
-      {items.length === 0 ? (
+      {rows.length === 0 ? (
         <View style={styles.empty}>
           <AppText variant="entryTitleSans">{t('readingEmpty')}</AppText>
           <AppText variant="body">{t('readingEmptyHint')}</AppText>
         </View>
       ) : (
-        items.map((item, index) => (
+        rows.map((item, index) => (
           <ReadingRow
             first={index === 0}
             item={item}
@@ -106,7 +98,11 @@ function ReadingRow({
       }
       router.push({
         pathname: '/posts/[category]/[slug]',
-        params: { category: item.post.categorySlug, slug: item.post.slug },
+        params: {
+          category: item.post.categorySlug,
+          postId: item.post.id,
+          slug: item.post.slug,
+        },
       })
       return
     }

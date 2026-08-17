@@ -1,8 +1,7 @@
 import { and, eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 
@@ -11,7 +10,8 @@ import { api } from '@/api/client'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { AppText } from '@/components/ui'
 import { db } from '@/db'
-import { notes } from '@/db/schema'
+import { notes, topics } from '@/db/schema'
+import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
 import { formatRelativeTime } from '@/lib/datetime'
@@ -46,17 +46,21 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
 
-  const query = useMemo(
-    () =>
-      db
-        .select()
+  const { snapshot, updatesEnabled } = useDatabaseSnapshot({
+    identity: `note:${locale}:${nid}`,
+    read: async () => {
+      const rows = await db
+        .select({ note: notes, topic: topics })
         .from(notes)
+        .leftJoin(topics, eq(notes.topicId, topics.id))
         .where(and(eq(notes.nid, nid), eq(notes.lang, locale)))
-        .limit(1),
-    [nid, locale],
-  )
-  const { data } = useLiveQuery(query, [nid, locale])
-  const note = data?.[0]
+        .limit(1)
+      return rows[0]
+    },
+    tables: ['notes', 'topics'],
+  })
+  const note = snapshot?.note
+  const topic = snapshot?.topic
   const noteId = note?.id
   const bodyVersion = note?.bodyVersion
   const isMarkdown = note?.contentFormat === 'markdown'
@@ -65,12 +69,13 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
   const webUrl = siteHref(`/notes/${nid}`)
 
   useEffect(() => {
-    if (!noteId) return
+    if (!noteId || !updatesEnabled) return
     void recordReading(db, { refId: noteId, kind: 'note', lang: locale })
-  }, [locale, noteId])
+  }, [locale, noteId, updatesEnabled])
 
   useRetryableBodyRefresh({
     enabled:
+      updatesEnabled &&
       Boolean(note) &&
       !openOnWeb &&
       translatedBodyNeedsRefresh(note?.articleMeta),
@@ -81,6 +86,7 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
   })
 
   useEffect(() => {
+    if (!updatesEnabled) return
     let cancelled = false
     const load = async () => {
       if (note?.hasPassword || note?.contentFormat === 'markdown') return
@@ -115,17 +121,18 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [noteId, bodyVersion, nid, locale, attempt])
+  }, [noteId, bodyVersion, nid, locale, attempt, updatesEnabled])
 
   useEffect(() => {
-    if (openOnWeb) void WebBrowser.openBrowserAsync(webUrl)
-  }, [openOnWeb, webUrl])
+    if (updatesEnabled && openOnWeb) void WebBrowser.openBrowserAsync(webUrl)
+  }, [openOnWeb, updatesEnabled, webUrl])
 
   const body =
     note?.contentFormat === 'lexical' && note.content ? note.content : null
 
   const { marks, onScrollMetrics } = useReadingPresence({
     articleId: note?.id,
+    enabled: updatesEnabled,
     openOnWeb,
   })
   const { headerTitleProgress, headerOptions, onScroll, onTitleLayout } =
@@ -214,6 +221,7 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                 enrichments={note?.enrichments ?? null}
                 highlightBlockId={tts.activeBlockId}
                 primeKey={note.id}
+                queriesEnabled={updatesEnabled}
                 refId={note.id}
                 refType="note"
                 scrollRef={scrollRef}
@@ -231,10 +239,11 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                 </AppText>
               </View>
             )}
-            <NoteTopicBlock topicId={note.topicId} />
+            <NoteTopicBlock topic={topic ?? null} />
             <ArticleTail
               kind="note"
               likeCount={note.likeCount}
+              queriesEnabled={updatesEnabled}
               refId={note.id}
             />
           </>

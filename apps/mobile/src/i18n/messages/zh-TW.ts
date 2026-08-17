@@ -201,6 +201,19 @@ export const zhTW = {
   system: {
     dbInitFailed: '資料庫初始化失敗，請重新安裝應用程式',
   },
+  push: {
+    sectionTitle: '通知',
+    mainToggle: '推播通知',
+    contentPost: '新文章',
+    contentNote: '新手記',
+    contentRecently: '最近更新',
+    commentReplied: '留言回覆',
+    onboardingTitle: '開啟推播通知？',
+    onboardingBody:
+      '開啟後可收到新文章、手記與留言回覆。你可以在「我」裡隨時調整或關閉。',
+    onboardingConfirm: '開啟通知',
+    settingsDeniedHint: '通知已在系統設定中關閉，請在 iOS 設定中允許通知。',
+  },
   yohaku: {
     metaTime: '{count} 分鐘',
     metaLiteraryTime: '{count}分而盡',

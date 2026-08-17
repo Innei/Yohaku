@@ -1,3 +1,4 @@
+import { LegacyScrollEdgeMask } from '@modules/yohaku'
 import { useEffect, useState } from 'react'
 import type { LayoutChangeEvent } from 'react-native'
 import { StyleSheet, useWindowDimensions, View } from 'react-native'
@@ -18,7 +19,7 @@ import { noteShowsInlineBody } from './note-timeline'
 
 const previewMinHeight = 360
 const previewViewportRatio = 0.48
-const fadeStops = [0.08, 0.2, 0.38, 0.58, 0.78, 0.94] as const
+const previewFadeHeight = 160
 
 export function NoteLatest({
   note,
@@ -87,7 +88,17 @@ export function NoteLatest({
         {topic ? <TopicChip topic={topic} /> : null}
         <NativePressable onPress={onOpen}>
           {inline ? (
-            <View style={[styles.preview, { maxHeight: cap }]}>
+            <LegacyScrollEdgeMask
+              bottomEdgeHeight={clipped ? previewFadeHeight : 0}
+              bottomProgress={1}
+              topEdgeHeight={0}
+              topProgress={0}
+              style={[
+                styles.preview,
+                { maxHeight: cap },
+                clipped ? { height: cap } : null,
+              ]}
+            >
               <View
                 onLayout={(event) =>
                   setMeasured({
@@ -98,20 +109,7 @@ export function NoteLatest({
               >
                 <NotePreview content={note.content ?? ''} />
               </View>
-              {clipped ? (
-                <View pointerEvents="none" style={styles.fade}>
-                  {fadeStops.map((opacity) => (
-                    <View
-                      key={opacity}
-                      style={[
-                        styles.fadeStop,
-                        { backgroundColor: palette.surface.desk, opacity },
-                      ]}
-                    />
-                  ))}
-                </View>
-              ) : null}
-            </View>
+            </LegacyScrollEdgeMask>
           ) : note.hasPassword ? (
             <AppText style={styles.fallback} variant="secondary">
               {td('passwordHint')}
@@ -168,16 +166,6 @@ const styles = StyleSheet.create({
   preview: {
     overflow: 'hidden',
     marginTop: 16,
-  },
-  fade: {
-    position: 'absolute',
-    right: 0,
-    bottom: 0,
-    left: 0,
-    height: 88,
-  },
-  fadeStop: {
-    flex: 1,
   },
   fallback: {
     marginTop: 8,

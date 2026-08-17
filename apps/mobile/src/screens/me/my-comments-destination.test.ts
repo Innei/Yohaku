@@ -30,6 +30,7 @@ describe('myCommentDestination', () => {
       kind: 'post',
       category: 'coding',
       slug: 'hello',
+      postId: 'r1',
       commentId: 'c1',
     })
   })

@@ -9,6 +9,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 
+import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
 import { AppText, RemoteImage, SlotText } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import type { DeskMedia } from '@/owner/live-desk'
@@ -24,7 +25,8 @@ export function DeskSheet() {
   const t = useTranslations('desk')
   const owner = useOwner()
   const palette = usePalette()
-  const snapshot = useDeskSnapshot()
+  const queriesEnabled = useRouteTransitionSettled('desk')
+  const snapshot = useDeskSnapshot(queriesEnabled)
 
   const media = snapshot.visible ? snapshot.media : null
   const application = snapshot.visible ? snapshot.application : null

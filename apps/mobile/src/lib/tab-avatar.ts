@@ -7,6 +7,10 @@ export type TabAvatarIconSource = {
   width: number
 }
 
+// Native UITabBarItem cannot apply borderRadius. JS only declares the point
+// size / decode scale; TabBarDomain circularizes whatever original-mode
+// bitmap lands on the Me tab, including a late square load that would
+// otherwise overwrite a circular PNG.
 export function tabAvatarIconSource(
   source: string | TabAvatarIconSource,
   scale = 3,

@@ -205,6 +205,20 @@ export const en = {
   system: {
     dbInitFailed: 'Database setup failed. Reinstall the app.',
   },
+  push: {
+    sectionTitle: 'Notifications',
+    mainToggle: 'Push notifications',
+    contentPost: 'New posts',
+    contentNote: 'New notes',
+    contentRecently: 'Recent updates',
+    commentReplied: 'Comment replies',
+    onboardingTitle: 'Turn on notifications?',
+    onboardingBody:
+      'Get alerts for new posts, notes, and comment replies. You can change this anytime in Me.',
+    onboardingConfirm: 'Turn on',
+    settingsDeniedHint:
+      'Notifications are off in iOS Settings. Allow notifications there to enable push.',
+  },
   yohaku: {
     metaTime: '{count} min',
     metaLiteraryTime: '{count} min',

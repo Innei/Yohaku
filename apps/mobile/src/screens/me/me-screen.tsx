@@ -1,5 +1,4 @@
 import { YohakuNative } from '@modules/yohaku'
-import { useQuery } from '@tanstack/react-query'
 import { desc } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import Constants from 'expo-constants'
@@ -9,7 +8,6 @@ import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useState } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
 
-import { api } from '@/api/client'
 import { deleteAccount, refreshSession, signOut } from '@/auth/session'
 import type { SessionUser } from '@/auth/session-store'
 import { useSession } from '@/auth/session-store'
@@ -31,6 +29,8 @@ import { likedActivityCount } from '@/interactions/liked-count'
 import { clearImageCache, imageCacheBytes } from '@/lib/image-cache'
 import { getPrivacyUrl } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
+import { loadPushConfig } from '@/push/config'
+import { NotificationSettings } from '@/push/notification-settings'
 import type { Palette } from '@/theme/palette'
 import { usePalette } from '@/theme/palette'
 
@@ -39,6 +39,7 @@ import { showDeleteAccount, showMyComments } from './activity-visibility'
 import { commentTotalFromPage } from './comment-total'
 import { DeskLine } from './desk-line'
 import { MeAmbienceGrain, MeAmbienceWash } from './me-ambience'
+import { useMyCommentsQuery } from './use-my-comments'
 
 function formatStorageBytes(bytes: number): string {
   if (bytes < 1024) return `${Math.max(0, Math.round(bytes))} B`
@@ -178,18 +179,15 @@ export function MeScreen() {
   const storageLabel = formatStorageBytes(readStorageBytes())
   const commentsVisible = showMyComments(session)
   const deleteVisible = showDeleteAccount(session)
-  const commentsQuery = useQuery({
-    queryKey: ['me-comments', 'total'],
-    enabled: commentsVisible,
-    queryFn: () => api.myComments(1),
-  })
+  const commentsQuery = useMyCommentsQuery(locale, commentsVisible)
+  const commentsPage = commentsQuery.data?.pages[0]
   const commentsCount = commentsQuery.isError
-    ? commentTotalFromPage(commentsQuery.data?.pagination.total ?? null, {
+    ? commentTotalFromPage(commentsPage?.pagination.total ?? null, {
         error: commentsQuery.error,
       })
-    : commentsQuery.data
+    : commentsPage
       ? commentTotalFromPage(null, {
-          total: commentsQuery.data.pagination.total,
+          total: commentsPage.pagination.total,
         })
       : null
 
@@ -200,6 +198,7 @@ export function MeScreen() {
     }, []),
   )
 
+  const pushConfigured = loadPushConfig().configured
   const privacyUrl = getPrivacyUrl()
   const generalRows: GroupedListRow[] = [
     {
@@ -312,6 +311,7 @@ export function MeScreen() {
           showComments={commentsVisible}
         />
         <Section label={t('sectionGeneral')} rows={generalRows} />
+        {pushConfigured ? <NotificationSettings /> : null}
         {accountRows.length > 0 ? (
           <Section label={t('sectionAccount')} rows={accountRows} />
         ) : null}

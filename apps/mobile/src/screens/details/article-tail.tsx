@@ -12,9 +12,11 @@ export function ArticleTail({
   kind,
   refId,
   likeCount,
+  queriesEnabled = true,
 }: {
   kind: 'post' | 'note'
   likeCount: number
+  queriesEnabled?: boolean
   refId: string
 }) {
   const palette = usePalette()
@@ -53,7 +55,11 @@ export function ArticleTail({
       <View
         style={[styles.hairline, { backgroundColor: palette.neutral[3] }]}
       />
-      <CommentSection refId={refId} refType={kind} />
+      <CommentSection
+        queriesEnabled={queriesEnabled}
+        refId={refId}
+        refType={kind}
+      />
     </View>
   )
 }

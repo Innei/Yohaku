@@ -20,7 +20,7 @@ export function TopicChip({ topic }: { topic: TopicRow }) {
       onPress={() =>
         router.push({
           pathname: '/series/[slug]',
-          params: { slug: topic.slug },
+          params: { slug: topic.slug, topicId: topic.id },
         })
       }
     >

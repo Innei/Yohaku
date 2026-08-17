@@ -1,5 +1,4 @@
 import { desc, eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack, useRouter } from 'expo-router'
 import { useCallback, useMemo, useState } from 'react'
 import { RefreshControl, StyleSheet, View } from 'react-native'
@@ -8,6 +7,7 @@ import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll
 import { AppText, NativePressable } from '@/components/ui'
 import { db } from '@/db'
 import { notes, topics } from '@/db/schema'
+import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { syncAll } from '@/sync/engine'
@@ -17,8 +17,6 @@ import { usePalette } from '@/theme/palette'
 import { TopicNameRow } from './topic-chip'
 import { TopicBackControl } from './topic-chrome'
 
-const topicsQuery = db.select().from(topics).orderBy(desc(topics.createdAt))
-
 export function TopicIndexScreen() {
   const router = useRouter()
   const locale = useLocale()
@@ -26,25 +24,29 @@ export function TopicIndexScreen() {
   const tl = useTranslations('list')
   const palette = usePalette()
   const status = useSyncStatus()
-  const { data } = useLiveQuery(topicsQuery)
-  const notesQuery = useMemo(
-    () =>
-      db
-        .select({ topicId: notes.topicId })
-        .from(notes)
-        .where(eq(notes.lang, locale)),
-    [locale],
-  )
-  const { data: noteRows } = useLiveQuery(notesQuery, [locale])
-  const items = data ?? []
+  const { snapshot } = useDatabaseSnapshot({
+    identity: `topic-index:${locale}`,
+    read: async () => {
+      const [items, noteRows] = await Promise.all([
+        db.select().from(topics).orderBy(desc(topics.createdAt)),
+        db
+          .select({ topicId: notes.topicId })
+          .from(notes)
+          .where(eq(notes.lang, locale)),
+      ])
+      return { items, noteRows }
+    },
+    tables: ['notes', 'topics'],
+  })
+  const items = snapshot?.items ?? []
   const counts = useMemo(() => {
     const map = new Map<string, number>()
-    for (const row of noteRows ?? []) {
+    for (const row of snapshot?.noteRows ?? []) {
       if (!row.topicId) continue
       map.set(row.topicId, (map.get(row.topicId) ?? 0) + 1)
     }
     return map
-  }, [noteRows])
+  }, [snapshot])
   const { headerTitleProgress, headerOptions, onScroll } = useCollapsingTitle(
     t('indexTitle'),
     '',
@@ -106,7 +108,7 @@ export function TopicIndexScreen() {
                 onPress={() =>
                   router.push({
                     pathname: '/series/[slug]',
-                    params: { slug: topic.slug },
+                    params: { slug: topic.slug, topicId: topic.id },
                   })
                 }
               >

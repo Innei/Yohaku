@@ -1,10 +1,9 @@
 import { eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
-import { useMemo } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { db } from '@/db'
 import { thinkings } from '@/db/schema'
+import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { usePalette } from '@/theme/palette'
 
 import { ThinkingBody } from '../lists/thinking-body'
@@ -12,12 +11,18 @@ import { CommentSection } from './comment-section'
 
 export function ThinkingCommentsSheet({ refId }: { refId: string }) {
   const palette = usePalette()
-  const query = useMemo(
-    () => db.select().from(thinkings).where(eq(thinkings.id, refId)).limit(1),
-    [refId],
-  )
-  const { data } = useLiveQuery(query, [refId])
-  const item = data?.[0]
+  const { snapshot: item, updatesEnabled } = useDatabaseSnapshot({
+    identity: `thinking-comments:${refId}`,
+    read: async () => {
+      const rows = await db
+        .select()
+        .from(thinkings)
+        .where(eq(thinkings.id, refId))
+        .limit(1)
+      return rows[0]
+    },
+    tables: ['thinkings'],
+  })
 
   return (
     // RNScreens only sizes a formSheet's ScrollView when it is the direct
@@ -38,6 +43,7 @@ export function ThinkingCommentsSheet({ refId }: { refId: string }) {
       ) : null}
       <CommentSection
         allowComment={item?.allowComment ?? true}
+        queriesEnabled={updatesEnabled}
         refId={refId}
         refType="recently"
       />

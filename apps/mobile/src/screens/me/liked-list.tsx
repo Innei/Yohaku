@@ -1,49 +1,37 @@
 import { desc, eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { AppText, NativePressable } from '@/components/ui'
 import { db } from '@/db'
 import { likedRefs, notes, posts, thinkings } from '@/db/schema'
+import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { siteHref } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 
 import { type LikedListItem, resolveLikedItems } from './liked-list-model'
 
-const likedQuery = db.select().from(likedRefs).orderBy(desc(likedRefs.likedAt))
-const thinkingQuery = db.select().from(thinkings)
-
 export function LikedListScreen() {
   const t = useTranslations('me')
   const locale = useLocale()
   const palette = usePalette()
-  const { data: refs } = useLiveQuery(likedQuery)
-  const postsQuery = useMemo(
-    () => db.select().from(posts).where(eq(posts.lang, locale)),
-    [locale],
-  )
-  const notesQuery = useMemo(
-    () => db.select().from(notes).where(eq(notes.lang, locale)),
-    [locale],
-  )
-  const { data: postRows } = useLiveQuery(postsQuery, [locale])
-  const { data: noteRows } = useLiveQuery(notesQuery, [locale])
-  const { data: thinkingRows } = useLiveQuery(thinkingQuery)
-  const items = useMemo(
-    () =>
-      resolveLikedItems(
-        refs ?? [],
-        postRows ?? [],
-        noteRows ?? [],
-        thinkingRows ?? [],
-      ),
-    [refs, postRows, noteRows, thinkingRows],
-  )
+  const { snapshot: items } = useDatabaseSnapshot({
+    identity: `liked:${locale}`,
+    read: async () => {
+      const [refs, postRows, noteRows, thinkingRows] = await Promise.all([
+        db.select().from(likedRefs).orderBy(desc(likedRefs.likedAt)),
+        db.select().from(posts).where(eq(posts.lang, locale)),
+        db.select().from(notes).where(eq(notes.lang, locale)),
+        db.select().from(thinkings),
+      ])
+      return resolveLikedItems(refs, postRows, noteRows, thinkingRows)
+    },
+    tables: ['liked_refs', 'notes', 'posts', 'thinkings'],
+  })
+  const rows = items ?? []
 
   return (
     <EdgeEffectScrollView
@@ -51,13 +39,13 @@ export function LikedListScreen() {
       style={[styles.screen, { backgroundColor: palette.surface.desk }]}
     >
       <AppText variant="largeTitleSans">{t('liked')}</AppText>
-      {items.length === 0 ? (
+      {rows.length === 0 ? (
         <View style={styles.empty}>
           <AppText variant="entryTitleSans">{t('likedEmpty')}</AppText>
           <AppText variant="body">{t('likedEmptyHint')}</AppText>
         </View>
       ) : (
-        items.map((item, index) => (
+        rows.map((item, index) => (
           <LikedRow first={index === 0} item={item} key={likedRowKey(item)} />
         ))
       )}
@@ -105,7 +93,11 @@ function LikedRow({ first, item }: { first: boolean; item: LikedListItem }) {
       }
       router.push({
         pathname: '/posts/[category]/[slug]',
-        params: { category: item.post.categorySlug, slug: item.post.slug },
+        params: {
+          category: item.post.categorySlug,
+          postId: item.post.id,
+          slug: item.post.slug,
+        },
       })
       return
     }

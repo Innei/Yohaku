@@ -208,3 +208,9 @@ export interface ApiPagination {
   total: number
   totalPages: number
 }
+
+export interface ApiPushActivation {
+  bindingId: string
+  enabled: true
+  relayUrl: string
+}

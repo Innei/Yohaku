@@ -1,31 +1,25 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
 import { useRouter } from 'expo-router'
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native'
 
-import { api } from '@/api/client'
 import type { ApiMyComment } from '@/api/types'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
+import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
 import { AppText, NativePressable } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
 import { formatRelativeTime } from '@/lib/datetime'
 import { usePalette } from '@/theme/palette'
 
 import { myCommentDestination } from './my-comments-destination'
+import { useMyCommentsQuery } from './use-my-comments'
 
 export function MyCommentsListScreen() {
   const t = useTranslations('me')
   const tc = useTranslations('common')
   const tComment = useTranslations('comment')
   const palette = usePalette()
-  const query = useInfiniteQuery({
-    queryKey: ['me-comments'],
-    queryFn: ({ pageParam }) => api.myComments(pageParam),
-    initialPageParam: 1,
-    getNextPageParam: (last) =>
-      last.pagination.page < last.pagination.totalPages
-        ? last.pagination.page + 1
-        : undefined,
-  })
+  const locale = useLocale()
+  const queriesEnabled = useRouteTransitionSettled(`my-comments:${locale}`)
+  const query = useMyCommentsQuery(locale, queriesEnabled)
   const comments = query.data?.pages.flatMap((page) => page.data) ?? []
 
   return (
@@ -120,6 +114,7 @@ function MyCommentRow({
         pathname: '/posts/[category]/[slug]',
         params: {
           category: destination.category,
+          postId: destination.postId,
           slug: destination.slug,
           commentId: destination.commentId,
         },

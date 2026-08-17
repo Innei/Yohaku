@@ -40,6 +40,7 @@ import {
 import { presentImagePreview } from '@/lib/image-cache'
 import { hrefForExternalUrl } from '@/lib/link-router'
 import { getSiteUrl } from '@/lib/site-url'
+import { useOwner } from '@/owner/store'
 import { SelectionCommentSheet } from '@/screens/comments/selection-comment-sheet'
 import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
@@ -58,6 +59,7 @@ export function ArticleBody({
   enrichments,
   highlightBlockId = null,
   primeKey,
+  queriesEnabled = true,
   refId,
   refType,
   scrollRef,
@@ -69,6 +71,7 @@ export function ArticleBody({
   enrichments?: Record<string, ApiEnrichment> | null
   highlightBlockId?: string | null
   primeKey: string
+  queriesEnabled?: boolean
   refId: string
   refType: CommentRefType
   scrollRef: RefObject<ScrollView | null>
@@ -84,6 +87,10 @@ export function ArticleBody({
   const router = useRouter()
   const navigation = useNavigation()
   const fontFaces = useWebviewFontFaces()
+  const owner = useOwner()
+  const site = owner
+    ? { ownerAvatar: owner.avatarUrl, ownerName: owner.name }
+    : undefined
   const bodyRef = useRef<{ reload?: () => void } | null>(null)
   const phaseRef = useRef<WatchdogPhase>('waiting')
   const anchorOffsetsRef = useRef<Record<string, number>>({})
@@ -107,7 +114,7 @@ export function ArticleBody({
     selectionCommentTitle,
     selectionSheet,
     threadRoots,
-  } = useArticleSelection(refId)
+  } = useArticleSelection(refId, queriesEnabled)
   const opacity = useSharedValue(0)
   const labels = useRichBodyLabels()
   const reservedHeight = useReservedBodyHeight(slotTop)
@@ -286,6 +293,7 @@ export function ArticleBody({
           rangeComments={rangeComments}
           ref={bodyRef}
           renderNonce={nonce}
+          site={site}
           theme={palette.theme}
           variant={variant}
           viewportHeight={windowHeight}
@@ -340,6 +348,7 @@ export function ArticleBody({
                 fontFaces={fontFaces}
                 labels={labels}
                 locale={locale}
+                site={site}
                 theme={palette.theme}
                 variant={variant}
                 viewportHeight={windowHeight}

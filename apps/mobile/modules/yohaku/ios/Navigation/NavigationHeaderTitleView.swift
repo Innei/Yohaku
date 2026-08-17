@@ -7,6 +7,7 @@ import ExpoModulesCore
 /// view's `UIScrollEdgeElementContainerInteraction`.
 final class NavigationHeaderTitleView: ExpoView {
   private let hiddenTranslation: CGFloat = 6
+  private let animatedContentView = UIView()
   private let titleLabel = UILabel()
   private let subtitleLabel = UILabel()
   private var titleFontSize: CGFloat = 16
@@ -18,9 +19,16 @@ final class NavigationHeaderTitleView: ExpoView {
     super.init(appContext: appContext)
 
     backgroundColor = .clear
-    alpha = 0
     isOpaque = false
-    transform = CGAffineTransform(translationX: 0, y: hiddenTranslation)
+
+    animatedContentView.alpha = 0
+    animatedContentView.backgroundColor = .clear
+    animatedContentView.isOpaque = false
+    animatedContentView.isUserInteractionEnabled = false
+    animatedContentView.transform = CGAffineTransform(
+      translationX: 0,
+      y: hiddenTranslation
+    )
 
     configure(
       titleLabel,
@@ -33,12 +41,13 @@ final class NavigationHeaderTitleView: ExpoView {
       lineBreakMode: .byTruncatingTail
     )
 
-    isAccessibilityElement = true
+    isAccessibilityElement = false
     accessibilityIdentifier = "navigation-header-title"
     accessibilityTraits = .header
 
-    addSubview(titleLabel)
-    addSubview(subtitleLabel)
+    addSubview(animatedContentView)
+    animatedContentView.addSubview(titleLabel)
+    animatedContentView.addSubview(subtitleLabel)
     updateFonts()
 
     if #available(iOS 26.0, *) {
@@ -54,12 +63,24 @@ final class NavigationHeaderTitleView: ExpoView {
 
   override func layoutSubviews() {
     super.layoutSubviews()
+    animatedContentView.frame = bounds
+
     let subtitleVisible = !(subtitleLabel.text ?? "").isEmpty
     if subtitleVisible {
-      titleLabel.frame = CGRect(x: 0, y: 2, width: bounds.width, height: 20)
-      subtitleLabel.frame = CGRect(x: 0, y: 23, width: bounds.width, height: 15)
+      titleLabel.frame = CGRect(
+        x: 0,
+        y: 2,
+        width: animatedContentView.bounds.width,
+        height: 20
+      )
+      subtitleLabel.frame = CGRect(
+        x: 0,
+        y: 23,
+        width: animatedContentView.bounds.width,
+        height: 15
+      )
     } else {
-      titleLabel.frame = bounds
+      titleLabel.frame = animatedContentView.bounds
       subtitleLabel.frame = .zero
     }
 
@@ -78,11 +99,12 @@ final class NavigationHeaderTitleView: ExpoView {
 
   func setProgress(_ value: Double) {
     let progress = min(1, max(0, CGFloat(value)))
-    alpha = progress
-    transform = CGAffineTransform(
+    animatedContentView.alpha = progress
+    animatedContentView.transform = CGAffineTransform(
       translationX: 0,
       y: (1 - progress) * hiddenTranslation
     )
+    isAccessibilityElement = progress > 0
   }
 
   func setSubtitle(_ subtitle: String) {

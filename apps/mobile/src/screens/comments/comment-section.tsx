@@ -26,8 +26,10 @@ export function CommentSection({
   refId,
   refType,
   allowComment = true,
+  queriesEnabled = true,
 }: {
   allowComment?: boolean
+  queriesEnabled?: boolean
   refId: string
   refType: CommentRefType
 }) {
@@ -36,7 +38,7 @@ export function CommentSection({
   const palette = usePalette()
   const session = useSession()
   const queryClient = useQueryClient()
-  const query = useCommentsQuery(refId)
+  const query = useCommentsQuery(refId, queriesEnabled)
 
   const [expansions, setExpansions] = useState<Record<string, ThreadExpansion>>(
     {},
@@ -126,6 +128,7 @@ export function CommentSection({
         <CommentInputWell
           busy={send.isPending}
           error={sendError}
+          providersEnabled={queriesEnabled}
           replyToName={replyTo?.name ?? null}
           signedIn={session !== null}
           value={draft}

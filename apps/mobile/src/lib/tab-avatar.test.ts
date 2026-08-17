@@ -30,4 +30,18 @@ describe('tabAvatarIconSource', () => {
       width: 30,
     })
   })
+
+  it('passes a remote session photo through so native can circularize the tab bitmap', () => {
+    expect(
+      tabAvatarIconSource(
+        'https://example.com/avatar.png',
+        3,
+      ),
+    ).toEqual({
+      height: TAB_AVATAR_POINT_SIZE,
+      scale: 3,
+      uri: 'https://example.com/avatar.png',
+      width: TAB_AVATAR_POINT_SIZE,
+    })
+  })
 })

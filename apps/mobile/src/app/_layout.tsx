@@ -12,6 +12,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { LogBox, StyleSheet, useColorScheme, View } from 'react-native'
 
 import { refreshSession } from '@/auth/session'
+import { useSession } from '@/auth/session-store'
 import { WebViewPoolWarmer } from '@/components/dom/webview-pool-warmer'
 import { getStackScreenOptions } from '@/components/navigation/stack-screen-options'
 import { SplashOverlay } from '@/components/splash/splash-overlay'
@@ -21,6 +22,9 @@ import { useTranslations } from '@/i18n'
 import { assertVendoredDomWebView } from '@/lib/assert-vendored-dom-webview'
 import { queryClient } from '@/lib/query-client'
 import { refreshOwnerSnapshot } from '@/owner/refresh'
+import { PushOnboardingHost } from '@/push/push-onboarding-host'
+import { useNotificationRouting } from '@/push/use-notification-routing'
+import { usePushLifecycle } from '@/push/use-push-lifecycle'
 import { useSocketLifecycle } from '@/socket/use-socket-lifecycle'
 import { useSyncLifecycle } from '@/sync/use-sync-lifecycle'
 import { useAppFonts } from '@/theme/fonts'
@@ -48,9 +52,12 @@ export default function RootLayout() {
   const { success: dbReady, error: dbError } = useMigrations(db, migrations)
   useSyncLifecycle(dbReady)
   useSocketLifecycle()
+  const session = useSession()
+  usePushLifecycle(session?.id)
 
   const dataReady = fontsLoaded && dbReady
   const failed = dbError !== undefined
+  useNotificationRouting(dataReady && !failed)
   const [appPainted, setAppPainted] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [splashDone, setSplashDone] = useState(false)
@@ -165,6 +172,7 @@ export default function RootLayout() {
               />
             </Stack>
             <WebViewPoolWarmer />
+            <PushOnboardingHost ready={dataReady && !failed} />
             <ToastHost />
           </ThemeProvider>
         </QueryClientProvider>

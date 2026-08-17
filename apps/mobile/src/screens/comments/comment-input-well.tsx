@@ -13,6 +13,7 @@ export function CommentInputWell({
   error,
   replyToName,
   signedIn,
+  providersEnabled = true,
   value,
   onCancelReply,
   onChangeText,
@@ -22,6 +23,7 @@ export function CommentInputWell({
   error: string | null
   replyToName: string | null
   signedIn: boolean
+  providersEnabled?: boolean
   value: string
   onCancelReply: () => void
   onChangeText: (text: string) => void
@@ -31,7 +33,7 @@ export function CommentInputWell({
   const palette = usePalette()
 
   if (!signedIn) {
-    return <CommentLoginInline />
+    return <CommentLoginInline enabled={providersEnabled} />
   }
 
   const length = value.length

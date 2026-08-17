@@ -1,8 +1,7 @@
 import { and, eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack, useIsPreview } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 
@@ -12,6 +11,7 @@ import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll
 import { AppText } from '@/components/ui'
 import { db } from '@/db'
 import { posts } from '@/db/schema'
+import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
 import { formatRelativeTime } from '@/lib/datetime'
@@ -36,9 +36,11 @@ import { useRetryableBodyRefresh } from './use-retryable-body-refresh'
 
 export function PostDetailScreen({
   categorySlug,
+  postId: routePostId,
   slug,
 }: {
   categorySlug: string
+  postId?: string
   slug: string
 }) {
   const isPreview = useIsPreview()
@@ -53,35 +55,40 @@ export function PostDetailScreen({
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
 
-  const query = useMemo(
-    () =>
-      db
+  const { snapshot, updatesEnabled } = useDatabaseSnapshot({
+    identity: `post:${locale}:${routePostId ?? ''}:${categorySlug}:${slug}`,
+    read: async () => {
+      const rows = await db
         .select()
         .from(posts)
         .where(
-          and(
-            eq(posts.categorySlug, categorySlug),
-            eq(posts.slug, slug),
-            eq(posts.lang, locale),
-          ),
+          routePostId
+            ? and(eq(posts.id, routePostId), eq(posts.lang, locale))
+            : and(
+                eq(posts.categorySlug, categorySlug),
+                eq(posts.slug, slug),
+                eq(posts.lang, locale),
+              ),
         )
-        .limit(1),
-    [categorySlug, slug, locale],
-  )
-  const { data } = useLiveQuery(query, [categorySlug, slug, locale])
-  const post = data?.[0]
+        .limit(1)
+      return rows[0]
+    },
+    tables: ['posts'],
+  })
+  const post = snapshot ?? undefined
   const postId = post?.id
   const bodyVersion = post?.bodyVersion
   const isMarkdown = post?.contentFormat === 'markdown'
   const webUrl = siteHref(`/posts/${categorySlug}/${slug}`)
 
   useEffect(() => {
-    if (isPreview || !postId) return
+    if (isPreview || !postId || !updatesEnabled) return
     void recordReading(db, { refId: postId, kind: 'post', lang: locale })
-  }, [isPreview, locale, postId])
+  }, [isPreview, locale, postId, updatesEnabled])
 
   useRetryableBodyRefresh({
     enabled:
+      updatesEnabled &&
       Boolean(post) &&
       !isMarkdown &&
       translatedBodyNeedsRefresh(post?.articleMeta),
@@ -94,6 +101,7 @@ export function PostDetailScreen({
   })
 
   useEffect(() => {
+    if (!updatesEnabled) return
     let cancelled = false
     const load = async () => {
       if (post?.contentFormat === 'markdown') return
@@ -128,17 +136,20 @@ export function PostDetailScreen({
       cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [postId, bodyVersion, categorySlug, slug, locale, attempt])
+  }, [postId, bodyVersion, categorySlug, slug, locale, attempt, updatesEnabled])
 
   useEffect(() => {
-    if (!isPreview && isMarkdown) void WebBrowser.openBrowserAsync(webUrl)
-  }, [isMarkdown, isPreview, webUrl])
+    if (updatesEnabled && !isPreview && isMarkdown) {
+      void WebBrowser.openBrowserAsync(webUrl)
+    }
+  }, [isMarkdown, isPreview, updatesEnabled, webUrl])
 
   const body =
     post?.contentFormat === 'lexical' && post.content ? post.content : null
 
   const { marks, onScrollMetrics } = useReadingPresence({
     articleId: isPreview ? undefined : post?.id,
+    enabled: updatesEnabled,
     openOnWeb: isPreview || isMarkdown,
   })
   const headerSubtitle = post?.categoryName ?? post?.tags[0] ?? tt('posts')
@@ -219,6 +230,7 @@ export function PostDetailScreen({
                 enrichments={post?.enrichments ?? null}
                 highlightBlockId={tts.activeBlockId}
                 primeKey={post.id}
+                queriesEnabled={updatesEnabled}
                 refId={post.id}
                 refType="post"
                 scrollRef={scrollRef}
@@ -239,6 +251,7 @@ export function PostDetailScreen({
             <ArticleTail
               kind="post"
               likeCount={post.likeCount}
+              queriesEnabled={updatesEnabled}
               refId={post.id}
             />
           </>

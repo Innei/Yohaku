@@ -3,6 +3,7 @@
 import clsx from 'clsx'
 import { useMemo } from 'react'
 
+import { ImagePlaceholder } from '../../../lib/image-placeholder'
 import {
   AfilmoryGlyph,
   buildFilterHref,
@@ -15,7 +16,6 @@ import type {
   AfilmorySlotProps,
   AfilmorySource,
 } from './afilmory-augment'
-import { ImagePlaceholder } from './image-placeholder'
 import type {
   AfilmoryManifestPhoto,
   AfilmoryManifestPhotoExif,

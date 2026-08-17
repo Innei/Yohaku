@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics'
 import { useRouter } from 'expo-router'
 import Tabs from 'expo-router/js-tabs'
 import { NativeTabs } from 'expo-router/unstable-native-tabs'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { DynamicColorIOS, PixelRatio, useColorScheme } from 'react-native'
 
 import { useSession } from '@/auth/session-store'
@@ -39,31 +39,10 @@ const tabInactiveTint = DynamicColorIOS({
   dark: neutral.dark[6],
 })
 
-function useCircularAvatar(image: string | null | undefined) {
-  const [src, setSrc] = useState<TabAvatarIconSource | undefined>(() =>
-    image ? tabAvatarIconSource(image, PixelRatio.get()) : undefined,
-  )
-
-  useEffect(() => {
-    if (!image) {
-      setSrc(undefined)
-      return
-    }
-    setSrc(tabAvatarIconSource(image, PixelRatio.get()))
-    let cancelled = false
-    void YohakuNative.circularImageUri(image)
-      .then((source) => {
-        if (!cancelled) setSrc(tabAvatarIconSource(source))
-      })
-      .catch(() => {
-        if (!cancelled) setSrc(tabAvatarIconSource(image, PixelRatio.get()))
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [image])
-
-  return src
+function tabAvatar(
+  image: string | null | undefined,
+): TabAvatarIconSource | undefined {
+  return image ? tabAvatarIconSource(image, PixelRatio.get()) : undefined
 }
 
 function NativeTabsLayout() {
@@ -71,7 +50,7 @@ function NativeTabsLayout() {
   const t = useTranslations('tabs')
   const router = useRouter()
   const session = useSession()
-  const avatar = useCircularAvatar(session?.image)
+  const avatar = tabAvatar(session?.image)
   const secretTapRef = useRef<SecretTapState>(INITIAL_SECRET_TAP)
 
   useEffect(() => {
@@ -147,7 +126,7 @@ function PaperTabsLayout() {
   const t = useTranslations('tabs')
   const router = useRouter()
   const session = useSession()
-  const avatar = useCircularAvatar(session?.image)
+  const avatar = tabAvatar(session?.image)
   const secretTapRef = useRef<SecretTapState>(INITIAL_SECRET_TAP)
 
   return (

@@ -202,6 +202,20 @@ export const ko = {
   system: {
     dbInitFailed: '데이터베이스 초기화에 실패했습니다. 앱을 다시 설치해 주세요',
   },
+  push: {
+    sectionTitle: '알림',
+    mainToggle: '푸시 알림',
+    contentPost: '새 글',
+    contentNote: '새 노트',
+    contentRecently: '최근 업데이트',
+    commentReplied: '댓글 답글',
+    onboardingTitle: '알림을 켤까요?',
+    onboardingBody:
+      '새 글, 노트, 댓글 답글 알림을 받을 수 있습니다. 「나」에서 언제든 변경할 수 있어요.',
+    onboardingConfirm: '알림 켜기',
+    settingsDeniedHint:
+      'iOS 설정에서 알림이 꺼져 있습니다. 설정에서 알림을 허용해 주세요.',
+  },
   yohaku: {
     metaTime: '{count}분',
     metaLiteraryTime: '{count}분',

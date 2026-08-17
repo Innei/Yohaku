@@ -1,0 +1,76 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "PUSH_CONTENT_NOTE_SUBTITLE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "New note" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "新しい手記" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "새 수기" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "新手记" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "新手記" } }
+      }
+    },
+    "PUSH_CONTENT_POST_SUBTITLE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "New post" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "新しい記事" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "새 글" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "新文章" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "新文章" } }
+      }
+    },
+    "PUSH_CONTENT_RECENTLY_SUBTITLE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "New thinking" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "新しい思考" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "새로운 생각" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "新思考" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "新思考" } }
+      }
+    },
+    "PUSH_CONTENT_SUMMARY": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@" } }
+      }
+    },
+    "PUSH_CONTENT_TITLE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@" } }
+      }
+    },
+    "PUSH_REPLY_BODY": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Your comment on “%@” received a reply." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "「%@」へのコメントに返信がありました。" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "“%@”에 남긴 댓글에 답글이 달렸습니다." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "你在《%@》中的评论收到了回复。" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "你在《%@》中的留言收到了回覆。" } }
+      }
+    },
+    "PUSH_REPLY_TITLE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@ replied to you" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@さんから返信が届きました" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@님이 답글을 남겼습니다" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 回复了你" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 回覆了你" } }
+      }
+    }
+  },
+  "version": "1.0"
+}

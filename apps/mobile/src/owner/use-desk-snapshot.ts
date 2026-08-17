@@ -9,7 +9,7 @@ import { parseDeskSnapshot } from './live-desk'
 
 const DESK_POLL_MS = 60_000
 
-export function useDeskSnapshot(): DeskSnapshot {
+export function useDeskSnapshot(enabled = true): DeskSnapshot {
   const [focused, setFocused] = useState(false)
   useFocusEffect(
     useCallback(() => {
@@ -19,7 +19,7 @@ export function useDeskSnapshot(): DeskSnapshot {
   )
 
   const { data, dataUpdatedAt } = useQuery({
-    enabled: focused,
+    enabled: focused && enabled,
     queryFn: () => api.getLiveDeskPublicState(),
     queryKey: ['companion', 'presence', 'public'],
     refetchInterval: DESK_POLL_MS,
