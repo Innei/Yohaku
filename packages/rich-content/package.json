@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "build:css": "tailwindcss -i styles/build.css -o dist/rich.css",
+    "check": "pnpm build:css && git diff --exit-code -- dist/rich.css",
     "test": "vitest run"
   },
   "peerDependencies": {
