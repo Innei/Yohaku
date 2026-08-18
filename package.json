@@ -1,7 +1,7 @@
 {
   "name": "yohaku",
   "private": true,
-  "description": "Yohaku — open-source iOS reader for a personal Mix Space blog, plus its typographic design contract.",
+  "description": "Yohaku iOS client, and the design system it uses.",
   "packageManager": "pnpm@11.0.0",
   "scripts": {
     "dev": "pnpm --filter @yohaku/design-system showcase:dev",

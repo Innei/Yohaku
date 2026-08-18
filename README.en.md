@@ -9,17 +9,11 @@
   </picture>
 </p>
 
-<p align="center">
-  <strong>iOS 18+</strong> · Expo · MIT · no Android
-</p>
-
 **[简体中文](./README.md) · [English](./README.en.md) · [日本語](./README.ja.md)**
 
 > *The blank space is part of the writing.*
 
-An **iOS reader** for your own [Mix Space](https://github.com/mx-space) site. Four tabs: Posts, Notes, Thoughts, Me. Article bodies use the same typography as the website. Open source — point it at your [mx-core](https://github.com/mx-space/core) and compile locally.
-
-It is not a multi-site product. There is no first-launch “connect your site” flow.
+Yohaku is the iOS app I use to read my own blog. It's open source now. Posts, notes, thoughts. Same typesetting as the site. Point `publicSite` at your [mx-core](https://github.com/mx-space/core) and build. One site. iOS 18+, no Android.
 
 <table>
   <tr>
@@ -32,61 +26,30 @@ It is not a multi-site product. There is no first-launch “connect your site”
   </tr>
 </table>
 
----
+Code is in [`apps/mobile/`](./apps/mobile/).
 
-## The client
-
-Source lives in [`apps/mobile/`](./apps/mobile/). How to run it: [README](./apps/mobile/README.en.md).
-
-| Tab | What’s there |
-|-----|----------------|
-| **Posts** | Article list, pins, series |
-| **Notes** | Note timeline, series archives |
-| **Thoughts** | Short-form timeline |
-| **Me** | Sign-in, likes, reading history, comments, language, push |
-
-Also: in-app comments and likes, the same Lexical renderer as the site, local SQLite sync, narration, summaries and related reading. On iOS 26 with Liquid Glass it uses system tabs; otherwise a paper tab bar.
-
----
-
-## Run it
+## Setup
 
 ```bash
 pnpm install
-# edit publicSite in apps/mobile/src/site-config.ts to point at your mx-core
+# edit publicSite in apps/mobile/src/site-config.ts
 pnpm --filter @yohaku/mobile start
 pnpm --filter @yohaku/mobile ios   # macOS + Xcode
 ```
 
-Public defaults are an empty API URL and bundle id `dev.yohaku.app`. `expo run:ios` generates a gitignored `ios/` directory. Full notes: [`apps/mobile/README.en.md`](./apps/mobile/README.en.md).
-
----
+API URL starts empty; bundle id is `dev.yohaku.app`. Don't commit the generated `ios/` folder. More in [`apps/mobile/README.en.md`](./apps/mobile/README.en.md).
 
 ## Design system
 
-The typographic contract the client uses also lives here: one accent, three neutral tiers, the rest is whitespace. Web previews, tokens, templates, and the AI skill are in [`design-system/README.md`](./design-system/README.md). Live showcase: [yohaku.innei.dev](https://yohaku.innei.dev).
+The type system lives here too: one accent, three greys, the rest is leftover space. [`design-system/README.md`](./design-system/README.md) · [yohaku.innei.dev](https://yohaku.innei.dev)
 
----
+## The website
 
-## Full implementation · closed-source repo
-
-The website itself is still maintained as a private repo at [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku), deeply rebuilt from [Shiro](https://github.com/Innei/Shiro). The sponsor model is unchanged.
-
-**Sponsorship grants access.**
+The web app is still private: [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku), rebuilt from [Shiro](https://github.com/Innei/Shiro). Sponsor and I'll add you.
 
 [![Sponsor](https://img.shields.io/badge/Sponsor-Innei-ea4aaa?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/Innei)
 
-After sponsoring at [github.com/sponsors/Innei](https://github.com/sponsors/Innei), open an [Issue](https://github.com/Innei/Yohaku/issues) or send an email with your GitHub username — I'll add you to the repository manually.
-
----
-
-## Related projects
-
-- [mx-space/core](https://github.com/mx-space/core) — backend API the client talks to
-- [Shiro](https://github.com/Innei/Shiro) — open-source predecessor, Next.js personal blog system
-- [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku) — full closed-source implementation (sponsor for access)
-
----
+After [github.com/sponsors/Innei](https://github.com/sponsors/Innei), open an [Issue](https://github.com/Innei/Yohaku/issues) or email me your GitHub username.
 
 ## License
 
