@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState } from 'react-native'
 
 import { api } from '@/api/client'
@@ -37,6 +37,7 @@ export function useReadingPresence({
       : null
   const lastPercentRef = useRef(0)
   const activeRef = useRef(AppState.currentState === 'active')
+  const [appActive, setAppActive] = useState(activeRef.current)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const publish = useCallback(
@@ -74,10 +75,10 @@ export function useReadingPresence({
   )
 
   const { data: roomPresence, refetch } = useQuery({
-    enabled: roomName !== null,
+    enabled: roomName !== null && appActive,
     queryFn: () => api.getRoomPresence(roomName ?? ''),
     queryKey: ['activity', 'presence', roomName],
-    refetchInterval: ROOM_POLL_MS,
+    refetchInterval: appActive ? ROOM_POLL_MS : false,
     retry: false,
   })
 
@@ -87,10 +88,11 @@ export function useReadingPresence({
   )
 
   useEffect(() => {
-    if (!roomName) return
+    if (!roomName || !appActive) return
     emitJoin(roomName)
     schedule(lastPercentRef.current)
     const unsubscribe = subscribeGatewayConnect(() => {
+      if (!activeRef.current) return
       emitJoin(roomName)
       publish(lastPercentRef.current)
       void refetch()
@@ -103,24 +105,21 @@ export function useReadingPresence({
       }
       emitLeave(roomName)
     }
-  }, [publish, refetch, roomName, schedule])
+  }, [appActive, publish, refetch, roomName, schedule])
 
   useEffect(() => {
-    if (!roomName) return
     const sub = AppState.addEventListener('change', (state) => {
-      activeRef.current = state === 'active'
-      if (state !== 'active') {
-        if (timerRef.current) {
-          clearTimeout(timerRef.current)
-          timerRef.current = null
-        }
-        return
+      const nextActive = state === 'active'
+      if (nextActive === activeRef.current) return
+      activeRef.current = nextActive
+      setAppActive(nextActive)
+      if (!nextActive && timerRef.current) {
+        clearTimeout(timerRef.current)
+        timerRef.current = null
       }
-      publish(lastPercentRef.current)
-      void refetch()
     })
     return () => sub.remove()
-  }, [publish, refetch, roomName])
+  }, [])
 
   const onScrollMetrics = useCallback(
     ({

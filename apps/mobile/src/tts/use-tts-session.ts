@@ -2,13 +2,14 @@ import { YohakuNative } from '@modules/yohaku'
 import { useQuery } from '@tanstack/react-query'
 import { useFocusEffect } from 'expo-router'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Alert } from 'react-native'
+import { Alert, AppState } from 'react-native'
 
 import { api } from '@/api/client'
 import type { ApiTtsSegment } from '@/api/types'
 import { t } from '@/i18n'
 
 import { nextRate } from './format'
+import { createTtsTimeLifecycle } from './time-lifecycle'
 
 export type TtsStatus = 'idle' | 'loading' | 'paused' | 'playing'
 
@@ -42,6 +43,16 @@ export function useTtsSession({
   const [duration, setDuration] = useState(0)
   const [autoFollow, setAutoFollow] = useState(true)
   const [failed, setFailed] = useState(false)
+
+  const [timeLifecycle] = useState(() =>
+    createTtsTimeLifecycle({
+      initiallyActive: AppState.currentState === 'active',
+      publish: (snapshot) => {
+        setElapsed(snapshot.elapsed)
+        setDuration(snapshot.duration)
+      },
+    }),
+  )
 
   const playingIndexRef = useRef(playingIndex)
   const isPlayingRef = useRef(isPlaying)
@@ -80,40 +91,41 @@ export function useTtsSession({
   const isNarrating =
     status === 'loading' || status === 'playing' || status === 'paused'
 
-  const playIndex = useCallback(async (index: number) => {
-    const segment = segmentsRef.current[index]
-    if (!segment) return
-    playerOwner = sessionId.current
-    setPlayingIndex(index)
-    setElapsed(0)
-    setDuration(0)
-    if (!hasTtsNative()) {
-      setFailed(true)
-      return
-    }
-    try {
-      await YohakuNative.loadTts({
-        artist: ARTIST,
-        rate: playbackRateRef.current,
-        title: titleRef.current ?? ARTIST,
-        url: segment.url,
-      })
-      await YohakuNative.playTts()
-      setIsPlaying(true)
-      const next = segmentsRef.current[index + 1]
-      if (next) await YohakuNative.preloadTts(next.url)
-    } catch {
-      setFailed(true)
-    }
-  }, [])
+  const playIndex = useCallback(
+    async (index: number) => {
+      const segment = segmentsRef.current[index]
+      if (!segment) return
+      playerOwner = sessionId.current
+      setPlayingIndex(index)
+      timeLifecycle.reset()
+      if (!hasTtsNative()) {
+        setFailed(true)
+        return
+      }
+      try {
+        await YohakuNative.loadTts({
+          artist: ARTIST,
+          rate: playbackRateRef.current,
+          title: titleRef.current ?? ARTIST,
+          url: segment.url,
+        })
+        await YohakuNative.playTts()
+        setIsPlaying(true)
+        const next = segmentsRef.current[index + 1]
+        if (next) await YohakuNative.preloadTts(next.url)
+      } catch {
+        setFailed(true)
+      }
+    },
+    [timeLifecycle],
+  )
 
   const resetLocal = useCallback(() => {
     setPlayingIndex(null)
     setIsPlaying(false)
-    setElapsed(0)
-    setDuration(0)
+    timeLifecycle.reset()
     setAutoFollow(true)
-  }, [])
+  }, [timeLifecycle])
 
   const stop = useCallback(() => {
     if (isOwner()) {
@@ -137,8 +149,7 @@ export function useTtsSession({
   useEffect(() => {
     const time = YohakuNative.addListener('onTtsTime', (event) => {
       if (!isOwner()) return
-      setElapsed(event.elapsed)
-      setDuration(event.duration)
+      timeLifecycle.handleTime(event)
     })
     const ended = YohakuNative.addListener('onTtsEnded', () => {
       if (isOwner()) advance()
@@ -168,7 +179,15 @@ export function useTtsSession({
       interrupted.remove()
       stop()
     }
-  }, [advance, isOwner, stop])
+  }, [advance, isOwner, stop, timeLifecycle])
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener(
+      'change',
+      timeLifecycle.handleAppStateChange,
+    )
+    return () => subscription.remove()
+  }, [timeLifecycle])
 
   useFocusEffect(
     useCallback(() => {
