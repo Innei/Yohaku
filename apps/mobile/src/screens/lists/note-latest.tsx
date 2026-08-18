@@ -1,4 +1,3 @@
-import { LegacyScrollEdgeMask } from '@modules/yohaku'
 import { useEffect, useState } from 'react'
 import type { LayoutChangeEvent } from 'react-native'
 import { StyleSheet, useWindowDimensions, View } from 'react-native'
@@ -15,7 +14,15 @@ import { usePalette } from '@/theme/palette'
 
 import { TopicChip } from '../topics/topic-chip'
 import { NotePreview } from './note-preview'
-import { notePreviewIsClipped, noteShowsInlineBody } from './note-timeline'
+import { noteShowsInlineBody } from './note-timeline'
+
+function deskFadeWash(hex: string) {
+  const r = Number.parseInt(hex.slice(1, 3), 16)
+  const g = Number.parseInt(hex.slice(3, 5), 16)
+  const b = Number.parseInt(hex.slice(5, 7), 16)
+  const stop = (alpha: number) => `rgba(${r},${g},${b},${alpha})`
+  return `linear-gradient(180deg, ${stop(0)} 0%, ${stop(0.08)} 22%, ${stop(0.22)} 42%, ${stop(0.48)} 64%, ${stop(0.78)} 84%, ${stop(1)} 100%)`
+}
 
 const previewMinHeight = 360
 const previewViewportRatio = 0.48
@@ -48,7 +55,7 @@ export function NoteLatest({
   const inline = noteShowsInlineBody(note)
   const noteId = note.id
   const contentHeight = measured.id === noteId ? measured.height : 0
-  const clipped = notePreviewIsClipped(contentHeight, cap)
+  const clipped = contentHeight > cap
   const bodyVersion = note.bodyVersion
   const failed = failSig === `${noteId}:${attempt}`
 
@@ -88,11 +95,7 @@ export function NoteLatest({
         {topic ? <TopicChip topic={topic} /> : null}
         <NativePressable onPress={onOpen}>
           {inline ? (
-            <LegacyScrollEdgeMask
-              bottomEdgeHeight={clipped ? previewFadeHeight : 0}
-              bottomProgress={1}
-              topEdgeHeight={0}
-              topProgress={0}
+            <View
               style={[
                 styles.preview,
                 { maxHeight: cap },
@@ -100,7 +103,6 @@ export function NoteLatest({
               ]}
             >
               <View
-                collapsable={false}
                 onLayout={(event) =>
                   setMeasured({
                     height: event.nativeEvent.layout.height,
@@ -110,7 +112,20 @@ export function NoteLatest({
               >
                 <NotePreview content={note.content ?? ''} />
               </View>
-            </LegacyScrollEdgeMask>
+              {clipped ? (
+                <View
+                  pointerEvents="none"
+                  style={[
+                    styles.fade,
+                    {
+                      experimental_backgroundImage: deskFadeWash(
+                        palette.surface.desk,
+                      ),
+                    },
+                  ]}
+                />
+              ) : null}
+            </View>
           ) : note.hasPassword ? (
             <AppText style={styles.fallback} variant="secondary">
               {td('passwordHint')}
@@ -167,6 +182,13 @@ const styles = StyleSheet.create({
   preview: {
     overflow: 'hidden',
     marginTop: 16,
+  },
+  fade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: previewFadeHeight,
   },
   fallback: {
     marginTop: 8,

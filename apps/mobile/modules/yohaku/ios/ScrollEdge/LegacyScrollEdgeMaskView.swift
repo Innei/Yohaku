@@ -26,12 +26,12 @@ final class LegacyScrollEdgeMaskView: ExpoView {
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    attachGradientMask()
-    // Fabric's invalidateLayer always sets layer.mask = nil after layout.
-    // Reattach once RN has finished applying overflow clipping.
-    DispatchQueue.main.async { [weak self] in
-      self?.attachGradientMask()
+    // React Native may rebuild a view's clipping mask while applying styles.
+    // Reassert ownership here so the scroll-edge mask remains attached.
+    if layer.mask !== gradientMask {
+      layer.mask = gradientMask
     }
+    updateGradientWithoutAnimation()
   }
 
   func setBottomEdgeHeight(_ height: Double) {
@@ -54,19 +54,12 @@ final class LegacyScrollEdgeMaskView: ExpoView {
     updateGradientWithoutAnimation()
   }
 
-  private func attachGradientMask() {
+  private func updateGradientWithoutAnimation() {
     CATransaction.begin()
     CATransaction.setDisableActions(true)
-    if layer.mask !== gradientMask {
-      layer.mask = gradientMask
-    }
     gradientMask.frame = bounds
     updateGradient()
     CATransaction.commit()
-  }
-
-  private func updateGradientWithoutAnimation() {
-    attachGradientMask()
   }
 
   private func updateGradient() {
@@ -137,6 +130,6 @@ final class LegacyScrollEdgeMaskView: ExpoView {
   }
 
   private func maskColor(alpha: CGFloat) -> CGColor {
-    CGColor(gray: 0, alpha: alpha)
+    UIColor.black.withAlphaComponent(alpha).cgColor
   }
 }

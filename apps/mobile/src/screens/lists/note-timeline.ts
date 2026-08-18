@@ -54,10 +54,3 @@ export function noteShowsInlineBody(note: {
     Boolean(note.content)
   )
 }
-
-export function notePreviewIsClipped(contentHeight: number, cap: number) {
-  // overflow:hidden can report the child's layout height as the cap instead of
-  // the unclipped content height. Treat "at least the cap" as clipped so the
-  // fade still attaches on iOS 26.
-  return cap > 0 && contentHeight >= cap
-}
