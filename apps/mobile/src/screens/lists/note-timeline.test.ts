@@ -5,6 +5,7 @@ import {
   hasMoreNotes,
   letterCountLabel,
   nextNoteListPage,
+  notePreviewIsClipped,
   noteShowsInlineBody,
   splitLatestNote,
 } from './note-timeline'
@@ -60,6 +61,21 @@ describe('splitLatestNote', () => {
   it('returns empty older when there is only one note', () => {
     const latest = note('2026-03-14T04:00:00.000Z')
     expect(splitLatestNote([latest])).toEqual({ latest, older: [] })
+  })
+})
+
+describe('notePreviewIsClipped', () => {
+  it('treats a measured height at the cap as clipped', () => {
+    expect(notePreviewIsClipped(360, 360)).toBe(true)
+  })
+
+  it('treats taller content as clipped', () => {
+    expect(notePreviewIsClipped(480, 360)).toBe(true)
+  })
+
+  it('ignores empty measurements and short previews', () => {
+    expect(notePreviewIsClipped(0, 360)).toBe(false)
+    expect(notePreviewIsClipped(200, 360)).toBe(false)
   })
 })
 

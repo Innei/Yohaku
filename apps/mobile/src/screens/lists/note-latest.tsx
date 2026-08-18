@@ -15,7 +15,7 @@ import { usePalette } from '@/theme/palette'
 
 import { TopicChip } from '../topics/topic-chip'
 import { NotePreview } from './note-preview'
-import { noteShowsInlineBody } from './note-timeline'
+import { notePreviewIsClipped, noteShowsInlineBody } from './note-timeline'
 
 const previewMinHeight = 360
 const previewViewportRatio = 0.48
@@ -48,7 +48,7 @@ export function NoteLatest({
   const inline = noteShowsInlineBody(note)
   const noteId = note.id
   const contentHeight = measured.id === noteId ? measured.height : 0
-  const clipped = contentHeight > cap
+  const clipped = notePreviewIsClipped(contentHeight, cap)
   const bodyVersion = note.bodyVersion
   const failed = failSig === `${noteId}:${attempt}`
 
@@ -100,6 +100,7 @@ export function NoteLatest({
               ]}
             >
               <View
+                collapsable={false}
                 onLayout={(event) =>
                   setMeasured({
                     height: event.nativeEvent.layout.height,
