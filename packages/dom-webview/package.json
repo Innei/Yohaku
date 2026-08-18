@@ -1,0 +1,41 @@
+{
+  "name": "@expo/dom-webview",
+  "version": "57.0.1",
+  "private": true,
+  "description": "A WebView specifically designed for Expo DOM components",
+  "main": "src/index.ts",
+  "types": "build/index.d.ts",
+  "sideEffects": false,
+  "keywords": [
+    "react-native",
+    "expo",
+    "dom",
+    "webview"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/expo/expo.git",
+    "directory": "packages/@expo/dom-webview"
+  },
+  "bugs": {
+    "url": "https://github.com/expo/expo/issues"
+  },
+  "author": "650 Industries, Inc.",
+  "license": "MIT",
+  "homepage": "https://github.com/expo/expo/tree/main/packages/@expo/dom-webview",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3",
+    "vitest": "^4.1.10"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  },
+  "gitHead": "b9503d06b8e130abfca1bc16f671dbefb41ad709",
+  "scripts": {
+    "test": "vitest run"
+  }
+}

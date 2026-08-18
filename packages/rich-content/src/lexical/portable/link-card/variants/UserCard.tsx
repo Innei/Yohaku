@@ -1,0 +1,106 @@
+import type { FC, ReactNode } from 'react'
+
+import type { HostEnrichment } from '../../../../host'
+import {
+  AsideAvatar,
+  AsidePlaceholder,
+  EyebrowPill,
+  GhCardLayout,
+  LocationIcon,
+  PersonIcon,
+  RepoIcon,
+} from '../atoms'
+import { findAttr } from '../enrichment'
+
+interface Props {
+  className?: string
+  data: HostEnrichment
+}
+
+function fmtCountLoose(n: unknown): string {
+  const num = typeof n === 'number' ? n : Number(n)
+  if (!Number.isFinite(num)) return String(n ?? '')
+  if (num >= 1000) return `${(num / 1000).toFixed(num >= 10000 ? 0 : 1)}k`
+  return String(num)
+}
+
+export const UserCard: FC<Props> = ({ data, className }) => {
+  const handle = findAttr(data, 'login')?.value
+  const company = findAttr(data, 'company')?.value
+  const location = findAttr(data, 'location')?.value
+  const repos = findAttr(data, 'public_repos')?.value
+  const followers = findAttr(data, 'followers')?.value
+  const bio = data.description
+
+  const meta: ReactNode[] = []
+  if (repos != null) {
+    meta.push(
+      <span className="inline-flex items-center gap-1.5" key="repos">
+        <RepoIcon size="0.875rem" />
+        <span className="font-medium text-neutral-9">
+          {fmtCountLoose(repos)}
+        </span>
+        <span className="text-neutral-6">repos</span>
+      </span>,
+    )
+  }
+  if (followers != null) {
+    meta.push(
+      <span className="inline-flex items-center gap-1.5" key="followers">
+        <PersonIcon size="0.875rem" />
+        <span className="font-medium text-neutral-9">
+          {fmtCountLoose(followers)}
+        </span>
+        <span className="text-neutral-6">followers</span>
+      </span>,
+    )
+  }
+  if (location) {
+    meta.push(
+      <span className="inline-flex items-center gap-1.5" key="location">
+        <LocationIcon size="0.875rem" />
+        <span>{String(location)}</span>
+      </span>,
+    )
+  }
+  if (company) {
+    meta.push(
+      <span className="inline-flex items-center gap-1.5" key="company">
+        <i className="i-mingcute-building-1-line text-[0.875rem]" />
+        <span className="text-neutral-6">{String(company)}</span>
+      </span>,
+    )
+  }
+
+  const avatarUrl = data.thumbnailImage?.url
+
+  return (
+    <GhCardLayout
+      className={className}
+      href={data.url}
+      meta={meta}
+      title={{ text: data.title }}
+      aside={
+        avatarUrl ? (
+          <AsideAvatar alt={data.title} shape="circle" src={avatarUrl} />
+        ) : (
+          <AsidePlaceholder shape="circle">
+            <PersonIcon size="1.5rem" />
+          </AsidePlaceholder>
+        )
+      }
+      body={
+        bio ? (
+          <div className="line-clamp-2 text-[0.9375rem] leading-relaxed text-neutral-7">
+            {bio}
+          </div>
+        ) : undefined
+      }
+      eyebrow={{
+        icon: <PersonIcon className="size-3.5" />,
+        kind: 'GitHub User',
+        pill: handle ? <EyebrowPill>@{String(handle)}</EyebrowPill> : undefined,
+      }}
+    />
+  )
+}

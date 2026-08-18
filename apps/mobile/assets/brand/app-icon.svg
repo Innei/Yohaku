@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Yohaku app icon">
+  <title>Yohaku app icon</title>
+  <desc>Reverse-cut Chinese character 白 with a plum editorial dot on a deep ink background.</desc>
+  <rect width="256" height="256" fill="#24231f"/>
+  <text
+    x="128"
+    y="124.5"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="'Noto Serif SC', 'Noto Serif CJK SC', 'Source Han Serif SC', serif"
+    font-size="152.5"
+    font-weight="600"
+    fill="#f9f8f5"
+  >白</text>
+  <circle cx="196.25" cy="195.5" r="10" fill="#c56473"/>
+</svg>

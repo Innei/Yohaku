@@ -15,6 +15,7 @@
 
 - ライブ showcase: **[yohaku.innei.dev](https://yohaku.innei.dev)**
 - デザイン契約（トークン、テンプレート、AI skill）は [`design-system/`](./design-system/) にあり、MIT ライセンスで公開しています。
+- iOS クライアントは [`apps/mobile/`](./apps/mobile/) でオープンソースです。自分の mx-core を指してコンパイルしてください。
 - 下のスクリーンショットは、このシステムが [Yohaku 個人サイト](https://github.com/Innei-dev/Yohaku) 上で形になった姿です。
 
 > 各プレビューは対角線で分割されています——左上がライト、右下がダーク。
@@ -85,6 +86,7 @@ pnpm build           # showcase を design-system/showcase/dist にビルド
 pnpm check           # token ドリフト + テンプレート lint
 pnpm test            # check.ts のユニットテスト
 pnpm demo:pdf        # デモ長文 / 履歴書 / レポートを PDF 化
+pnpm --filter @yohaku/mobile start   # iOS クライアント
 ```
 
 主な構成：
@@ -97,6 +99,9 @@ pnpm demo:pdf        # デモ長文 / 履歴書 / レポートを PDF 化
 | `design-system/references/` | 完全仕様（tokens / components / anti-patterns / mockup-to-react） |
 | `design-system/templates/` | HTML mockup スターター |
 | `design-system/showcase/` | ライブ showcase ソース |
+| `apps/mobile/` | iOS 個人ブログクライアント（Expo、iOS 18+） |
+| `packages/rich-content/` | 記事レンダラー（Web / iOS 共用） |
+| `packages/dom-webview/` | 自前の Expo DOM WebView |
 
 ### AI Skill として使う
 
@@ -113,9 +118,25 @@ pnpm demo:pdf        # デモ長文 / 履歴書 / レポートを PDF 化
 
 ---
 
+## iOS クライアント
+
+iOS クライアントは [`apps/mobile/`](./apps/mobile/) でオープンソースです。個人ブログ向けのリーダーであり、マルチサイト製品ではありません——初回起動の「サイトを接続」フローはありません。
+
+[`apps/mobile/src/site.ts`](./apps/mobile/src/site.ts) を自分の [mx-core](https://github.com/mx-space/core) に向けて、ローカルでコンパイルしてください。公開デフォルトは空の API URL と bundle id `dev.yohaku.app` です。
+
+**iOS 18+** が必要です。Android はありません。
+
+```bash
+pnpm install
+pnpm --filter @yohaku/mobile start
+pnpm --filter @yohaku/mobile ios   # macOS + Xcode
+```
+
+---
+
 ## 完全実装 · クローズドソースリポジトリ
 
-Yohaku の完全なサイト実装は [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku) でクローズドソースとして維持されており、[Shiro](https://github.com/Innei/Shiro) をベースに深く再構築されています。
+ウェブサイト本体は引き続き [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku) でクローズドソースとして維持されており、[Shiro](https://github.com/Innei/Shiro) をベースに深く再構築されています。スポンサーモデルは変わりません。
 
 **スポンサーになるとプライベートリポジトリへのアクセスが得られます。**
 
@@ -171,4 +192,6 @@ Yohaku を作っているうちに、最終的なコードより AI との対話
 2026 Innei.
 
 - `design-system/` 以下のコード（トークン、スクリプト、showcase、テンプレートなど）は [MIT License](./design-system/LICENSE) で公開しています。
+- `apps/mobile/` と `packages/rich-content/` は [MIT License](./apps/mobile/LICENSE)（Copyright Innei）です。
+- `packages/dom-webview/` は上流の Expo MIT を維持し、差分は [`VENDOR.md`](./packages/dom-webview/VENDOR.md) にあります。
 - それ以外（README、スクリーンショット、対話アーカイブなど）は引き続き [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) です。

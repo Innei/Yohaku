@@ -1,0 +1,15 @@
+{
+  "cli": {
+    "version": ">= 16.0.1",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "simulator": true
+      }
+    }
+  }
+}

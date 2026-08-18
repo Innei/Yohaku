@@ -1,7 +1,7 @@
 {
   "name": "yohaku",
   "private": true,
-  "description": "Yohaku — typographic design system for written content. The design contract lives in design-system/.",
+  "description": "Yohaku — typographic design system and open-source iOS client. The design contract lives in design-system/.",
   "packageManager": "pnpm@11.0.0",
   "scripts": {
     "dev": "pnpm --filter @yohaku/design-system showcase:dev",
@@ -9,6 +9,12 @@
     "preview": "pnpm --filter @yohaku/design-system showcase:preview",
     "check": "pnpm --filter @yohaku/design-system check",
     "test": "pnpm --filter @yohaku/design-system test",
-    "demo:pdf": "pnpm --filter @yohaku/design-system demo:pdf"
+    "demo:pdf": "pnpm --filter @yohaku/design-system demo:pdf",
+    "mobile": "pnpm --filter @yohaku/mobile start"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "expo-router@57.0.11": "patches/expo-router@57.0.11.patch"
+    }
   }
 }
