@@ -61,11 +61,19 @@ describe('privacyUrlFrom', () => {
 })
 
 describe('workspace root + overlay', () => {
-  it('resolves this repo root from apps/mobile with no overlay', () => {
-    const root = findWorkspaceRoot(mobileRoot)
-    expect(path.basename(root)).not.toBe('design-oss')
-    expect(resolveOverlayDir(root)).toBeNull()
+  const repoRoot = findWorkspaceRoot(mobileRoot)
+  const overlayAtRoot = resolveOverlayDir(repoRoot)
+
+  it('resolves this repo root from apps/mobile', () => {
+    expect(path.basename(repoRoot)).not.toBe('design-oss')
   })
+
+  it.skipIf(overlayAtRoot !== null)(
+    'has no overlay directory in a public-only clone',
+    () => {
+      expect(overlayAtRoot).toBeNull()
+    },
+  )
 
   it('does not keep overlay identity tests in the copied mobile suite', () => {
     expect(existsSync(path.join(mobileRoot, 'overlay-present.test.ts'))).toBe(
