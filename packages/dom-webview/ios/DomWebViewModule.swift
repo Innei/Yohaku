@@ -41,12 +41,13 @@ public final class DomWebViewModule: Module {
         sourceRectInWindow: nil,
         objectFit: payload.objectFit,
         cornerRadius: CGFloat(payload.cornerRadius ?? 0),
-        window: nil
+        window: nil,
+        siteReferer: payload.siteReferer
       )
     }.runOnQueue(.main)
 
-    AsyncFunction("prefetchImages") { (urls: [String]) in
-      DomImageAssetStore.shared.prefetch(urls)
+    AsyncFunction("prefetchImages") { (urls: [String], siteReferer: String?) in
+      DomImageAssetStore.shared.prefetch(urls, siteReferer: siteReferer)
     }
 
     AsyncFunction("clearImageCache") {
@@ -107,6 +108,10 @@ public final class DomWebViewModule: Module {
 
       Prop("pooled") { (view: DomWebView, value: Bool) in
         view.pooled = value
+      }
+
+      Prop("siteReferer") { (view: DomWebView, value: String?) in
+        view.siteReferer = value
       }
 
       // MARK: - WKWebViewConfiguration props (init-only)

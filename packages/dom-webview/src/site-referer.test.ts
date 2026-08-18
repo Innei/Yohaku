@@ -110,4 +110,50 @@ describe('native asset handler', () => {
     expect(store).not.toContain('innei.in')
     expect(store).not.toContain('defaultReferer')
   })
+
+  it('applies the caller site Referer to every raw https gallery source', () => {
+    const store = readFileSync(
+      path.join(packageDir, 'ios/DomImageAssetStore.swift'),
+      'utf8',
+    )
+    const preview = readFileSync(
+      path.join(packageDir, 'ios/DomImagePreview.swift'),
+      'utf8',
+    )
+    const records = readFileSync(
+      path.join(packageDir, 'ios/DomWebViewRecords.swift'),
+      'utf8',
+    )
+    const moduleSource = readFileSync(
+      path.join(packageDir, 'ios/DomWebViewModule.swift'),
+      'utf8',
+    )
+    const view = readFileSync(
+      path.join(packageDir, 'ios/DomWebView.swift'),
+      'utf8',
+    )
+    const wrapper = readFileSync(
+      path.join(packageDir, 'src/DomWebView.tsx'),
+      'utf8',
+    )
+    expect(store).toContain(
+      'static func resolve(_ rawValue: String, siteReferer: String? = nil)',
+    )
+    expect(store).toContain('SiteReferer.normalized(siteReferer)')
+    expect(store).toContain(
+      'func prefetch(_ urls: [String], siteReferer: String? = nil)',
+    )
+    expect(preview).toContain('siteReferer: siteReferer')
+    expect(preview).toContain(
+      'message.siteReferer ?? (webView as? DomWKWebView)?.siteReferer',
+    )
+    expect(records).toContain('@Field var siteReferer: String?')
+    expect(moduleSource).toContain('Prop("siteReferer")')
+    expect(moduleSource).toContain('siteReferer: payload.siteReferer')
+    expect(moduleSource).toContain(
+      'DomImageAssetStore.shared.prefetch(urls, siteReferer: siteReferer)',
+    )
+    expect(view).toContain('var siteReferer: String?')
+    expect(wrapper).toContain('siteReferer={siteReferer}')
+  })
 })

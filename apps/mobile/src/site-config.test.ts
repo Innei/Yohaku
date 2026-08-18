@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -65,6 +65,12 @@ describe('workspace root + overlay', () => {
     const root = findWorkspaceRoot(mobileRoot)
     expect(path.basename(root)).not.toBe('design-oss')
     expect(resolveOverlayDir(root)).toBeNull()
+  })
+
+  it('does not keep overlay identity tests in the copied mobile suite', () => {
+    expect(existsSync(path.join(mobileRoot, 'overlay-present.test.ts'))).toBe(
+      false,
+    )
   })
 
   it('treats a missing overlay directory as public defaults', () => {

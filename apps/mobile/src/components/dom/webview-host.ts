@@ -26,10 +26,14 @@ function postNativeMessage(message: object): boolean {
   }
 }
 
-export function postNativeImagePreview(payload: OpenImagePayload): boolean {
+export function postNativeImagePreview(
+  payload: OpenImagePayload,
+  siteReferer?: string,
+): boolean {
   if (!payload.source) return false
   return postNativeMessage({
     ...payload,
+    siteReferer,
     type: IMAGE_PREVIEW_MESSAGE,
   })
 }
@@ -70,7 +74,7 @@ export function createWebviewHost(deps: WebviewHostDeps): HostCapabilities {
     locale: deps.locale,
     nestedDocPresentation: deps.nestedDocPresentation ?? 'inline',
     openImage: (payload) => {
-      if (postNativeImagePreview(payload)) return
+      if (postNativeImagePreview(payload, deps.webOrigin)) return
       return deps.onImagePress(payload)
     },
     openLink: (url) => deps.onLinkPress(url),

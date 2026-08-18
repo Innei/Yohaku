@@ -89,6 +89,7 @@ const WebView = React.forwardRef<DomWebViewRef, DomWebViewProps>(
           ref={viewRef}
           source={resolvedSource}
           style={webViewStyles}
+          siteReferer={siteReferer}
           injectedJavaScriptBeforeContentLoaded={`${buildMediaRewriteScript(siteReferer ?? '')}${injectedJavaScriptBeforeContentLoaded ?? ''}`}
           injectedJavaScriptObject={JSON.stringify(
             injectedJavaScriptObject ?? {},

@@ -78,6 +78,7 @@ describe('createWebviewHost', () => {
     expect(JSON.parse(postMessage.mock.calls[0][0])).toEqual({
       images: ['a', 'b'],
       index: 1,
+      siteReferer: 'https://example.com',
       source: {
         borderRadius: 12,
         currentSrc: 'yohaku-asset://image?u=b',

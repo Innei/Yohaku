@@ -128,6 +128,7 @@ export function ArticleBody({
     if (urls.length === 0) return
     await presentImagePreview({
       index: Math.max(0, index),
+      siteReferer: getSiteUrl(),
       urls,
     })
   }

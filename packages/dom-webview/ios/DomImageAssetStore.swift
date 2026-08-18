@@ -3,6 +3,28 @@ import Foundation
 import ImageIO
 import UIKit
 
+enum SiteReferer {
+  /// Matches `normalizeSiteReferer` in `site-referer.ts`: origin + trailing slash.
+  static func normalized(_ origin: String?) -> String? {
+    guard
+      let trimmed = origin?.trimmingCharacters(in: .whitespacesAndNewlines),
+      !trimmed.isEmpty,
+      let url = URL(string: trimmed),
+      let scheme = url.scheme?.lowercased(),
+      scheme == "http" || scheme == "https",
+      url.host != nil
+    else {
+      return nil
+    }
+    var components = URLComponents()
+    components.scheme = url.scheme
+    components.host = url.host
+    components.port = url.port
+    guard let value = components.string, !value.isEmpty else { return nil }
+    return value.hasSuffix("/") ? value : value + "/"
+  }
+}
+
 struct DomImageAssetSource: Hashable {
   let rawValue: String
   let remoteURL: URL?
@@ -18,7 +40,7 @@ struct DomImageAssetSource: Hashable {
     return request
   }
 
-  static func resolve(_ rawValue: String) -> DomImageAssetSource? {
+  static func resolve(_ rawValue: String, siteReferer: String? = nil) -> DomImageAssetSource? {
     if rawValue.hasPrefix("data:") {
       return DomImageAssetSource(
         rawValue: rawValue,
@@ -33,11 +55,12 @@ struct DomImageAssetSource: Hashable {
       return resolveAssetURL(url, rawValue: rawValue)
     }
     guard url.scheme?.lowercased() == "https" else { return nil }
+    let referer = SiteReferer.normalized(siteReferer)
     return DomImageAssetSource(
       rawValue: rawValue,
       remoteURL: url,
-      referer: nil,
-      cacheKey: digest("remote\n\(url.absoluteString)\n")
+      referer: referer,
+      cacheKey: digest("remote\n\(url.absoluteString)\n\(referer ?? "")")
     )
   }
 
@@ -194,8 +217,8 @@ final class DomImageAssetStore {
     ensurePrepared(source: source, data: nil)
   }
 
-  func prefetch(_ urls: [String]) {
-    let sources = urls.compactMap(DomImageAssetSource.resolve)
+  func prefetch(_ urls: [String], siteReferer: String? = nil) {
+    let sources = urls.compactMap { DomImageAssetSource.resolve($0, siteReferer: siteReferer) }
     guard !sources.isEmpty else { return }
     stateLock.lock()
     prefetchQueue.append(contentsOf: sources)

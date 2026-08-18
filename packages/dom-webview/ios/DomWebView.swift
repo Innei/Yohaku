@@ -11,6 +11,7 @@ final class DomWKWebView: WKWebView {
   var selectionMenu = "default"
   var selectionCommentTitle = "评论"
   var selectionBlockTitle = "本段"
+  var siteReferer: String?
 
   override var inputAccessoryView: UIView? {
     hidesInputAccessoryView ? nil : super.inputAccessoryView
@@ -233,6 +234,7 @@ final class DomWebViewPool: NSObject, WKNavigationDelegate, WKScriptMessageHandl
     webView.selectionMenu = "default"
     webView.selectionCommentTitle = "评论"
     webView.selectionBlockTitle = "本段"
+    webView.siteReferer = nil
     let controller = webView.configuration.userContentController
     controller.removeAllScriptMessageHandlers()
     controller.add(WeakScriptMessageHandler(delegate: self), name: DomWebView.POST_MESSAGE_HANDLER_NAME)
@@ -595,6 +597,10 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
 
   var selectionBlockTitle: String = "本段" {
     didSet { webView?.selectionBlockTitle = selectionBlockTitle }
+  }
+
+  var siteReferer: String? {
+    didSet { webView?.siteReferer = siteReferer }
   }
 
   // MARK: - RCTAutoInsetsProtocol storage
@@ -1023,6 +1029,7 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     webView.selectionMenu = selectionMenu
     webView.selectionCommentTitle = selectionCommentTitle
     webView.selectionBlockTitle = selectionBlockTitle
+    webView.siteReferer = siteReferer
     webView.uiDelegate = self
     webView.navigationDelegate = self
 

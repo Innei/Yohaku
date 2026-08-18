@@ -35,6 +35,7 @@ internal struct ImagePreviewPayload: Record {
   @Field var index: Int = 0
   @Field var objectFit: String?
   @Field var cornerRadius: Double?
+  @Field var siteReferer: String?
 }
 
 internal struct ScrollToParam: Record {

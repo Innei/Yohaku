@@ -16,6 +16,7 @@ import {
 import type { Locale } from '@/i18n/config'
 import { getLocale } from '@/i18n/locale-store'
 import { prefetchImages } from '@/lib/image-cache'
+import { getSiteUrl } from '@/lib/site-url'
 import { noteListPageSize } from '@/screens/lists/note-timeline'
 import { postListPageSize } from '@/screens/lists/post-list'
 
@@ -385,5 +386,5 @@ async function prefetchBodies() {
       }),
     ),
   ]
-  await prefetchImages([...new Set(urls)]).catch(() => {})
+  await prefetchImages([...new Set(urls)], getSiteUrl()).catch(() => {})
 }

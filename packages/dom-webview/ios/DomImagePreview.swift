@@ -27,6 +27,7 @@ private struct DomImagePreviewMessage: Decodable {
   let index: Int?
   let src: String?
   let source: DomImagePreviewSourceLayout?
+  let siteReferer: String?
 }
 
 enum DomImageFitMode: Equatable {
@@ -146,7 +147,8 @@ enum DomImagePreviewDomain {
     cornerRadius: CGFloat,
     window: UIWindow?,
     preparedImage: UIImage? = nil,
-    sourceView: UIView? = nil
+    sourceView: UIView? = nil,
+    siteReferer: String? = nil
   ) {
     dispatchPrecondition(condition: .onQueue(.main))
     guard coordinator == nil, !urls.isEmpty else { return }
@@ -156,11 +158,14 @@ enum DomImagePreviewDomain {
     if let currentSrc {
       presentationSources[requestedIndex] = currentSrc
     }
-    var sources = presentationSources.compactMap(DomImageAssetSource.resolve)
+    var sources = presentationSources.compactMap {
+      DomImageAssetSource.resolve($0, siteReferer: siteReferer)
+    }
     var selectedIndex = requestedIndex
     if sources.count != presentationSources.count {
       let selectedRaw = currentSrc ?? urls[requestedIndex]
-      guard let selected = DomImageAssetSource.resolve(selectedRaw) else { return }
+      guard let selected = DomImageAssetSource.resolve(selectedRaw, siteReferer: siteReferer)
+      else { return }
       sources = [selected]
       selectedIndex = 0
     }
@@ -184,7 +189,8 @@ enum DomImagePreviewDomain {
     index: Int,
     objectFit: String?,
     cornerRadius: CGFloat,
-    preparedImage: UIImage?
+    preparedImage: UIImage?,
+    siteReferer: String? = nil
   ) {
     guard let window = view.window ?? keyWindow() else {
       present(
@@ -195,7 +201,8 @@ enum DomImagePreviewDomain {
         cornerRadius: cornerRadius,
         window: nil,
         preparedImage: preparedImage,
-        sourceView: view
+        sourceView: view,
+        siteReferer: siteReferer
       )
       return
     }
@@ -210,14 +217,23 @@ enum DomImagePreviewDomain {
       cornerRadius: cornerRadius,
       window: window,
       preparedImage: preparedImage,
-      sourceView: view
+      sourceView: view,
+      siteReferer: siteReferer
     )
   }
 
+  private static func resolvedSiteReferer(
+    message: DomImagePreviewMessage,
+    webView: WKWebView
+  ) -> String? {
+    message.siteReferer ?? (webView as? DomWKWebView)?.siteReferer
+  }
+
   private static func prewarm(message: DomImagePreviewMessage, webView: WKWebView) {
+    let siteReferer = resolvedSiteReferer(message: message, webView: webView)
     guard
       let layout = message.source,
-      let source = DomImageAssetSource.resolve(layout.currentSrc)
+      let source = DomImageAssetSource.resolve(layout.currentSrc, siteReferer: siteReferer)
     else {
       return
     }
@@ -230,17 +246,21 @@ enum DomImagePreviewDomain {
   private static func present(message: DomImagePreviewMessage, webView: WKWebView) {
     let rawSources = message.images ?? message.src.map { [$0] } ?? []
     guard !rawSources.isEmpty else { return }
+    let siteReferer = resolvedSiteReferer(message: message, webView: webView)
 
     let requestedIndex = max(0, min(message.index ?? 0, rawSources.count - 1))
     var presentationSources = rawSources
     if let currentSrc = message.source?.currentSrc {
       presentationSources[requestedIndex] = currentSrc
     }
-    var sources = presentationSources.compactMap(DomImageAssetSource.resolve)
+    var sources = presentationSources.compactMap {
+      DomImageAssetSource.resolve($0, siteReferer: siteReferer)
+    }
     var selectedIndex = requestedIndex
     if sources.count != presentationSources.count {
       let selectedRaw = message.source?.currentSrc ?? rawSources[requestedIndex]
-      guard let selected = DomImageAssetSource.resolve(selectedRaw) else { return }
+      guard let selected = DomImageAssetSource.resolve(selectedRaw, siteReferer: siteReferer)
+      else { return }
       sources = [selected]
       selectedIndex = 0
     }

@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import path from 'node:path'
 
 import { defineConfig } from 'vitest/config'
@@ -13,6 +14,11 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['src/**/*.test.ts'],
+    include: [
+      'src/**/*.test.ts',
+      ...(existsSync(path.resolve(import.meta.dirname, '../mobile-overlay'))
+        ? ['../mobile-overlay/**/*.test.ts']
+        : []),
+    ],
   },
 })
