@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   applyManualSigning,
+  resolveManualSigningOptions,
   signingSettingsFor,
 } from '../../scripts/manual-signing.mjs'
 
@@ -40,6 +41,92 @@ describe('signingSettingsFor', () => {
         extensionProfile: undefined,
       }),
     ).toBeNull()
+  })
+})
+
+describe('resolveManualSigningOptions', () => {
+  const profiles = {
+    YOHAKU_APP_PROFILE_NAME: 'Yohaku',
+    YOHAKU_EXTENSION_PROFILE_NAME: 'Yohaku Notification Service App Store',
+  }
+
+  it('prefers YOHAKU_APPLE_TEAM_ID over APPLE_TEAM_ID and expo config', () => {
+    expect(
+      resolveManualSigningOptions(
+        {
+          ...profiles,
+          YOHAKU_APPLE_TEAM_ID: 'TEAMID123',
+          APPLE_TEAM_ID: 'TEAMID456',
+        },
+        {
+          ios: {
+            bundleIdentifier: 'dev.yohaku.app',
+            appleTeamId: 'TEAMID789',
+          },
+        },
+      ).teamId,
+    ).toBe('TEAMID123')
+  })
+
+  it('falls back to APPLE_TEAM_ID when the Yohaku-prefixed team env is unset', () => {
+    expect(
+      resolveManualSigningOptions(
+        { ...profiles, APPLE_TEAM_ID: 'TEAMID123' },
+        { ios: { bundleIdentifier: 'dev.yohaku.app' } },
+      ).teamId,
+    ).toBe('TEAMID123')
+  })
+
+  it('treats an empty YOHAKU_APPLE_TEAM_ID as missing', () => {
+    expect(
+      resolveManualSigningOptions(
+        {
+          ...profiles,
+          YOHAKU_APPLE_TEAM_ID: '',
+          APPLE_TEAM_ID: 'TEAMID123',
+        },
+        {
+          ios: {
+            bundleIdentifier: 'dev.yohaku.app',
+            appleTeamId: 'TEAMID789',
+          },
+        },
+      ).teamId,
+    ).toBe('TEAMID123')
+  })
+
+  it('falls back to expo appleTeamId when neither team env is set', () => {
+    expect(
+      resolveManualSigningOptions(profiles, {
+        ios: { bundleIdentifier: 'dev.yohaku.app', appleTeamId: 'TEAMID123' },
+      }).teamId,
+    ).toBe('TEAMID123')
+  })
+
+  it('prefers the expo bundle id over YOHAKU_BUNDLE_ID', () => {
+    expect(
+      resolveManualSigningOptions(
+        {
+          ...profiles,
+          YOHAKU_APPLE_TEAM_ID: 'TEAMID123',
+          YOHAKU_BUNDLE_ID: 'dev.overlay.app',
+        },
+        { ios: { bundleIdentifier: 'dev.yohaku.app' } },
+      ).appBundleIdentifier,
+    ).toBe('dev.yohaku.app')
+  })
+
+  it('falls back to YOHAKU_BUNDLE_ID when expo config has no bundle id', () => {
+    expect(
+      resolveManualSigningOptions(
+        {
+          ...profiles,
+          YOHAKU_APPLE_TEAM_ID: 'TEAMID123',
+          YOHAKU_BUNDLE_ID: 'dev.overlay.app',
+        },
+        { ios: {} },
+      ).appBundleIdentifier,
+    ).toBe('dev.overlay.app')
   })
 })
 

@@ -10,6 +10,26 @@ const quote = (value) => `"${value}"`
 const unquote = (value) =>
   typeof value === 'string' ? value.replaceAll(/^"|"$/g, '') : value
 
+const firstPresent = (...values) =>
+  values.find((value) => typeof value === 'string' && value.length > 0)
+
+// Remote deploy historically sets APPLE_TEAM_ID / YOHAKU_BUNDLE_ID; overlay
+// reading can also fill ios.appleTeamId and ios.bundleIdentifier. Accept all
+// of those so signing does not require a Yohaku-prefixed env rename.
+export const resolveManualSigningOptions = (env, appConfig) => ({
+  appBundleIdentifier: firstPresent(
+    appConfig?.ios?.bundleIdentifier,
+    env.YOHAKU_BUNDLE_ID,
+  ),
+  appProfile: env.YOHAKU_APP_PROFILE_NAME,
+  extensionProfile: env.YOHAKU_EXTENSION_PROFILE_NAME,
+  teamId: firstPresent(
+    env.YOHAKU_APPLE_TEAM_ID,
+    env.APPLE_TEAM_ID,
+    appConfig?.ios?.appleTeamId,
+  ),
+})
+
 export const signingSettingsFor = (bundleIdentifier, options) => {
   const { appBundleIdentifier, appProfile, extensionProfile, teamId } = options
   if (!teamId || !appBundleIdentifier) return null
