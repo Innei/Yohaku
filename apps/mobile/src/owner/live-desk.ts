@@ -1,3 +1,5 @@
+import { musicPlaybackTarget } from './music-playback'
+
 export interface DeskApplication {
   detail: string | null
   displayName: string
@@ -11,6 +13,7 @@ export interface DeskMedia {
   artworkUrl: string | null
   durationMs: number | null
   playbackState: 'paused' | 'playing'
+  playbackUrl: string | null
   playerDisplayName: string | null
   positionMs: number | null
   rate: number
@@ -65,6 +68,7 @@ function parseMedia(raw: unknown): DeskMedia | null {
     album?: unknown
     artist?: unknown
     artwork?: unknown
+    link?: unknown
     playback?: {
       anchorAt?: unknown
       durationMs?: unknown
@@ -80,6 +84,7 @@ function parseMedia(raw: unknown): DeskMedia | null {
   const anchorAt = text(playback.anchorAt)
   const state = playback.state
   if (!anchorAt || (state !== 'playing' && state !== 'paused')) return null
+  const href = url(media.link)
   return {
     album: text(media.album),
     anchorAt,
@@ -87,6 +92,7 @@ function parseMedia(raw: unknown): DeskMedia | null {
     artworkUrl: url(media.artwork),
     durationMs: numberOrNull(playback.durationMs),
     playbackState: state,
+    playbackUrl: href && musicPlaybackTarget(href) ? href : null,
     playerDisplayName: text(media.player?.displayName),
     positionMs: numberOrNull(playback.positionMs),
     rate: numberOrNull(playback.rate) ?? 1,

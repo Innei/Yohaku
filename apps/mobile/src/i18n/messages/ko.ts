@@ -173,6 +173,8 @@ export const ko = {
     paused: '일시 정지',
     using: '사용 중',
     alsoUsing: '{app}도 사용 중',
+    openInNetease: '넷이즈 클라우드 뮤직에서 열기',
+    openInQqMusic: 'QQ 뮤직에서 열기',
     quiet: '지금은 조용해요',
   },
   dev: {

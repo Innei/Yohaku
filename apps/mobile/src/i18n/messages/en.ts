@@ -175,6 +175,8 @@ export const en = {
     paused: 'Paused',
     using: 'Using',
     alsoUsing: 'Also in {app}',
+    openInNetease: 'Open in NetEase Cloud Music',
+    openInQqMusic: 'Open in QQ Music',
     quiet: 'All quiet right now',
   },
   dev: {

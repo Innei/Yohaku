@@ -172,6 +172,8 @@ export const zhTW = {
     paused: '已暫停',
     using: '正在使用',
     alsoUsing: '同時在用 {app}',
+    openInNetease: '在網易雲音樂打開',
+    openInQqMusic: '在 QQ 音樂打開',
     quiet: '此刻很安靜',
   },
   dev: {

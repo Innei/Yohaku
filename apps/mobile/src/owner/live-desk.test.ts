@@ -89,11 +89,29 @@ describe('parseDeskSnapshot', () => {
         artworkUrl: 'https://cdn/artwork.jpg',
         durationMs: 251_000,
         playbackState: 'playing',
+        playbackUrl: null,
         playerDisplayName: 'Apple Music',
         title: 'One Last Kiss',
       },
       visible: true,
     })
+  })
+
+  it('keeps a canonical QQ or NetEase song link and drops unknown hosts', () => {
+    const qq = 'https://y.qq.com/n/ryqq/songDetail/001lzbAN14boA4'
+    const snapshot = parseDeskSnapshot(
+      activeState({ media: media({ link: { url: qq } }) }),
+      NOW,
+    )
+    expect(snapshot.visible && snapshot.media?.playbackUrl).toBe(qq)
+
+    const unknown = parseDeskSnapshot(
+      activeState({
+        media: media({ link: { url: 'https://music.apple.com/song/1' } }),
+      }),
+      NOW,
+    )
+    expect(unknown.visible && unknown.media?.playbackUrl).toBeNull()
   })
 
   it('drops media without a usable playback block', () => {
@@ -113,6 +131,7 @@ describe('projectMediaPositionMs', () => {
     artworkUrl: null,
     durationMs: 251_000,
     playbackState: 'playing',
+    playbackUrl: null,
     playerDisplayName: null,
     positionMs: 60_000,
     rate: 1,

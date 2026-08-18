@@ -1,3 +1,4 @@
+import * as Linking from 'expo-linking'
 import { SymbolView } from 'expo-symbols'
 import { useEffect, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
@@ -10,10 +11,14 @@ import Animated, {
 } from 'react-native-reanimated'
 
 import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
-import { AppText, RemoteImage, SlotText } from '@/components/ui'
+import { AppText, NativePressable, RemoteImage, SlotText } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import type { DeskMedia } from '@/owner/live-desk'
 import { buildMediaByline, projectMediaPositionMs } from '@/owner/live-desk'
+import {
+  musicPlaybackTarget,
+  openMusicPlayback,
+} from '@/owner/music-playback'
 import { useOwner } from '@/owner/store'
 import { useDeskSnapshot } from '@/owner/use-desk-snapshot'
 import { fonts } from '@/theme/fonts'
@@ -41,6 +46,72 @@ export function DeskSheet() {
     ? `${media.playerDisplayName} · ${stateText}`
     : stateText
   const iconUrl = media?.artworkUrl ?? application?.iconUrl ?? null
+  const playback = media?.playbackUrl
+    ? musicPlaybackTarget(media.playbackUrl)
+    : null
+  const openLabel = playback
+    ? t(playback.provider === 'qq' ? 'openInQqMusic' : 'openInNetease')
+    : null
+
+  const track = (
+    <View style={styles.body}>
+      <View
+        style={[
+          styles.slip,
+          {
+            backgroundColor: palette.surface.desk,
+            borderColor: palette.neutral[4],
+          },
+        ]}
+      >
+        {iconUrl ? (
+          <RemoteImage
+            contentFit="cover"
+            style={styles.slipImage}
+            uri={iconUrl}
+          />
+        ) : (
+          <SymbolView
+            name={media ? 'music.note' : 'macwindow'}
+            size={18}
+            tintColor={palette.neutral[6]}
+          />
+        )}
+      </View>
+      <View style={styles.titles}>
+        <AppText
+          color={palette.neutral[10]}
+          numberOfLines={1}
+          style={styles.title}
+        >
+          {title}
+        </AppText>
+        {byline ? (
+          <AppText
+            color={palette.neutral[7]}
+            numberOfLines={1}
+            style={styles.byline}
+          >
+            {byline}
+          </AppText>
+        ) : null}
+        <AppText
+          color={palette.neutral[6]}
+          numberOfLines={1}
+          style={styles.state}
+        >
+          {stateLine}
+        </AppText>
+      </View>
+      {playback ? (
+        <SymbolView
+          name="chevron.right"
+          size={13}
+          tintColor={palette.neutral[5]}
+        />
+      ) : null}
+    </View>
+  )
 
   return (
     // RNScreens only sizes a formSheet's ScrollView when it is the direct
@@ -65,56 +136,21 @@ export function DeskSheet() {
 
       {snapshot.visible ? (
         <>
-          <View style={styles.body}>
-            <View
-              style={[
-                styles.slip,
-                {
-                  backgroundColor: palette.surface.desk,
-                  borderColor: palette.neutral[4],
-                },
-              ]}
+          {playback && openLabel ? (
+            <NativePressable
+              accessibilityLabel={`${title}. ${openLabel}`}
+              accessibilityRole="link"
+              style={styles.openTarget}
+              onPress={() => void openMusicPlayback(playback.httpsUrl, Linking)}
             >
-              {iconUrl ? (
-                <RemoteImage
-                  contentFit="cover"
-                  style={styles.slipImage}
-                  uri={iconUrl}
-                />
-              ) : (
-                <SymbolView
-                  name={media ? 'music.note' : 'macwindow'}
-                  size={18}
-                  tintColor={palette.neutral[6]}
-                />
-              )}
-            </View>
-            <View style={styles.titles}>
-              <AppText
-                color={palette.neutral[10]}
-                numberOfLines={1}
-                style={styles.title}
-              >
-                {title}
+              {track}
+              <AppText color={palette.neutral[6]} style={styles.openHint}>
+                {openLabel}
               </AppText>
-              {byline ? (
-                <AppText
-                  color={palette.neutral[7]}
-                  numberOfLines={1}
-                  style={styles.byline}
-                >
-                  {byline}
-                </AppText>
-              ) : null}
-              <AppText
-                color={palette.neutral[6]}
-                numberOfLines={1}
-                style={styles.state}
-              >
-                {stateLine}
-              </AppText>
-            </View>
-          </View>
+            </NativePressable>
+          ) : (
+            track
+          )}
 
           {media ? <MediaProgress media={media} palette={palette} /> : null}
 
@@ -288,8 +324,16 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   body: {
+    alignItems: 'center',
     flexDirection: 'row',
     gap: 12,
+  },
+  openTarget: {
+    gap: 8,
+  },
+  openHint: {
+    fontSize: 12,
+    lineHeight: 18,
   },
   slip: {
     alignItems: 'center',

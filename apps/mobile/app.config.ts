@@ -87,6 +87,7 @@ export function createAppConfig(): ExpoConfig {
       infoPlist: {
         CFBundleAllowMixedLocalizations: true,
         ITSAppUsesNonExemptEncryption: false,
+        LSApplicationQueriesSchemes: ['orpheus', 'qqmusic'],
         NSUserActivityTypes: ['INSendMessageIntent'],
         UIBackgroundModes: ['audio', 'remote-notification'],
       },

@@ -176,6 +176,8 @@ export const ja = {
     paused: '一時停止',
     using: '使用中',
     alsoUsing: '{app} も使用中',
+    openInNetease: 'NetEase Cloud Musicで開く',
+    openInQqMusic: 'QQ音楽で開く',
     quiet: 'いまは静かです',
   },
   dev: {

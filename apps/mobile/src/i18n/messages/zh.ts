@@ -172,6 +172,8 @@ export const zh = {
     paused: '已暂停',
     using: '正在使用',
     alsoUsing: '同时在用 {app}',
+    openInNetease: '在网易云音乐打开',
+    openInQqMusic: '在 QQ 音乐打开',
     quiet: '此刻很安静',
   },
   dev: {
