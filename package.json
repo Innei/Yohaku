@@ -1,7 +1,7 @@
 {
   "name": "yohaku",
   "private": true,
-  "description": "Yohaku — typographic design system and open-source iOS client. The design contract lives in design-system/.",
+  "description": "Yohaku — open-source iOS reader for a personal Mix Space blog, plus its typographic design contract.",
   "packageManager": "pnpm@11.0.0",
   "scripts": {
     "dev": "pnpm --filter @yohaku/design-system showcase:dev",

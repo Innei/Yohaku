@@ -1,8 +1,55 @@
 # @yohaku/design-system
 
-Yohaku 设计系统 · static design contract for the Yohaku monorepo.
+**[English](./README.md) · [简体中文](./README.zh.md)**
 
-## Install
+Yohaku design system: static design contract for the Yohaku monorepo — one accent, three neutral tiers, the rest is whitespace. Web pages, long-form, letters, reports — anywhere words live.
+
+- Live showcase: **[yohaku.innei.dev](https://yohaku.innei.dev)**
+- The iOS client that uses this contract lives in [`apps/mobile/`](../apps/mobile/)
+
+> Each preview is split diagonally — light on the top-left, dark on the bottom-right.
+
+![Preview - Home](../assets/preview-home.en.png)
+
+![Preview - Posts](../assets/preview-posts.en.png)
+
+![Preview - Notes](../assets/preview-notes.en.png)
+
+![Preview - Timeline](../assets/preview-timeline.en.png)
+
+![Preview - Thinking](../assets/preview-thinking.en.png)
+
+---
+
+## Principles
+
+The whole system is built around **writing**. A page unfolds like a letter opening — text and silence form the rhythm, never crammed into a rigid grid. When you read, your eyes lead. The page follows.
+
+**Color is restrained.** Light mode sits near the off-white of real paper. Dark mode sinks into warm gray, like reading by a small lamp at night. Accent appears only inside content; buttons, navigation, borders all step back.
+
+**Animation breathes.** Content surfaces with the scroll rather than popping in — like turning a fresh page. First visit plays the full entrance; return visits skip it.
+
+**Type has texture.** Headings carry the weight of serif ink; annotations and dates use italic serif, like margin notes. The base size is deliberately small. Space goes back to the content.
+
+**Interaction is quiet.** No floating color blocks, no jumping highlights. Hover deepens color slightly — like a finger pressing on paper. Every response says *I noticed you*, not *look here*.
+
+---
+
+## Output samples
+
+`pnpm demo:pdf` (from the repository root) renders three common written formats from the same tokens — same paper, same serif, same breathing rhythm.
+
+| Type | About | 中文 | English |
+|------|-------|------|---------|
+| **Long-form post** | Serif body / drop cap / multi-page | [HTML](https://yohaku.innei.dev/demos/demo-post.html) · [PDF](https://yohaku.innei.dev/demos/demo-post.pdf) | [HTML](https://yohaku.innei.dev/demos/demo-post.en.html) · [PDF](https://yohaku.innei.dev/demos/demo-post.en.pdf) |
+| **Resume** | A4 single page · designer-engineer CV | [HTML](https://yohaku.innei.dev/demos/demo-resume.html) · [PDF](https://yohaku.innei.dev/demos/demo-resume.pdf) | [HTML](https://yohaku.innei.dev/demos/demo-resume.en.html) · [PDF](https://yohaku.innei.dev/demos/demo-resume.en.pdf) |
+| **One-page report** | A4 single page · project status | [HTML](https://yohaku.innei.dev/demos/demo-report.html) · [PDF](https://yohaku.innei.dev/demos/demo-report.pdf) | [HTML](https://yohaku.innei.dev/demos/demo-report.en.html) · [PDF](https://yohaku.innei.dev/demos/demo-report.en.pdf) |
+
+You can also flip through them in the *Output samples* section on [yohaku.innei.dev](https://yohaku.innei.dev).
+
+---
+
+## Install as a package
 
 ```bash
 pnpm add @yohaku/design-system
@@ -13,29 +60,79 @@ pnpm add @yohaku/design-system
 @import "@yohaku/design-system/tokens.css";
 ```
 
-That single import wires up the color / type / spacing tokens. Pair it with the invariants in `CHEATSHEET.md`.
+That single import wires up the color / type / spacing tokens — pair it with the invariants in [`CHEATSHEET.md`](./CHEATSHEET.md).
 
-## What lives here
+## Local preview
 
-- `src/tokens.css` — canonical color/typography/spacing tokens (Tailwind v4 `@theme`)
-- `SKILL.md` — Claude Code routing rules
-- `CHEATSHEET.md` — one-page quick reference
-- `references/` — full specs (tokens, components, anti-patterns, mockup-to-react)
-- `templates/` — HTML scaffold + section snippets for mockups
-
-## Consumers
-
-- `apps/web` imports `@yohaku/design-system/tokens.css` from its main Tailwind entry.
-- AI agents read `SKILL.md` + `CHEATSHEET.md` + `references/` to produce mockups and React components.
-
-## Verify
+From the repository root:
 
 ```bash
-pnpm --filter @yohaku/design-system check
+pnpm install
+pnpm dev             # local showcase preview (http://localhost:5173)
+pnpm build           # bundle the showcase to design-system/showcase/dist
+pnpm check           # token drift + template lint
+pnpm test            # run the check.ts unit tests
+pnpm demo:pdf        # render the demo essay / résumé / report to PDF
 ```
 
-Lints token drift between `CHEATSHEET.md` and `src/tokens.css`, plus forbidden patterns in `templates/`.
+| Path | Purpose |
+|------|---------|
+| `src/tokens.css` | Color / type / spacing tokens (Tailwind v4 `@theme`) |
+| `SKILL.md` | AI routing rules (mockup / new component / mockup→React / token audit) |
+| `CHEATSHEET.md` | One-page reference: ten invariants + color/type tables |
+| `references/` | Full specs (tokens / components / anti-patterns / mockup-to-react) |
+| `templates/` | HTML mockup starter |
+| `showcase/` | Live showcase source |
+
+## As an AI skill
+
+[`SKILL.md`](./SKILL.md) is a routing contract for agents like Claude Code or Codex. When you say *"make a Yohaku mockup"*, *"convert this mockup to React"*, or *"audit token compliance"*, it pulls the right slice of `CHEATSHEET.md`, `references/`, and `templates/` into context so the agent ships against the same tokens.
+
+The simplest install is to drop this whole directory into your agent's skill path (e.g. `~/.claude/skills/yohaku-design/`), then trigger it from a normal prompt:
+
+- make a Yohaku-style mockup for X
+- convert this mockup to React
+- design a new Button variant
+- audit this file for token compliance
+
+Full contract: [`SKILL.md`](./SKILL.md) and [`CHEATSHEET.md`](./CHEATSHEET.md).
+
+---
+
+## Spec at a glance
+
+| Token | Light | Dark |
+|-------|-------|------|
+| Accent | 浅葱 `#33A6B8` | 桃 `#F596AA` |
+| Surface | `#fefefb` (paper white) | `rgb(28,28,30)` (warm night) |
+| Neutral | `1–10` (three tiers: surface / border / text) | auto-inverts |
+| Easing | `cubic-bezier(0.22, 1, 0.36, 1)` | same |
+| Base font size | 14px | same |
+
+More in [`CHEATSHEET.md`](./CHEATSHEET.md).
+
+---
+
+## Background
+
+Yohaku wasn't designed from scratch — it was filed down inside my own blog [Shiro](https://github.com/Innei/Shiro), one decision at a time. The original itch was just typography: replace the template-y card grid with something closer to letter paper, and let long-form text breathe. The longer I worked on it, the more obvious it became that the system was running on a few simple invariants — one accent, three neutral tiers, a breathing easing curve, and the rest is whitespace.
+
+Later I came across [tw93/kami](https://github.com/tw93/kami) — same instinct: a constraint language, a single tonal register, and a bias toward the written word. Kami lands in static documents (PDFs, slides); Yohaku lands in webpages and long-form. Each one was a sanity check on the other. Pulling those invariants out of the application — into tokens, templates, and an AI skill — is what the design-system became: a contract you can hand to an agent or to another human and trust the output.
+
+---
+
+## Dev chats (open archive)
+
+While building Yohaku, the AI-assisted chats were often more useful than the final code, so I'm sharing them in [archive/specstory-sessions](../archive/specstory-sessions/README.md), grouped by year.
+
+---
+
+## Acknowledgements
+
+- The HTML design language was inspired by [tw93/kami](https://github.com/tw93/kami) — its writing-first, restrained-whitespace sensibility is an important starting point for Yohaku's typography.
+
+---
 
 ## License
 
-MIT — see `LICENSE`. The repository's prose, screenshots, and chat archives outside this directory remain under CC BY-NC-SA 4.0.
+MIT — see `LICENSE`. Prose, screenshots under `assets/`, and chat archives elsewhere in the repository remain under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
