@@ -268,6 +268,8 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                   likeCount={note.likeCount}
                   queriesEnabled={updatesEnabled}
                   refId={note.id}
+                  title={note.title}
+                  url={webUrl}
                 />
               </EdgeEffectScrollView>
               {tts.isNarrating && !compose.composing ? (

@@ -1,27 +1,38 @@
 import { radius, type as typeScale } from '@yohaku/design-system/tokens'
+import { SymbolView } from 'expo-symbols'
 import { StyleSheet, View } from 'react-native'
 
 import { AppText, SinkPressable, SlotText } from '@/components/ui'
+import { useTranslations } from '@/i18n'
 import { useLikeContent } from '@/interactions/use-like-content'
+import { shareUrl } from '@/lib/share'
 import { CommentSection } from '@/screens/comments/comment-section'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
-import { shadow } from '@/theme/surfaces'
 
 export function ArticleTail({
   kind,
   refId,
   likeCount,
   queriesEnabled = true,
+  title,
+  url,
 }: {
   kind: 'post' | 'note'
   likeCount: number
   queriesEnabled?: boolean
   refId: string
+  title?: string
+  url: string
 }) {
   const palette = usePalette()
+  const t = useTranslations('common')
   const { liked, like, pending } = useLikeContent(kind, refId)
 
+  const outline = {
+    backgroundColor: palette.surface.paper,
+    borderColor: palette.neutral[3],
+  }
   const countStyle = {
     ...fonts.sansMedium,
     fontSize: typeScale.copy14.size,
@@ -33,14 +44,11 @@ export function ArticleTail({
     <View style={styles.tail}>
       <View style={styles.actionRow}>
         <SinkPressable
+          accessibilityLabel={t('like')}
+          accessibilityRole="button"
+          accessibilityState={{ selected: liked }}
           disabled={pending || liked}
-          style={[
-            styles.likePill,
-            {
-              backgroundColor: palette.surface.paper,
-              boxShadow: shadow.paperSmall[palette.theme],
-            },
-          ]}
+          style={[styles.likePill, outline]}
           onPress={() => void like()}
         >
           <AppText
@@ -50,6 +58,18 @@ export function ArticleTail({
             {liked ? '♥' : '♡'}
           </AppText>
           <SlotText textStyle={countStyle} value={likeCount} />
+        </SinkPressable>
+        <SinkPressable
+          accessibilityLabel={t('share')}
+          accessibilityRole="button"
+          style={[styles.share, outline]}
+          onPress={() => void shareUrl(url, title)}
+        >
+          <SymbolView
+            name="square.and.arrow.up"
+            size={16}
+            tintColor={palette.neutral[7]}
+          />
         </SinkPressable>
       </View>
       <View
@@ -71,7 +91,9 @@ const styles = StyleSheet.create({
   },
   actionRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
+    gap: 10,
   },
   likePill: {
     flexDirection: 'row',
@@ -79,8 +101,18 @@ const styles = StyleSheet.create({
     gap: 7,
     borderRadius: radius.pill,
     borderCurve: 'continuous',
+    borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: 18,
     height: 40,
+  },
+  share: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.pill,
+    borderCurve: 'continuous',
+    borderWidth: StyleSheet.hairlineWidth,
   },
   heart: {
     fontSize: 16,

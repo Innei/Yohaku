@@ -11,6 +11,7 @@ export const zhTW = {
     more: '更多',
     openInBrowser: '在網頁中開啟',
     retry: '點此重試',
+    like: '讚',
     share: '分享',
   },
   tabs: {

@@ -11,6 +11,7 @@ export const ko = {
     more: '더 보기',
     openInBrowser: '브라우저에서 열기',
     retry: '눌러서 다시 시도',
+    like: '좋아요',
     share: '공유',
   },
   tabs: {

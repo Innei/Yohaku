@@ -11,6 +11,7 @@ export const zh = {
     more: '更多',
     openInBrowser: '在网页中打开',
     retry: '点此重试',
+    like: '赞',
     share: '分享',
   },
   tabs: {

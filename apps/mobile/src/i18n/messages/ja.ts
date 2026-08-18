@@ -11,6 +11,7 @@ export const ja = {
     more: 'その他',
     openInBrowser: 'ブラウザで開く',
     retry: 'タップで再試行',
+    like: 'いいね',
     share: '共有',
   },
   tabs: {

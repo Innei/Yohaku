@@ -11,6 +11,7 @@ export const en = {
     more: 'More',
     openInBrowser: 'Open in browser',
     retry: 'Tap to retry',
+    like: 'Like',
     share: 'Share',
   },
   tabs: {
