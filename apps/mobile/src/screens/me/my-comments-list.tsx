@@ -4,11 +4,14 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native'
 import type { ApiMyComment } from '@/api/types'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
-import { AppText, NativePressable } from '@/components/ui'
+import { AppText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
-import { formatRelativeTime } from '@/lib/datetime'
 import { usePalette } from '@/theme/palette'
 
+import { ActivityEntry } from './activity-entry'
+import { viewMyComment } from './activity-entry-model'
+import { commentHref } from './activity-href'
+import { ActivityLink, openActivityHref } from './activity-link'
 import { myCommentDestination } from './my-comments-destination'
 import { useMyCommentsQuery } from './use-my-comments'
 
@@ -46,12 +49,8 @@ export function MyCommentsListScreen() {
         </View>
       ) : (
         <>
-          {comments.map((comment, index) => (
-            <MyCommentRow
-              comment={comment}
-              first={index === 0}
-              key={comment.id}
-            />
+          {comments.map((comment) => (
+            <MyCommentRow comment={comment} key={comment.id} />
           ))}
           {query.hasNextPage ? (
             <Pressable
@@ -72,72 +71,37 @@ export function MyCommentsListScreen() {
   )
 }
 
-function MyCommentRow({
-  comment,
-  first,
-}: {
-  comment: ApiMyComment
-  first: boolean
-}) {
+function MyCommentRow({ comment }: { comment: ApiMyComment }) {
   const t = useTranslations('me')
-  const locale = useLocale()
-  const palette = usePalette()
   const router = useRouter()
   const destination = myCommentDestination(comment)
-  const sourceLabel =
-    destination.kind === 'unavailable'
-      ? t('unavailable')
-      : (comment.sourceTitle ?? t('unavailable'))
-  const rule = first
-    ? undefined
-    : [styles.rowRule, { borderTopColor: palette.neutral[3] }]
+  const view = viewMyComment(comment, t('unavailable'))
+  const target = commentHref(destination, view.title)
 
-  const body = (
-    <View style={[styles.row, rule]}>
-      <AppText numberOfLines={2} variant="entryTitleSans">
-        {comment.text}
-      </AppText>
-      <AppText color={palette.neutral[6]} numberOfLines={1} variant="body">
-        {sourceLabel}
-      </AppText>
-      <AppText color={palette.neutral[5]} variant="meta">
-        {formatRelativeTime(new Date(comment.createdAt), locale)}
-      </AppText>
-    </View>
-  )
-
-  if (destination.kind === 'unavailable') return body
-
-  const onPress = () => {
-    if (destination.kind === 'post') {
-      router.push({
-        pathname: '/posts/[category]/[slug]',
-        params: {
-          category: destination.category,
-          postId: destination.postId,
-          slug: destination.slug,
-          commentId: destination.commentId,
-        },
-      })
-      return
-    }
-    if (destination.kind === 'note') {
-      router.push({
-        pathname: '/notes/[nid]',
-        params: {
-          nid: String(destination.nid),
-          commentId: destination.commentId,
-        },
-      })
-      return
-    }
-    router.push({
-      pathname: '/comments/[id]',
-      params: { id: destination.refId },
-    })
+  if (!target) {
+    return (
+      <ActivityEntry
+        accent={view.accent}
+        createdAt={view.createdAt}
+        excerpt={view.excerpt}
+        title={view.title}
+      />
+    )
   }
 
-  return <NativePressable onPress={onPress}>{body}</NativePressable>
+  const open = () => openActivityHref(target, router)
+
+  return (
+    <ActivityLink target={target} onOpen={open}>
+      <ActivityEntry
+        accent={view.accent}
+        createdAt={view.createdAt}
+        excerpt={view.excerpt}
+        title={view.title}
+        onAccessibilityTap={open}
+      />
+    </ActivityLink>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -156,13 +120,6 @@ const styles = StyleSheet.create({
   state: {
     marginTop: 48,
     textAlign: 'center',
-  },
-  row: {
-    paddingVertical: 14,
-    gap: 4,
-  },
-  rowRule: {
-    borderTopWidth: StyleSheet.hairlineWidth,
   },
   loadMore: {
     alignItems: 'center',

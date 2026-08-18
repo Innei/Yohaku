@@ -207,6 +207,42 @@ public class YohakuModule: Module {
         view.setPressTranslateY(translateY)
       }
     }
+
+    View(TicketStubView.self) {
+      ViewName("TicketStub")
+
+      Prop("cornerRadius") { (view: TicketStubView, radius: Double) in
+        view.setCornerRadius(radius)
+      }
+
+      Prop("divisions") { (view: TicketStubView, count: Double) in
+        view.setDivisions(Int(count.rounded()))
+      }
+
+      Prop("fillColor") { (view: TicketStubView, color: UIColor?) in
+        view.setFillColor(color)
+      }
+
+      Prop("notchRadius") { (view: TicketStubView, radius: Double) in
+        view.setNotchRadius(radius)
+      }
+
+      Prop("shadowColor") { (view: TicketStubView, color: UIColor?) in
+        view.setShadowColor(color)
+      }
+
+      Prop("shadowOffsetY") { (view: TicketStubView, offset: Double) in
+        view.setShadowOffsetY(offset)
+      }
+
+      Prop("shadowOpacity") { (view: TicketStubView, opacity: Double) in
+        view.setShadowOpacity(opacity)
+      }
+
+      Prop("shadowRadius") { (view: TicketStubView, radius: Double) in
+        view.setShadowRadius(radius)
+      }
+    }
   }
 }
 

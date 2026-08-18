@@ -131,3 +131,17 @@ type NativePressViewProps = ViewProps & {
 
 export const NativePressView: ComponentType<NativePressViewProps> =
   requireNativeViewManager('Yohaku', 'NativePress')
+
+type TicketStubViewProps = ViewProps & {
+  cornerRadius: number
+  divisions: number
+  fillColor: string
+  notchRadius: number
+  shadowColor: string
+  shadowOffsetY: number
+  shadowOpacity: number
+  shadowRadius: number
+}
+
+export const TicketStubView: ComponentType<TicketStubViewProps> =
+  requireNativeViewManager('Yohaku', 'TicketStub')

@@ -89,6 +89,8 @@ export function useCollapsingTitle(
   // renders. Setting `headerTitle` on Stack.Screen does reach it.
   const headerOptions = useMemo(
     () => ({
+      headerBackButtonDisplayMode: 'minimal' as const,
+      headerBackButtonMenuEnabled: true,
       headerBackVisible: !usesPaperNavigationControls,
       headerTitle: () =>
         title ? (
@@ -104,6 +106,11 @@ export function useCollapsingTitle(
             titleFontWeight={titleFontWeight}
           />
         ) : null,
+      // Keep UIKit's semantic title available for the long-press back-history
+      // menu while the custom title view owns the visible header. An explicit
+      // empty value also prevents Expo Router from flashing the route name
+      // before the async title is available.
+      title: title ?? '',
       scrollEdgeEffects: {
         bottom: 'automatic' as const,
         top: usesSystemNavigationAppearance

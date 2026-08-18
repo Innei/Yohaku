@@ -23,7 +23,6 @@ import {
 import { showToast } from '@/components/ui/toast-store'
 import { db } from '@/db'
 import { likedRefs, readingHistory } from '@/db/schema'
-import type { Translator } from '@/i18n'
 import { localeNames, useLocale, useTranslations } from '@/i18n'
 import { likedActivityCount } from '@/interactions/liked-count'
 import { clearImageCache, imageCacheBytes } from '@/lib/image-cache'
@@ -39,6 +38,7 @@ import { showDeleteAccount, showMyComments } from './activity-visibility'
 import { commentTotalFromPage } from './comment-total'
 import { DeskLine } from './desk-line'
 import { MeAmbienceGrain, MeAmbienceWash } from './me-ambience'
+import { hasProviderIcon, ProviderIcon } from './provider-icon'
 import { useMyCommentsQuery } from './use-my-comments'
 
 function formatStorageBytes(bytes: number): string {
@@ -61,20 +61,30 @@ const readingQuery = db
   .from(readingHistory)
   .orderBy(desc(readingHistory.openedAt))
 
-const providerLabels: Record<string, string> = {
-  github: 'GitHub',
-  google: 'Google',
-  apple: 'Apple',
-}
-
-function identityLine(session: SessionUser, t: Translator<'auth'>): string {
+function IdentityLine({ session }: { session: SessionUser }) {
+  const t = useTranslations('auth')
+  const palette = usePalette()
   const identity = session.handle ?? session.email ?? ''
   const provider = session.provider
-    ? (providerLabels[session.provider] ??
-      (session.provider === 'credential' ? t('email') : session.provider))
-    : null
-  if (identity && provider) return `${identity} · ${provider}`
-  return identity || (provider ?? '')
+  const showIcon = provider ? hasProviderIcon(provider) : false
+  if (!identity && !showIcon && provider !== 'credential') return null
+
+  return (
+    <View style={styles.identity}>
+      {showIcon && provider ? (
+        <ProviderIcon color={palette.neutral[9]} provider={provider} size={14} />
+      ) : null}
+      {identity ? (
+        <AppText numberOfLines={1} style={styles.heroSub} variant="body">
+          {identity}
+        </AppText>
+      ) : provider === 'credential' ? (
+        <AppText numberOfLines={1} style={styles.heroSub} variant="body">
+          {t('email')}
+        </AppText>
+      ) : null}
+    </View>
+  )
 }
 
 function Avatar({
@@ -110,7 +120,6 @@ function ProfileHero() {
   const palette = usePalette()
   const router = useRouter()
   const session = useSession()
-  const secondary = session ? identityLine(session, t) : t('signInPitch')
 
   return (
     <View style={styles.hero}>
@@ -121,18 +130,25 @@ function ProfileHero() {
             {session ? (session.name ?? t('anonymous')) : t('signedOut')}
           </AppText>
           {session?.role === 'owner' ? (
-            <View style={[styles.stamp, { borderColor: palette.accent }]}>
+            <View
+              style={[
+                styles.stamp,
+                { backgroundColor: `${palette.accent}2E` },
+              ]}
+            >
               <AppText color={palette.accent} variant="eyebrow">
                 {t('owner')}
               </AppText>
             </View>
           ) : null}
         </View>
-        {secondary ? (
+        {session ? (
+          <IdentityLine session={session} />
+        ) : (
           <AppText style={styles.heroSub} variant="body">
-            {secondary}
+            {t('signInPitch')}
           </AppText>
-        ) : null}
+        )}
       </View>
       {session ? null : (
         <Button
@@ -355,6 +371,14 @@ const styles = StyleSheet.create({
   },
   heroSub: {
     textAlign: 'center',
+    flexShrink: 1,
+  },
+  identity: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    maxWidth: '100%',
   },
   nameRow: {
     flexDirection: 'row',
@@ -378,11 +402,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   stamp: {
-    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 4,
     borderCurve: 'continuous',
-    paddingHorizontal: 5,
-    paddingVertical: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 3,
   },
   section: {
     gap: 8,

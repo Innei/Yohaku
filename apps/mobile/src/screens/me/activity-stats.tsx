@@ -1,3 +1,4 @@
+import { TicketStubView } from '@modules/yohaku'
 import { radius, type as typeScale } from '@yohaku/design-system/tokens'
 import { useRouter } from 'expo-router'
 import { Fragment } from 'react'
@@ -9,20 +10,14 @@ import { useTranslations } from '@/i18n'
 import { fonts } from '@/theme/fonts'
 import type { Palette } from '@/theme/palette'
 import { usePalette } from '@/theme/palette'
-import { shadow } from '@/theme/surfaces'
+import { ticketShadow } from '@/theme/surfaces'
 
 const PERFORATION_DOTS = 5
+const NOTCH_RADIUS = 5
 
 function Perforation({ palette }: { palette: Palette }) {
   return (
     <View style={styles.perforation}>
-      <View
-        style={[
-          styles.notch,
-          styles.notchTop,
-          { backgroundColor: palette.surface.desk },
-        ]}
-      />
       <View style={styles.dotColumn}>
         {Array.from({ length: PERFORATION_DOTS }, (_, index) => (
           <View
@@ -31,13 +26,6 @@ function Perforation({ palette }: { palette: Palette }) {
           />
         ))}
       </View>
-      <View
-        style={[
-          styles.notch,
-          styles.notchBottom,
-          { backgroundColor: palette.surface.desk },
-        ]}
-      />
     </View>
   )
 }
@@ -56,6 +44,7 @@ export function ActivityStats({
   const t = useTranslations('me')
   const palette = usePalette()
   const router = useRouter()
+  const lift = ticketShadow[palette.theme]
   const countStyle: TextStyle = {
     ...fonts.sansMedium,
     fontSize: typeScale.title24.size,
@@ -80,42 +69,49 @@ export function ActivityStats({
       ]
 
   return (
-    <View
-      style={[
-        styles.ticket,
-        {
-          backgroundColor: palette.surface.paper,
-          boxShadow: shadow.paperSmall[palette.theme],
-        },
-      ]}
-    >
-      {tiles.map((tile, index) => (
-        <Fragment key={tile.href}>
-          {index > 0 ? <Perforation palette={palette} /> : null}
-          <NativePressable
-            style={styles.cell}
-            onPress={() => router.push(tile.href)}
-          >
-            <SlotText textStyle={countStyle} value={tile.count} />
-            <AppText
-              color={palette.neutral[6]}
-              style={styles.cellLabel}
-              variant="eyebrow"
+    <View style={styles.wrap}>
+      <TicketStubView
+        cornerRadius={radius.paper}
+        divisions={tiles.length}
+        fillColor={palette.surface.paper}
+        notchRadius={NOTCH_RADIUS}
+        pointerEvents="none"
+        shadowColor={lift.color}
+        shadowOffsetY={lift.offsetY}
+        shadowOpacity={lift.opacity}
+        shadowRadius={lift.radius}
+        style={StyleSheet.absoluteFill}
+      />
+      <View style={styles.ticket}>
+        {tiles.map((tile, index) => (
+          <Fragment key={tile.href}>
+            {index > 0 ? <Perforation palette={palette} /> : null}
+            <NativePressable
+              style={styles.cell}
+              onPress={() => router.push(tile.href)}
             >
-              {tile.label}
-            </AppText>
-          </NativePressable>
-        </Fragment>
-      ))}
+              <SlotText textStyle={countStyle} value={tile.count} />
+              <AppText
+                color={palette.neutral[6]}
+                style={styles.cellLabel}
+                variant="eyebrow"
+              >
+                {tile.label}
+              </AppText>
+            </NativePressable>
+          </Fragment>
+        ))}
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  wrap: {
+    overflow: 'visible',
+  },
   ticket: {
     flexDirection: 'row',
-    borderRadius: radius.paper,
-    borderCurve: 'continuous',
   },
   cell: {
     flex: 1,
@@ -142,18 +138,5 @@ const styles = StyleSheet.create({
     width: 2,
     height: 2,
     borderRadius: 1,
-  },
-  notch: {
-    position: 'absolute',
-    left: -5,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  notchTop: {
-    top: -5,
-  },
-  notchBottom: {
-    bottom: -5,
   },
 })
