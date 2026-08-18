@@ -1,3 +1,4 @@
+import QuartzCore
 import UIKit
 import WebKit
 import os
@@ -277,7 +278,13 @@ enum DomImagePreviewDomain {
     }
 
     let selectedSource = sources[selectedIndex]
-    let snapshot = snapshotCache.object(forKey: selectedSource.cacheKey as NSString)
+    // Inline PNG/JPEG already is the preview asset. A WebView snapshot of the
+    // live node (zoom chrome, current pan) is the wrong picture and pops in
+    // when ImageIO finishes — use the decoded raster for the whole hero.
+    let snapshot =
+      isInlineRaster(selectedSource)
+      ? nil
+      : snapshotCache.object(forKey: selectedSource.cacheKey as NSString)
     present(
       sources: sources,
       index: selectedIndex,
@@ -289,7 +296,7 @@ enum DomImagePreviewDomain {
       sourceView: nil
     )
 
-    if snapshot == nil, let layout = message.source {
+    if snapshot == nil, let layout = message.source, !isInlineRaster(selectedSource) {
       captureSnapshot(
         webView: webView,
         layout: layout,
@@ -434,6 +441,11 @@ enum DomImagePreviewDomain {
   private static func isLikelyVector(_ source: DomImageAssetSource) -> Bool {
     if source.rawValue.lowercased().hasPrefix("data:image/svg+xml") { return true }
     return source.remoteURL?.pathExtension.lowercased() == "svg"
+  }
+
+  private static func isInlineRaster(_ source: DomImageAssetSource) -> Bool {
+    let raw = source.rawValue.lowercased()
+    return raw.hasPrefix("data:image/") && !raw.hasPrefix("data:image/svg+xml")
   }
 
   private static func topViewController(from root: UIViewController?) -> UIViewController? {
@@ -1428,6 +1440,7 @@ private final class DomImagePageCell: UICollectionViewCell, UIScrollViewDelegate
   override func prepareForReuse() {
     super.prepareForReuse()
     representedKey = nil
+    imageView.layer.removeAnimation(forKey: kCATransition)
     imageView.image = nil
     scrollView.setZoomScale(1, animated: false)
   }
@@ -1466,20 +1479,34 @@ private final class DomImagePageCell: UICollectionViewCell, UIScrollViewDelegate
     representedKey = source.cacheKey
     scrollView.setZoomScale(1, animated: false)
     if let initialImage {
-      imageView.image = initialImage
+      setImage(initialImage, animated: false)
     } else if let prepared = DomImageAssetStore.shared.preparedImage(for: source) {
-      imageView.image = prepared
+      setImage(prepared, animated: false)
     } else {
-      imageView.image = UIImage(systemName: "photo")?.withTintColor(
-        UIColor.white.withAlphaComponent(0.2),
-        renderingMode: .alwaysOriginal
+      setImage(
+        UIImage(systemName: "photo")?.withTintColor(
+          UIColor.white.withAlphaComponent(0.2),
+          renderingMode: .alwaysOriginal
+        ),
+        animated: false
       )
     }
 
     DomImageAssetStore.shared.prepareImage(for: source) { [weak self] image in
       guard let self, self.representedKey == source.cacheKey, let image else { return }
-      self.imageView.image = image
+      self.setImage(image, animated: true)
     }
+  }
+
+  private func setImage(_ image: UIImage?, animated: Bool) {
+    if animated, imageView.image != nil, let image, imageView.image !== image {
+      let transition = CATransition()
+      transition.duration = 0.22
+      transition.type = .fade
+      transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+      imageView.layer.add(transition, forKey: kCATransition)
+    }
+    imageView.image = image
   }
 
   func viewForZooming(in scrollView: UIScrollView) -> UIView? {

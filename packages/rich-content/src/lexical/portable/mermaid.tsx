@@ -7,6 +7,7 @@ import mediumZoom from 'lumeo'
 import { useEffect, useRef } from 'react'
 
 import { imagePreviewSourceFromElement, useHost } from '../../host'
+import { rasterizeLoadedImageToPng } from '../../lib/rasterize-to-png'
 
 export const Mermaid = ({ content }: { content: string }) => {
   const host = useHost()
@@ -22,11 +23,13 @@ export const Mermaid = ({ content }: { content: string }) => {
       const onClick = (event: MouseEvent) => {
         const img = (event.target as HTMLElement).closest('img')
         if (img?.getAttribute('alt') !== 'Mermaid diagram' || !img.src) return
+        const png = rasterizeLoadedImageToPng(img)
+        const src = png ?? img.src
         void openImage({
-          images: [img.src],
+          images: [src],
           index: 0,
-          source: imagePreviewSourceFromElement(img),
-          src: img.src,
+          source: imagePreviewSourceFromElement(img, src),
+          src,
         })
       }
       containerEl.addEventListener('click', onClick)

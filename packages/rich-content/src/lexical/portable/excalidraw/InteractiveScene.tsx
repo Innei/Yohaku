@@ -8,8 +8,13 @@ import {
   useState,
 } from 'react'
 
+import { imagePreviewSourceFromElement, useOptionalHost } from '../../../host'
 import { clsxm } from '../../../lib/clsxm'
-import { openSceneInNewWindow } from './open-in-new-window'
+import { rasterizeSvgMarkupToPng } from '../../../lib/rasterize-to-png'
+import {
+  openSceneInNewWindow,
+  serializeStandaloneSceneSvg,
+} from './open-in-new-window'
 import { computeSceneBounds, SceneContent } from './Scene'
 import type { BinaryFiles, ExcalidrawScene, StaticTheme } from './types'
 
@@ -38,6 +43,7 @@ export const InteractiveScene: FC<InteractiveSceneProps> = ({
   showExpand = false,
   theme = 'light',
 }) => {
+  const host = useOptionalHost()
   const containerRef = useRef<HTMLDivElement>(null)
   const svgRef = useRef<SVGSVGElement>(null)
   const [size, setSize] = useState({ w: 0, h: 0 })
@@ -183,13 +189,43 @@ export const InteractiveScene: FC<InteractiveSceneProps> = ({
     }
   }, [])
 
-  const handleOpenInNewWindow = useCallback(() => {
+  const handleExpand = useCallback(async () => {
+    if (host?.diagramPreview === 'openImage') {
+      const svg = serializeStandaloneSceneSvg({
+        bounds,
+        includeFonts: false,
+        origin: host.webOrigin || window.location.origin,
+        pixelSize: true,
+        svgElement: svgRef.current,
+        theme,
+      })
+      const frame = containerRef.current
+      if (!svg || !frame) return
+      try {
+        const png = await rasterizeSvgMarkupToPng(svg)
+        void host.openImage({
+          images: [png],
+          index: 0,
+          source: imagePreviewSourceFromElement(frame, png),
+          src: png,
+        })
+      } catch {
+        const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`
+        void host.openImage({
+          images: [svgUrl],
+          index: 0,
+          source: imagePreviewSourceFromElement(frame, svgUrl),
+          src: svgUrl,
+        })
+      }
+      return
+    }
     openSceneInNewWindow({
       svgElement: svgRef.current,
       bounds,
       theme,
     })
-  }, [bounds, theme])
+  }, [bounds, host, theme])
 
   const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (e.button !== 0 && e.pointerType === 'mouse') return
@@ -285,7 +321,7 @@ export const InteractiveScene: FC<InteractiveSceneProps> = ({
     downRef.current = null
 
     if (wasClick && showExpand) {
-      handleOpenInNewWindow()
+      void handleExpand()
     }
   }
 
@@ -331,7 +367,7 @@ export const InteractiveScene: FC<InteractiveSceneProps> = ({
 
       <Toolbar
         scale={transform.s}
-        onExpand={showExpand ? handleOpenInNewWindow : undefined}
+        onExpand={showExpand ? () => void handleExpand() : undefined}
         onReset={fitToContent}
         onZoomIn={() => zoomAt(1.2, size.w / 2, size.h / 2)}
         onZoomOut={() => zoomAt(1 / 1.2, size.w / 2, size.h / 2)}

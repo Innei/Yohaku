@@ -79,7 +79,8 @@ export interface OpenImagePayload {
 }
 
 export function imagePreviewSourceFromElement(
-  element: HTMLImageElement,
+  element: HTMLElement,
+  currentSrc?: string,
 ): ImagePreviewSource {
   const rect = element.getBoundingClientRect()
   const style = window.getComputedStyle(element)
@@ -89,10 +90,11 @@ export function imagePreviewSourceFromElement(
     style.borderBottomRightRadius,
     style.borderBottomLeftRadius,
   ].map((value) => Number.parseFloat(value) || 0)
+  const image = element instanceof HTMLImageElement ? element : null
   return {
     borderRadius: Math.max(...radii),
-    currentSrc: element.currentSrc || element.src,
-    objectFit: style.objectFit || 'contain',
+    currentSrc: currentSrc ?? image?.currentSrc ?? image?.src ?? '',
+    objectFit: image ? style.objectFit || 'contain' : 'contain',
     objectPosition: style.objectPosition || '50% 50%',
     rect: {
       height: rect.height,
