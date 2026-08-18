@@ -2,7 +2,7 @@ import { and, desc, eq, gte, notInArray } from 'drizzle-orm'
 
 import { apiBaseUrl } from '@/api/base-url'
 import { api } from '@/api/client'
-import type { ApiNote, ApiPost, ApiTopic } from '@/api/types'
+import type { ApiCategory, ApiNote, ApiPost, ApiTopic } from '@/api/types'
 import { db } from '@/db'
 import type { NoteRow, PostRow } from '@/db/schema'
 import {
@@ -158,6 +158,48 @@ async function upsertPostMetas(list: ApiPost[], lang: Locale) {
       target: [posts.id, posts.lang],
       set: postConflictSet,
     })
+}
+
+function attachParentCategory(post: ApiPost, category: ApiCategory): ApiPost {
+  return {
+    ...post,
+    category: post.category ?? category,
+    categoryId: post.categoryId ?? category.id,
+    content: post.content ?? null,
+    contentFormat: post.contentFormat ?? 'markdown',
+    likeCount: post.likeCount ?? 0,
+    readCount: post.readCount ?? 0,
+    tags: post.tags ?? [],
+    text: post.text ?? post.summary ?? null,
+  }
+}
+
+export async function ingestCategoryBySlug(slug: string, lang = getLocale()) {
+  const detail = await api.categoryBySlug(slug)
+  await db
+    .insert(categories)
+    .values({
+      id: detail.id,
+      lang,
+      name: detail.name,
+      slug: detail.slug,
+      type: detail.type ?? 0,
+    })
+    .onConflictDoUpdate({
+      target: [categories.id, categories.lang],
+      set: categoryConflictSet,
+    })
+  await upsertPostMetas(
+    (detail.children ?? []).map((post) => attachParentCategory(post, detail)),
+    lang,
+  )
+  return detail
+}
+
+export async function ingestTagByName(name: string, lang = getLocale()) {
+  const result = await api.tagByName(name)
+  await upsertPostMetas(result.data ?? [], lang)
+  return result
 }
 
 async function syncPosts() {

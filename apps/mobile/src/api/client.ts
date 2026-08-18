@@ -14,6 +14,7 @@ import { parseThinkingList } from './thinking'
 import type {
   ApiAggregate,
   ApiCategory,
+  ApiCategoryDetail,
   ApiComment,
   ApiCommentRoot,
   ApiCommentThreadPage,
@@ -25,6 +26,7 @@ import type {
   ApiPost,
   ApiPushActivation,
   ApiSessionUser,
+  ApiTagDetail,
   ApiTopic,
   ApiTts,
   CommentRefType,
@@ -183,6 +185,15 @@ export const api = {
     parseThinkingList(await fetchRawJson('/recently', { size })),
   categoryList: () =>
     request<ApiCategory[]>('/categories', withLang({ type: 0 })),
+  categoryBySlug: (slug: string) =>
+    request<ApiCategoryDetail>(
+      `/categories/${encodeURIComponent(slug)}`,
+      withLang(),
+    ),
+  tagByName: (name: string) =>
+    request<ApiTagDetail>(`/categories/${encodeURIComponent(name)}`, {
+      ...withLang({ tag: true }),
+    }),
   topicList: () => request<ApiTopic[]>('/topics/all', withLang()),
   topicById: (topicId: string) =>
     request<ApiTopic>(`/topics/${encodeURIComponent(topicId)}`, withLang()),

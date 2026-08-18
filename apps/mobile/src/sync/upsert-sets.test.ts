@@ -259,6 +259,42 @@ describe('categoryConflictSet', () => {
   })
 })
 
+describe('taxonomy ingest upsert', () => {
+  it('updates matching posts without deleting other categories', async () => {
+    await db.insert(posts).values([
+      postMeta,
+      {
+        ...postMeta,
+        id: 'p2',
+        slug: 'other',
+        categoryId: 'c2',
+        categorySlug: 'life',
+        categoryName: '生活',
+        tags: ['b'],
+      },
+    ])
+
+    await db
+      .insert(posts)
+      .values({
+        ...postMeta,
+        title: '分类页补齐后的标题',
+        likeCount: 12,
+      })
+      .onConflictDoUpdate({
+        target: [posts.id, posts.lang],
+        set: postConflictSet,
+      })
+
+    const rows = await db.select().from(posts)
+    expect(rows).toHaveLength(2)
+    expect(rows.find((row) => row.id === 'p1')?.title).toBe(
+      '分类页补齐后的标题',
+    )
+    expect(rows.find((row) => row.id === 'p2')?.categorySlug).toBe('life')
+  })
+})
+
 describe('post sync window pruning', () => {
   const at = (iso: string) => new Date(iso)
   const row = (

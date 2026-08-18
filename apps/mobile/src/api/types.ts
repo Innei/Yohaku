@@ -28,6 +28,22 @@ export interface ApiPost {
   title: string
 }
 
+export interface ApiTagSum {
+  count: number
+  name: string
+}
+
+export interface ApiCategoryDetail extends ApiCategory {
+  children: ApiPost[]
+  count: number
+  tagsSum?: ApiTagSum[]
+}
+
+export interface ApiTagDetail {
+  data: ApiPost[]
+  tag: string
+}
+
 export interface ApiTopic {
   createdAt: string
   description: string

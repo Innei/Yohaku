@@ -81,6 +81,40 @@ final class NativePressGestureRecognizer: UIGestureRecognizer {
     super.reset()
   }
 
+  // Nested NativePress views: the outer recognizer must wait for a descendant
+  // press to fail. Otherwise both fire independently, and JS stopPropagation
+  // cannot cancel the ancestor UIKit gesture. UIKit may consult either side of
+  // the relationship, so both overrides describe the same inner-wins rule.
+  override func shouldRequireFailure(
+    of otherGestureRecognizer: UIGestureRecognizer
+  ) -> Bool {
+    guard
+      otherGestureRecognizer is NativePressGestureRecognizer,
+      let ownView = view,
+      let otherView = otherGestureRecognizer.view,
+      otherView !== ownView,
+      otherView.isDescendant(of: ownView)
+    else {
+      return super.shouldRequireFailure(of: otherGestureRecognizer)
+    }
+    return true
+  }
+
+  override func shouldBeRequiredToFail(
+    by otherGestureRecognizer: UIGestureRecognizer
+  ) -> Bool {
+    guard
+      otherGestureRecognizer is NativePressGestureRecognizer,
+      let ownView = view,
+      let otherView = otherGestureRecognizer.view,
+      otherView !== ownView,
+      ownView.isDescendant(of: otherView)
+    else {
+      return super.shouldBeRequiredToFail(by: otherGestureRecognizer)
+    }
+    return true
+  }
+
   // This recognizer must never hold back an ancestor UIScrollView pan. The
   // scroll recognizer is still allowed to prevent this recognizer, which gives
   // scrolling ownership as soon as UIKit recognizes the drag.

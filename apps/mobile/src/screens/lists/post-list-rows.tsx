@@ -1,6 +1,6 @@
 import { type as typeScale } from '@yohaku/design-system/tokens'
 import { SymbolView } from 'expo-symbols'
-import { Fragment } from 'react'
+import { type ReactNode, Fragment } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import {
@@ -30,12 +30,16 @@ function Dot() {
   )
 }
 
-function PostMetaLine({
+export function PostMetaLine({
   hiddenCount = 0,
   post,
   tags,
+  onCategoryPress,
+  onTagPress,
 }: {
   hiddenCount?: number
+  onCategoryPress?: () => void
+  onTagPress?: (tag: string) => void
   post: PostRow
   tags: string[]
 }) {
@@ -50,9 +54,16 @@ function PostMetaLine({
       {post.categoryName ? (
         <>
           <Dot />
-          <AppText color={palette.accent} variant="meta">
-            {post.categoryName}
-          </AppText>
+          <NativePressable
+            accessibilityRole="link"
+            disabled={!onCategoryPress || !post.categorySlug}
+            haptic={Boolean(onCategoryPress)}
+            onPress={onCategoryPress}
+          >
+            <AppText color={palette.accent} variant="meta">
+              {post.categoryName}
+            </AppText>
+          </NativePressable>
           {tags.length > 0 ? (
             <>
               <AppText color={palette.neutral[4]} variant="meta">
@@ -65,9 +76,16 @@ function PostMetaLine({
                       ,
                     </AppText>
                   ) : null}
-                  <AppText color={palette.accent} variant="meta">
-                    {tag}
-                  </AppText>
+                  <NativePressable
+                    accessibilityRole="link"
+                    disabled={!onTagPress}
+                    haptic={Boolean(onTagPress)}
+                    onPress={() => onTagPress?.(tag)}
+                  >
+                    <AppText color={palette.accent} variant="meta">
+                      {tag}
+                    </AppText>
+                  </NativePressable>
                 </Fragment>
               ))}
               {hiddenCount > 0 ? (
@@ -110,71 +128,39 @@ function PostCounts({ post }: { post: PostRow }) {
   )
 }
 
-export function PostFeaturedSheet({
-  post,
-  ...pressableProps
-}: Pick<NativePressableProps, 'onAccessibilityTap' | 'onPress'> & {
-  post: PostRow
-}) {
+export function PostFeaturedTrigger({ post }: { post: PostRow }) {
   const t = useTranslations('list')
   const palette = usePalette()
   const summary = postListSummary(post, featuredSummaryChars)
 
   return (
-    <NativePressable
-      {...pressableProps}
-      accessibilityRole="link"
-      disabled={!post.categorySlug}
-    >
-      <View
-        style={[
-          styles.sheet,
-          {
-            backgroundColor: palette.surface.paper,
-            borderColor: `${palette.neutral[10]}0f`,
-          },
-        ]}
-      >
-        <AppText color={palette.accent} style={styles.pin} variant="meta">
-          {t('pinned')}
+    <>
+      <AppText color={palette.accent} style={styles.pin} variant="meta">
+        {t('pinned')}
+      </AppText>
+      <AppText style={styles.listTitle} variant="entryTitleSans">
+        {post.title}
+      </AppText>
+      {summary ? (
+        <AppText
+          color={palette.neutral[6]}
+          numberOfLines={2}
+          style={styles.featuredSummary}
+          variant="secondary"
+        >
+          {summary}
         </AppText>
-        <AppText style={styles.listTitle} variant="entryTitleSans">
-          {post.title}
-        </AppText>
-        {summary ? (
-          <AppText
-            color={palette.neutral[6]}
-            numberOfLines={2}
-            style={styles.featuredSummary}
-            variant="secondary"
-          >
-            {summary}
-          </AppText>
-        ) : null}
-        <PostMetaLine post={post} tags={post.tags} />
-        <PostCounts post={post} />
-      </View>
-    </NativePressable>
+      ) : null}
+    </>
   )
 }
 
-export function PostIndexItem({
-  post,
-  ...pressableProps
-}: Pick<NativePressableProps, 'onAccessibilityTap' | 'onPress'> & {
-  post: PostRow
-}) {
+export function PostIndexTrigger({ post }: { post: PostRow }) {
   const palette = usePalette()
   const summary = postListSummary(post, indexSummaryChars)
-  const { hiddenCount, visible } = partitionTags(post.tags)
 
   return (
-    <NativePressable
-      {...pressableProps}
-      accessibilityRole="link"
-      disabled={!post.categorySlug}
-      style={styles.item}
-    >
+    <>
       <AppText style={styles.listTitle} variant="entryTitleSans">
         {post.title}
       </AppText>
@@ -188,7 +174,87 @@ export function PostIndexItem({
           {summary}
         </AppText>
       ) : null}
-      <PostMetaLine hiddenCount={hiddenCount} post={post} tags={visible} />
+    </>
+  )
+}
+
+export function PostFeaturedSheet({
+  post,
+  trigger,
+  onCategoryPress,
+  onTagPress,
+}: {
+  onCategoryPress?: () => void
+  onTagPress?: (tag: string) => void
+  post: PostRow
+  trigger: ReactNode
+}) {
+  const palette = usePalette()
+
+  return (
+    <View
+      style={[
+        styles.sheet,
+        {
+          backgroundColor: palette.surface.paper,
+          borderColor: `${palette.neutral[10]}0f`,
+        },
+      ]}
+    >
+      {trigger}
+      <PostMetaLine
+        onCategoryPress={onCategoryPress}
+        onTagPress={onTagPress}
+        post={post}
+        tags={post.tags}
+      />
+      <PostCounts post={post} />
+    </View>
+  )
+}
+
+export function PostIndexItem({
+  post,
+  trigger,
+  onCategoryPress,
+  onTagPress,
+}: {
+  onCategoryPress?: () => void
+  onTagPress?: (tag: string) => void
+  post: PostRow
+  trigger: ReactNode
+}) {
+  const { hiddenCount, visible } = partitionTags(post.tags)
+
+  return (
+    <View style={styles.item}>
+      {trigger}
+      <PostMetaLine
+        hiddenCount={hiddenCount}
+        onCategoryPress={onCategoryPress}
+        onTagPress={onTagPress}
+        post={post}
+        tags={visible}
+      />
+    </View>
+  )
+}
+
+export function PostRowPressable({
+  children,
+  disabled,
+  ...pressableProps
+}: Pick<NativePressableProps, 'onAccessibilityTap' | 'onPress'> & {
+  children: ReactNode
+  disabled?: boolean
+}) {
+  return (
+    <NativePressable
+      {...pressableProps}
+      accessibilityRole="link"
+      disabled={disabled}
+    >
+      {children}
     </NativePressable>
   )
 }

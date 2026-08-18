@@ -10,7 +10,13 @@ import { copyUrl } from '@/lib/copy-url'
 import { shareUrl } from '@/lib/share'
 import { siteHref } from '@/lib/site-url'
 
-import { PostFeaturedSheet, PostIndexItem } from './post-list-rows'
+import {
+  PostFeaturedSheet,
+  PostFeaturedTrigger,
+  PostIndexItem,
+  PostIndexTrigger,
+  PostRowPressable,
+} from './post-list-rows'
 
 type LinkPressEvent =
   GestureResponderEvent | ReactMouseEvent<HTMLAnchorElement, MouseEvent>
@@ -71,35 +77,75 @@ export function PostContextLink({
     },
     [openPost],
   )
-  const trigger = featured ? (
-    <PostFeaturedSheet post={post} onAccessibilityTap={openPost} />
+  const openCategory = useCallback(() => {
+    if (!categorySlug) return
+    router.push({
+      pathname: '/categories/[slug]',
+      params: { slug: categorySlug },
+    })
+  }, [categorySlug, router])
+  const openTag = useCallback((tag: string) => {
+    router.push({
+      pathname: '/posts/tag/[name]',
+      params: { name: tag },
+    })
+  }, [router])
+
+  const hit = (
+    <PostRowPressable
+      disabled={!post.categorySlug}
+      onAccessibilityTap={openPost}
+    >
+      {featured ? (
+        <PostFeaturedTrigger post={post} />
+      ) : (
+        <PostIndexTrigger post={post} />
+      )}
+    </PostRowPressable>
+  )
+
+  const trigger =
+    href && webUrl ? (
+      <Link asChild href={href} onPress={handleLinkPress}>
+        <Link.Trigger>{hit}</Link.Trigger>
+        <Link.Preview />
+        <Link.Menu>
+          <Link.MenuAction
+            icon="square.and.arrow.up"
+            onPress={() => void shareUrl(webUrl, post.title)}
+          >
+            {t('share')}
+          </Link.MenuAction>
+          <Link.MenuAction icon="link" onPress={() => void copyUrl(webUrl)}>
+            {t('copyLink')}
+          </Link.MenuAction>
+          <Link.MenuAction
+            icon="safari"
+            onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
+          >
+            {t('openInBrowser')}
+          </Link.MenuAction>
+        </Link.Menu>
+      </Link>
+    ) : (
+      hit
+    )
+
+  const shell = featured ? (
+    <PostFeaturedSheet
+      post={post}
+      trigger={trigger}
+      onCategoryPress={openCategory}
+      onTagPress={openTag}
+    />
   ) : (
-    <PostIndexItem post={post} onAccessibilityTap={openPost} />
+    <PostIndexItem
+      post={post}
+      trigger={trigger}
+      onCategoryPress={openCategory}
+      onTagPress={openTag}
+    />
   )
 
-  if (!href || !webUrl) return trigger
-
-  return (
-    <Link asChild href={href} onPress={handleLinkPress}>
-      <Link.Trigger>{trigger}</Link.Trigger>
-      <Link.Preview />
-      <Link.Menu>
-        <Link.MenuAction
-          icon="square.and.arrow.up"
-          onPress={() => void shareUrl(webUrl, post.title)}
-        >
-          {t('share')}
-        </Link.MenuAction>
-        <Link.MenuAction icon="link" onPress={() => void copyUrl(webUrl)}>
-          {t('copyLink')}
-        </Link.MenuAction>
-        <Link.MenuAction
-          icon="safari"
-          onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
-        >
-          {t('openInBrowser')}
-        </Link.MenuAction>
-      </Link.Menu>
-    </Link>
-  )
+  return shell
 }

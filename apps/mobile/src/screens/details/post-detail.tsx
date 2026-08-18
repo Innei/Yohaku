@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm'
-import { Stack, useIsPreview } from 'expo-router'
+import { Stack, useIsPreview, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
@@ -8,7 +8,7 @@ import { StyleSheet, View } from 'react-native'
 import { translatedBodyNeedsRefresh } from '@/api/article-meta'
 import { api } from '@/api/client'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
-import { AppText } from '@/components/ui'
+import { AppText, NativePressable } from '@/components/ui'
 import { db } from '@/db'
 import { posts } from '@/db/schema'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
@@ -44,6 +44,7 @@ export function PostDetailScreen({
   slug: string
 }) {
   const isPreview = useIsPreview()
+  const router = useRouter()
   const locale = useLocale()
   const t = useTranslations('detail')
   const tc = useTranslations('common')
@@ -198,7 +199,21 @@ export function PostDetailScreen({
         {post ? (
           <>
             <View style={styles.header} onLayout={onTitleLayout}>
-              {post.categoryName ? (
+              {post.categoryName && post.categorySlug ? (
+                <NativePressable
+                  accessibilityRole="link"
+                  onPress={() =>
+                    router.push({
+                      pathname: '/categories/[slug]',
+                      params: { slug: post.categorySlug! },
+                    })
+                  }
+                >
+                  <AppText color={palette.accent} variant="eyebrow">
+                    {post.categoryName}
+                  </AppText>
+                </NativePressable>
+              ) : post.categoryName ? (
                 <AppText variant="eyebrow">{post.categoryName}</AppText>
               ) : null}
               <AppText variant="largeTitleSans">{post.title}</AppText>
@@ -206,6 +221,33 @@ export function PostDetailScreen({
                 aiGen={post.articleMeta?.aiGen}
                 parts={metaParts}
               />
+              {post.tags.length > 0 ? (
+                <View style={styles.tags}>
+                  {post.tags.map((tag) => (
+                    <NativePressable
+                      key={tag}
+                      accessibilityRole="link"
+                      style={[
+                        styles.tag,
+                        {
+                          backgroundColor: palette.surface.paper,
+                          borderColor: `${palette.neutral[10]}0f`,
+                        },
+                      ]}
+                      onPress={() =>
+                        router.push({
+                          pathname: '/posts/tag/[name]',
+                          params: { name: tag },
+                        })
+                      }
+                    >
+                      <AppText color={palette.accent} variant="meta">
+                        #{tag}
+                      </AppText>
+                    </NativePressable>
+                  ))}
+                </View>
+              ) : null}
               <ArticleListen
                 available={tts.available}
                 hidden={tts.isNarrating}
@@ -296,6 +338,18 @@ const styles = StyleSheet.create({
   },
   header: {
     gap: 8,
+  },
+  tags: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  tag: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    borderCurve: 'continuous',
+    borderWidth: StyleSheet.hairlineWidth,
   },
   placeholder: {
     marginTop: 32,

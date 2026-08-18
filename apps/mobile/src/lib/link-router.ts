@@ -6,10 +6,20 @@ import { getSiteHosts, getSiteUrl } from '@/lib/site-url'
 const LOCALE_SEGMENT = new Set<string>(locales)
 
 const POST_PATH = /^\/posts\/([^/]+)\/([^/]+)\/?$/
+const TAG_PATH = /^\/posts\/tag\/([^/]+)\/?$/
+const CATEGORY_PATH = /^\/categories\/([^/]+)\/?$/
 const NOTE_PATH = /^\/notes\/(\d+)\/?$/
 const SERIES_INDEX_PATH = /^\/notes\/series\/?$/
 const SERIES_DETAIL_PATH = /^\/notes\/series\/([^/]+)\/?$/
 const SCHEME = /^[a-z][\d+.a-z-]*:/i
+
+function decodeParam(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
 
 function sitePathname(pathname: string): string {
   const segments = pathname.split('/').filter(Boolean)
@@ -21,11 +31,25 @@ function sitePathname(pathname: string): string {
 
 function hrefForSitePath(pathname: string): Href | null {
   const path = sitePathname(pathname)
+  const tag = path.match(TAG_PATH)
+  if (tag) {
+    return {
+      pathname: '/posts/tag/[name]',
+      params: { name: decodeParam(tag[1]) },
+    }
+  }
   const post = path.match(POST_PATH)
   if (post) {
     return {
       pathname: '/posts/[category]/[slug]',
-      params: { category: post[1], slug: post[2] },
+      params: { category: decodeParam(post[1]), slug: decodeParam(post[2]) },
+    }
+  }
+  const category = path.match(CATEGORY_PATH)
+  if (category) {
+    return {
+      pathname: '/categories/[slug]',
+      params: { slug: decodeParam(category[1]) },
     }
   }
   const note = path.match(NOTE_PATH)
@@ -37,7 +61,10 @@ function hrefForSitePath(pathname: string): Href | null {
   }
   const series = path.match(SERIES_DETAIL_PATH)
   if (series) {
-    return { pathname: '/series/[slug]', params: { slug: series[1] } }
+    return {
+      pathname: '/series/[slug]',
+      params: { slug: decodeParam(series[1]) },
+    }
   }
   return null
 }
@@ -58,7 +85,11 @@ function pathFromHref(href: Href | null): string | null {
 
 function isClaimedPath(pathname: string): boolean {
   const path = sitePathname(pathname)
-  return path.startsWith('/posts') || path.startsWith('/notes')
+  return (
+    path.startsWith('/posts') ||
+    path.startsWith('/notes') ||
+    path.startsWith('/categories')
+  )
 }
 
 export function hrefForExternalUrl(url: string): Href | null {
