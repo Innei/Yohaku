@@ -119,9 +119,11 @@ enum TabBarDomain {
     tabController.tabBar.alpha = 1
     tabController.tabBar.isUserInteractionEnabled = true
 
-    applyCompactRenderingScale(to: tabController)
     observeAvatarItem(on: tabController)
     installMeTabLongPress(on: tabController)
+    // Gesture installation can rebuild UITabBar's layer tree and drop the
+    // compact sublayerTransform. Apply scale last so it survives.
+    applyCompactRenderingScale(to: tabController)
 
     if configuredTabController !== tabController {
       selectionObservation = tabController.observe(
@@ -129,9 +131,9 @@ enum TabBarDomain {
         options: [.new]
       ) { controller, _ in
         DispatchQueue.main.async {
-          applyCompactRenderingScale(to: controller)
           observeAvatarItem(on: controller)
           installMeTabLongPress(on: controller)
+          applyCompactRenderingScale(to: controller)
         }
       }
       configuredTabController = tabController
@@ -140,9 +142,9 @@ enum TabBarDomain {
     // React Native Screens assigns the selected tab's appearance during the
     // same update cycle. Reapply once after that transaction completes.
     DispatchQueue.main.async {
-      applyCompactRenderingScale(to: tabController)
       observeAvatarItem(on: tabController)
       installMeTabLongPress(on: tabController)
+      applyCompactRenderingScale(to: tabController)
     }
   }
 

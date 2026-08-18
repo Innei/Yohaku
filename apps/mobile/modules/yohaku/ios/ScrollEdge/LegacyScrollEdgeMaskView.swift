@@ -27,13 +27,11 @@ final class LegacyScrollEdgeMaskView: ExpoView {
   override func layoutSubviews() {
     super.layoutSubviews()
     attachGradientMask()
-  }
-
-  override func viewDidUpdateProps() {
-    super.viewDidUpdateProps()
     // Fabric's invalidateLayer always sets layer.mask = nil after layout.
     // Reattach once RN has finished applying overflow clipping.
-    attachGradientMask()
+    DispatchQueue.main.async { [weak self] in
+      self?.attachGradientMask()
+    }
   }
 
   func setBottomEdgeHeight(_ height: Double) {
