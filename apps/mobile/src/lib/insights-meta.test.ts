@@ -1,3 +1,7 @@
+import { createRequire } from 'node:module'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -6,6 +10,20 @@ import {
   insightsWebViewDom,
   numToHan,
 } from './insights-meta'
+import { getSiteUrl } from './site-url'
+
+const require = createRequire(import.meta.url)
+const { findWorkspaceRoot, resolveOverlayDir } =
+  require('../../workspace-root.cjs') as {
+    findWorkspaceRoot: (startDir: string) => string
+    resolveOverlayDir: (workspaceRoot: string) => string | null
+  }
+
+const mobileRoot = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  '..',
+)
+const overlayPresent = resolveOverlayDir(findWorkspaceRoot(mobileRoot)) !== null
 
 describe('extractInsightsMeta', () => {
   it('reads the last insights-meta trailer', () => {
@@ -91,7 +109,7 @@ describe('insightsWebViewDom', () => {
       pooled: false,
       scrollEdgeEffects: { bottom: 'automatic', top: 'automatic' },
       scrollEnabled: true,
-      siteReferer: '',
+      siteReferer: overlayPresent ? getSiteUrl() : '',
     })
     expect(
       insightsWebViewDom({

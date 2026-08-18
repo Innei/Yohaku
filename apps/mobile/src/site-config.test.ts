@@ -1,4 +1,10 @@
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -28,6 +34,14 @@ describe('publicSite', () => {
       bundleId: 'dev.yohaku.app',
       bundledOwner: null,
     })
+  })
+
+  it('keeps production EAS identity out of public eas.json', () => {
+    const eas = readFileSync(path.join(mobileRoot, '../eas.json'), 'utf8')
+    expect(eas).not.toContain('EXPO_PUBLIC_PUSH_RELAY_URL')
+    expect(eas).not.toContain('railway.app')
+    expect(eas).not.toContain('EXPO_PUBLIC_API_URL')
+    expect(eas).not.toContain('EXPO_PUBLIC_APNS_ENV')
   })
 })
 
