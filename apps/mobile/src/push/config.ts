@@ -84,8 +84,19 @@ export function parsePushConfig(
   }
 }
 
+function readExpoPublicPushEnv(): PushEnv {
+  // Expo only statically inlines `process.env.EXPO_PUBLIC_*` occurrences.
+  // Reading via an intermediate `env` object may keep values empty in the
+  // production bundle, which would hide the whole push settings UI.
+  return {
+    EXPO_PUBLIC_APNS_ENV: process.env.EXPO_PUBLIC_APNS_ENV,
+    EXPO_PUBLIC_PUSH_APP_ID: process.env.EXPO_PUBLIC_PUSH_APP_ID,
+    EXPO_PUBLIC_PUSH_RELAY_URL: process.env.EXPO_PUBLIC_PUSH_RELAY_URL,
+  }
+}
+
 export function loadPushConfig(
-  env: PushEnv = process.env,
+  env: PushEnv = readExpoPublicPushEnv(),
   options: ParsePushConfigOptions = { isDev: __DEV__ },
 ): PushConfig {
   try {
