@@ -17,6 +17,7 @@ import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
 import { formatRelativeTime } from '@/lib/datetime'
 import { siteHref } from '@/lib/site-url'
+import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import { useIsActiveMember } from '@/screens/me/use-membership'
 import { refreshPostBody } from '@/sync/engine'
 import { bodyIsStale, postBodyFromApi, postMetaFromApi } from '@/sync/merge'
@@ -218,21 +219,38 @@ export function PostDetailScreen({
         url={webUrl}
         onListen={tts.start}
       />
-      <EdgeEffectScrollView
-        automaticallyAdjustKeyboardInsets
-        headerTitleProgress={headerTitleProgress}
-        ref={scrollRef}
-        style={[styles.screen, { backgroundColor: palette.surface.desk }]}
-        contentContainerStyle={[
-          styles.content,
-          tts.isNarrating ? styles.narratingPad : null,
-        ]}
-        onScroll={onScroll}
-        onScrollBeginDrag={tts.onScrollBeginDrag}
-      >
-        {post ? (
-          <>
-            <View style={styles.header} onLayout={onTitleLayout}>
+      {post ? (
+        <CommentComposeHost
+          allowComment
+          refId={post.id}
+          refType="post"
+          scrollRef={scrollRef}
+        >
+          {(compose) => (
+            <>
+              <EdgeEffectScrollView
+                automaticallyAdjustKeyboardInsets={!compose.composing}
+                headerTitleProgress={headerTitleProgress}
+                ref={scrollRef}
+                contentContainerStyle={[
+                  styles.content,
+                  tts.isNarrating && !compose.composing
+                    ? styles.narratingPad
+                    : null,
+                ]}
+                contentInset={
+                  compose.composing
+                    ? { bottom: compose.scrollBottomInset }
+                    : undefined
+                }
+                style={[
+                  styles.screen,
+                  { backgroundColor: palette.surface.desk },
+                ]}
+                onScroll={onScroll}
+                onScrollBeginDrag={tts.onScrollBeginDrag}
+              >
+                  <View style={styles.header} onLayout={onTitleLayout}>
               {post.categoryName && post.categorySlug ? (
                 <NativePressable
                   accessibilityRole="link"
@@ -325,35 +343,45 @@ export function PostDetailScreen({
               </View>
             )}
             <PaywallGate visible={showPaywallGate} webUrl={webUrl} />
-            <ArticleTail
-              kind="post"
-              likeCount={post.likeCount}
-              queriesEnabled={updatesEnabled}
-              refId={post.id}
-            />
-          </>
-        ) : (
+                <ArticleTail
+                  kind="post"
+                  likeCount={post.likeCount}
+                  queriesEnabled={updatesEnabled}
+                  refId={post.id}
+                />
+              </EdgeEffectScrollView>
+              {tts.isNarrating && !compose.composing ? (
+                <TtsMiniBar
+                  autoFollow={tts.autoFollow}
+                  current={tts.current}
+                  duration={tts.duration}
+                  elapsed={tts.elapsed}
+                  playbackRate={tts.playbackRate}
+                  stale={tts.stale}
+                  status={tts.status}
+                  total={tts.total}
+                  onCycleRate={tts.cycleRate}
+                  onRecenter={tts.recenter}
+                  onStop={tts.stop}
+                  onToggle={tts.toggle}
+                />
+              ) : null}
+            </>
+          )}
+        </CommentComposeHost>
+      ) : (
+        <EdgeEffectScrollView
+          contentContainerStyle={styles.content}
+          headerTitleProgress={headerTitleProgress}
+          ref={scrollRef}
+          style={[styles.screen, { backgroundColor: palette.surface.desk }]}
+          onScroll={onScroll}
+        >
           <AppText style={styles.placeholder} variant="secondary">
             {failed ? t('postFailed') : tc('loading')}
           </AppText>
-        )}
-      </EdgeEffectScrollView>
-      {tts.isNarrating ? (
-        <TtsMiniBar
-          autoFollow={tts.autoFollow}
-          current={tts.current}
-          duration={tts.duration}
-          elapsed={tts.elapsed}
-          playbackRate={tts.playbackRate}
-          stale={tts.stale}
-          status={tts.status}
-          total={tts.total}
-          onCycleRate={tts.cycleRate}
-          onRecenter={tts.recenter}
-          onStop={tts.stop}
-          onToggle={tts.toggle}
-        />
-      ) : null}
+        </EdgeEffectScrollView>
+      )}
     </View>
   )
 }

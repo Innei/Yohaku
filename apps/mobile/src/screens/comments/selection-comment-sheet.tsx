@@ -1,11 +1,8 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { type as typeScale } from '@yohaku/design-system/tokens'
-import { useEffect, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { Modal, ScrollView, StyleSheet, View } from 'react-native'
 
-import { api } from '@/api/client'
-import { ApiError } from '@/api/errors'
-import type { ApiComment, ApiCommentRoot, CommentRefType } from '@/api/types'
+import type { ApiCommentRoot, CommentRefType } from '@/api/types'
 import { useSession } from '@/auth/session-store'
 import { AppText } from '@/components/ui'
 import { useTranslations } from '@/i18n'
@@ -15,12 +12,20 @@ import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { CommentCell } from './comment-cell'
-import { CommentInputWell } from './comment-input-well'
-import { commentAnchorsQueryKey, commentsQueryKey } from './use-comments'
+import { CommentComposeEntry } from './comment-compose-entry'
+import { CommentComposeHost } from './comment-compose-provider'
+import { CommentLoginInline } from './comment-login-inline'
 
 export type SelectionSheetState =
   | { anchor: CommentAnchor; kind: 'compose'; selectedText: string }
   | { anchor: CommentAnchor; kind: 'thread' }
+
+function anchorResetKey(anchor: CommentAnchor): string {
+  if (isRangeAnchor(anchor)) {
+    return `${anchor.blockId}:${anchor.startOffset}:${anchor.endOffset}`
+  }
+  return `${anchor.blockId}:block`
+}
 
 export function SelectionCommentSheet({
   refId,
@@ -38,52 +43,16 @@ export function SelectionCommentSheet({
   const t = useTranslations('comment')
   const palette = usePalette()
   const session = useSession()
-  const queryClient = useQueryClient()
-  const [draft, setDraft] = useState('')
-  const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(
-    null,
-  )
-  const [sendError, setSendError] = useState<string | null>(null)
-
-  useEffect(() => {
-    setDraft('')
-    setReplyTo(null)
-    setSendError(null)
+  const scrollRef = useRef<ScrollView>(null)
+  const resetKey = state
+    ? `${state.kind}:${anchorResetKey(state.anchor)}`
+    : undefined
+  const quote = useMemo(() => {
+    if (!state) return ''
+    return isRangeAnchor(state.anchor)
+      ? state.anchor.quote
+      : state.anchor.snapshotText
   }, [state])
-
-  const onReply = (comment: ApiComment) => {
-    setReplyTo({
-      id: comment.id,
-      name: comment.reader?.name ?? comment.author,
-    })
-  }
-
-  const send = useMutation({
-    mutationFn: (vars: { parentId: string | null; text: string }) =>
-      vars.parentId
-        ? api.readerReply(vars.parentId, vars.text)
-        : api.readerComment(refId, refType, vars.text, state?.anchor),
-    onSuccess: async () => {
-      setDraft('')
-      setReplyTo(null)
-      setSendError(null)
-      await Promise.all([
-        queryClient.invalidateQueries({ queryKey: commentsQueryKey(refId) }),
-        queryClient.invalidateQueries({
-          queryKey: commentAnchorsQueryKey(refId),
-        }),
-      ])
-      if (!replyTo) onClose()
-    },
-    onError: (error) => {
-      const fallback = t('sendFailed')
-      setSendError(
-        error instanceof ApiError
-          ? (error.serverMessage ?? fallback)
-          : fallback,
-      )
-    },
-  })
 
   return (
     <Modal
@@ -92,85 +61,84 @@ export function SelectionCommentSheet({
       visible={state !== null}
       onRequestClose={onClose}
     >
-      <ScrollView
-        automaticallyAdjustKeyboardInsets
-        contentContainerStyle={styles.content}
-        style={{ backgroundColor: palette.surface.desk, flex: 1 }}
-      >
-        {state ? (
-          <>
-            <AppText color={palette.neutral[7]} variant="secondary">
-              {isRangeAnchor(state.anchor)
-                ? t('selectionTitle')
-                : t('blockTitle')}
-            </AppText>
-            <AppText
-              color={palette.neutral[8]}
-              numberOfLines={4}
-              style={styles.quote}
+      {state ? (
+        <CommentComposeHost
+          anchor={state.anchor}
+          autoFocus={state.kind === 'compose'}
+          refId={refId}
+          refType={refType}
+          resetKey={resetKey}
+          scrollRef={scrollRef}
+          onRootSent={onClose}
+        >
+          {(compose) => (
+            <ScrollView
+              automaticallyAdjustKeyboardInsets={!compose.composing}
+              contentContainerStyle={styles.content}
+              ref={scrollRef}
+              style={{ backgroundColor: palette.surface.desk, flex: 1 }}
+              contentInset={
+                compose.composing
+                  ? { bottom: compose.scrollBottomInset }
+                  : undefined
+              }
             >
-              {isRangeAnchor(state.anchor)
-                ? state.anchor.quote
-                : state.anchor.snapshotText}
-            </AppText>
-            <View
-              style={[styles.hairline, { backgroundColor: palette.neutral[3] }]}
-            />
-            {state.kind === 'thread'
-              ? roots.map((root) => (
-                  <View key={root.id} style={styles.thread}>
-                    <CommentCell
-                      comment={root}
-                      showQuote={false}
-                      showReply={session !== null}
-                      onReply={onReply}
-                    />
-                    {(root.replies ?? []).map((reply) => (
-                      <CommentCell
-                        isReply
-                        comment={reply}
-                        key={reply.id}
-                        showQuote={false}
-                        showReply={session !== null}
-                        replyTargetName={replyTargetAuthor(reply, {
-                          replies: root.replies ?? [],
-                          root,
-                        })}
-                        onReply={onReply}
-                      />
-                    ))}
-                  </View>
-                ))
-              : null}
-            {state.kind === 'thread' ? (
+              <AppText color={palette.neutral[7]} variant="secondary">
+                {isRangeAnchor(state.anchor)
+                  ? t('selectionTitle')
+                  : t('blockTitle')}
+              </AppText>
+              <AppText
+                color={palette.neutral[8]}
+                numberOfLines={4}
+                style={styles.quote}
+              >
+                {quote}
+              </AppText>
               <View
                 style={[
                   styles.hairline,
                   { backgroundColor: palette.neutral[3] },
                 ]}
               />
-            ) : null}
-            <CommentInputWell
-              busy={send.isPending}
-              error={sendError}
-              replyToName={replyTo?.name ?? null}
-              signedIn={session !== null}
-              value={draft}
-              onCancelReply={() => setReplyTo(null)}
-              onChangeText={(text) => {
-                setDraft(text)
-                if (sendError) setSendError(null)
-              }}
-              onSend={() =>
-                send.mutate({
-                  parentId: replyTo?.id ?? null,
-                  text: draft.trim(),
-                })
-              }
-            />
-          </>
-        ) : null}
-      </ScrollView>
+              {state.kind === 'thread'
+                ? roots.map((root) => (
+                    <View key={root.id} style={styles.thread}>
+                      <CommentCell
+                        comment={root}
+                        showQuote={false}
+                        showReply={session !== null}
+                        onReply={compose.reply}
+                      />
+                      {(root.replies ?? []).map((reply) => (
+                        <CommentCell
+                          isReply
+                          comment={reply}
+                          key={reply.id}
+                          showQuote={false}
+                          showReply={session !== null}
+                          replyTargetName={replyTargetAuthor(reply, {
+                            replies: root.replies ?? [],
+                            root,
+                          })}
+                          onReply={compose.reply}
+                        />
+                      ))}
+                    </View>
+                  ))
+                : null}
+              {compose.composing ? null : session ? (
+                <CommentComposeEntry
+                  placeholder={t('placeholder')}
+                  onPress={compose.composeRoot}
+                />
+              ) : (
+                <CommentLoginInline />
+              )}
+            </ScrollView>
+          )}
+        </CommentComposeHost>
+      ) : null}
     </Modal>
   )
 }

@@ -1,4 +1,5 @@
 import { eq } from 'drizzle-orm'
+import { useRef } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { db } from '@/db'
@@ -7,10 +8,12 @@ import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { usePalette } from '@/theme/palette'
 
 import { ThinkingBody } from '../lists/thinking-body'
+import { CommentComposeHost } from './comment-compose-provider'
 import { CommentSection } from './comment-section'
 
 export function ThinkingCommentsSheet({ refId }: { refId: string }) {
   const palette = usePalette()
+  const scrollRef = useRef<ScrollView>(null)
   const { snapshot: item, updatesEnabled } = useDatabaseSnapshot({
     identity: `thinking-comments:${refId}`,
     read: async () => {
@@ -25,29 +28,47 @@ export function ThinkingCommentsSheet({ refId }: { refId: string }) {
   })
 
   return (
-    // RNScreens only sizes a formSheet's ScrollView when it is the direct
-    // child of the screen content (RNSScreenContentWrapper) — wrapping it in
-    // a View leaves it zero-height and blanks the sheet.
-    <ScrollView
-      automaticallyAdjustKeyboardInsets
-      contentContainerStyle={styles.content}
-      style={{ backgroundColor: palette.surface.desk }}
+    <CommentComposeHost
+      allowComment={item?.allowComment ?? true}
+      refId={refId}
+      refType="recently"
+      scrollRef={scrollRef}
     >
-      {item ? (
-        <View style={styles.quote}>
-          <ThinkingBody content={item.content} enrichments={item.enrichments} />
-          <View
-            style={[styles.hairline, { backgroundColor: palette.neutral[3] }]}
+      {(compose) => (
+        <ScrollView
+          automaticallyAdjustKeyboardInsets={!compose.composing}
+          contentContainerStyle={styles.content}
+          ref={scrollRef}
+          style={{ backgroundColor: palette.surface.desk }}
+          contentInset={
+            compose.composing
+              ? { bottom: compose.scrollBottomInset }
+              : undefined
+          }
+        >
+          {item ? (
+            <View style={styles.quote}>
+              <ThinkingBody
+                content={item.content}
+                enrichments={item.enrichments}
+              />
+              <View
+                style={[
+                  styles.hairline,
+                  { backgroundColor: palette.neutral[3] },
+                ]}
+              />
+            </View>
+          ) : null}
+          <CommentSection
+            allowComment={item?.allowComment ?? true}
+            queriesEnabled={updatesEnabled}
+            refId={refId}
+            refType="recently"
           />
-        </View>
-      ) : null}
-      <CommentSection
-        allowComment={item?.allowComment ?? true}
-        queriesEnabled={updatesEnabled}
-        refId={refId}
-        refType="recently"
-      />
-    </ScrollView>
+        </ScrollView>
+      )}
+    </CommentComposeHost>
   )
 }
 

@@ -1,30 +1,26 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { type as typeScale } from '@yohaku/design-system/tokens'
 import { useMemo, useState } from 'react'
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native'
 
 import { api } from '@/api/client'
-import { ApiError } from '@/api/errors'
 import type { ApiComment, CommentRefType } from '@/api/types'
 import { useSession } from '@/auth/session-store'
 import { AppText, SlotText } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import type { ThreadExpansion } from '@/lib/comment-thread'
-import {
-  buildThread,
-  commentDisplayName,
-  replyTargetAuthor,
-} from '@/lib/comment-thread'
+import { buildThread, replyTargetAuthor } from '@/lib/comment-thread'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { CommentCell } from './comment-cell'
-import { CommentInputWell } from './comment-input-well'
-import { commentsQueryKey, useCommentsQuery } from './use-comments'
+import { CommentComposeEntry } from './comment-compose-entry'
+import { useOptionalCommentCompose } from './comment-compose-provider'
+import { CommentLoginInline } from './comment-login-inline'
+import { useCommentsQuery } from './use-comments'
 
 export function CommentSection({
   refId,
-  refType,
+  refType: _refType,
   allowComment = true,
   queriesEnabled = true,
 }: {
@@ -37,39 +33,13 @@ export function CommentSection({
   const tc = useTranslations('common')
   const palette = usePalette()
   const session = useSession()
-  const queryClient = useQueryClient()
+  const compose = useOptionalCommentCompose()
   const query = useCommentsQuery(refId, queriesEnabled)
 
   const [expansions, setExpansions] = useState<Record<string, ThreadExpansion>>(
     {},
   )
   const [expandBusy, setExpandBusy] = useState<string | null>(null)
-  const [draft, setDraft] = useState('')
-  const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(
-    null,
-  )
-  const [sendError, setSendError] = useState<string | null>(null)
-
-  const send = useMutation({
-    mutationFn: (vars: { parentId: string | null; text: string }) =>
-      vars.parentId
-        ? api.readerReply(vars.parentId, vars.text)
-        : api.readerComment(refId, refType, vars.text),
-    onSuccess: async () => {
-      setDraft('')
-      setReplyTo(null)
-      setSendError(null)
-      await queryClient.invalidateQueries({ queryKey: commentsQueryKey(refId) })
-    },
-    onError: (error) => {
-      const fallback = t('sendFailed')
-      setSendError(
-        error instanceof ApiError
-          ? (error.serverMessage ?? fallback)
-          : fallback,
-      )
-    },
-  })
 
   const pages = query.data?.pages
   const total = pages?.[0]?.pagination.total ?? null
@@ -104,8 +74,8 @@ export function CommentSection({
     }
   }
 
-  const onReply = (comment: ApiComment) => {
-    setReplyTo({ id: comment.id, name: commentDisplayName(comment) })
+  const onReply = (comment: ApiComment, anchor?: View) => {
+    compose?.reply(comment, anchor)
   }
 
   const countStyle = {
@@ -125,22 +95,14 @@ export function CommentSection({
       </View>
 
       {allowComment ? (
-        <CommentInputWell
-          busy={send.isPending}
-          error={sendError}
-          providersEnabled={queriesEnabled}
-          replyToName={replyTo?.name ?? null}
-          signedIn={session !== null}
-          value={draft}
-          onCancelReply={() => setReplyTo(null)}
-          onChangeText={(text) => {
-            setDraft(text)
-            if (sendError) setSendError(null)
-          }}
-          onSend={() =>
-            send.mutate({ parentId: replyTo?.id ?? null, text: draft.trim() })
-          }
-        />
+        session !== null ? (
+          <CommentComposeEntry
+            placeholder={t('placeholder')}
+            onPress={compose?.composeRoot}
+          />
+        ) : (
+          <CommentLoginInline enabled={queriesEnabled} />
+        )
       ) : (
         <AppText color={palette.neutral[6]} variant="secondary">
           {t('closed')}
@@ -243,7 +205,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   replies: {
-    marginLeft: 42,
+    marginLeft: 16,
     gap: 12,
   },
   loadMore: {

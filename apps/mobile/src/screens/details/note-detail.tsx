@@ -16,6 +16,7 @@ import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
 import { formatRelativeTime } from '@/lib/datetime'
 import { siteHref } from '@/lib/site-url'
+import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import { refreshNoteBody } from '@/sync/engine'
 import { bodyIsStale, noteBodyFromApi, noteMetaFromApi } from '@/sync/merge'
 import { noteConflictSet } from '@/sync/upsert-sets'
@@ -164,111 +165,143 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
         url={webUrl}
         onListen={tts.start}
       />
-      <EdgeEffectScrollView
-        automaticallyAdjustKeyboardInsets
-        headerTitleProgress={headerTitleProgress}
-        ref={scrollRef}
-        style={[styles.screen, { backgroundColor: palette.surface.desk }]}
-        contentContainerStyle={[
-          styles.content,
-          tts.isNarrating ? styles.narratingPad : null,
-        ]}
-        onScroll={onScroll}
-        onScrollBeginDrag={tts.onScrollBeginDrag}
-      >
-        {note ? (
-          <>
-            <View style={styles.header} onLayout={onTitleLayout}>
-              <AppText variant="largeTitle">{note.title}</AppText>
-              <ArticleMetaLine
-                aiGen={note.articleMeta?.aiGen}
-                parts={metaParts}
-              />
-              <ArticleListen
-                available={tts.available}
-                hidden={tts.isNarrating}
-                onPress={tts.start}
-              />
-            </View>
-            <ArticleNotice id={note.id} kind="note" meta={note.articleMeta} />
-            {isLocked ? (
-              <View style={{ minHeight: reservedBodyHeight, gap: 8 }}>
-                <AppText style={styles.placeholder} variant="secondary">
-                  {t('passwordProtected')}
-                </AppText>
-                <AppText
-                  style={styles.lockedHint}
-                  variant="secondary"
-                  onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
-                >
-                  {t('passwordHint')}
-                </AppText>
-              </View>
-            ) : isMarkdown ? (
-              <View style={{ minHeight: reservedBodyHeight }}>
-                <AppText
-                  style={styles.placeholder}
-                  variant="secondary"
-                  onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
-                >
-                  {tc('openInBrowser')}
-                </AppText>
-              </View>
-            ) : body ? (
-              <ArticleBody
-                autoFollow={tts.autoFollow}
-                content={body}
-                enrichments={note?.enrichments ?? null}
-                highlightBlockId={tts.activeBlockId}
-                primeKey={note.id}
-                queriesEnabled={updatesEnabled}
-                refId={note.id}
-                refType="note"
-                scrollRef={scrollRef}
-                variant="note"
-                webUrl={webUrl}
-              />
-            ) : (
-              <View style={{ minHeight: reservedBodyHeight }}>
-                <AppText
-                  style={styles.placeholder}
-                  variant="secondary"
-                  onPress={failed ? () => setAttempt((n) => n + 1) : undefined}
-                >
-                  {failed ? t('bodyFailed') : t('bodyLoading')}
-                </AppText>
-              </View>
-            )}
-            <NoteTopicBlock topic={topic ?? null} />
-            <ArticleTail
-              kind="note"
-              likeCount={note.likeCount}
-              queriesEnabled={updatesEnabled}
-              refId={note.id}
-            />
-          </>
-        ) : (
+      {note ? (
+        <CommentComposeHost
+          refId={note.id}
+          refType="note"
+          scrollRef={scrollRef}
+        >
+          {(compose) => (
+            <>
+              <EdgeEffectScrollView
+                automaticallyAdjustKeyboardInsets={!compose.composing}
+                headerTitleProgress={headerTitleProgress}
+                ref={scrollRef}
+                contentContainerStyle={[
+                  styles.content,
+                  tts.isNarrating && !compose.composing
+                    ? styles.narratingPad
+                    : null,
+                ]}
+                contentInset={
+                  compose.composing
+                    ? { bottom: compose.scrollBottomInset }
+                    : undefined
+                }
+                style={[
+                  styles.screen,
+                  { backgroundColor: palette.surface.desk },
+                ]}
+                onScroll={onScroll}
+                onScrollBeginDrag={tts.onScrollBeginDrag}
+              >
+                <View style={styles.header} onLayout={onTitleLayout}>
+                  <AppText variant="largeTitle">{note.title}</AppText>
+                  <ArticleMetaLine
+                    aiGen={note.articleMeta?.aiGen}
+                    parts={metaParts}
+                  />
+                  <ArticleListen
+                    available={tts.available}
+                    hidden={tts.isNarrating}
+                    onPress={tts.start}
+                  />
+                </View>
+                <ArticleNotice
+                  id={note.id}
+                  kind="note"
+                  meta={note.articleMeta}
+                />
+                {isLocked ? (
+                  <View style={{ minHeight: reservedBodyHeight, gap: 8 }}>
+                    <AppText style={styles.placeholder} variant="secondary">
+                      {t('passwordProtected')}
+                    </AppText>
+                    <AppText
+                      style={styles.lockedHint}
+                      variant="secondary"
+                      onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
+                    >
+                      {t('passwordHint')}
+                    </AppText>
+                  </View>
+                ) : isMarkdown ? (
+                  <View style={{ minHeight: reservedBodyHeight }}>
+                    <AppText
+                      style={styles.placeholder}
+                      variant="secondary"
+                      onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
+                    >
+                      {tc('openInBrowser')}
+                    </AppText>
+                  </View>
+                ) : body ? (
+                  <ArticleBody
+                    autoFollow={tts.autoFollow}
+                    content={body}
+                    enrichments={note?.enrichments ?? null}
+                    highlightBlockId={tts.activeBlockId}
+                    primeKey={note.id}
+                    queriesEnabled={updatesEnabled}
+                    refId={note.id}
+                    refType="note"
+                    scrollRef={scrollRef}
+                    variant="note"
+                    webUrl={webUrl}
+                  />
+                ) : (
+                  <View style={{ minHeight: reservedBodyHeight }}>
+                    <AppText
+                      style={styles.placeholder}
+                      variant="secondary"
+                      onPress={
+                        failed ? () => setAttempt((n) => n + 1) : undefined
+                      }
+                    >
+                      {failed ? t('bodyFailed') : t('bodyLoading')}
+                    </AppText>
+                  </View>
+                )}
+                <NoteTopicBlock topic={topic ?? null} />
+                <ArticleTail
+                  kind="note"
+                  likeCount={note.likeCount}
+                  queriesEnabled={updatesEnabled}
+                  refId={note.id}
+                />
+              </EdgeEffectScrollView>
+              {tts.isNarrating && !compose.composing ? (
+                <TtsMiniBar
+                  autoFollow={tts.autoFollow}
+                  current={tts.current}
+                  duration={tts.duration}
+                  elapsed={tts.elapsed}
+                  playbackRate={tts.playbackRate}
+                  stale={tts.stale}
+                  status={tts.status}
+                  total={tts.total}
+                  onCycleRate={tts.cycleRate}
+                  onRecenter={tts.recenter}
+                  onStop={tts.stop}
+                  onToggle={tts.toggle}
+                />
+              ) : null}
+            </>
+          )}
+        </CommentComposeHost>
+      ) : (
+        <EdgeEffectScrollView
+          contentContainerStyle={styles.content}
+          headerTitleProgress={headerTitleProgress}
+          ref={scrollRef}
+          style={[styles.screen, { backgroundColor: palette.surface.desk }]}
+          onScroll={onScroll}
+        >
           <AppText style={styles.placeholder} variant="secondary">
             {failed ? t('noteFailed') : tc('loading')}
           </AppText>
-        )}
-      </EdgeEffectScrollView>
-      {tts.isNarrating ? (
-        <TtsMiniBar
-          autoFollow={tts.autoFollow}
-          current={tts.current}
-          duration={tts.duration}
-          elapsed={tts.elapsed}
-          playbackRate={tts.playbackRate}
-          stale={tts.stale}
-          status={tts.status}
-          total={tts.total}
-          onCycleRate={tts.cycleRate}
-          onRecenter={tts.recenter}
-          onStop={tts.stop}
-          onToggle={tts.toggle}
-        />
-      ) : null}
+        </EdgeEffectScrollView>
+      )}
     </View>
   )
 }

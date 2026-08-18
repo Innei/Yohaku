@@ -30,8 +30,13 @@ export function CommentLoginInline({ enabled = true }: { enabled?: boolean }) {
         <ActivityIndicator color={palette.neutral[6]} />
       ) : social.length > 0 ? (
         <>
-          <AppText color={palette.neutral[7]} variant="secondary">
-            {t('socialCta')}
+          <AppText
+            color={palette.neutral[7]}
+            numberOfLines={1}
+            style={styles.cta}
+            variant="secondary"
+          >
+            {t('signInPitch')}
           </AppText>
           <View style={styles.providerRow}>
             {social.map((provider) => (
@@ -39,7 +44,7 @@ export function CommentLoginInline({ enabled = true }: { enabled?: boolean }) {
                 busy={busy?.kind === 'social' && busy.provider === provider}
                 key={provider}
                 provider={provider}
-                size={40}
+                size={28}
                 dimmed={
                   busy !== null &&
                   !(busy.kind === 'social' && busy.provider === provider)
@@ -50,7 +55,11 @@ export function CommentLoginInline({ enabled = true }: { enabled?: boolean }) {
           </View>
         </>
       ) : (
-        <AppText color={palette.neutral[6]} variant="secondary">
+        <AppText
+          color={palette.neutral[6]}
+          numberOfLines={1}
+          variant="secondary"
+        >
           {t('socialUnavailable')}
         </AppText>
       )}
@@ -60,19 +69,23 @@ export function CommentLoginInline({ enabled = true }: { enabled?: boolean }) {
 
 const styles = StyleSheet.create({
   well: {
-    minHeight: 140,
+    height: 44,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 16,
+    justifyContent: 'space-between',
+    gap: 10,
     borderRadius: radius.field,
     borderCurve: 'continuous',
-    paddingHorizontal: 24,
-    paddingVertical: 24,
+    paddingHorizontal: 12,
+  },
+  cta: {
+    flex: 1,
+    flexShrink: 1,
   },
   providerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
+    gap: 8,
+    flexShrink: 0,
   },
 })
