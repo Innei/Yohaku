@@ -186,6 +186,9 @@ export const ko = {
     local: '로컬',
     componentGallery: '컴포넌트 목록',
     componentGalleryHint: '기본 컴포넌트와 상태 견본, 실기기 조정용',
+    websocket: 'WebSocket',
+    wsSession: '세션',
+    wsEmpty: '아직 이벤트가 없습니다',
   },
   time: {
     justNow: '방금',

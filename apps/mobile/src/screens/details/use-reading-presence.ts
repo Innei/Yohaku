@@ -89,23 +89,26 @@ export function useReadingPresence({
 
   useEffect(() => {
     if (!roomName || !appActive) return
-    emitJoin(roomName)
-    schedule(lastPercentRef.current)
-    const unsubscribe = subscribeGatewayConnect(() => {
-      if (!activeRef.current) return
-      emitJoin(roomName)
-      publish(lastPercentRef.current)
-      void refetch()
-    })
+    let cancelled = false
+    const sync = () => {
+      void emitJoin(roomName).then(() => {
+        if (cancelled || !activeRef.current) return
+        publish(lastPercentRef.current)
+        void refetch()
+      })
+    }
+    sync()
+    const unsubscribe = subscribeGatewayConnect(sync)
     return () => {
+      cancelled = true
       unsubscribe()
       if (timerRef.current) {
         clearTimeout(timerRef.current)
         timerRef.current = null
       }
-      emitLeave(roomName)
+      void emitLeave(roomName)
     }
-  }, [appActive, publish, refetch, roomName, schedule])
+  }, [appActive, publish, refetch, roomName])
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {

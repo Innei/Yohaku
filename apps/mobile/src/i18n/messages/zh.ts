@@ -185,6 +185,9 @@ export const zh = {
     local: '本地',
     componentGallery: '组件目录',
     componentGalleryHint: '基础组件与状态样张，真机调校用',
+    websocket: 'WebSocket',
+    wsSession: '会话',
+    wsEmpty: '还没有事件',
   },
   time: {
     justNow: '刚刚',

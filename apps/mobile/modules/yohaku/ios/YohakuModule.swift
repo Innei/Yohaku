@@ -6,7 +6,14 @@ public class YohakuModule: Module {
   public func definition() -> ModuleDefinition {
     Name("Yohaku")
 
-    Events("onTtsTime", "onTtsEnded", "onTtsError", "onTtsRemote", "onTtsInterrupted")
+    Events(
+      "onTtsTime",
+      "onTtsEnded",
+      "onTtsError",
+      "onTtsRemote",
+      "onTtsInterrupted",
+      "onMeTabLongPress"
+    )
 
     Constants([
       "liquidGlassAvailable": TabBarDomain.liquidGlassAvailable
@@ -15,6 +22,9 @@ public class YohakuModule: Module {
     OnCreate {
       self.tts.emit = { [weak self] name, body in
         self?.sendEvent(name, body)
+      }
+      TabBarDomain.onMeTabLongPress = { [weak self] in
+        self?.sendEvent("onMeTabLongPress", [:])
       }
     }
 
@@ -189,7 +199,7 @@ public class YohakuModule: Module {
     View(NativePressView.self) {
       ViewName("NativePress")
 
-      Events("onNativePress")
+      Events("onNativePress", "onNativeLongPress")
 
       Prop("disabled") { (view: NativePressView, disabled: Bool) in
         view.setDisabled(disabled)
@@ -197,6 +207,10 @@ public class YohakuModule: Module {
 
       Prop("haptic") { (view: NativePressView, enabled: Bool) in
         view.setHapticEnabled(enabled)
+      }
+
+      Prop("longPressEnabled") { (view: NativePressView, enabled: Bool) in
+        view.setLongPressEnabled(enabled)
       }
 
       Prop("pressScale") { (view: NativePressView, scale: Double) in

@@ -4,10 +4,13 @@ import UIKit
 
 final class NativePressView: ExpoView {
   let onNativePress = EventDispatcher()
+  let onNativeLongPress = EventDispatcher()
 
   private var confirmedFeedbackWorkItem: DispatchWorkItem?
   private let feedbackGenerator = UIImpactFeedbackGenerator(style: .light)
   private var hapticEnabled = true
+  private var longPressEnabled = false
+  private var swallowedTap = false
   private var pressScale: CGFloat = 0.985
   private var pressTranslateY: CGFloat = 0
   private var pressed = false
@@ -18,17 +21,33 @@ final class NativePressView: ExpoView {
     action: #selector(handlePress(_:))
   )
 
+  private lazy var longPressGesture: UILongPressGestureRecognizer = {
+    let gesture = UILongPressGestureRecognizer(
+      target: self,
+      action: #selector(handleLongPress(_:))
+    )
+    gesture.minimumPressDuration = 0.45
+    gesture.allowableMovement = 10
+    gesture.cancelsTouchesInView = false
+    gesture.isEnabled = false
+    return gesture
+  }()
+
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
 
     pressGesture.onPressedChange = { [weak self] pressed in
       self?.setPressed(pressed)
     }
+    pressGesture.onTouchBegan = { [weak self] in
+      self?.swallowedTap = false
+    }
     pressGesture.shouldReceiveTouch = { [weak self] in
       guard let scroll = self?.requiredScrollView else { return true }
       return !(scroll.isDragging || scroll.isDecelerating)
     }
     addGestureRecognizer(pressGesture)
+    addGestureRecognizer(longPressGesture)
   }
 
   override func didMoveToWindow() {
@@ -48,6 +67,7 @@ final class NativePressView: ExpoView {
 
   func setDisabled(_ disabled: Bool) {
     pressGesture.isEnabled = !disabled
+    longPressGesture.isEnabled = !disabled && longPressEnabled
     if disabled {
       cancelConfirmedFeedback()
       setPressed(false, animated: false)
@@ -56,6 +76,11 @@ final class NativePressView: ExpoView {
 
   func setHapticEnabled(_ enabled: Bool) {
     hapticEnabled = enabled
+  }
+
+  func setLongPressEnabled(_ enabled: Bool) {
+    longPressEnabled = enabled
+    longPressGesture.isEnabled = enabled
   }
 
   func setPressScale(_ scale: Double) {
@@ -75,6 +100,10 @@ final class NativePressView: ExpoView {
   @objc
   private func handlePress(_ recognizer: NativePressGestureRecognizer) {
     guard recognizer.state == .recognized, pressGesture.isEnabled else { return }
+    if swallowedTap {
+      swallowedTap = false
+      return
+    }
 
     if !pressed {
       showConfirmedFeedback()
@@ -83,6 +112,13 @@ final class NativePressView: ExpoView {
       feedbackGenerator.impactOccurred()
     }
     onNativePress()
+  }
+
+  @objc
+  private func handleLongPress(_ recognizer: UILongPressGestureRecognizer) {
+    guard recognizer.state == .began, pressGesture.isEnabled, longPressEnabled else { return }
+    swallowedTap = true
+    onNativeLongPress()
   }
 
   private func setPressed(_ next: Bool, animated: Bool = true) {

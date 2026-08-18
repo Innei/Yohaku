@@ -189,6 +189,9 @@ export const ja = {
     local: 'ローカル',
     componentGallery: 'コンポーネント一覧',
     componentGalleryHint: '基本コンポーネントと状態見本、実機調整用',
+    websocket: 'WebSocket',
+    wsSession: 'セッション',
+    wsEmpty: 'イベントはまだありません',
   },
   time: {
     justNow: 'たった今',

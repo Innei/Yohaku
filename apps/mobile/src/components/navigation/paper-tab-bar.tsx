@@ -90,8 +90,12 @@ export function PaperTabBar({
   descriptors,
   insets,
   navigation,
+  onMeLongPress,
   state,
-}: BottomTabBarProps & { avatar?: TabAvatarIconSource }) {
+}: BottomTabBarProps & {
+  avatar?: TabAvatarIconSource
+  onMeLongPress?: () => void
+}) {
   const palette = usePalette()
   const { width: viewportWidth } = useWindowDimensions()
   const activeSurface = palette.theme === 'dark' ? palette.neutral[3] : '#fff'
@@ -175,6 +179,11 @@ export function PaperTabBar({
               key={route.key}
               style={[styles.tab, { width: slotWidth }]}
               testID={`paper-tab-${route.name.replaceAll(/[()]/g, '')}`}
+              onLongPress={
+                route.name === '(me)' && onMeLongPress
+                  ? onMeLongPress
+                  : undefined
+              }
               onPress={onPress}
             >
               <TabIcon

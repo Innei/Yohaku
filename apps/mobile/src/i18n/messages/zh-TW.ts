@@ -185,6 +185,9 @@ export const zhTW = {
     local: '本機',
     componentGallery: '元件目錄',
     componentGalleryHint: '基礎元件與狀態樣張，實機調校用',
+    websocket: 'WebSocket',
+    wsSession: '會話',
+    wsEmpty: '還沒有事件',
   },
   time: {
     justNow: '剛剛',

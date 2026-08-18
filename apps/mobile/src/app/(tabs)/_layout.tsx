@@ -17,6 +17,7 @@ import { PaperTabBar } from '@/components/navigation/paper-tab-bar'
 import { PaperTabBarInsetProvider } from '@/components/navigation/paper-tab-bar-inset'
 import { useTranslations } from '@/i18n'
 import { type TabAvatarIconSource, tabAvatarIconSource } from '@/lib/tab-avatar'
+import { openDevTools } from '@/screens/dev/open-dev-tools'
 
 const tabIcons = {
   notes: {
@@ -45,17 +46,41 @@ function tabAvatar(
   return image ? tabAvatarIconSource(image, PixelRatio.get()) : undefined
 }
 
+function useMeSecretTap() {
+  const router = useRouter()
+  const secretTapRef = useRef<SecretTapState>(INITIAL_SECRET_TAP)
+
+  return () => {
+    const next = nextSecretTap(secretTapRef.current, Date.now())
+    secretTapRef.current = next
+    if (next.unlocked) {
+      openDevTools(router)
+      return
+    }
+    if (next.count >= 3) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    }
+  }
+}
+
 function NativeTabsLayout() {
   const colorScheme = useColorScheme()
   const t = useTranslations('tabs')
   const router = useRouter()
   const session = useSession()
   const avatar = tabAvatar(session?.image)
-  const secretTapRef = useRef<SecretTapState>(INITIAL_SECRET_TAP)
+  const onMeSecretTap = useMeSecretTap()
 
   useEffect(() => {
     YohakuNative.configureCompactNativeTabBar()
   }, [avatar, colorScheme])
+
+  useEffect(() => {
+    const sub = YohakuNative.addListener('onMeTabLongPress', () => {
+      openDevTools(router)
+    })
+    return () => sub.remove()
+  }, [router])
 
   return (
     <NativeTabs
@@ -88,23 +113,10 @@ function NativeTabsLayout() {
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
         accessibilityLabel={t('me')}
-        name="(me)"
         listeners={{
-          tabPress: () => {
-            const next = nextSecretTap(secretTapRef.current, Date.now())
-            secretTapRef.current = next
-            if (next.unlocked) {
-              void Haptics.notificationAsync(
-                Haptics.NotificationFeedbackType.Success,
-              )
-              router.push('/dev')
-              return
-            }
-            if (next.count >= 3) {
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-            }
-          },
+          tabPress: onMeSecretTap,
         }}
+        name="(me)"
       >
         {avatar ? (
           <NativeTabs.Trigger.Icon renderingMode="original" src={avatar} />
@@ -127,14 +139,20 @@ function PaperTabsLayout() {
   const router = useRouter()
   const session = useSession()
   const avatar = tabAvatar(session?.image)
-  const secretTapRef = useRef<SecretTapState>(INITIAL_SECRET_TAP)
+  const onMeSecretTap = useMeSecretTap()
 
   return (
     <PaperTabBarInsetProvider>
       <Tabs
         backBehavior="history"
         initialRouteName="(posts)"
-        tabBar={(props) => <PaperTabBar {...props} avatar={avatar} />}
+        tabBar={(props) => (
+          <PaperTabBar
+            {...props}
+            avatar={avatar}
+            onMeLongPress={() => openDevTools(router)}
+          />
+        )}
         screenOptions={{
           animation: 'none',
           headerShown: false,
@@ -165,20 +183,7 @@ function PaperTabsLayout() {
         <Tabs.Screen
           name="(me)"
           listeners={{
-            tabPress: () => {
-              const next = nextSecretTap(secretTapRef.current, Date.now())
-              secretTapRef.current = next
-              if (next.unlocked) {
-                void Haptics.notificationAsync(
-                  Haptics.NotificationFeedbackType.Success,
-                )
-                router.push('/dev')
-                return
-              }
-              if (next.count >= 3) {
-                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-              }
-            },
+            tabPress: onMeSecretTap,
           }}
           options={{
             tabBarAccessibilityLabel: t('me'),

@@ -2,6 +2,7 @@ import UIKit
 
 final class NativePressGestureRecognizer: UIGestureRecognizer {
   var onPressedChange: ((Bool) -> Void)?
+  var onTouchBegan: (() -> Void)?
   var shouldReceiveTouch: (() -> Bool)?
 
   private static let activationDelay: TimeInterval = 0.12
@@ -41,6 +42,7 @@ final class NativePressGestureRecognizer: UIGestureRecognizer {
 
     trackedTouch = touch
     initialLocation = touch.location(in: nil)
+    onTouchBegan?()
     scheduleActivation()
   }
 

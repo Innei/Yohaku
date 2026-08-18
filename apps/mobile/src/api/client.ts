@@ -10,6 +10,7 @@ import { apiBaseUrl } from './base-url'
 import { camelize } from './camelize'
 import { camelizeEnrichments } from './enrichments'
 import { ApiError, extractServerMessage } from './errors'
+import { readPresenceMap } from './presence-map'
 import { parseThinkingList } from './thinking'
 import type {
   ApiAggregate,
@@ -284,15 +285,13 @@ export const api = {
     }),
   // Raw fetch: the presence map is keyed by visitor identity, and request()'s
   // blanket camelize would mangle those keys (the server bypasses its own
-  // case transform for the same reason).
-  getRoomPresence: async (roomName: string) => {
-    const raw = (await fetchRawJson('/activity/presence', {
-      room_name: roomName,
-    })) as {
-      presence?: Record<string, { identity?: string; position?: number }>
-    } | null
-    return raw?.presence ?? {}
-  },
+  // case transform for the same reason). The envelope still has to be unwrapped.
+  getRoomPresence: async (roomName: string) =>
+    readPresenceMap(
+      await fetchRawJson('/activity/presence', {
+        room_name: roomName,
+      }),
+    ),
   getLiveDeskPublicState: () =>
     request<{ state: unknown } | null>('/companion/presence/public'),
   pushActivate: (body: { activationTicket: string; relayUrl: string }) =>

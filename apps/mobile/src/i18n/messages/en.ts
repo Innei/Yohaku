@@ -189,6 +189,9 @@ export const en = {
     componentGallery: 'Component gallery',
     componentGalleryHint:
       'Base components and state specimens, for on-device tuning',
+    websocket: 'WebSocket',
+    wsSession: 'Session',
+    wsEmpty: 'No events yet',
   },
   time: {
     justNow: 'Just now',

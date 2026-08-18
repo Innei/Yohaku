@@ -16,10 +16,14 @@ type TtsEvents = {
   onTtsTime: (event: { duration: number; elapsed: number }) => void
 }
 
+type NativeEvents = TtsEvents & {
+  onMeTabLongPress: () => void
+}
+
 interface YohakuNativeModule {
-  addListener<K extends keyof TtsEvents>(
+  addListener<K extends keyof NativeEvents>(
     eventName: K,
-    listener: TtsEvents[K],
+    listener: NativeEvents[K],
   ): EventSubscription
   circularImageUri(url: string): Promise<{
     height: number
@@ -124,6 +128,10 @@ export const GroupedListView: ComponentType<GroupedListViewProps> =
 type NativePressViewProps = ViewProps & {
   disabled: boolean
   haptic: boolean
+  longPressEnabled: boolean
+  onNativeLongPress?: (
+    event: NativeSyntheticEvent<Record<string, never>>,
+  ) => void
   onNativePress?: (event: NativeSyntheticEvent<Record<string, never>>) => void
   pressScale: number
   pressTranslateY: number

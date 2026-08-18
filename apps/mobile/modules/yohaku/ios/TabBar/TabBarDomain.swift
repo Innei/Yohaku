@@ -12,6 +12,8 @@ enum TabBarDomain {
   private static var applyingCircularAvatar = false
   private static let circularizedImages = NSHashTable<UIImage>.weakObjects()
   private static weak var configuredTabController: UITabBarController?
+  private static weak var meLongPressHost: UIView?
+  static var onMeTabLongPress: (() -> Void)?
 
   enum CircularImageError: Error, LocalizedError {
     case invalidUrl
@@ -119,6 +121,7 @@ enum TabBarDomain {
 
     applyCompactRenderingScale(to: tabController)
     observeAvatarItem(on: tabController)
+    installMeTabLongPress(on: tabController)
 
     if configuredTabController !== tabController {
       selectionObservation = tabController.observe(
@@ -128,6 +131,7 @@ enum TabBarDomain {
         DispatchQueue.main.async {
           applyCompactRenderingScale(to: controller)
           observeAvatarItem(on: controller)
+          installMeTabLongPress(on: controller)
         }
       }
       configuredTabController = tabController
@@ -138,6 +142,7 @@ enum TabBarDomain {
     DispatchQueue.main.async {
       applyCompactRenderingScale(to: tabController)
       observeAvatarItem(on: tabController)
+      installMeTabLongPress(on: tabController)
     }
   }
 
@@ -207,6 +212,72 @@ enum TabBarDomain {
     }
   }
 
+  private static func installMeTabLongPress(on tabController: UITabBarController) {
+    let tabBar = tabController.tabBar
+    if meLongPressHost === tabBar { return }
+    removeMeTabLongPress()
+    let gesture = UILongPressGestureRecognizer(
+      target: TabBarLongPressProxy.shared,
+      action: #selector(TabBarLongPressProxy.handle(_:))
+    )
+    gesture.minimumPressDuration = 0.45
+    gesture.allowableMovement = 12
+    gesture.cancelsTouchesInView = false
+    gesture.name = TabBarLongPressProxy.recognizerName
+    gesture.delegate = TabBarLongPressProxy.shared
+    tabBar.addGestureRecognizer(gesture)
+    meLongPressHost = tabBar
+  }
+
+  private static func removeMeTabLongPress() {
+    guard let host = meLongPressHost else { return }
+    host.gestureRecognizers?
+      .filter { $0.name == TabBarLongPressProxy.recognizerName }
+      .forEach { host.removeGestureRecognizer($0) }
+    meLongPressHost = nil
+  }
+
+  static func handleMeTabLongPress(_ gesture: UILongPressGestureRecognizer) {
+    guard gesture.state == .began, let tabBar = gesture.view as? UITabBar else { return }
+    let finger = gesture.location(in: tabBar)
+    let unscaled = unscaledLocation(finger, in: tabBar.bounds, scale: compactScale)
+    let container = tabItemContainer(in: tabBar)
+    let local = container.convert(unscaled, from: tabBar)
+    guard isMeTabItem(
+      at: local,
+      bounds: container.bounds,
+      itemCount: tabBar.items?.count ?? 0
+    ) else { return }
+    onMeTabLongPress?()
+  }
+
+  // Liquid Glass draws items in a centered platter, and compactScale is a
+  // sublayerTransform that does not participate in UIView hit-testing. Map the
+  // finger back through that scale, then slice the platter — not the full bar.
+  static func unscaledLocation(_ point: CGPoint, in bounds: CGRect, scale: CGFloat) -> CGPoint {
+    guard scale > 0, scale != 1 else { return point }
+    let inv = 1 / scale
+    return CGPoint(
+      x: bounds.midX + (point.x - bounds.midX) * inv,
+      y: bounds.midY + (point.y - bounds.midY) * inv
+    )
+  }
+
+  static func isMeTabItem(at location: CGPoint, bounds: CGRect, itemCount: Int) -> Bool {
+    guard itemCount == expectedItemCount, bounds.width > 0, bounds.contains(location) else {
+      return false
+    }
+    let raw = Int((location.x - bounds.minX) / bounds.width * CGFloat(itemCount))
+    let index = min(itemCount - 1, max(0, raw))
+    return index == expectedItemCount - 1
+  }
+
+  private static func tabItemContainer(in tabBar: UITabBar) -> UIView {
+    tabBar.subviews.first { view in
+      NSStringFromClass(type(of: view)).localizedCaseInsensitiveContains("platter")
+    } ?? tabBar
+  }
+
   private static func applyCompactRenderingScale(to tabController: UITabBarController) {
     let tabBar = tabController.tabBar
 
@@ -256,5 +327,21 @@ enum TabBarDomain {
       return search(from: presented)
     }
     return nil
+  }
+}
+
+private final class TabBarLongPressProxy: NSObject, UIGestureRecognizerDelegate {
+  static let shared = TabBarLongPressProxy()
+  static let recognizerName = "yohaku.me-tab-long-press"
+
+  @objc func handle(_ gesture: UILongPressGestureRecognizer) {
+    TabBarDomain.handleMeTabLongPress(gesture)
+  }
+
+  func gestureRecognizer(
+    _ gestureRecognizer: UIGestureRecognizer,
+    shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+  ) -> Bool {
+    true
   }
 }

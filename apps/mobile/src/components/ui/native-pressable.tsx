@@ -11,6 +11,7 @@ import { NativePressView } from '../../../modules/yohaku'
 export interface NativePressableProps extends ViewProps {
   disabled?: boolean
   haptic?: boolean
+  onLongPress?: (event?: GestureResponderEvent) => void
   onPress?: (event?: GestureResponderEvent) => void
 }
 
@@ -21,6 +22,7 @@ export function NativePressable({
   disabled = false,
   haptic = true,
   onAccessibilityTap,
+  onLongPress,
   onPress,
   ...rest
 }: NativePressableProps) {
@@ -29,6 +31,12 @@ export function NativePressable({
       if (!disabled) onPress?.(event as unknown as GestureResponderEvent)
     },
     [disabled, onPress],
+  )
+  const handleLongPress = useCallback(
+    (event: NativeSyntheticEvent<Record<string, never>>) => {
+      if (!disabled) onLongPress?.(event as unknown as GestureResponderEvent)
+    },
+    [disabled, onLongPress],
   )
   const handleAccessibilityTap = useCallback(() => {
     if (disabled) return
@@ -47,9 +55,11 @@ export function NativePressable({
       accessible={accessible}
       disabled={disabled}
       haptic={haptic}
+      longPressEnabled={onLongPress !== undefined}
       pressScale={motion.pressScale}
       pressTranslateY={motion.pressTranslateY}
       onAccessibilityTap={handleAccessibilityTap}
+      onNativeLongPress={onLongPress ? handleLongPress : undefined}
       onNativePress={handlePress}
     />
   )
