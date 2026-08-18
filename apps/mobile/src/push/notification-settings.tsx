@@ -40,17 +40,19 @@ function ToggleRow({
       <AppText style={styles.rowLabel} variant="body">
         {label}
       </AppText>
-      <Switch
-        disabled={disabled}
-        ios_backgroundColor={palette.neutral[4]}
-        thumbColor={palette.surface.paper}
-        value={value}
-        trackColor={{
-          false: palette.neutral[4],
-          true: palette.accent,
-        }}
-        onValueChange={onValueChange}
-      />
+      <View style={styles.control}>
+        <Switch
+          disabled={disabled}
+          ios_backgroundColor={palette.neutral[4]}
+          thumbColor={palette.surface.paper}
+          value={value}
+          trackColor={{
+            false: palette.neutral[4],
+            true: palette.accent,
+          }}
+          onValueChange={onValueChange}
+        />
+      </View>
     </View>
   )
 }
@@ -76,7 +78,7 @@ export function NotificationSettings() {
             void (next ? enablePush() : disablePush())
           }}
         />
-        {PREFERENCE_ROWS.map((row, index) => (
+        {PREFERENCE_ROWS.map((row) => (
           <View key={row.id}>
             <View
               style={[styles.hairline, { backgroundColor: palette.neutral[4] }]}
@@ -127,6 +129,12 @@ const styles = StyleSheet.create({
   },
   rowLabel: {
     flex: 1,
+    lineHeight: 22,
+  },
+  control: {
+    minHeight: 46,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
   },
   hairline: {
     height: StyleSheet.hairlineWidth,
