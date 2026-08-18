@@ -1,4 +1,5 @@
 import { Link } from 'expo-router'
+import * as Updates from 'expo-updates'
 import { useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
@@ -83,6 +84,7 @@ export function DevToolsScreen() {
           </View>
         ))}
       </Paper>
+      <OtaCard />
       <GatewayTraceCard />
       <Link asChild href="/dev-demos">
         <SinkPressable>
@@ -93,6 +95,82 @@ export function DevToolsScreen() {
         </SinkPressable>
       </Link>
     </ScrollView>
+  )
+}
+
+function OtaCard() {
+  const t = useTranslations('dev')
+  const palette = usePalette()
+  const [status, setStatus] = useState<
+    'idle' | 'checking' | 'ready' | 'unavailable' | 'failed'
+  >('idle')
+  const [busy, setBusy] = useState(false)
+
+  const source = Updates.isEmbeddedLaunch
+    ? t('otaSourceEmbedded')
+    : t('otaSourceUpdate')
+  const statusLabel = {
+    idle: t('otaIdle'),
+    checking: t('otaChecking'),
+    ready: t('otaReady'),
+    unavailable: t('otaUnavailable'),
+    failed: t('otaFailed'),
+  }[status]
+
+  const check = async () => {
+    if (busy) return
+    setBusy(true)
+    setStatus('checking')
+    try {
+      const result = await Updates.checkForUpdateAsync()
+      setStatus(result.isAvailable ? 'ready' : 'unavailable')
+    } catch {
+      setStatus('failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const apply = async () => {
+    if (busy) return
+    setBusy(true)
+    try {
+      const fetched = await Updates.fetchUpdateAsync()
+      if (fetched.isNew) {
+        await Updates.reloadAsync()
+        return
+      }
+      setStatus('unavailable')
+    } catch {
+      setStatus('failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <Paper style={styles.card}>
+      <View style={styles.cardRow}>
+        <AppText variant="secondary">{t('ota')}</AppText>
+        <AppText color={palette.neutral[6]} variant="meta">
+          {source}
+        </AppText>
+      </View>
+      <View style={[styles.hairline, { backgroundColor: palette.neutral[4] }]} />
+      <View style={styles.cardRow}>
+        <AppText color={palette.neutral[6]} variant="meta">
+          {statusLabel}
+        </AppText>
+      </View>
+      <View style={[styles.hairline, { backgroundColor: palette.neutral[4] }]} />
+      <SinkPressable disabled={busy} style={styles.cardRow} onPress={() => void check()}>
+        <AppText variant="body">{t('otaCheck')}</AppText>
+      </SinkPressable>
+      <View style={[styles.hairline, { backgroundColor: palette.neutral[4] }]} />
+      <SinkPressable disabled={busy} style={styles.cardRow} onPress={() => void apply()}>
+        <AppText variant="body">{t('otaApply')}</AppText>
+      </SinkPressable>
+    </Paper>
   )
 }
 
