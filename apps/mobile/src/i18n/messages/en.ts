@@ -168,6 +168,20 @@ export const en = {
     componentGalleryHint:
       'Base components and state specimens, for on-device tuning',
   },
+  membership: {
+    divider: 'Members only beyond this point',
+    lockedTitle: 'Members-only content',
+    lockedSubtitle:
+      'Read the rest on the web. Open Safari to subscribe or finish the article.',
+    ctaReadInSafari: 'Read in Safari',
+    badgeMember: 'Member',
+    becomeMember: 'Become a member',
+    becomeMemberHint: 'Open Safari to subscribe and support the writing',
+    planMonthly: 'Monthly',
+    planYearly: 'Yearly',
+    expireAt: 'Renews {date}',
+    daysLeft: '{count} days left',
+  },
   desk: {
     lineUsing: '{name} · now in {app}',
     lineListening: '{name} ♪ {title}',

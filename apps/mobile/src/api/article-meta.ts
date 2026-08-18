@@ -32,9 +32,14 @@ export interface ArticleTtsMeta {
   stale: boolean
 }
 
+export interface ArticlePaywallMeta {
+  locked: boolean
+}
+
 export interface ArticleNoticeMeta {
   aiGen: ArticleAiGenValue[]
   hasInsights: boolean
+  paywall: ArticlePaywallMeta | null
   related: ArticleRelatedRef[]
   skills: ArticleSkillRef[]
   summary: ArticleSummaryMeta | null
@@ -138,6 +143,11 @@ function pickTts(raw: unknown): ArticleTtsMeta | null {
   return { available: true, stale: raw.stale === true }
 }
 
+function pickPaywall(raw: unknown): ArticlePaywallMeta | null {
+  if (!isRecord(raw) || typeof raw.locked !== 'boolean') return null
+  return { locked: raw.locked }
+}
+
 function pickSummary(
   raw: unknown,
   authorSummary: string | null | undefined,
@@ -173,6 +183,7 @@ export function extractArticleMeta(
     summary: pickSummary(raw.summary, authorSummary),
     translation: pickTranslation(raw.translation),
     tts: pickTts(raw.tts),
+    paywall: pickPaywall(raw.paywall),
   }
 }
 
@@ -197,6 +208,7 @@ export function noticeMetaNeedsBackfill(meta: unknown): boolean {
     typeof meta.hasInsights !== 'boolean' ||
     !Array.isArray(meta.aiGen) ||
     !('tts' in meta) ||
+    !('paywall' in meta) ||
     (translation !== null &&
       (!Array.isArray(translation.availableTranslations) ||
         !['partial', 'ready', 'unknown'].includes(String(translation.state))))

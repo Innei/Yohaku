@@ -10,6 +10,7 @@ import { apiBaseUrl } from './base-url'
 import { camelize } from './camelize'
 import { camelizeEnrichments } from './enrichments'
 import { ApiError, extractServerMessage } from './errors'
+import type { MembershipStatusResult } from './membership'
 import { readPresenceMap } from './presence-map'
 import { parseThinkingList } from './thinking'
 import type {
@@ -299,4 +300,7 @@ export const api = {
       method: 'POST',
       body,
     }),
+  membershipPlans: () =>
+    request<{ enabled: boolean; plans: unknown[] }>('/membership/plans'),
+  membershipStatus: () => request<MembershipStatusResult>('/membership/status'),
 }

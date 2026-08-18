@@ -169,6 +169,20 @@ export const ja = {
     componentGallery: 'コンポーネント一覧',
     componentGalleryHint: '基本コンポーネントと状態見本、実機調整用',
   },
+  membership: {
+    divider: 'ここから会員限定',
+    lockedTitle: '会員限定コンテンツ',
+    lockedSubtitle:
+      '続きはウェブで読めます。Safari を開いて購読するか、全文を読みましょう。',
+    ctaReadInSafari: 'Safari で読む',
+    badgeMember: '会員',
+    becomeMember: '会員になる',
+    becomeMemberHint: 'Safari で購読して制作を応援しましょう',
+    planMonthly: '月額プラン',
+    planYearly: '年額プラン',
+    expireAt: '{date} まで',
+    daysLeft: '残り {count} 日',
+  },
   desk: {
     lineUsing: '{name} いま · {app} を使用中',
     lineListening: '{name} ♪ {title}',

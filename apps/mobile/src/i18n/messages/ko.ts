@@ -166,6 +166,20 @@ export const ko = {
     componentGallery: '컴포넌트 목록',
     componentGalleryHint: '기본 컴포넌트와 상태 견본, 실기기 조정용',
   },
+  membership: {
+    divider: '여기부터 멤버 전용',
+    lockedTitle: '멤버 전용 콘텐츠',
+    lockedSubtitle:
+      '나머지는 웹에서 읽을 수 있어요. Safari를 열어 구독하거나 이어서 읽으세요.',
+    ctaReadInSafari: 'Safari에서 읽기',
+    badgeMember: '멤버',
+    becomeMember: '멤버 되기',
+    becomeMemberHint: 'Safari에서 구독하고 창작을 응원해 주세요',
+    planMonthly: '월간 플랜',
+    planYearly: '연간 플랜',
+    expireAt: '{date} 갱신',
+    daysLeft: '{count}일 남음',
+  },
   desk: {
     lineUsing: '{name} 지금 · {app} 사용 중',
     lineListening: '{name} ♪ {title}',

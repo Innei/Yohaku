@@ -38,6 +38,7 @@ import { showDeleteAccount, showMyComments } from './activity-visibility'
 import { commentTotalFromPage } from './comment-total'
 import { DeskLine } from './desk-line'
 import { MeAmbienceGrain, MeAmbienceWash } from './me-ambience'
+import { MembershipBanner } from './membership-banner'
 import { hasProviderIcon, ProviderIcon } from './provider-icon'
 import { useMyCommentsQuery } from './use-my-comments'
 
@@ -320,6 +321,7 @@ export function MeScreen() {
         style={styles.scroll}
       >
         <ProfileHero />
+        <MembershipBanner />
         <ActivityStats
           commentsCount={commentsCount ?? 0}
           likedCount={likedCount}

@@ -7,6 +7,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { translatedBodyNeedsRefresh } from '@/api/article-meta'
 import { api } from '@/api/client'
+import { useSession } from '@/auth/session-store'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { AppText, NativePressable } from '@/components/ui'
 import { db } from '@/db'
@@ -16,6 +17,7 @@ import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
 import { formatRelativeTime } from '@/lib/datetime'
 import { siteHref } from '@/lib/site-url'
+import { useIsActiveMember } from '@/screens/me/use-membership'
 import { refreshPostBody } from '@/sync/engine'
 import { bodyIsStale, postBodyFromApi, postMetaFromApi } from '@/sync/merge'
 import { postConflictSet } from '@/sync/upsert-sets'
@@ -30,6 +32,8 @@ import { ArticleMore } from './article-more'
 import { ArticleNotice } from './article-notice'
 import { ArticleTail } from './article-tail'
 import { useReservedBodyHeight } from './body-slot'
+import { PaywallGate } from './paywall-gate'
+import { shouldUnlockPaywalledContent } from './should-unlock-paywall'
 import { useCollapsingTitle } from './use-collapsing-title'
 import { useReadingPresence } from './use-reading-presence'
 import { useRetryableBodyRefresh } from './use-retryable-body-refresh'
@@ -51,8 +55,11 @@ export function PostDetailScreen({
   const tl = useTranslations('list')
   const tt = useTranslations('tabs')
   const palette = usePalette()
+  const session = useSession()
+  const isMember = useIsActiveMember()
   const reservedBodyHeight = useReservedBodyHeight()
   const scrollRef = useRef<ScrollView>(null)
+  const unlockInflightRef = useRef(false)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
 
@@ -81,6 +88,14 @@ export function PostDetailScreen({
   const bodyVersion = post?.bodyVersion
   const isMarkdown = post?.contentFormat === 'markdown'
   const webUrl = siteHref(`/posts/${categorySlug}/${slug}`)
+  const locked = post?.articleMeta?.paywall?.locked === true
+  const isOwner = session?.role === 'owner'
+  const showPaywallGate = locked && !isMember && !isOwner
+  const shouldUnlock = shouldUnlockPaywalledContent({
+    isMember,
+    isOwner,
+    locked,
+  })
 
   useEffect(() => {
     if (isPreview || !postId || !updatesEnabled) return
@@ -144,6 +159,25 @@ export function PostDetailScreen({
       void WebBrowser.openBrowserAsync(webUrl)
     }
   }, [isMarkdown, isPreview, updatesEnabled, webUrl])
+
+  const postRef = useRef(post)
+  postRef.current = post
+
+  useEffect(() => {
+    const current = postRef.current
+    if (
+      !shouldUnlock ||
+      !current ||
+      !updatesEnabled ||
+      unlockInflightRef.current
+    ) {
+      return
+    }
+    unlockInflightRef.current = true
+    void refreshPostBody(current).finally(() => {
+      unlockInflightRef.current = false
+    })
+  }, [postId, shouldUnlock, updatesEnabled])
 
   const body =
     post?.contentFormat === 'lexical' && post.content ? post.content : null
@@ -225,8 +259,8 @@ export function PostDetailScreen({
                 <View style={styles.tags}>
                   {post.tags.map((tag) => (
                     <NativePressable
-                      key={tag}
                       accessibilityRole="link"
+                      key={tag}
                       style={[
                         styles.tag,
                         {
@@ -279,7 +313,7 @@ export function PostDetailScreen({
                 variant="article"
                 webUrl={webUrl}
               />
-            ) : (
+            ) : showPaywallGate ? null : (
               <View style={{ minHeight: reservedBodyHeight }}>
                 <AppText
                   style={styles.placeholder}
@@ -290,6 +324,7 @@ export function PostDetailScreen({
                 </AppText>
               </View>
             )}
+            <PaywallGate visible={showPaywallGate} webUrl={webUrl} />
             <ArticleTail
               kind="post"
               likeCount={post.likeCount}

@@ -82,6 +82,7 @@ describe('bodyIsStale', () => {
           summary: null,
           translation: null,
           tts: null,
+          paywall: null,
         },
       }),
     ).toBe(false)

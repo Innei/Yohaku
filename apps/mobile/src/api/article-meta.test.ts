@@ -129,6 +129,7 @@ describe('extractArticleMeta', () => {
       summary: null,
       translation: null,
       tts: null,
+      paywall: null,
     }
     expect(extractArticleMeta({ view: 'detail' })).toEqual(empty)
     expect(isEmptyArticleMeta(extractArticleMeta({ view: 'detail' }))).toBe(
@@ -164,6 +165,7 @@ describe('extractArticleMeta', () => {
       summary: null,
       translation: null,
       tts: null,
+      paywall: null,
     }
     expect(extractArticleMeta(null)).toEqual(empty)
     expect(extractArticleMeta('nonsense')).toEqual(empty)
@@ -321,6 +323,42 @@ describe('extractArticleMeta', () => {
         translation: null,
         tts: null,
       }),
+    ).toBe(true)
+    expect(
+      noticeMetaNeedsBackfill({
+        aiGen: [],
+        hasInsights: false,
+        related: [],
+        skills: [],
+        summary: null,
+        translation: null,
+        tts: null,
+        paywall: null,
+      }),
     ).toBe(false)
+  })
+})
+
+describe('extractArticleMeta paywall', () => {
+  it('captures a locked paywall', () => {
+    expect(extractArticleMeta({ paywall: { locked: true } }).paywall).toEqual({
+      locked: true,
+    })
+  })
+
+  it('captures an unlocked paywall', () => {
+    expect(extractArticleMeta({ paywall: { locked: false } }).paywall).toEqual({
+      locked: false,
+    })
+  })
+
+  it('returns null paywall when the envelope has none', () => {
+    expect(extractArticleMeta({}).paywall).toBeNull()
+  })
+
+  it('ignores a malformed paywall blob', () => {
+    expect(
+      extractArticleMeta({ paywall: { previewBlocks: 3 } }).paywall,
+    ).toBeNull()
   })
 })
