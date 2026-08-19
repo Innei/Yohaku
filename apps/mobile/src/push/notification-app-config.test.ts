@@ -37,6 +37,11 @@ describe('mobile notification native config', () => {
     },
   )
 
+  it('pins OTA runtimeVersion to the native fingerprint', () => {
+    const config = loadConfig('development')
+    expect(config.runtimeVersion).toEqual({ policy: 'fingerprint' })
+  })
+
   it('enables communication notifications and native extension generation', () => {
     const config = loadConfig('development')
     expect(

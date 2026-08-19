@@ -23,6 +23,7 @@ import { FatalErrorHost } from '@/errors/fatal-error-host'
 import { useTranslations } from '@/i18n'
 import { assertVendoredDomWebView } from '@/lib/assert-vendored-dom-webview'
 import { queryClient } from '@/lib/query-client'
+import { useOtaForegroundCheck } from '@/ota/use-ota-foreground-check'
 import { refreshOwnerSnapshot } from '@/owner/refresh'
 import { PushOnboardingHost } from '@/push/push-onboarding-host'
 import { useNotificationRouting } from '@/push/use-notification-routing'
@@ -62,6 +63,7 @@ export default function RootLayout() {
   const fontsLoaded = useAppFonts()
   const { success: dbReady, error: dbError } = useMigrations(db, migrations)
   useSyncLifecycle(dbReady)
+  useOtaForegroundCheck()
   useSocketLifecycle()
   const session = useSession()
   usePushLifecycle(session?.id)

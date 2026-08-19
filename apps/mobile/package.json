@@ -9,7 +9,7 @@
     "eas-build-post-install": "pnpm prebuild:css",
     "start": "expo start",
     "ios": "expo run:ios",
-    "ota:update": "bun ../../../cloudflare-expo-ota-updates/apps/easc/bin/easc.js update --channel production --non-interactive",
+    "ota:update": "bun ../../../expo-ota/apps/easc/bin/easc.js update --channel production --non-interactive",
     "lint": "expo lint",
     "test": "vitest run"
   },

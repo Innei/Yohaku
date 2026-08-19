@@ -198,7 +198,7 @@ export function createAppConfig(): ExpoConfig {
         : {}),
     },
     runtimeVersion: {
-      policy: 'appVersion',
+      policy: 'fingerprint',
     },
     ...(updates ? { updates } : {}),
   }
