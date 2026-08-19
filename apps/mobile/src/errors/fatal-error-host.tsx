@@ -1,14 +1,17 @@
-import { useSyncExternalStore } from 'react'
+import { useLayoutEffect, useSyncExternalStore } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { AppRecoveryScreen } from './app-recovery-screen'
 import {
   clearFatalError,
   getFatalErrorSnapshot,
+  registerFatalErrorHost,
   subscribeFatalError,
 } from './fatal-error-store'
 
 export function FatalErrorHost() {
+  useLayoutEffect(registerFatalErrorHost, [])
+
   const error = useSyncExternalStore(
     subscribeFatalError,
     getFatalErrorSnapshot,

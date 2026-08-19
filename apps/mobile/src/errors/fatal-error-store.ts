@@ -5,6 +5,7 @@ export interface FatalErrorSnapshot {
 
 let snapshot: FatalErrorSnapshot | null = null
 const listeners = new Set<() => void>()
+let recoveryHostCount = 0
 
 function normalizeFatalError(error: unknown): FatalErrorSnapshot {
   if (error instanceof Error) {
@@ -15,10 +16,17 @@ function normalizeFatalError(error: unknown): FatalErrorSnapshot {
 }
 
 export function captureFatalError(error: unknown): boolean {
-  if (snapshot) return false
+  if (recoveryHostCount === 0 || snapshot) return false
   snapshot = normalizeFatalError(error)
   for (const listener of listeners) listener()
   return true
+}
+
+export function registerFatalErrorHost() {
+  recoveryHostCount += 1
+  return () => {
+    recoveryHostCount = Math.max(0, recoveryHostCount - 1)
+  }
 }
 
 export function clearFatalError() {
