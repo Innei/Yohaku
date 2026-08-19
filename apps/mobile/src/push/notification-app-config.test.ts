@@ -1,6 +1,10 @@
+import fs from 'node:fs'
+import os from 'node:os'
+import path from 'node:path'
+
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createAppConfig } from '../../app.config'
+import { createAppConfig, resolveOverlayUpdates } from '../../app.config'
 
 const originalEnvironment = process.env.EXPO_PUBLIC_APNS_ENV
 
@@ -47,5 +51,27 @@ describe('mobile notification native config', () => {
     expect(config.plugins).toContain(
       './plugins/with-notification-localizations.cjs',
     )
+  })
+
+  it('passes Expo a project-relative OTA signing certificate path', () => {
+    const overlayDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'yohaku-ota-overlay-'),
+    )
+    const certificate = path.join(overlayDir, 'certs', 'certificate.pem')
+    fs.mkdirSync(path.dirname(certificate), { recursive: true })
+    fs.writeFileSync(certificate, 'test certificate')
+
+    try {
+      const updates = resolveOverlayUpdates(overlayDir, {
+        updates: { codeSigningCertificate: 'certs/certificate.pem' },
+      })
+      const configured = updates?.codeSigningCertificate
+
+      expect(configured).toBeDefined()
+      expect(path.isAbsolute(configured!)).toBe(false)
+      expect(path.resolve(__dirname, '../..', configured!)).toBe(certificate)
+    } finally {
+      fs.rmSync(overlayDir, { force: true, recursive: true })
+    }
   })
 })

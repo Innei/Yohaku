@@ -60,7 +60,7 @@ function apnsEnvironment(): 'development' | 'production' {
     : 'development'
 }
 
-function resolveOverlayUpdates(
+export function resolveOverlayUpdates(
   overlayDir: string,
   overlayExpo: OverlayExpo | null,
 ): ExpoConfig['updates'] | undefined {
@@ -68,14 +68,19 @@ function resolveOverlayUpdates(
   if (!updates) return undefined
 
   const certificateRel = updates.codeSigningCertificate
-  const codeSigningCertificate = certificateRel
+  const absoluteCertificate = certificateRel
     ? path.resolve(overlayDir, certificateRel)
     : undefined
-  if (codeSigningCertificate && !fs.existsSync(codeSigningCertificate)) {
+  if (absoluteCertificate && !fs.existsSync(absoluteCertificate)) {
     throw new Error(
-      `OTA code-signing certificate missing: ${codeSigningCertificate}`,
+      `OTA code-signing certificate missing: ${absoluteCertificate}`,
     )
   }
+  // Expo resolves this field relative to the app project. Passing an absolute
+  // path makes its config plugin prepend the project root a second time.
+  const codeSigningCertificate = absoluteCertificate
+    ? path.relative(__dirname, absoluteCertificate)
+    : undefined
 
   return {
     url: updates.url,
