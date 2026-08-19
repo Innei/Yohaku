@@ -5,6 +5,7 @@ import { StyleSheet, View } from 'react-native'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
 import { usesPaperNavigationControls } from '@/components/navigation/platform'
 import { useTranslations } from '@/i18n'
+import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
 
 import type { SearchScope } from './local-search'
@@ -17,6 +18,8 @@ export function SearchChrome() {
     <>
       <Stack.Screen
         options={{
+          animation: 'fade',
+          animationDuration: timings.fade.duration,
           headerBackVisible: !usesPaperNavigationControls,
           headerTitle: '',
           title: '',

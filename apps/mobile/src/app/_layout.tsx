@@ -31,6 +31,7 @@ import { usePushLifecycle } from '@/push/use-push-lifecycle'
 import { useSocketLifecycle } from '@/socket/use-socket-lifecycle'
 import { useSyncLifecycle } from '@/sync/use-sync-lifecycle'
 import { useAppFonts } from '@/theme/fonts'
+import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
 import { splashTiming } from '@/theme/splash-timing'
 
@@ -129,6 +130,13 @@ export default function RootLayout() {
           >
             <Stack screenOptions={getStackScreenOptions(palette.surface.desk)}>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="search"
+                options={{
+                  animation: 'fade',
+                  animationDuration: timings.fade.duration,
+                }}
+              />
               <Stack.Screen
                 name="dev"
                 options={{
