@@ -20,12 +20,14 @@ const overlaySite =
   overlayDir && overlayFiles(overlayDir).siteTs
     ? overlayFiles(overlayDir).siteTs
     : path.resolve(mobileRoot, 'src/site-overlay.stub.ts')
+const overlayBundledAssets = path.resolve(mobileRoot, 'src/bundled-assets.stub.ts')
 
 export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(mobileRoot, 'src'),
       'yohaku-mobile-overlay': overlaySite,
+      'yohaku-mobile-overlay/bundled-assets': overlayBundledAssets,
     },
   },
   test: {

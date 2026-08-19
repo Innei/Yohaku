@@ -17,6 +17,9 @@ const overlaySite =
   overlayDir && overlayFiles(overlayDir).siteTs
     ? overlayFiles(overlayDir).siteTs
     : path.join(projectRoot, 'src/site-overlay.stub.ts')
+const overlayBundledAssets = overlayDir
+  ? path.join(overlayDir, 'bundled-assets.ts')
+  : path.join(projectRoot, 'src/bundled-assets.stub.ts')
 
 const richCssPath = path.join(
   workspaceRoot,
@@ -69,6 +72,13 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     return {
       type: 'sourceFile',
       filePath: overlaySite,
+    }
+  }
+
+  if (moduleName === 'yohaku-mobile-overlay/bundled-assets') {
+    return {
+      type: 'sourceFile',
+      filePath: overlayBundledAssets,
     }
   }
 

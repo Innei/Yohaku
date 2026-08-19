@@ -1,10 +1,16 @@
 /*
  * Pure numbers only — no react-native / reanimated imports. The splash reducer
  * imports this and must stay runnable under plain vitest.
+ *
+ * Tear sits at screen midline. The mark sits in the upper half; the owner
+ * avatar mirrors it in the lower half, each `halfGap` from the seam.
+ * `splash-icon*.png` are padded (228×888 @3x) so a centered native splash
+ * lands the glyph at the same place on a ~852pt-tall phone.
  */
 export const splashTiming = {
   markSize: 76,
-  tearOffset: 52,
+  /** Distance from the tear line to the mark bottom / avatar top (mirror axis). */
+  halfGap: 72,
   bleed: {
     delay: 100,
     duration: 360,
@@ -23,11 +29,9 @@ export const splashTiming = {
     top: 55.1,
   },
   colophon: {
-    delay: 340,
+    delay: 240,
     duration: 200,
-    avatar: 28,
-    inset: 28,
-    bottom: 52,
+    stackGap: 8,
   },
   tear: {
     at: 564,
