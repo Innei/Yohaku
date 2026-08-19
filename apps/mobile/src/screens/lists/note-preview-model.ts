@@ -26,6 +26,11 @@ export type PreviewBlock =
   | { items: PreviewInline[][]; ordered: boolean; type: 'list' }
   | { alt: string; src: string; type: 'image' }
 
+export type NotePreviewResult = {
+  blocks: PreviewBlock[]
+  truncated: boolean
+}
+
 type LexNode = {
   altText?: unknown
   children?: LexNode[]
@@ -141,8 +146,10 @@ function walkBlock(node: LexNode): PreviewBlock | null {
   return null
 }
 
-function takePreview(blocks: PreviewBlock[]): PreviewBlock[] {
-  if (blocks.length <= PREVIEW_MIN_NODES) return blocks
+function takePreview(blocks: PreviewBlock[]): NotePreviewResult {
+  if (blocks.length <= PREVIEW_MIN_NODES) {
+    return { blocks, truncated: false }
+  }
   let count = PREVIEW_MIN_NODES
   let textLength = 0
   for (let i = 0; i < count; i += 1) textLength += blockTextLength(blocks[i])
@@ -154,18 +161,21 @@ function takePreview(blocks: PreviewBlock[]): PreviewBlock[] {
     textLength += blockTextLength(blocks[count])
     count += 1
   }
-  return blocks.slice(0, count)
+  return {
+    blocks: blocks.slice(0, count),
+    truncated: count < blocks.length,
+  }
 }
 
-export function parseNotePreview(content: string): PreviewBlock[] {
+export function parseNotePreview(content: string): NotePreviewResult {
   let parsed: { root?: { children?: unknown[] } }
   try {
     parsed = JSON.parse(content) as { root?: { children?: unknown[] } }
   } catch {
-    return []
+    return { blocks: [], truncated: false }
   }
   const children = parsed.root?.children
-  if (!Array.isArray(children)) return []
+  if (!Array.isArray(children)) return { blocks: [], truncated: false }
   const blocks = children
     .map(asNode)
     .filter((node): node is LexNode => node !== null)

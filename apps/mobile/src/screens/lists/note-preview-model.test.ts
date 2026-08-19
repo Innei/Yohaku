@@ -42,14 +42,21 @@ function state(...children: object[]) {
   })
 }
 
+function previewBlocks(content: string) {
+  return parseNotePreview(content).blocks
+}
+
 describe('parseNotePreview', () => {
   it('returns empty when the payload is not valid JSON', () => {
-    expect(parseNotePreview('{"root":{"children":[]}} trailing')).toEqual([])
+    expect(parseNotePreview('{"root":{"children":[]}} trailing')).toEqual({
+      blocks: [],
+      truncated: false,
+    })
   })
 
   it('reads a paragraph with format flags and a link', () => {
     expect(
-      parseNotePreview(
+      previewBlocks(
         state(
           paragraph(
             text('Hello ', 0),
@@ -79,7 +86,7 @@ describe('parseNotePreview', () => {
 
   it('keeps heading, quote, list, and image; skips unknown blocks', () => {
     expect(
-      parseNotePreview(
+      previewBlocks(
         state(
           { type: 'poll', version: 1, pollId: 'p1' },
           {
@@ -139,17 +146,31 @@ describe('parseNotePreview', () => {
         paragraph(text(`${'x'.repeat(80)}${i}`)),
       ),
     )
-    expect(parseNotePreview(long)).toHaveLength(4)
+    const longPreview = parseNotePreview(long)
+    expect(longPreview.truncated).toBe(true)
+    expect(longPreview.blocks).toHaveLength(4)
 
     const short = state(
       ...Array.from({ length: 10 }, (_, i) => paragraph(text(`short ${i}`))),
     )
-    expect(parseNotePreview(short)).toHaveLength(8)
+    const shortPreview = parseNotePreview(short)
+    expect(shortPreview.truncated).toBe(true)
+    expect(shortPreview.blocks).toHaveLength(8)
+  })
+
+  it('does not report truncation when every supported block is included', () => {
+    const complete = state(
+      ...Array.from({ length: 5 }, (_, i) => paragraph(text(`short ${i}`))),
+    )
+
+    const preview = parseNotePreview(complete)
+    expect(preview.truncated).toBe(false)
+    expect(preview.blocks).toHaveLength(5)
   })
 
   it('skips leading unknown blocks so the preview still fills with prose', () => {
     expect(
-      parseNotePreview(
+      previewBlocks(
         state(
           { type: 'poll', version: 1, pollId: 'p1' },
           { type: 'stock', version: 1 },
@@ -165,7 +186,7 @@ describe('parseNotePreview', () => {
 
   it('reads inline code and a linebreak inside a paragraph', () => {
     expect(
-      parseNotePreview(
+      previewBlocks(
         state(
           paragraph(
             text('run '),

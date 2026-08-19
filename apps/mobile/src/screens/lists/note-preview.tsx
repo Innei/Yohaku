@@ -1,5 +1,4 @@
 import { type as typeScale } from '@yohaku/design-system/tokens'
-import { useMemo } from 'react'
 import type { StyleProp, TextStyle } from 'react-native'
 import { StyleSheet, Text, View } from 'react-native'
 
@@ -8,7 +7,6 @@ import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import {
-  parseNotePreview,
   type PreviewBlock,
   type PreviewInline,
 } from './note-preview-model'
@@ -149,8 +147,7 @@ function Block({ block }: { block: PreviewBlock }) {
   return <InlineText inlines={block.inlines} style={body} />
 }
 
-export function NotePreview({ content }: { content: string }) {
-  const blocks = useMemo(() => parseNotePreview(content), [content])
+export function NotePreview({ blocks }: { blocks: PreviewBlock[] }) {
   if (blocks.length === 0) return null
   return (
     <View style={styles.blocks}>

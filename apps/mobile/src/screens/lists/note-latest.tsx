@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { LayoutChangeEvent } from 'react-native'
 import { StyleSheet, useWindowDimensions, View } from 'react-native'
 
@@ -14,6 +14,7 @@ import { usePalette } from '@/theme/palette'
 
 import { TopicChip } from '../topics/topic-chip'
 import { NotePreview } from './note-preview'
+import { parseNotePreview } from './note-preview-model'
 import { noteShowsInlineBody } from './note-timeline'
 
 function deskFadeWash(hex: string) {
@@ -54,8 +55,13 @@ export function NoteLatest({
   )
   const inline = noteShowsInlineBody(note)
   const noteId = note.id
+  const preview = useMemo(
+    () => parseNotePreview(note.content ?? ''),
+    [note.content],
+  )
   const contentHeight = measured.id === noteId ? measured.height : 0
-  const clipped = contentHeight > cap
+  const visuallyClipped = contentHeight >= cap
+  const showFade = preview.truncated || visuallyClipped
   const bodyVersion = note.bodyVersion
   const failed = failSig === `${noteId}:${attempt}`
 
@@ -99,7 +105,7 @@ export function NoteLatest({
               style={[
                 styles.preview,
                 { maxHeight: cap },
-                clipped ? { height: cap } : null,
+                visuallyClipped ? { height: cap } : null,
               ]}
             >
               <View
@@ -110,9 +116,9 @@ export function NoteLatest({
                   })
                 }
               >
-                <NotePreview content={note.content ?? ''} />
+                <NotePreview blocks={preview.blocks} />
               </View>
-              {clipped ? (
+              {showFade ? (
                 <View
                   pointerEvents="none"
                   style={[
