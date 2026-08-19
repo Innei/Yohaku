@@ -32,12 +32,16 @@ import { useSocketLifecycle } from '@/socket/use-socket-lifecycle'
 import { useSyncLifecycle } from '@/sync/use-sync-lifecycle'
 import { useAppFonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { splashTiming } from '@/theme/splash-timing'
 
 import migrations from '../../drizzle/migrations'
 
 LogBox.ignoreAllLogs()
 SplashScreen.preventAutoHideAsync()
-SplashScreen.setOptions({ fade: true, duration: 120 })
+SplashScreen.setOptions({
+  fade: true,
+  duration: splashTiming.nativeFade.duration,
+})
 
 if (__DEV__) {
   assertVendoredDomWebView()
@@ -81,13 +85,18 @@ export default function RootLayout() {
   }, [])
 
   useEffect(() => {
+    let handoffTimer: ReturnType<typeof setTimeout> | undefined
     const frame = requestAnimationFrame(() => {
-      void SplashScreen.hideAsync().then(
+      SplashScreen.hide()
+      handoffTimer = setTimeout(
         () => setRevealed(true),
-        () => setRevealed(true),
+        splashTiming.nativeFade.handoffDelay,
       )
     })
-    return () => cancelAnimationFrame(frame)
+    return () => {
+      cancelAnimationFrame(frame)
+      if (handoffTimer) clearTimeout(handoffTimer)
+    }
   }, [])
 
   useEffect(() => {

@@ -94,7 +94,7 @@ export function SplashOverlay({
   const bottomDuration = Math.round(
     splashTiming.tear.duration * (bottomTravel / topTravel),
   )
-  const markTop = tearY - splashTiming.halfGap - splashTiming.markSize
+  const markTop = (height - splashTiming.markSize) / 2
   const markLeft = (width - splashTiming.markSize) / 2
 
   const bleedOpacity = useSharedValue<number>(splashTiming.bleed.fromOpacity)
@@ -103,6 +103,9 @@ export function SplashOverlay({
   const sealOpacity = useSharedValue<number>(0)
   const sealScale = useSharedValue<number>(splashTiming.seal.fromScale)
   const colophonOpacity = useSharedValue<number>(0)
+  const colophonTranslateY = useSharedValue<number>(
+    splashTiming.colophon.fromTranslateY,
+  )
   const markOpacity = useSharedValue<number>(1)
   const topY = useSharedValue<number>(0)
   const bottomY = useSharedValue<number>(0)
@@ -118,6 +121,7 @@ export function SplashOverlay({
       sealOpacity.value = 1
       sealScale.value = 1
       colophonOpacity.value = 1
+      colophonTranslateY.value = 0
       return
     }
     const bleed = {
@@ -148,6 +152,13 @@ export function SplashOverlay({
         easing: splashEasing.seal,
       }),
     )
+    colophonTranslateY.value = withDelay(
+      splashTiming.colophon.delay,
+      withTiming(0, {
+        duration: splashTiming.colophon.duration,
+        easing: splashEasing.seal,
+      }),
+    )
   }, [
     begun,
     reduceMotion,
@@ -157,6 +168,7 @@ export function SplashOverlay({
     sealOpacity,
     sealScale,
     colophonOpacity,
+    colophonTranslateY,
   ])
 
   useEffect(() => {
@@ -254,6 +266,7 @@ export function SplashOverlay({
   }))
   const colophonStyle = useAnimatedStyle(() => ({
     opacity: colophonOpacity.value,
+    transform: [{ translateY: colophonTranslateY.value }],
   }))
 
   if (phase === 'done') return null
@@ -286,23 +299,6 @@ export function SplashOverlay({
           source={grainSource[theme]}
           style={StyleSheet.absoluteFill}
         />
-        <Animated.View style={[styles.mark, markBox, markStyle]}>
-          <Animated.Image
-            source={glyphSource[theme]}
-            style={[styles.glyph, bleedStyle]}
-          />
-          <Animated.Image
-            source={glyphSource[theme]}
-            style={[styles.glyph, glyphStyle]}
-          />
-          <Animated.View
-            style={[
-              styles.seal,
-              { backgroundColor: sealColor[theme] },
-              sealStyle,
-            ]}
-          />
-        </Animated.View>
         <Animated.View style={[styles.edge, { bottom: 0 }, edgeStyle]}>
           {edgeLines(false)}
         </Animated.View>
@@ -338,6 +334,29 @@ export function SplashOverlay({
             siteColor={palette.neutral[6]}
           />
         </Animated.View>
+      </Animated.View>
+
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.mark, markBox, markStyle]}
+      >
+        <Animated.Image
+          resizeMode="contain"
+          source={glyphSource[theme]}
+          style={[styles.glyph, bleedStyle]}
+        />
+        <Animated.Image
+          resizeMode="contain"
+          source={glyphSource[theme]}
+          style={[styles.glyph, glyphStyle]}
+        />
+        <Animated.View
+          style={[
+            styles.seal,
+            { backgroundColor: sealColor[theme] },
+            sealStyle,
+          ]}
+        />
       </Animated.View>
     </Animated.View>
   )

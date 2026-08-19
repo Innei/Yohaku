@@ -1,4 +1,5 @@
-import { Image, ImageSourcePropType, StyleSheet, Text, View } from 'react-native'
+import type { ImageSourcePropType } from 'react-native'
+import { Image, StyleSheet, Text, View } from 'react-native'
 import { bundledOwnerAvatar } from 'yohaku-mobile-overlay/bundled-assets'
 
 import { displaySite, type OwnerSnapshot } from '@/owner/snapshot'
@@ -17,7 +18,9 @@ export function SplashColophon({
   const avatar = resolveAvatarSource(owner.avatarUrl)
   return (
     <View style={styles.root}>
-      {avatar ? <Image source={avatar} style={styles.avatar} /> : null}
+      {avatar ? (
+        <Image resizeMode="cover" source={avatar} style={styles.avatar} />
+      ) : null}
       <Text style={[styles.name, { color: nameColor }]}>{owner.name}</Text>
       <Text style={[styles.site, { color: siteColor }]}>
         {displaySite(owner.siteHost)}
@@ -40,15 +43,15 @@ const styles = StyleSheet.create({
     gap: splashTiming.colophon.stackGap,
   },
   avatar: {
-    width: splashTiming.markSize,
-    height: splashTiming.markSize,
-    borderRadius: splashTiming.markSize / 2,
+    width: splashTiming.colophon.avatarSize,
+    height: splashTiming.colophon.avatarSize,
+    borderRadius: splashTiming.colophon.avatarSize / 2,
   },
   name: {
     fontFamily: 'Georgia',
     fontStyle: 'italic',
-    fontSize: 15,
-    lineHeight: 18,
+    fontSize: 16,
+    lineHeight: 20,
   },
   site: {
     fontSize: 10,

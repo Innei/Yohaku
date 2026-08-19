@@ -40,7 +40,7 @@ export function reduceSplash(
   const open = isSplashGateOpen(input)
 
   if (input.reduceMotion) {
-    return open
+    return open && input.elapsed >= splashTiming.reducedMinimum
       ? { phase: 'fading', exitAt: input.elapsed }
       : { phase: 'holding', exitAt: null }
   }

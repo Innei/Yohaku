@@ -2,15 +2,19 @@
  * Pure numbers only — no react-native / reanimated imports. The splash reducer
  * imports this and must stay runnable under plain vitest.
  *
- * Tear sits at screen midline. The mark sits in the upper half; the owner
- * avatar mirrors it in the lower half, each `halfGap` from the seam.
- * `splash-icon*.png` are padded (228×888 @3x) so a centered native splash
- * lands the glyph at the same place on a ~852pt-tall phone.
+ * Tear sits at screen midline. The mark is kept at the native LaunchScreen
+ * centre while the owner colophon sits below the seam. The square splash
+ * assets and this `markSize` must match app.config.ts so the native-to-React
+ * handoff has identical geometry.
  */
 export const splashTiming = {
-  markSize: 76,
-  /** Distance from the tear line to the mark bottom / avatar top (mirror axis). */
+  markSize: 120,
+  /** Distance from the tear line to the owner colophon. */
   halfGap: 72,
+  nativeFade: {
+    duration: 140,
+    handoffDelay: 180,
+  },
   bleed: {
     delay: 100,
     duration: 360,
@@ -22,20 +26,22 @@ export const splashTiming = {
   },
   seal: {
     delay: 340,
-    duration: 160,
+    duration: 200,
     fromScale: 1.9,
-    diameter: 5.9,
-    left: 55.3,
-    top: 55.1,
+    diameter: 9.4,
+    left: 85.4,
+    top: 85.1,
   },
   colophon: {
-    delay: 240,
-    duration: 200,
+    delay: 440,
+    duration: 300,
+    fromTranslateY: 10,
+    avatarSize: 60,
     stackGap: 8,
   },
   tear: {
-    at: 564,
-    duration: 376,
+    at: 1240,
+    duration: 400,
     bottomLag: 20,
   },
   markExit: {
@@ -43,11 +49,12 @@ export const splashTiming = {
     duration: 200,
   },
   breath: {
-    after: 800,
+    after: 1500,
     halfCycle: 1200,
     gap: 1.5,
   },
   edgeFade: 120,
   ceiling: 8000,
+  reducedMinimum: 500,
   reducedFade: 200,
 } as const

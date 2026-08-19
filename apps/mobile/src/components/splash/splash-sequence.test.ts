@@ -52,17 +52,19 @@ describe('reduceSplash', () => {
   })
 
   it('tears immediately when ready lands between the tear mark and the breath mark', () => {
+    const readyAt = tear.at + 100
     const state = run([
       { elapsed: tear.at },
-      { elapsed: 700, ready: true, appPainted: true },
+      { elapsed: readyAt, ready: true, appPainted: true },
     ])
-    expect(state).toEqual({ phase: 'tearing', exitAt: 700 })
+    expect(state).toEqual({ phase: 'tearing', exitAt: readyAt })
   })
 
   it('never enters the breath-hold when ready lands before the breath mark', () => {
+    const readyAt = tear.at + 100
     const frames = [
       { elapsed: tear.at },
-      { elapsed: 700, ready: true, appPainted: true },
+      { elapsed: readyAt, ready: true, appPainted: true },
       { elapsed: breath.after, ready: true, appPainted: true },
     ]
     const phases = frames.reduce<string[]>((seen, frame, index) => {
@@ -107,11 +109,20 @@ describe('reduceSplash', () => {
   describe('reduce motion', () => {
     const reduced = { reduceMotion: true } as const
 
-    it('skips the tear mark floor and fades as soon as the gate opens', () => {
+    it('shows the complete static splash before fading when the gate opens early', () => {
       const state = run([
         { elapsed: 40, ...reduced, ready: true, appPainted: true },
+        {
+          elapsed: splashTiming.reducedMinimum,
+          ...reduced,
+          ready: true,
+          appPainted: true,
+        },
       ])
-      expect(state).toEqual({ phase: 'fading', exitAt: 40 })
+      expect(state).toEqual({
+        phase: 'fading',
+        exitAt: splashTiming.reducedMinimum,
+      })
     })
 
     it('never enters the breath-hold', () => {

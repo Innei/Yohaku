@@ -44,10 +44,9 @@ export function useSplashSequence({
   }, [])
 
   /*
-   * The clock starts when the native splash is actually gone, not when this
-   * overlay mounts. `hideAsync` plus its fade keeps the native image on screen
-   * for a few hundred ms after mount, and any beat scheduled inside that window
-   * plays underneath it and is never seen.
+   * The clock starts after RootLayout's explicit native-fade handoff delay.
+   * Expo's hide promise reports dispatch, not the visual end of the fade, so it
+   * cannot be used as the animation clock boundary.
    */
   useEffect(() => {
     if (startedAt !== null) return
@@ -80,6 +79,7 @@ export function useSplashSequence({
       splashTiming.tear.at,
       splashTiming.breath.after,
       splashTiming.ceiling,
+      splashTiming.reducedMinimum,
     ]
       .filter((mark) => mark > elapsed)
       .map((mark) => setTimeout(tick, mark - elapsed))

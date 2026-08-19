@@ -161,7 +161,7 @@ export function createAppConfig(): ExpoConfig {
         {
           backgroundColor: '#faf9f6',
           image: './assets/images/splash-icon.png',
-          imageWidth: 76,
+          imageWidth: 120,
           dark: {
             backgroundColor: '#282828',
             image: './assets/images/splash-icon-dark.png',
