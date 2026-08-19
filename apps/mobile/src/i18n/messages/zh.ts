@@ -243,6 +243,10 @@ export const zh = {
     stop: '停止',
   },
   system: {
+    appErrorTitle: '应用遇到了问题',
+    appErrorBody: '页面没有退出。你可以重试当前页面，或重新启动应用。',
+    appErrorRetry: '重试',
+    appErrorRestart: '重新启动',
     dbInitFailed: '数据库初始化失败，请重装应用',
   },
   push: {

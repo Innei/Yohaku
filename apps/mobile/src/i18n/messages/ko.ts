@@ -245,6 +245,11 @@ export const ko = {
     stop: '정지',
   },
   system: {
+    appErrorTitle: '앱에 문제가 발생했습니다',
+    appErrorBody:
+      '앱은 종료되지 않았습니다. 이 페이지를 다시 시도하거나 앱을 재시작하세요.',
+    appErrorRetry: '다시 시도',
+    appErrorRestart: '재시작',
     dbInitFailed: '데이터베이스 초기화에 실패했습니다. 앱을 다시 설치해 주세요',
   },
   push: {

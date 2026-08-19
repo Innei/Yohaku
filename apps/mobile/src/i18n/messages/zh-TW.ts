@@ -243,6 +243,10 @@ export const zhTW = {
     stop: '停止',
   },
   system: {
+    appErrorTitle: '應用程式遇到了問題',
+    appErrorBody: '頁面沒有退出。你可以重試目前頁面，或重新啟動應用程式。',
+    appErrorRetry: '重試',
+    appErrorRestart: '重新啟動',
     dbInitFailed: '資料庫初始化失敗，請重新安裝應用程式',
   },
   push: {

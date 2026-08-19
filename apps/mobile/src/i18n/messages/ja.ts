@@ -248,6 +248,11 @@ export const ja = {
     stop: '停止',
   },
   system: {
+    appErrorTitle: 'アプリで問題が発生しました',
+    appErrorBody:
+      'アプリは終了していません。このページを再試行するか、アプリを再起動してください。',
+    appErrorRetry: '再試行',
+    appErrorRestart: '再起動',
     dbInitFailed:
       'データベースの初期化に失敗しました。アプリを再インストールしてください',
   },

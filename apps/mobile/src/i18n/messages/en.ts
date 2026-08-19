@@ -248,6 +248,10 @@ export const en = {
     stop: 'Stop',
   },
   system: {
+    appErrorTitle: 'Yohaku encountered a problem',
+    appErrorBody: 'The app stayed open. Retry this page or restart the app.',
+    appErrorRetry: 'Retry',
+    appErrorRestart: 'Restart',
     dbInitFailed: 'Database setup failed. Reinstall the app.',
   },
   push: {
