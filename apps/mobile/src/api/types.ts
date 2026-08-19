@@ -218,6 +218,23 @@ export interface ApiSessionUser {
   role?: string | null
 }
 
+export interface ApiSearchHighlight {
+  keywords: string[]
+  snippet: string | null
+}
+
+export interface ApiSearchPost extends ApiPost {
+  highlight?: ApiSearchHighlight
+  isFallback?: boolean
+  lang?: string
+}
+
+export interface ApiSearchNote extends ApiNote {
+  highlight?: ApiSearchHighlight
+  isFallback?: boolean
+  lang?: string
+}
+
 export interface ApiPagination {
   page: number
   size: number

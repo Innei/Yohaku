@@ -10,6 +10,7 @@ import { useLocale, useTranslations } from '@/i18n'
 import { formatThinkingClock, thinkingDayLabel } from '@/lib/datetime'
 import { usePalette } from '@/theme/palette'
 
+import { ListSearchToolbar } from '../search/search-chrome'
 import { ListShell } from './list-shell'
 import { ThinkingActions } from './thinking-actions'
 import { ThinkingBody } from './thinking-body'
@@ -25,7 +26,9 @@ export function ThinkingListScreen() {
   const groups = useMemo(() => groupThinkingsByDay(data ?? []), [data])
 
   return (
-    <ListShell
+    <>
+      <ListSearchToolbar scope="thinking" />
+      <ListShell
       isEmpty={!data?.length}
       title={tt('thinking')}
       titleVariant="largeTitleSans"
@@ -65,6 +68,7 @@ export function ThinkingListScreen() {
         ))}
       </View>
     </ListShell>
+    </>
   )
 }
 

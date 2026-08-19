@@ -27,6 +27,8 @@ import type {
   ApiPagination,
   ApiPost,
   ApiPushActivation,
+  ApiSearchNote,
+  ApiSearchPost,
   ApiSessionUser,
   ApiTagDetail,
   ApiTopic,
@@ -187,6 +189,20 @@ export const api = {
     parseThinkingList(await fetchRawJson('/recently', { size })),
   categoryList: () =>
     request<ApiCategory[]>('/categories', withLang({ type: 0 })),
+  searchPosts: (keyword: string, lang = getLocale()) =>
+    requestPaged<ApiSearchPost>('/search/post', {
+      keyword,
+      lang,
+      page: 1,
+      size: 20,
+    }),
+  searchNotes: (keyword: string, lang = getLocale()) =>
+    requestPaged<ApiSearchNote>('/search/note', {
+      keyword,
+      lang,
+      page: 1,
+      size: 20,
+    }),
   categoryBySlug: (slug: string) =>
     request<ApiCategoryDetail>(
       `/categories/${encodeURIComponent(slug)}`,

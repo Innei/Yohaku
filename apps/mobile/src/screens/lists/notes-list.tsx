@@ -15,7 +15,6 @@ import {
 import { primeArticleBody } from '@/components/dom/prime-body'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
-import { usesPaperNavigationControls } from '@/components/navigation/platform'
 import { AppText, NativePressable } from '@/components/ui'
 import { db } from '@/db'
 import type { NoteRow } from '@/db/schema'
@@ -29,6 +28,7 @@ import { useSyncStatus } from '@/sync/status'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
+import { ListSearchToolbar } from '../search/search-chrome'
 import { TopicChip } from '../topics/topic-chip'
 import { topicById } from '../topics/topic-list'
 import { NoteLatest } from './note-latest'
@@ -67,35 +67,41 @@ function moodLine(note: NoteRow): string {
 
 const topicsQuery = db.select().from(topics)
 
-function NotesSeriesControl() {
+function NotesTrailingToolbar() {
   const router = useRouter()
   const t = useTranslations('topic')
-  if (!usesPaperNavigationControls) {
-    return (
-      <Stack.Toolbar placement="right">
+  const tc = useTranslations('common')
+  const palette = usePalette()
+  const openSeries = () => router.push('/series')
+
+  return (
+    <ListSearchToolbar
+      scope="notes"
+      trailingPaper={
+        <PaperNavigationControl
+          accessibilityLabel={tc('more')}
+          icon="ellipsis"
+          identifier="notes-more"
+          menuItems={[
+            { id: 'series', icon: 'square.stack', title: t('indexTitle') },
+          ]}
+          onMenuAction={(id) => {
+            if (id === 'series') openSeries()
+          }}
+        />
+      }
+      trailingSystem={
         <Stack.Toolbar.Menu
-          accessibilityLabel={t('indexTitle')}
-          icon="square.stack"
+          accessibilityLabel={tc('more')}
+          icon="ellipsis"
+          tintColor={palette.neutral[9]}
         >
-          <Stack.Toolbar.MenuAction
-            icon="square.stack"
-            onPress={() => router.push('/series')}
-          >
+          <Stack.Toolbar.MenuAction icon="square.stack" onPress={openSeries}>
             {t('indexTitle')}
           </Stack.Toolbar.MenuAction>
         </Stack.Toolbar.Menu>
-      </Stack.Toolbar>
-    )
-  }
-  return (
-    <Stack.Toolbar asChild placement="right">
-      <PaperNavigationControl
-        accessibilityLabel={t('indexTitle')}
-        icon="square.stack"
-        identifier="notes-series"
-        onPress={() => router.push('/series')}
-      />
-    </Stack.Toolbar>
+      }
+    />
   )
 }
 
@@ -191,7 +197,7 @@ export function NotesListScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <Stack.Screen options={headerOptions} />
-      <NotesSeriesControl />
+      <NotesTrailingToolbar />
       <EdgeEffectScrollView
         contentContainerStyle={styles.content}
         headerTitleProgress={headerTitleProgress}

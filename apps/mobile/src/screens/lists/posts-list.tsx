@@ -10,6 +10,7 @@ import { useLocale, useTranslations } from '@/i18n'
 import { ingestPostPage } from '@/sync/engine'
 import { usePalette } from '@/theme/palette'
 
+import { ListSearchToolbar } from '../search/search-chrome'
 import { ListShell } from './list-shell'
 import { PostContextLink } from './post-context-link'
 import { hasMorePosts, nextPostListPage, pickFeaturedPost } from './post-list'
@@ -65,7 +66,9 @@ export function PostsListScreen() {
   }, [fetchedPage, locale, postsInLocale.length, total])
 
   return (
-    <ListShell
+    <>
+      <ListSearchToolbar scope="posts" />
+      <ListShell
       eyebrow={t('blogKicker')}
       isEmpty={postsInLocale.length === 0}
       title={t('postsHeading')}
@@ -93,6 +96,7 @@ export function PostsListScreen() {
         ) : null}
       </View>
     </ListShell>
+    </>
   )
 }
 
