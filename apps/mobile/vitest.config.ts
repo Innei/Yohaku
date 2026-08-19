@@ -31,8 +31,10 @@ export default defineConfig({
     },
   },
   test: {
+    environment: 'happy-dom',
     include: [
       'src/**/*.test.ts',
+      'src/**/*.test.tsx',
       ...(overlayDir ? [path.join(overlayDir, '**/*.test.ts')] : []),
     ],
   },

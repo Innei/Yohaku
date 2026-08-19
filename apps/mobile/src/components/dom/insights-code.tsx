@@ -1,5 +1,6 @@
-import { Mermaid } from '@yohaku/rich-content/src/lexical/portable/mermaid.tsx'
 import { isValidElement, type ReactNode } from 'react'
+
+import { InsightsMermaid } from './insights-mermaid'
 
 export function fenceLang(className: unknown): string | undefined {
   const match = /(?:language-|lang-)(\w+)/.exec(String(className ?? ''))
@@ -22,7 +23,7 @@ export function InsightsPre({ children }: { children?: ReactNode }) {
     if (lang === 'mermaid') {
       return (
         <div className="insights-mermaid">
-          <Mermaid content={text} />
+          <InsightsMermaid content={text} />
         </div>
       )
     }

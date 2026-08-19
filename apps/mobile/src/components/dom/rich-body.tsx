@@ -36,6 +36,7 @@ import { WEBVIEW_FONT_FAMILY } from '@/theme/font-faces'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
 import { extractBlockInfos } from './anchor-utils'
+import { MobileCodeBlock } from './code-block'
 import {
   applyBlockWashes,
   applyCommentHighlights,
@@ -608,6 +609,7 @@ export default function RichBody({
     () =>
       createWebviewHost({
         apiBase,
+        codeBlock: MobileCodeBlock,
         enrichments: bodyEnrichments,
         locale,
         labels: { nestedDocCollapse, nestedDocExpand, nestedDocLabel },

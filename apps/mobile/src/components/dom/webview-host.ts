@@ -5,8 +5,6 @@ import {
   type OpenImagePayload,
 } from '@yohaku/rich-content/host'
 
-import { MobileCodeBlock } from './code-block'
-
 const IMAGE_PREVIEW_MESSAGE = 'yohaku:image-preview'
 const IMAGE_PREWARM_MESSAGE = 'yohaku:image-preview-prewarm'
 
@@ -47,6 +45,7 @@ export function prewarmNativeImagePreview(element: HTMLImageElement): boolean {
 
 export interface WebviewHostDeps {
   apiBase: string
+  codeBlock?: NonNullable<HostCapabilities['slots']>['CodeBlock']
   enrichments?: HostCapabilities['enrichments']
   labels: HostCapabilities['labels']
   locale?: string
@@ -80,7 +79,7 @@ export function createWebviewHost(deps: WebviewHostDeps): HostCapabilities {
     openLink: (url) => deps.onLinkPress(url),
     scrollToAnchor: (id) => deps.onScrollToAnchor(id),
     site: deps.site,
-    slots: { CodeBlock: MobileCodeBlock },
+    slots: deps.codeBlock ? { CodeBlock: deps.codeBlock } : undefined,
     theme: deps.theme,
     webOrigin: deps.webOrigin,
   }

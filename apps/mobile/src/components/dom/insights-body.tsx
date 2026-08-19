@@ -1,7 +1,6 @@
 'use dom'
 
 import './insights-body.css'
-import '@haklex/rich-compose/style/mermaid.css'
 
 import { accent, neutral } from '@yohaku/design-system/tokens'
 import {

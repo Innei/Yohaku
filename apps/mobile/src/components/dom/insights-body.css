@@ -186,3 +186,9 @@
   overflow: hidden;
   margin: 12px 0;
 }
+
+.insights-mermaid-error {
+  margin: 12px 0;
+  color: var(--color-neutral-7);
+  font-size: 13px;
+}

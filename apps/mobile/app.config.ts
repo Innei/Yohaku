@@ -155,6 +155,7 @@ export function createAppConfig(): ExpoConfig {
       '@bacons/apple-targets',
       './plugins/with-notification-localizations.cjs',
       './plugins/with-ios-scene-lifecycle.cjs',
+      './plugins/with-wipe-www-bundle.cjs',
       [
         'expo-splash-screen',
         {

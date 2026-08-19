@@ -33,8 +33,12 @@ describe('createWebviewHost', () => {
     expect(createWebviewHost(deps).nestedDocPresentation).toBe('inline')
   })
 
+  it('omits CodeBlock unless the caller passes one', () => {
+    expect(createWebviewHost(deps).slots?.CodeBlock).toBeUndefined()
+  })
+
   it('supplies only a CodeBlock chrome slot', () => {
-    const { slots } = createWebviewHost(deps)
+    const { slots } = createWebviewHost({ ...deps, codeBlock: MobileCodeBlock })
     expect(slots?.CodeBlock).toBe(MobileCodeBlock)
     expect(slots?.BlockLinkCard).toBeUndefined()
     expect(slots?.InlineLink).toBeUndefined()
