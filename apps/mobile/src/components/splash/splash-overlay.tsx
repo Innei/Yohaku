@@ -88,12 +88,14 @@ export function SplashOverlay({
     revealed,
   })
 
-  const tearY = Math.round(height / 2 + splashTiming.tearOffset)
+  const tearY = Math.round(height / 2)
   const topTravel = tearY
   const bottomTravel = height - tearY
   const bottomDuration = Math.round(
     splashTiming.tear.duration * (bottomTravel / topTravel),
   )
+  const markTop = tearY - splashTiming.halfGap - splashTiming.markSize
+  const markLeft = (width - splashTiming.markSize) / 2
 
   const bleedOpacity = useSharedValue<number>(splashTiming.bleed.fromOpacity)
   const bleedScale = useSharedValue<number>(splashTiming.bleed.fromScale)
@@ -260,8 +262,8 @@ export function SplashOverlay({
   const markBox = {
     width: splashTiming.markSize,
     height: splashTiming.markSize,
-    left: (width - splashTiming.markSize) / 2,
-    top: height / 2 - splashTiming.markSize / 2,
+    left: markLeft,
+    top: markTop,
   }
 
   const edgeLines = (reversed: boolean) => {
@@ -326,10 +328,7 @@ export function SplashOverlay({
           pointerEvents="none"
           style={[
             styles.colophon,
-            {
-              right: splashTiming.colophon.inset,
-              bottom: splashTiming.colophon.bottom,
-            },
+            { top: splashTiming.halfGap, left: 0, right: 0 },
             colophonStyle,
           ]}
         >
@@ -382,5 +381,6 @@ const styles = StyleSheet.create({
   },
   colophon: {
     position: 'absolute',
+    alignItems: 'center',
   },
 })

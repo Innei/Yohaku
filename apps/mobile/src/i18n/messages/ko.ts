@@ -143,6 +143,8 @@ export const ko = {
     sectionGeneral: '일반',
     sectionAccount: '계정',
     version: '버전',
+    versionEmbedded: '{version} · 내장',
+    versionOta: '{version} · OTA',
     blog: '블로그',
     preferences: '환경설정',
     language: '언어',
@@ -204,6 +206,16 @@ export const ko = {
     websocket: 'WebSocket',
     wsSession: '세션',
     wsEmpty: '아직 이벤트가 없습니다',
+    ota: 'OTA',
+    otaCheck: '업데이트 확인',
+    otaApply: '업데이트 적용',
+    otaIdle: '아직 확인 안 함',
+    otaChecking: '확인 중…',
+    otaReady: '다운로드됨 · 적용을 탭',
+    otaUnavailable: '이미 최신',
+    otaFailed: '확인 실패',
+    otaSourceEmbedded: '내장 번들',
+    otaSourceUpdate: 'OTA',
   },
   time: {
     justNow: '방금',
@@ -233,6 +245,11 @@ export const ko = {
     stop: '정지',
   },
   system: {
+    appErrorTitle: '앱에 문제가 발생했습니다',
+    appErrorBody:
+      '앱은 종료되지 않았습니다. 이 페이지를 다시 시도하거나 앱을 재시작하세요.',
+    appErrorRetry: '다시 시도',
+    appErrorRestart: '재시작',
     dbInitFailed: '데이터베이스 초기화에 실패했습니다. 앱을 다시 설치해 주세요',
   },
   push: {

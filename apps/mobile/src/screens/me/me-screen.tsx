@@ -4,6 +4,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import Constants from 'expo-constants'
 import { Link, useFocusEffect, useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
+import * as Updates from 'expo-updates'
 import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useState } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
@@ -188,6 +189,9 @@ export function MeScreen() {
   const owner = useOwner()
   const session = useSession()
   const version = Constants.expoConfig?.version ?? '—'
+  const versionLabel = Updates.isEmbeddedLaunch
+    ? t('versionEmbedded', { version })
+    : t('versionOta', { version })
   const { data: likedRows } = useLiveQuery(likedQuery)
   const { data: readingRows } = useLiveQuery(readingQuery)
   const likedCount = likedActivityCount(likedRows ?? [])
@@ -265,7 +269,7 @@ export function MeScreen() {
         ])
       },
     },
-    { id: 'version', label: t('version'), value: version },
+    { id: 'version', label: t('version'), value: versionLabel },
   ]
 
   const accountRows: GroupedListRow[] = [

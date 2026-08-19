@@ -1,6 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
-import { Stack } from 'expo-router'
+import { type ErrorBoundaryProps, Stack } from 'expo-router'
 import {
   DarkTheme,
   DefaultTheme,
@@ -18,6 +18,8 @@ import { getStackScreenOptions } from '@/components/navigation/stack-screen-opti
 import { SplashOverlay } from '@/components/splash/splash-overlay'
 import { AppText, Desk, ToastHost } from '@/components/ui'
 import { db } from '@/db'
+import { AppRecoveryScreen } from '@/errors/app-recovery-screen'
+import { FatalErrorHost } from '@/errors/fatal-error-host'
 import { useTranslations } from '@/i18n'
 import { assertVendoredDomWebView } from '@/lib/assert-vendored-dom-webview'
 import { queryClient } from '@/lib/query-client'
@@ -42,6 +44,15 @@ if (__DEV__) {
 
 export const unstable_settings = {
   anchor: '(tabs)',
+}
+
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  return (
+    <AppRecoveryScreen
+      message={error.message}
+      onRetry={() => void retry()}
+    />
+  )
 }
 
 export default function RootLayout() {
@@ -187,6 +198,7 @@ export default function RootLayout() {
           onFinished={onSplashFinished}
         />
       )}
+      <FatalErrorHost />
       <StatusBar style="auto" />
     </View>
   )

@@ -1,4 +1,5 @@
 import fs from 'node:fs'
+import path from 'node:path'
 
 import type { ExpoConfig } from 'expo/config'
 
@@ -27,6 +28,17 @@ interface OverlayExpo {
   icon?: string
   iosIcon?: string
   scheme?: string
+  updates?: {
+    url?: string
+    enabled?: boolean
+    fallbackToCacheTimeout?: number
+    codeSigningCertificate?: string
+    codeSigningMetadata?: {
+      alg: string
+      keyid: string
+    }
+    requestHeaders?: Record<string, string>
+  }
 }
 
 function readOverlayExpo(file: string | null): OverlayExpo | null {
@@ -48,12 +60,46 @@ function apnsEnvironment(): 'development' | 'production' {
     : 'development'
 }
 
+function resolveOverlayUpdates(
+  overlayDir: string,
+  overlayExpo: OverlayExpo | null,
+): ExpoConfig['updates'] | undefined {
+  const updates = overlayExpo?.updates
+  if (!updates) return undefined
+
+  const certificateRel = updates.codeSigningCertificate
+  const codeSigningCertificate = certificateRel
+    ? path.resolve(overlayDir, certificateRel)
+    : undefined
+  if (codeSigningCertificate && !fs.existsSync(codeSigningCertificate)) {
+    throw new Error(
+      `OTA code-signing certificate missing: ${codeSigningCertificate}`,
+    )
+  }
+
+  return {
+    url: updates.url,
+    enabled: updates.enabled ?? true,
+    fallbackToCacheTimeout: updates.fallbackToCacheTimeout ?? 10_000,
+    ...(codeSigningCertificate
+      ? {
+          codeSigningCertificate,
+          codeSigningMetadata: updates.codeSigningMetadata,
+        }
+      : {}),
+    requestHeaders: updates.requestHeaders,
+  }
+}
+
 export function createAppConfig(): ExpoConfig {
   const workspaceRoot = findWorkspaceRoot(__dirname)
   const overlayDir = resolveOverlayDir(workspaceRoot)
   const overlay = overlayDir ? overlayFiles(overlayDir) : null
   const overlayExpo = readOverlayExpo(overlay?.expoJson ?? null)
   applyOverlayEnv(overlayExpo)
+  const updates = overlayDir
+    ? resolveOverlayUpdates(overlayDir, overlayExpo)
+    : undefined
   const site = {
     bundleId: overlayExpo?.bundleId ?? PUBLIC_BUNDLE_ID,
     scheme: overlayExpo?.scheme ?? PUBLIC_SCHEME,
@@ -146,6 +192,10 @@ export function createAppConfig(): ExpoConfig {
         ? { eas: { projectId: overlayExpo.eas.projectId } }
         : {}),
     },
+    runtimeVersion: {
+      policy: 'appVersion',
+    },
+    ...(updates ? { updates } : {}),
   }
 }
 
