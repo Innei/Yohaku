@@ -65,7 +65,11 @@ export function NotificationSettings() {
 
   return (
     <View style={styles.section}>
-      <AppText style={styles.sectionLabel} variant="entryTitleSans">
+      <AppText
+        color={palette.neutral[5]}
+        style={styles.sectionLabel}
+        variant="eyebrow"
+      >
         {t('sectionTitle')}
       </AppText>
       <Paper style={styles.card}>
@@ -111,10 +115,11 @@ export function NotificationSettings() {
 
 const styles = StyleSheet.create({
   section: {
-    gap: 10,
+    gap: 8,
   },
   sectionLabel: {
-    paddingHorizontal: 2,
+    marginLeft: 4,
+    textTransform: 'uppercase',
   },
   card: {
     paddingHorizontal: 18,
