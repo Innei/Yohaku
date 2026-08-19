@@ -1,10 +1,11 @@
 import { readFile } from 'node:fs/promises'
-import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-const catalogPath = fileURLToPath(
-  new URL('../../assets/notifications/Localizable.xcstrings', import.meta.url),
+const catalogPath = path.resolve(
+  import.meta.dirname,
+  '../../assets/notifications/Localizable.xcstrings',
 )
 
 describe('notification localization catalog', () => {

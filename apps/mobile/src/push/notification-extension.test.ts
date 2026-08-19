@@ -1,9 +1,9 @@
 import { readFile } from 'node:fs/promises'
-import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-const mobileRoot = fileURLToPath(new URL('../..', import.meta.url))
+const mobileRoot = path.resolve(import.meta.dirname, '../..')
 const target = (name: string) =>
   readFile(`${mobileRoot}/targets/notification-service/${name}`, 'utf8')
 
