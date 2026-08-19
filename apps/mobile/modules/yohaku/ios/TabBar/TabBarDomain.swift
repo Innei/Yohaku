@@ -351,13 +351,18 @@ enum TabBarDomain {
   private static func findTabBarController() -> UITabBarController? {
     let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
     let scene = scenes.first { $0.activationState == .foregroundActive } ?? scenes.first
-    guard
-      let window = scene?.windows.first(where: { $0.isKeyWindow }) ?? scene?.windows.first,
-      let root = window.rootViewController
-    else {
-      return nil
+    guard let scene else { return nil }
+
+    // UIAlertController often becomes the key window. Searching only that
+    // window misses the tab controller, so compact scale cannot be reapplied
+    // while the first-run push prompt is visible.
+    for window in scene.windows {
+      guard let root = window.rootViewController else { continue }
+      if let found = search(from: root) {
+        return found
+      }
     }
-    return search(from: root)
+    return nil
   }
 
   private static func search(from viewController: UIViewController) -> UITabBarController? {

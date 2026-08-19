@@ -194,7 +194,7 @@ export default function RootLayout() {
               />
             </Stack>
             <WebViewPoolWarmer />
-            <PushOnboardingHost ready={dataReady && !failed} />
+            <PushOnboardingHost ready={dataReady && !failed && splashDone} />
             <ToastHost />
           </ThemeProvider>
         </QueryClientProvider>

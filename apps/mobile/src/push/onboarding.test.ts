@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest'
 
 import { IOS_AUTHORIZATION_STATUS } from './manager'
 import {
+  PUSH_ONBOARDING_SURFACE_SETTLE_MS,
   readPushOnboardingDecision,
   shouldOfferPushOnboarding,
+  shouldPresentPushOnboardingPrompt,
   writePushOnboardingDecision,
 } from './onboarding'
 
@@ -37,6 +39,44 @@ describe('shouldOfferPushOnboarding', () => {
         decision: 'dismissed',
       }),
     ).toBe(false)
+  })
+})
+
+describe('shouldPresentPushOnboardingPrompt', () => {
+  const offerable = {
+    configured: true,
+    authorizationStatus: IOS_AUTHORIZATION_STATUS.NOT_DETERMINED,
+    decision: null,
+  } as const
+
+  it('waits until the splash/tab-bar entrance has settled', () => {
+    expect(
+      shouldPresentPushOnboardingPrompt({
+        ...offerable,
+        surfaceSettled: false,
+      }),
+    ).toBe(false)
+    expect(
+      shouldPresentPushOnboardingPrompt({
+        ...offerable,
+        surfaceSettled: true,
+      }),
+    ).toBe(true)
+  })
+
+  it('still respects an existing decision after the surface settles', () => {
+    expect(
+      shouldPresentPushOnboardingPrompt({
+        configured: true,
+        authorizationStatus: IOS_AUTHORIZATION_STATUS.NOT_DETERMINED,
+        decision: 'dismissed',
+        surfaceSettled: true,
+      }),
+    ).toBe(false)
+  })
+
+  it('waits a few seconds after splash before presenting the prompt', () => {
+    expect(PUSH_ONBOARDING_SURFACE_SETTLE_MS).toBeGreaterThanOrEqual(2500)
   })
 })
 

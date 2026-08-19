@@ -1,3 +1,4 @@
+import { YohakuNative } from '@modules/yohaku'
 import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef } from 'react'
 import { Alert } from 'react-native'
@@ -6,8 +7,9 @@ import { useTranslations } from '@/i18n'
 
 import { loadPushConfig } from './config'
 import {
+  PUSH_ONBOARDING_SURFACE_SETTLE_MS,
   readPushOnboardingDecision,
-  shouldOfferPushOnboarding,
+  shouldPresentPushOnboardingPrompt,
   writePushOnboardingDecision,
 } from './onboarding'
 import { enablePush, usePushState } from './runtime'
@@ -31,14 +33,19 @@ export function PushOnboardingHost({ ready }: { ready: boolean }) {
       const decision = await readPushOnboardingDecision(storage)
       if (cancelled) return
       if (
-        !shouldOfferPushOnboarding({
+        !shouldPresentPushOnboardingPrompt({
           configured: loadPushConfig().configured,
           authorizationStatus: push.authorizationStatus,
           decision,
+          surfaceSettled: ready,
         })
       ) {
         return
       }
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, PUSH_ONBOARDING_SURFACE_SETTLE_MS)
+      })
+      if (cancelled) return
       offeredRef.current = true
       Alert.alert(t('onboardingTitle'), t('onboardingBody'), [
         {
@@ -58,6 +65,9 @@ export function PushOnboardingHost({ ready }: { ready: boolean }) {
           },
         },
       ])
+      // Alert presentation can rebuild UITabBar's layer tree and drop the
+      // compact sublayerTransform. Re-apply after the alert window is up.
+      void YohakuNative.configureCompactNativeTabBar()
     })()
 
     return () => {
