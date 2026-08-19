@@ -4,7 +4,13 @@ import UIKit
 enum TabBarDomain {
   private static let expectedItemCount = 4
   private static let compactScale: CGFloat = 0.82
+  private static let configurationRetryDelay: TimeInterval = 0.25
+  private static let configurationRetryWindow: TimeInterval = 30
   private static let avatarPointSize: CGFloat = 30
+  private static var configurationDeadline: DispatchTime?
+  private static var configurationRequested = false
+  private static var configurationRetry: DispatchWorkItem?
+  private static var lifecycleObservers: [NSObjectProtocol] = []
   private static var selectionObservation: NSKeyValueObservation?
   private static var avatarItemObservation: NSKeyValueObservation?
   private static var avatarImageObservation: NSKeyValueObservation?
@@ -101,15 +107,22 @@ enum TabBarDomain {
     return false
   }
 
-  static func configureCompactNativeTabBar(attempts: Int = 12) {
+  static func configureCompactNativeTabBar() {
+    configurationRequested = true
+    installConfigurationObservers()
+    configurationDeadline = .now() + configurationRetryWindow
+    attemptConfigureCompactNativeTabBar()
+  }
+
+  private static func attemptConfigureCompactNativeTabBar() {
+    configurationRetry?.cancel()
+    configurationRetry = nil
+
     guard let tabController = findTabBarController() else {
-      if attempts > 0 {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-          configureCompactNativeTabBar(attempts: attempts - 1)
-        }
-      }
+      scheduleConfigurationRetry()
       return
     }
+    configurationDeadline = nil
 
     // Keep the system-owned UITabBar intact. UIKit remains responsible for
     // Liquid Glass, selection morphing, safe areas, accessibility, repeated
@@ -146,6 +159,41 @@ enum TabBarDomain {
       installMeTabLongPress(on: tabController)
       applyCompactRenderingScale(to: tabController)
     }
+  }
+
+  private static func installConfigurationObservers() {
+    guard lifecycleObservers.isEmpty else { return }
+    let center = NotificationCenter.default
+    lifecycleObservers = [
+      UIApplication.didBecomeActiveNotification,
+      UIWindow.didBecomeKeyNotification,
+    ].map { name in
+      center.addObserver(forName: name, object: nil, queue: .main) { _ in
+        guard configurationRequested else { return }
+        configureCompactNativeTabBar()
+      }
+    }
+  }
+
+  private static func scheduleConfigurationRetry() {
+    guard
+      configurationRequested,
+      UIApplication.shared.applicationState != .background,
+      let configurationDeadline,
+      DispatchTime.now().uptimeNanoseconds < configurationDeadline.uptimeNanoseconds
+    else {
+      return
+    }
+
+    let work = DispatchWorkItem {
+      configurationRetry = nil
+      attemptConfigureCompactNativeTabBar()
+    }
+    configurationRetry = work
+    DispatchQueue.main.asyncAfter(
+      deadline: .now() + configurationRetryDelay,
+      execute: work
+    )
   }
 
   private static func observeAvatarItem(on tabController: UITabBarController) {
