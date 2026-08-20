@@ -1,8 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import { ApiError } from '@/api/errors'
+
 import {
   confirmAndFinishAppleTransaction,
   confirmAppleWithRetry,
+  shouldRetryAppleConfirmation,
 } from './confirm-apple'
 
 describe('confirmAppleWithRetry', () => {
@@ -29,6 +32,31 @@ describe('confirmAppleWithRetry', () => {
     const confirm = vi.fn().mockRejectedValue(new Error('net'))
     await expect(confirmAppleWithRetry(confirm, 'jws')).rejects.toThrow('net')
     expect(confirm).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not repeat a permanent Apple binding conflict', async () => {
+    const conflict = new ApiError(409, 'Apple ID already bound')
+    const confirm = vi.fn().mockRejectedValue(conflict)
+
+    await expect(confirmAppleWithRetry(confirm, 'jws')).rejects.toBe(conflict)
+    expect(confirm).toHaveBeenCalledOnce()
+  })
+})
+
+describe('shouldRetryAppleConfirmation', () => {
+  it('suppresses scheduled retries for a permanent binding conflict', () => {
+    expect(
+      shouldRetryAppleConfirmation(
+        new ApiError(409, 'Apple ID already bound'),
+      ),
+    ).toBe(false)
+  })
+
+  it('keeps retrying transient failures', () => {
+    expect(shouldRetryAppleConfirmation(new ApiError(503, 'unavailable'))).toBe(
+      true,
+    )
+    expect(shouldRetryAppleConfirmation(new Error('offline'))).toBe(true)
   })
 })
 

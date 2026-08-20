@@ -1,4 +1,9 @@
+import { ApiError } from '@/api/errors'
 import type { MembershipStatusResult } from '@/api/membership'
+
+export function shouldRetryAppleConfirmation(error: unknown): boolean {
+  return !(error instanceof ApiError && error.status === 409)
+}
 
 export async function confirmAppleWithRetry(
   confirm: (signedTransactionInfo: string) => Promise<MembershipStatusResult>,
@@ -6,7 +11,8 @@ export async function confirmAppleWithRetry(
 ): Promise<MembershipStatusResult> {
   try {
     return await confirm(signedTransactionInfo)
-  } catch {
+  } catch (error) {
+    if (!shouldRetryAppleConfirmation(error)) throw error
     return await confirm(signedTransactionInfo)
   }
 }

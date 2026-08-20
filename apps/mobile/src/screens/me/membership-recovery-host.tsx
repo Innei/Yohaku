@@ -6,7 +6,10 @@ import { AppState } from 'react-native'
 import { api } from '@/api/client'
 import { useSession } from '@/auth/session-store'
 
-import { confirmAndFinishAppleTransaction } from './confirm-apple'
+import {
+  confirmAndFinishAppleTransaction,
+  shouldRetryAppleConfirmation,
+} from './confirm-apple'
 import { createMembershipRecoveryLifecycle } from './membership-recovery-lifecycle'
 import { useMembershipPlans } from './use-membership'
 
@@ -53,8 +56,8 @@ export function MembershipRecoveryHost() {
               signedTransactionInfo,
             )
             confirmed = true
-          } catch {
-            needsRetry = true
+          } catch (error) {
+            if (shouldRetryAppleConfirmation(error)) needsRetry = true
           }
         }
         if (confirmed) {
