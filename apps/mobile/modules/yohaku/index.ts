@@ -17,6 +17,10 @@ type TtsEvents = {
 }
 
 type NativeEvents = TtsEvents & {
+  onMembershipTransaction: (event: {
+    productId: string
+    signedTransactionInfo: string
+  }) => void
   onMeTabLongPress: () => void
 }
 
@@ -50,6 +54,9 @@ interface YohakuNativeModule {
     | { status: 'cancelled' }
   >
   currentEntitlementJws(payload: { productIds: string[] }): Promise<string[]>
+  unfinishedMembershipTransactionJws(payload: {
+    productIds: string[]
+  }): Promise<string[]>
   finishMembershipTransaction(signedTransactionInfo: string): Promise<void>
   showManageSubscriptions(): Promise<void>
 }

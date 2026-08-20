@@ -28,6 +28,7 @@ import { refreshOwnerSnapshot } from '@/owner/refresh'
 import { PushOnboardingHost } from '@/push/push-onboarding-host'
 import { useNotificationRouting } from '@/push/use-notification-routing'
 import { usePushLifecycle } from '@/push/use-push-lifecycle'
+import { MembershipRecoveryHost } from '@/screens/me/membership-recovery-host'
 import { useSocketLifecycle } from '@/socket/use-socket-lifecycle'
 import { useSyncLifecycle } from '@/sync/use-sync-lifecycle'
 import { useAppFonts } from '@/theme/fonts'
@@ -125,6 +126,7 @@ export default function RootLayout() {
 
       {dataReady && !failed ? (
         <QueryClientProvider client={queryClient}>
+          <MembershipRecoveryHost />
           <ThemeProvider
             value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
           >

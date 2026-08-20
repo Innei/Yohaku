@@ -1,7 +1,35 @@
 import ExpoModulesCore
+import StoreKit
 
 public class YohakuModule: Module {
   private let tts = TtsPlayer()
+  private var membershipUpdatesTask: Task<Void, Never>?
+
+  public override func didStartListening(event: String) {
+    guard event == "onMembershipTransaction" else { return }
+    membershipUpdatesTask?.cancel()
+    membershipUpdatesTask = Task { [weak self] in
+      for await result in Transaction.updates {
+        guard !Task.isCancelled else { return }
+        guard case .verified(let transaction) = result else { continue }
+        self?.sendEvent("onMembershipTransaction", [
+          "productId": transaction.productID,
+          "signedTransactionInfo": result.jwsRepresentation,
+        ])
+      }
+    }
+  }
+
+  public override func didStopListening(event: String) {
+    guard event == "onMembershipTransaction" else { return }
+    membershipUpdatesTask?.cancel()
+    membershipUpdatesTask = nil
+  }
+
+  public override func willDestroy() {
+    membershipUpdatesTask?.cancel()
+    membershipUpdatesTask = nil
+  }
 
   public func definition() -> ModuleDefinition {
     Name("Yohaku")
@@ -12,7 +40,8 @@ public class YohakuModule: Module {
       "onTtsError",
       "onTtsRemote",
       "onTtsInterrupted",
-      "onMeTabLongPress"
+      "onMeTabLongPress",
+      "onMembershipTransaction"
     )
 
     Constants([
@@ -76,6 +105,10 @@ public class YohakuModule: Module {
 
     AsyncFunction("currentEntitlementJws") { (payload: MembershipProductIdsPayload) -> [String] in
       await MembershipStore.currentEntitlementJws(productIds: payload.productIds)
+    }
+
+    AsyncFunction("unfinishedMembershipTransactionJws") { (payload: MembershipProductIdsPayload) -> [String] in
+      await MembershipStore.unfinishedTransactionJws(productIds: payload.productIds)
     }
 
     AsyncFunction("finishMembershipTransaction") { (signedTransactionInfo: String) in

@@ -45,6 +45,17 @@ enum MembershipStore {
     return tokens
   }
 
+  static func unfinishedTransactionJws(productIds: [String]) async -> [String] {
+    let allowed = Set(productIds)
+    var tokens: [String] = []
+    for await result in Transaction.unfinished {
+      guard case .verified(let transaction) = result else { continue }
+      guard allowed.contains(transaction.productID) else { continue }
+      tokens.append(result.jwsRepresentation)
+    }
+    return tokens
+  }
+
   static func finishTransaction(signedTransactionInfo: String) async {
     let target = signedTransactionInfo.trimmingCharacters(in: .whitespacesAndNewlines)
     guard !target.isEmpty else { return }

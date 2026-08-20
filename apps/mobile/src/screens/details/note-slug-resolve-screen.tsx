@@ -7,6 +7,7 @@ import { AppText, Desk } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
 
 import { NoteDetailScreen } from './note-detail'
+import { resolveDatedNote } from './resolve-dated-note'
 
 export function NoteSlugResolveScreen({
   day,
@@ -22,36 +23,45 @@ export function NoteSlugResolveScreen({
   const router = useRouter()
   const locale = useLocale()
   const tc = useTranslations('common')
+  const td = useTranslations('detail')
   const tt = useTranslations('tabs')
   const [nid, setNid] = useState<number | null>(null)
+  const [failed, setFailed] = useState(false)
+  const [attempt, setAttempt] = useState(0)
 
   useEffect(() => {
     let cancelled = false
-    void api
-      .noteBySlugDate(year, month, day, slug, locale)
-      .then(({ data }) => {
-        if (cancelled) return
-        if (!Number.isFinite(data.nid) || data.nid <= 0) {
-          router.replace('/notes')
-          return
-        }
-        setNid(data.nid)
-      })
-      .catch(() => {
-        if (!cancelled) router.replace('/notes')
-      })
+    setFailed(false)
+    void resolveDatedNote(() =>
+      api.noteBySlugDate(year, month, day, slug, locale),
+    ).then((result) => {
+      if (cancelled) return
+      if (result.kind === 'missing') {
+        router.replace('/notes')
+        return
+      }
+      if (result.kind === 'retry') {
+        setFailed(true)
+        return
+      }
+      setNid(result.nid)
+    })
     return () => {
       cancelled = true
     }
-  }, [day, locale, month, router, slug, year])
+  }, [attempt, day, locale, month, router, slug, year])
 
   if (nid != null) return <NoteDetailScreen nid={nid} />
 
   return (
     <Desk>
       <Stack.Screen options={{ title: tt('notes') }} />
-      <AppText style={styles.placeholder} variant="secondary">
-        {tc('loading')}
+      <AppText
+        style={styles.placeholder}
+        variant="secondary"
+        onPress={failed ? () => setAttempt((value) => value + 1) : undefined}
+      >
+        {failed ? td('noteFailed') : tc('loading')}
       </AppText>
     </Desk>
   )
