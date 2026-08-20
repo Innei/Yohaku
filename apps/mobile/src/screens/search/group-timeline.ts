@@ -1,3 +1,5 @@
+import type { ApiNote, ApiPost } from '@/api/types'
+
 export type SearchTimelineItem = {
   categorySlug?: string | null
   date: Date
@@ -85,6 +87,29 @@ export function timelineItemFromNote(row: {
     nid: row.nid,
     title: row.title ?? '',
   }
+}
+
+export function timelineItemFromApiPost(row: ApiPost): SearchTimelineItem {
+  return timelineItemFromPost({
+    categoryName: row.category?.name ?? null,
+    categorySlug: row.category?.slug ?? null,
+    createdAt: new Date(row.createdAt),
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+  })
+}
+
+export function timelineItemFromApiNote(row: ApiNote): SearchTimelineItem {
+  return timelineItemFromNote({
+    createdAt: new Date(row.createdAt),
+    hasPassword: row.hasPassword ?? false,
+    id: row.id,
+    mood: row.mood,
+    nid: row.nid,
+    title: row.title,
+    weather: row.weather,
+  })
 }
 
 export function groupSearchTimeline(

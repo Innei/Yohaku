@@ -78,6 +78,10 @@ public class YohakuModule: Module {
       await MembershipStore.currentEntitlementJws(productIds: payload.productIds)
     }
 
+    AsyncFunction("finishMembershipTransaction") { (signedTransactionInfo: String) in
+      await MembershipStore.finishTransaction(signedTransactionInfo: signedTransactionInfo)
+    }
+
     AsyncFunction("showManageSubscriptions") {
       try await MembershipStore.showManageSubscriptions()
     }.runOnQueue(.main)

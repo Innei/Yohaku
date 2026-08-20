@@ -50,6 +50,7 @@ interface YohakuNativeModule {
     | { status: 'cancelled' }
   >
   currentEntitlementJws(payload: { productIds: string[] }): Promise<string[]>
+  finishMembershipTransaction(signedTransactionInfo: string): Promise<void>
   showManageSubscriptions(): Promise<void>
 }
 

@@ -4,9 +4,66 @@ import {
   formatTimelineDay,
   formatTimelineMonth,
   groupSearchTimeline,
+  timelineItemFromApiNote,
+  timelineItemFromApiPost,
   timelineItemFromNote,
   timelineItemFromPost,
 } from './group-timeline'
+
+describe('API archive timeline mapping', () => {
+  it('maps the complete post archive response into a native route', () => {
+    const item = timelineItemFromApiPost({
+      category: { id: 'c1', name: '编程', slug: 'coding', type: 0 },
+      categoryId: 'c1',
+      content: null,
+      contentFormat: 'lexical',
+      createdAt: '2026-03-14T08:00:00.000Z',
+      id: 'p1',
+      likeCount: 0,
+      modifiedAt: null,
+      pinAt: null,
+      readCount: 0,
+      slug: 'hello',
+      summary: null,
+      tags: [],
+      text: null,
+      title: '你好',
+    })
+
+    expect(item).toMatchObject({
+      categorySlug: 'coding',
+      id: 'p1',
+      meta: '编程',
+      slug: 'hello',
+      title: '你好',
+    })
+    expect(item.date.toISOString()).toBe('2026-03-14T08:00:00.000Z')
+  })
+
+  it('keeps password protection when mapping the note archive', () => {
+    const item = timelineItemFromApiNote({
+      contentFormat: 'lexical',
+      createdAt: '2026-03-14T08:00:00.000Z',
+      hasPassword: true,
+      id: 'n1',
+      likeCount: 0,
+      modifiedAt: null,
+      mood: '平静',
+      nid: 12,
+      readCount: 0,
+      title: '信',
+      weather: '雨',
+    })
+
+    expect(item).toMatchObject({
+      hasPassword: true,
+      id: 'n1',
+      meta: '雨 · 平静',
+      nid: 12,
+      title: '信',
+    })
+  })
+})
 
 describe('formatTimelineDay', () => {
   it('pads the local calendar day to two digits', () => {

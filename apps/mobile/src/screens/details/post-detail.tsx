@@ -347,7 +347,7 @@ export function PostDetailScreen({
               </View>
             )}
             <PaywallGate
-              appleIapEnabled={plans?.appleIap.enabled === true}
+              appleIapEnabled={plans?.appleIap?.enabled === true}
               loggedIn={Boolean(session)}
               visible={showPaywallGate}
             />

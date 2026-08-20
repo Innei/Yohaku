@@ -40,12 +40,21 @@ enum MembershipStore {
     for await entitlement in Transaction.currentEntitlements {
       guard case .verified(let transaction) = entitlement else { continue }
       guard allowed.contains(transaction.productID) else { continue }
-      guard let token = String(data: transaction.jsonRepresentation, encoding: .utf8) else {
-        continue
-      }
-      tokens.append(token)
+      tokens.append(entitlement.jwsRepresentation)
     }
     return tokens
+  }
+
+  static func finishTransaction(signedTransactionInfo: String) async {
+    let target = signedTransactionInfo.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !target.isEmpty else { return }
+
+    for await result in Transaction.unfinished {
+      guard case .verified(let transaction) = result else { continue }
+      guard result.jwsRepresentation == target else { continue }
+      await transaction.finish()
+      return
+    }
   }
 
   @MainActor
@@ -118,13 +127,9 @@ enum MembershipStore {
     private func handlePurchase(_ result: Product.PurchaseResult) {
       switch result {
       case .success(let verification):
-        guard case .verified(let transaction) = verification else { return }
-        guard let token = String(data: transaction.jsonRepresentation, encoding: .utf8) else {
-          return
-        }
-        Task { await transaction.finish() }
+        guard case .verified = verification else { return }
         finish(payload: [
-          "signedTransactionInfo": token,
+          "signedTransactionInfo": verification.jwsRepresentation,
           "status": "purchased",
         ])
       case .pending, .userCancelled:
@@ -138,13 +143,9 @@ enum MembershipStore {
       for await update in Transaction.updates {
         guard case .verified(let transaction) = update else { continue }
         guard productIds.contains(transaction.productID) else { continue }
-        guard let token = String(data: transaction.jsonRepresentation, encoding: .utf8) else {
-          continue
-        }
-        await transaction.finish()
         await MainActor.run {
           self.finish(payload: [
-            "signedTransactionInfo": token,
+            "signedTransactionInfo": update.jwsRepresentation,
             "status": "restored",
           ])
         }

@@ -1,11 +1,27 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  isAppleManagedMembership,
   isActiveMembership,
   membershipBannerKind,
   paywallCtaKind,
   remainingMembershipDays,
 } from './membership'
+
+describe('isAppleManagedMembership', () => {
+  it('only delegates management for Apple-backed memberships', () => {
+    const period = {
+      currentPeriodEnd: '2026-09-01T00:00:00.000Z',
+      plan: 'yearly' as const,
+      status: 'active' as const,
+    }
+
+    expect(isAppleManagedMembership({ ...period, provider: 'apple' })).toBe(true)
+    expect(isAppleManagedMembership({ ...period, provider: 'dodo' })).toBe(false)
+    expect(isAppleManagedMembership(period)).toBe(false)
+    expect(isAppleManagedMembership({ status: 'none' })).toBe(false)
+  })
+})
 
 describe('isActiveMembership', () => {
   it('treats active and on_hold as entitled', () => {

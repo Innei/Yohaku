@@ -10,3 +10,13 @@ export async function confirmAppleWithRetry(
     return await confirm(signedTransactionInfo)
   }
 }
+
+export async function confirmAndFinishAppleTransaction(
+  confirm: (signedTransactionInfo: string) => Promise<MembershipStatusResult>,
+  finish: (signedTransactionInfo: string) => Promise<void>,
+  signedTransactionInfo: string,
+): Promise<MembershipStatusResult> {
+  const status = await confirmAppleWithRetry(confirm, signedTransactionInfo)
+  await finish(signedTransactionInfo)
+  return status
+}

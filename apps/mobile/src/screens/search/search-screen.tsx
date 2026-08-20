@@ -25,8 +25,8 @@ import { usePalette } from '@/theme/palette'
 
 import {
   groupSearchTimeline,
-  timelineItemFromNote,
-  timelineItemFromPost,
+  timelineItemFromApiNote,
+  timelineItemFromApiPost,
 } from './group-timeline'
 import {
   parseSearchScope,
@@ -154,6 +154,13 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
   const { data: thinkingRows } = useLiveQuery(thinkingsQuery)
 
   const trimmed = keyword.trim()
+  const archiveEnabled = !trimmed && scope !== 'thinking'
+  const archiveQuery = useQuery({
+    enabled: archiveEnabled,
+    queryFn: () =>
+      api.archiveTimeline(scope === 'notes' ? 'notes' : 'posts', locale),
+    queryKey: ['archive-timeline', scope, locale],
+  })
   const localHits = useMemo(() => {
     if (!trimmed) return []
     if (scope === 'notes') return searchNotes(noteRows ?? [], trimmed)
@@ -191,15 +198,15 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
     if (trimmed || scope === 'thinking') return []
     if (scope === 'notes') {
       return groupSearchTimeline(
-        (noteRows ?? []).map(timelineItemFromNote),
+        (archiveQuery.data?.notes ?? []).map(timelineItemFromApiNote),
         locale,
       )
     }
     return groupSearchTimeline(
-      (postRows ?? []).map(timelineItemFromPost),
+      (archiveQuery.data?.posts ?? []).map(timelineItemFromApiPost),
       locale,
     )
-  }, [locale, noteRows, postRows, scope, trimmed])
+  }, [archiveQuery.data, locale, scope, trimmed])
 
   const yearCountLabel = useCallback(
     (count: number) => t('yearTotal', { count }),
@@ -292,6 +299,15 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
     !showOffline &&
     !showRetry &&
     (scope === 'thinking' || (remoteReady && remoteQuery.isSuccess))
+  const showArchiveLoading = archiveEnabled && archiveQuery.isPending
+  const showArchiveOffline =
+    archiveEnabled &&
+    archiveQuery.isError &&
+    isOfflineFailure(archiveQuery.error)
+  const showArchiveRetry =
+    archiveEnabled &&
+    archiveQuery.isError &&
+    !isOfflineFailure(archiveQuery.error)
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
@@ -305,19 +321,23 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
         scrollIndicatorInsets={{ bottom: dockHeight }}
         style={styles.screen}
       >
-        {showLoading ? (
+        {showLoading || showArchiveLoading ? (
           <ActivityIndicator color={palette.neutral[5]} style={styles.center} />
         ) : null}
-        {showOffline ? (
+        {showOffline || showArchiveOffline ? (
           <AppText style={styles.center} variant="secondary">
             {t('offline')}
           </AppText>
         ) : null}
-        {showRetry ? (
+        {showRetry || showArchiveRetry ? (
           <AppText
             style={styles.center}
             variant="secondary"
-            onPress={() => void remoteQuery.refetch()}
+            onPress={() =>
+              void (showArchiveRetry
+                ? archiveQuery.refetch()
+                : remoteQuery.refetch())
+            }
           >
             {tc('retry')}
           </AppText>

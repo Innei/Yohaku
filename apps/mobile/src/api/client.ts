@@ -199,6 +199,18 @@ export const api = {
       `/notes/${year}/${month}/${day}/${encodeURIComponent(slug)}`,
       lang,
     ),
+  archiveTimeline: (
+    scope: 'notes' | 'posts',
+    lang = getLocale(),
+  ) =>
+    request<{ notes?: ApiNote[]; posts?: ApiPost[] }>(
+      '/aggregate/timeline',
+      {
+        lang,
+        sort: -1,
+        type: scope === 'posts' ? 0 : 1,
+      },
+    ),
   thinkingList: async (size: number) =>
     parseThinkingList(await fetchRawJson('/recently', { size })),
   categoryList: () =>

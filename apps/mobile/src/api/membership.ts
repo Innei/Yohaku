@@ -1,5 +1,13 @@
 export type MembershipPlan = 'monthly' | 'yearly'
 
+export type MembershipProvider =
+  | 'apple'
+  | 'creem'
+  | 'dodo'
+  | 'lemonsqueezy'
+  | 'manual'
+  | 'stripe'
+
 export type MembershipStatus =
   | 'none'
   | 'active'
@@ -14,6 +22,7 @@ export interface MembershipStatusNone {
 export interface MembershipStatusPeriod {
   currentPeriodEnd: string
   plan: MembershipPlan
+  provider?: MembershipProvider
   status: Exclude<MembershipStatus, 'none'>
 }
 
@@ -30,7 +39,7 @@ export interface MembershipAppleIap {
 }
 
 export interface MembershipPlansResult {
-  appleIap: MembershipAppleIap
+  appleIap?: MembershipAppleIap
   enabled: boolean
   plans: unknown[]
 }
@@ -43,6 +52,12 @@ export function isActiveMembership(
   status?: MembershipStatusResult | null,
 ): boolean {
   return status?.status === 'active' || status?.status === 'on_hold'
+}
+
+export function isAppleManagedMembership(
+  status?: MembershipStatusResult | null,
+): boolean {
+  return status?.status !== 'none' && status?.provider === 'apple'
 }
 
 export function remainingMembershipDays(

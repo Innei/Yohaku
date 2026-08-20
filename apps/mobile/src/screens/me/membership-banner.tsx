@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import {
+  isAppleManagedMembership,
   membershipBannerKind,
   remainingMembershipDays,
 } from '@/api/membership'
@@ -39,7 +40,7 @@ export function MembershipBanner() {
     Boolean(session),
   )
   const { present, syncEntitlements } = useMembershipCheckout()
-  const membershipEnabled = plans?.appleIap.enabled === true
+  const membershipEnabled = plans?.appleIap?.enabled === true
   const kind = membershipBannerKind({
     loggedIn: Boolean(session),
     membershipEnabled,
@@ -94,18 +95,16 @@ export function MembershipBanner() {
   const expiry = formatExpiry(period.currentPeriodEnd, locale)
   const planLabel =
     period.plan === 'yearly' ? t('planYearly') : t('planMonthly')
-
-  return (
-    <NativePressable
-      style={[
-        styles.card,
-        {
-          backgroundColor: palette.surface.paper,
-          boxShadow: shadow.paperSmall[palette.theme],
-        },
-      ]}
-      onPress={() => void YohakuNative.showManageSubscriptions()}
-    >
+  const canManageInApple = isAppleManagedMembership(period)
+  const cardStyle = [
+    styles.card,
+    {
+      backgroundColor: palette.surface.paper,
+      boxShadow: shadow.paperSmall[palette.theme],
+    },
+  ]
+  const content = (
+    <>
       <View style={[styles.icon, { backgroundColor: `${palette.accent}1F` }]}>
         <SymbolView name="crown.fill" size={18} tintColor={palette.accent} />
       </View>
@@ -125,11 +124,24 @@ export function MembershipBanner() {
           {expiry ? ` · ${t('expireAt', { date: expiry })}` : ''}
         </AppText>
       </View>
-      <SymbolView
-        name="chevron.right"
-        size={16}
-        tintColor={palette.neutral[5]}
-      />
+      {canManageInApple ? (
+        <SymbolView
+          name="chevron.right"
+          size={16}
+          tintColor={palette.neutral[5]}
+        />
+      ) : null}
+    </>
+  )
+
+  if (!canManageInApple) return <View style={cardStyle}>{content}</View>
+
+  return (
+    <NativePressable
+      style={cardStyle}
+      onPress={() => void YohakuNative.showManageSubscriptions()}
+    >
+      {content}
     </NativePressable>
   )
 }

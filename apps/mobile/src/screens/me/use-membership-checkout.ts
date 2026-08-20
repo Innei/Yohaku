@@ -8,12 +8,18 @@ import { useSession } from '@/auth/session-store'
 import { showToast } from '@/components/ui/toast-store'
 import { useTranslations } from '@/i18n'
 
-import { confirmAppleWithRetry } from './confirm-apple'
+import { confirmAndFinishAppleTransaction } from './confirm-apple'
 import { useMembershipPlans } from './use-membership'
 
 function productIdsOf(appleIap: MembershipAppleIap | undefined): string[] {
   if (!appleIap?.monthlyProductId || !appleIap.yearlyProductId) return []
   return [appleIap.monthlyProductId, appleIap.yearlyProductId]
+}
+
+async function finishMembershipTransaction(
+  signedTransactionInfo: string,
+): Promise<void> {
+  await YohakuNative.finishMembershipTransaction(signedTransactionInfo)
 }
 
 export function useMembershipCheckout(): {
@@ -33,8 +39,9 @@ export function useMembershipCheckout(): {
     try {
       const result = await YohakuNative.presentSubscriptionStore({ productIds })
       if (result.status === 'cancelled') return 'cancelled'
-      await confirmAppleWithRetry(
+      await confirmAndFinishAppleTransaction(
         api.membershipConfirmApple,
+        finishMembershipTransaction,
         result.signedTransactionInfo,
       )
       await queryClient.invalidateQueries({ queryKey: ['membership', 'status'] })
@@ -55,9 +62,13 @@ export function useMembershipCheckout(): {
     try {
       const tokens = await YohakuNative.currentEntitlementJws({ productIds })
       let confirmed = false
-      for (const token of tokens) {
+      for (const signedTransactionInfo of tokens) {
         try {
-          await confirmAppleWithRetry(api.membershipConfirmApple, token)
+          await confirmAndFinishAppleTransaction(
+            api.membershipConfirmApple,
+            finishMembershipTransaction,
+            signedTransactionInfo,
+          )
           confirmed = true
         } catch {}
       }
