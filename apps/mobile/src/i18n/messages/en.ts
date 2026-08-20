@@ -86,6 +86,7 @@ export const en = {
     fallbackToSource: 'Fallback to original',
     clear: 'Clear',
     deleteRecent: 'Delete',
+    yearTotal: '{count}',
   },
   detail: {
     bodyFailed: 'The body failed to load. Tap to retry.',
@@ -188,16 +189,18 @@ export const en = {
   membership: {
     divider: 'Members only beyond this point',
     lockedTitle: 'Members-only content',
-    lockedSubtitle:
-      'Read the rest on the web. Open Safari to subscribe or finish the article.',
-    ctaReadInSafari: 'Read in Safari',
+    lockedSubtitle: 'Subscribe to finish the article in the app.',
+    ctaSubscribe: 'Subscribe',
+    ctaLoginToSubscribe: 'Sign in to subscribe',
     badgeMember: 'Member',
     becomeMember: 'Become a member',
-    becomeMemberHint: 'Open Safari to subscribe and support the writing',
+    becomeMemberHint: 'Subscribe in the app to support the writing',
     planMonthly: 'Monthly',
     planYearly: 'Yearly',
     expireAt: 'Renews {date}',
     daysLeft: '{count} days left',
+    confirmFailed: 'Couldn’t start your membership. Try again.',
+    appleAlreadyBound: 'This Apple ID already has a membership',
   },
   desk: {
     lineUsing: '{name} · now in {app}',

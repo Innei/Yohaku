@@ -4,7 +4,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useRouter } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import * as WebBrowser from 'expo-web-browser'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
   Keyboard,
@@ -23,6 +23,11 @@ import { useLocale, useTranslations } from '@/i18n'
 import { siteHref } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 
+import {
+  groupSearchTimeline,
+  timelineItemFromApiNote,
+  timelineItemFromApiPost,
+} from './group-timeline'
 import {
   parseSearchScope,
   type SearchHit,
@@ -44,6 +49,7 @@ import {
 import { SearchChrome } from './search-chrome'
 import { SearchDock } from './search-dock'
 import { SearchHitRow } from './search-hit'
+import { SearchTimeline } from './search-timeline'
 
 const RECENTS_KEY = 'yohaku.search-recents'
 const DEBOUNCE_MS = 360
@@ -148,6 +154,13 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
   const { data: thinkingRows } = useLiveQuery(thinkingsQuery)
 
   const trimmed = keyword.trim()
+  const archiveEnabled = !trimmed && scope !== 'thinking'
+  const archiveQuery = useQuery({
+    enabled: archiveEnabled,
+    queryFn: () =>
+      api.archiveTimeline(scope === 'notes' ? 'notes' : 'posts', locale),
+    queryKey: ['archive-timeline', scope, locale],
+  })
   const localHits = useMemo(() => {
     if (!trimmed) return []
     if (scope === 'notes') return searchNotes(noteRows ?? [], trimmed)
@@ -181,27 +194,58 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
       ? mergeHits(localHits, remoteHits)
       : localHits
 
-  const openHit = (hit: SearchHit) => {
-    Keyboard.dismiss()
-    if (scope === 'thinking') {
-      router.push(`/comments/${hit.id}`)
-      return
-    }
+  const years = useMemo(() => {
+    if (trimmed || scope === 'thinking') return []
     if (scope === 'notes') {
-      if (typeof hit.nid !== 'number') return
-      if (hit.hasPassword) {
-        void WebBrowser.openBrowserAsync(siteHref(`/notes/${hit.nid}`))
+      return groupSearchTimeline(
+        (archiveQuery.data?.notes ?? []).map(timelineItemFromApiNote),
+        locale,
+      )
+    }
+    return groupSearchTimeline(
+      (archiveQuery.data?.posts ?? []).map(timelineItemFromApiPost),
+      locale,
+    )
+  }, [archiveQuery.data, locale, scope, trimmed])
+
+  const yearCountLabel = useCallback(
+    (count: number) => t('yearTotal', { count }),
+    [t],
+  )
+
+  const openHit = useCallback(
+    (hit: {
+      categorySlug?: string | null
+      hasPassword?: boolean
+      id: string
+      nid?: number
+      slug?: string
+    }) => {
+      Keyboard.dismiss()
+      if (scope === 'thinking') {
+        router.push(`/comments/${hit.id}`)
         return
       }
-      router.push({ pathname: '/notes/[nid]', params: { nid: String(hit.nid) } })
-      return
-    }
-    if (!hit.categorySlug || !hit.slug) return
-    router.push({
-      pathname: '/posts/[category]/[slug]',
-      params: { category: hit.categorySlug, postId: hit.id, slug: hit.slug },
-    })
-  }
+      if (scope === 'notes') {
+        if (typeof hit.nid !== 'number') return
+        if (hit.hasPassword) {
+          void WebBrowser.openBrowserAsync(siteHref(`/notes/${hit.nid}`))
+          return
+        }
+        router.push({
+          pathname: '/notes/[nid]',
+          params: { nid: String(hit.nid) },
+        })
+        return
+      }
+      if (!hit.categorySlug || !hit.slug) return
+      router.push({
+        pathname: '/posts/[category]/[slug]',
+        params: { category: hit.categorySlug, postId: hit.id, slug: hit.slug },
+      })
+    },
+    [router, scope],
+  )
 
   const applyRecent = (query: string) => {
     setKeyword(query)
@@ -255,6 +299,15 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
     !showOffline &&
     !showRetry &&
     (scope === 'thinking' || (remoteReady && remoteQuery.isSuccess))
+  const showArchiveLoading = archiveEnabled && archiveQuery.isPending
+  const showArchiveOffline =
+    archiveEnabled &&
+    archiveQuery.isError &&
+    isOfflineFailure(archiveQuery.error)
+  const showArchiveRetry =
+    archiveEnabled &&
+    archiveQuery.isError &&
+    !isOfflineFailure(archiveQuery.error)
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
@@ -268,19 +321,23 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
         scrollIndicatorInsets={{ bottom: dockHeight }}
         style={styles.screen}
       >
-        {showLoading ? (
+        {showLoading || showArchiveLoading ? (
           <ActivityIndicator color={palette.neutral[5]} style={styles.center} />
         ) : null}
-        {showOffline ? (
+        {showOffline || showArchiveOffline ? (
           <AppText style={styles.center} variant="secondary">
             {t('offline')}
           </AppText>
         ) : null}
-        {showRetry ? (
+        {showRetry || showArchiveRetry ? (
           <AppText
             style={styles.center}
             variant="secondary"
-            onPress={() => void remoteQuery.refetch()}
+            onPress={() =>
+              void (showArchiveRetry
+                ? archiveQuery.refetch()
+                : remoteQuery.refetch())
+            }
           >
             {tc('retry')}
           </AppText>
@@ -294,6 +351,14 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
               {t('emptyHint')}
             </AppText>
           </View>
+        ) : null}
+
+        {!trimmed && scope !== 'thinking' ? (
+          <SearchTimeline
+            yearCountLabel={yearCountLabel}
+            years={years}
+            onPressItem={openHit}
+          />
         ) : null}
 
         {hits.map((hit) => (

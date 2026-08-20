@@ -1,10 +1,27 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  isAppleManagedMembership,
   isActiveMembership,
   membershipBannerKind,
+  paywallCtaKind,
   remainingMembershipDays,
 } from './membership'
+
+describe('isAppleManagedMembership', () => {
+  it('only delegates management for Apple-backed memberships', () => {
+    const period = {
+      currentPeriodEnd: '2026-09-01T00:00:00.000Z',
+      plan: 'yearly' as const,
+      status: 'active' as const,
+    }
+
+    expect(isAppleManagedMembership({ ...period, provider: 'apple' })).toBe(true)
+    expect(isAppleManagedMembership({ ...period, provider: 'dodo' })).toBe(false)
+    expect(isAppleManagedMembership(period)).toBe(false)
+    expect(isAppleManagedMembership({ status: 'none' })).toBe(false)
+  })
+})
 
 describe('isActiveMembership', () => {
   it('treats active and on_hold as entitled', () => {
@@ -114,5 +131,47 @@ describe('membershipBannerKind', () => {
         status: { status: 'none' },
       }),
     ).toBe('hidden')
+  })
+})
+
+describe('paywallCtaKind', () => {
+  it('asks signed-out readers to log in', () => {
+    expect(
+      paywallCtaKind({
+        appleIapEnabled: true,
+        loggedIn: false,
+        visible: true,
+      }),
+    ).toBe('login')
+  })
+
+  it('offers subscribe when signed in and IAP is configured', () => {
+    expect(
+      paywallCtaKind({
+        appleIapEnabled: true,
+        loggedIn: true,
+        visible: true,
+      }),
+    ).toBe('subscribe')
+  })
+
+  it('hides the button when IAP is not configured', () => {
+    expect(
+      paywallCtaKind({
+        appleIapEnabled: false,
+        loggedIn: true,
+        visible: true,
+      }),
+    ).toBe('none')
+  })
+
+  it('hides everything when the gate is not visible', () => {
+    expect(
+      paywallCtaKind({
+        appleIapEnabled: true,
+        loggedIn: true,
+        visible: false,
+      }),
+    ).toBe('none')
   })
 })

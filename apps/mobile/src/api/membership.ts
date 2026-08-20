@@ -1,5 +1,13 @@
 export type MembershipPlan = 'monthly' | 'yearly'
 
+export type MembershipProvider =
+  | 'apple'
+  | 'creem'
+  | 'dodo'
+  | 'lemonsqueezy'
+  | 'manual'
+  | 'stripe'
+
 export type MembershipStatus =
   | 'none'
   | 'active'
@@ -14,6 +22,7 @@ export interface MembershipStatusNone {
 export interface MembershipStatusPeriod {
   currentPeriodEnd: string
   plan: MembershipPlan
+  provider?: MembershipProvider
   status: Exclude<MembershipStatus, 'none'>
 }
 
@@ -23,12 +32,32 @@ export type MembershipStatusResult =
 
 export type MembershipBannerKind = 'hidden' | 'active' | 'cta'
 
+export interface MembershipAppleIap {
+  enabled: boolean
+  monthlyProductId?: string
+  yearlyProductId?: string
+}
+
+export interface MembershipPlansResult {
+  appleIap?: MembershipAppleIap
+  enabled: boolean
+  plans: unknown[]
+}
+
+export type PaywallCtaKind = 'login' | 'none' | 'subscribe'
+
 const DAY_MS = 24 * 60 * 60 * 1000
 
 export function isActiveMembership(
   status?: MembershipStatusResult | null,
 ): boolean {
   return status?.status === 'active' || status?.status === 'on_hold'
+}
+
+export function isAppleManagedMembership(
+  status?: MembershipStatusResult | null,
+): boolean {
+  return status?.status !== 'none' && status?.provider === 'apple'
 }
 
 export function remainingMembershipDays(
@@ -53,4 +82,15 @@ export function membershipBannerKind({
   if (isActiveMembership(status)) return 'active'
   if (membershipEnabled) return 'cta'
   return 'hidden'
+}
+
+export function paywallCtaKind(input: {
+  appleIapEnabled: boolean
+  loggedIn: boolean
+  visible: boolean
+}): PaywallCtaKind {
+  if (!input.visible) return 'none'
+  if (!input.loggedIn) return 'login'
+  if (input.appleIapEnabled) return 'subscribe'
+  return 'none'
 }

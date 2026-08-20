@@ -10,7 +10,10 @@ import { apiBaseUrl } from './base-url'
 import { camelize } from './camelize'
 import { camelizeEnrichments } from './enrichments'
 import { ApiError, extractServerMessage } from './errors'
-import type { MembershipStatusResult } from './membership'
+import type {
+  MembershipPlansResult,
+  MembershipStatusResult,
+} from './membership'
 import { readPresenceMap } from './presence-map'
 import { parseThinkingList } from './thinking'
 import type {
@@ -185,6 +188,29 @@ export const api = {
     requestPaged<ApiNote>('/notes', { page, size, withSummary: 1, lang }),
   noteDetail: (nid: number, lang = getLocale()) =>
     requestDetail<ApiNote>(`/notes/nid/${nid}`, lang),
+  noteBySlugDate: (
+    year: number,
+    month: number,
+    day: number,
+    slug: string,
+    lang = getLocale(),
+  ) =>
+    requestDetail<ApiNote>(
+      `/notes/${year}/${month}/${day}/${encodeURIComponent(slug)}`,
+      lang,
+    ),
+  archiveTimeline: (
+    scope: 'notes' | 'posts',
+    lang = getLocale(),
+  ) =>
+    request<{ notes?: ApiNote[]; posts?: ApiPost[] }>(
+      '/aggregate/timeline',
+      {
+        lang,
+        sort: -1,
+        type: scope === 'posts' ? 0 : 1,
+      },
+    ),
   thinkingList: async (size: number) =>
     parseThinkingList(await fetchRawJson('/recently', { size })),
   categoryList: () =>
@@ -316,7 +342,13 @@ export const api = {
       method: 'POST',
       body,
     }),
-  membershipPlans: () =>
-    request<{ enabled: boolean; plans: unknown[] }>('/membership/plans'),
+  membershipPlans: () => request<MembershipPlansResult>('/membership/plans'),
   membershipStatus: () => request<MembershipStatusResult>('/membership/status'),
+  membershipAppleAccountToken: () =>
+    request<{ accountToken: string }>('/membership/apple/account-token'),
+  membershipConfirmApple: (signedTransactionInfo: string) =>
+    request<MembershipStatusResult>('/membership/apple/confirm', undefined, {
+      method: 'POST',
+      body: { signedTransactionInfo },
+    }),
 }

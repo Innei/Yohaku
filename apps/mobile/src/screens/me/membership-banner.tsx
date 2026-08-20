@@ -1,11 +1,12 @@
+import { YohakuNative } from '@modules/yohaku'
 import { radius } from '@yohaku/design-system/tokens'
-import * as Linking from 'expo-linking'
 import { useFocusEffect } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import { useCallback } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import {
+  isAppleManagedMembership,
   membershipBannerKind,
   remainingMembershipDays,
 } from '@/api/membership'
@@ -13,14 +14,11 @@ import { useSession } from '@/auth/session-store'
 import { AppText, NativePressable } from '@/components/ui'
 import type { Locale } from '@/i18n'
 import { translate, useLocale, useTranslations } from '@/i18n'
-import { getSiteUrl } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 import { shadow } from '@/theme/surfaces'
 
-import {
-  useMembershipPlans,
-  useMembershipStatus,
-} from './use-membership'
+import { useMembershipPlans, useMembershipStatus } from './use-membership'
+import { useMembershipCheckout } from './use-membership-checkout'
 
 function formatExpiry(iso: string, locale: Locale): string {
   const date = new Date(iso)
@@ -41,7 +39,8 @@ export function MembershipBanner() {
   const { data: plans, refetch: refetchPlans } = useMembershipPlans(
     Boolean(session),
   )
-  const membershipEnabled = plans?.enabled === true
+  const { present, syncEntitlements } = useMembershipCheckout()
+  const membershipEnabled = plans?.appleIap?.enabled === true
   const kind = membershipBannerKind({
     loggedIn: Boolean(session),
     membershipEnabled,
@@ -53,7 +52,8 @@ export function MembershipBanner() {
       if (!session) return
       void refetchStatus()
       void refetchPlans()
-    }, [refetchPlans, refetchStatus, session]),
+      void syncEntitlements()
+    }, [refetchPlans, refetchStatus, session, syncEntitlements]),
   )
 
   if (kind === 'hidden') return null
@@ -61,7 +61,6 @@ export function MembershipBanner() {
   if (kind === 'cta') {
     return (
       <NativePressable
-        accessibilityRole="link"
         style={[
           styles.card,
           {
@@ -69,7 +68,7 @@ export function MembershipBanner() {
             boxShadow: shadow.paperSmall[palette.theme],
           },
         ]}
-        onPress={() => void Linking.openURL(getSiteUrl())}
+        onPress={() => void present()}
       >
         <View
           style={[styles.icon, { backgroundColor: `${palette.accent}1F` }]}
@@ -80,7 +79,11 @@ export function MembershipBanner() {
           <AppText variant="entryTitleSans">{t('becomeMember')}</AppText>
           <AppText variant="secondary">{t('becomeMemberHint')}</AppText>
         </View>
-        <SymbolView name="safari" size={16} tintColor={palette.neutral[5]} />
+        <SymbolView
+          name="chevron.right"
+          size={16}
+          tintColor={palette.neutral[5]}
+        />
       </NativePressable>
     )
   }
@@ -92,17 +95,16 @@ export function MembershipBanner() {
   const expiry = formatExpiry(period.currentPeriodEnd, locale)
   const planLabel =
     period.plan === 'yearly' ? t('planYearly') : t('planMonthly')
-
-  return (
-    <View
-      style={[
-        styles.card,
-        {
-          backgroundColor: palette.surface.paper,
-          boxShadow: shadow.paperSmall[palette.theme],
-        },
-      ]}
-    >
+  const canManageInApple = isAppleManagedMembership(period)
+  const cardStyle = [
+    styles.card,
+    {
+      backgroundColor: palette.surface.paper,
+      boxShadow: shadow.paperSmall[palette.theme],
+    },
+  ]
+  const content = (
+    <>
       <View style={[styles.icon, { backgroundColor: `${palette.accent}1F` }]}>
         <SymbolView name="crown.fill" size={18} tintColor={palette.accent} />
       </View>
@@ -122,7 +124,25 @@ export function MembershipBanner() {
           {expiry ? ` · ${t('expireAt', { date: expiry })}` : ''}
         </AppText>
       </View>
-    </View>
+      {canManageInApple ? (
+        <SymbolView
+          name="chevron.right"
+          size={16}
+          tintColor={palette.neutral[5]}
+        />
+      ) : null}
+    </>
+  )
+
+  if (!canManageInApple) return <View style={cardStyle}>{content}</View>
+
+  return (
+    <NativePressable
+      style={cardStyle}
+      onPress={() => void YohakuNative.showManageSubscriptions()}
+    >
+      {content}
+    </NativePressable>
   )
 }
 

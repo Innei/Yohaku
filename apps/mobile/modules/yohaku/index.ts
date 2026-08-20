@@ -17,6 +17,10 @@ type TtsEvents = {
 }
 
 type NativeEvents = TtsEvents & {
+  onMembershipTransaction: (event: {
+    productId: string
+    signedTransactionInfo: string
+  }) => void
   onMeTabLongPress: () => void
 }
 
@@ -45,6 +49,23 @@ interface YohakuNativeModule {
   preloadTts(url: string): Promise<void>
   setTtsRate(rate: number): Promise<void>
   stopTts(): Promise<void>
+  presentSubscriptionStore(payload: {
+    appAccountToken: string
+    productIds: string[]
+  }): Promise<
+    | { signedTransactionInfo: string; status: 'purchased' | 'restored' }
+    | { status: 'cancelled' }
+  >
+  currentEntitlementJws(payload: {
+    appAccountToken: string
+    productIds: string[]
+  }): Promise<string[]>
+  unfinishedMembershipTransactionJws(payload: {
+    appAccountToken: string
+    productIds: string[]
+  }): Promise<string[]>
+  finishMembershipTransaction(signedTransactionInfo: string): Promise<void>
+  showManageSubscriptions(): Promise<void>
 }
 
 export const YohakuNative = requireNativeModule<YohakuNativeModule>('Yohaku')

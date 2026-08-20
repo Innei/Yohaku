@@ -1,10 +1,12 @@
 import { radius } from '@yohaku/design-system/tokens'
-import * as Linking from 'expo-linking'
+import { useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import { StyleSheet, View } from 'react-native'
 
+import { paywallCtaKind } from '@/api/membership'
 import { AppText, Button } from '@/components/ui'
 import { useTranslations } from '@/i18n'
+import { useMembershipCheckout } from '@/screens/me/use-membership-checkout'
 import { usePalette } from '@/theme/palette'
 import { shadow } from '@/theme/surfaces'
 
@@ -21,14 +23,19 @@ const bloom = {
 }
 
 export function PaywallGate({
+  appleIapEnabled,
+  loggedIn,
   visible,
-  webUrl,
 }: {
+  appleIapEnabled: boolean
+  loggedIn: boolean
   visible: boolean
-  webUrl: string
 }) {
   const t = useTranslations('membership')
   const palette = usePalette()
+  const router = useRouter()
+  const { present } = useMembershipCheckout()
+  const cta = paywallCtaKind({ appleIapEnabled, loggedIn, visible })
 
   if (!visible) return null
 
@@ -83,12 +90,20 @@ export function PaywallGate({
         <AppText style={styles.subtitle} variant="secondary">
           {t('lockedSubtitle')}
         </AppText>
-        <Button
-          accessibilityRole="link"
-          label={t('ctaReadInSafari')}
-          style={styles.cta}
-          onPress={() => void Linking.openURL(webUrl)}
-        />
+        {cta === 'login' ? (
+          <Button
+            label={t('ctaLoginToSubscribe')}
+            style={styles.cta}
+            onPress={() => router.push('/login')}
+          />
+        ) : null}
+        {cta === 'subscribe' ? (
+          <Button
+            label={t('ctaSubscribe')}
+            style={styles.cta}
+            onPress={() => void present()}
+          />
+        ) : null}
       </View>
     </View>
   )
