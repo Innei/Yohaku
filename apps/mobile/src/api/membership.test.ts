@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   isActiveMembership,
   membershipBannerKind,
+  paywallCtaKind,
   remainingMembershipDays,
 } from './membership'
 
@@ -114,5 +115,47 @@ describe('membershipBannerKind', () => {
         status: { status: 'none' },
       }),
     ).toBe('hidden')
+  })
+})
+
+describe('paywallCtaKind', () => {
+  it('asks signed-out readers to log in', () => {
+    expect(
+      paywallCtaKind({
+        appleIapEnabled: true,
+        loggedIn: false,
+        visible: true,
+      }),
+    ).toBe('login')
+  })
+
+  it('offers subscribe when signed in and IAP is configured', () => {
+    expect(
+      paywallCtaKind({
+        appleIapEnabled: true,
+        loggedIn: true,
+        visible: true,
+      }),
+    ).toBe('subscribe')
+  })
+
+  it('hides the button when IAP is not configured', () => {
+    expect(
+      paywallCtaKind({
+        appleIapEnabled: false,
+        loggedIn: true,
+        visible: true,
+      }),
+    ).toBe('none')
+  })
+
+  it('hides everything when the gate is not visible', () => {
+    expect(
+      paywallCtaKind({
+        appleIapEnabled: true,
+        loggedIn: true,
+        visible: false,
+      }),
+    ).toBe('none')
   })
 })

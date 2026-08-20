@@ -23,6 +23,20 @@ export type MembershipStatusResult =
 
 export type MembershipBannerKind = 'hidden' | 'active' | 'cta'
 
+export interface MembershipAppleIap {
+  enabled: boolean
+  monthlyProductId?: string
+  yearlyProductId?: string
+}
+
+export interface MembershipPlansResult {
+  appleIap: MembershipAppleIap
+  enabled: boolean
+  plans: unknown[]
+}
+
+export type PaywallCtaKind = 'login' | 'none' | 'subscribe'
+
 const DAY_MS = 24 * 60 * 60 * 1000
 
 export function isActiveMembership(
@@ -53,4 +67,15 @@ export function membershipBannerKind({
   if (isActiveMembership(status)) return 'active'
   if (membershipEnabled) return 'cta'
   return 'hidden'
+}
+
+export function paywallCtaKind(input: {
+  appleIapEnabled: boolean
+  loggedIn: boolean
+  visible: boolean
+}): PaywallCtaKind {
+  if (!input.visible) return 'none'
+  if (!input.loggedIn) return 'login'
+  if (input.appleIapEnabled) return 'subscribe'
+  return 'none'
 }
