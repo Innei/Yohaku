@@ -186,16 +186,18 @@ export const ko = {
   membership: {
     divider: '여기부터 멤버 전용',
     lockedTitle: '멤버 전용 콘텐츠',
-    lockedSubtitle:
-      '나머지는 웹에서 읽을 수 있어요. Safari를 열어 구독하거나 이어서 읽으세요.',
-    ctaReadInSafari: 'Safari에서 읽기',
+    lockedSubtitle: '구독하면 앱에서 글을 이어서 읽을 수 있어요',
+    ctaSubscribe: '구독',
+    ctaLoginToSubscribe: '로그인 후 구독',
     badgeMember: '멤버',
     becomeMember: '멤버 되기',
-    becomeMemberHint: 'Safari에서 구독하고 창작을 응원해 주세요',
+    becomeMemberHint: '앱에서 구독하고 창작을 응원해 주세요',
     planMonthly: '월간 플랜',
     planYearly: '연간 플랜',
     expireAt: '{date} 갱신',
     daysLeft: '{count}일 남음',
+    confirmFailed: '멤버십을 시작하지 못했습니다. 잠시 후 다시 시도하세요',
+    appleAlreadyBound: '이 Apple ID는 이미 멤버십이 있습니다',
   },
   desk: {
     lineUsing: '{name} 지금 · {app} 사용 중',

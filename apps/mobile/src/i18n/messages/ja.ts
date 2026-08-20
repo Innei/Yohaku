@@ -189,16 +189,18 @@ export const ja = {
   membership: {
     divider: 'ここから会員限定',
     lockedTitle: '会員限定コンテンツ',
-    lockedSubtitle:
-      '続きはウェブで読めます。Safari を開いて購読するか、全文を読みましょう。',
-    ctaReadInSafari: 'Safari で読む',
+    lockedSubtitle: '購読するとアプリ内で全文を読めます',
+    ctaSubscribe: '購読する',
+    ctaLoginToSubscribe: 'ログインして購読',
     badgeMember: '会員',
     becomeMember: '会員になる',
-    becomeMemberHint: 'Safari で購読して制作を応援しましょう',
+    becomeMemberHint: 'アプリ内課金で購読して制作を応援しましょう',
     planMonthly: '月額プラン',
     planYearly: '年額プラン',
     expireAt: '{date} まで',
     daysLeft: '残り {count} 日',
+    confirmFailed: '会員登録に失敗しました。しばらくしてから再試行してください',
+    appleAlreadyBound: 'この Apple ID はすでに会員です',
   },
   desk: {
     lineUsing: '{name} いま · {app} を使用中',

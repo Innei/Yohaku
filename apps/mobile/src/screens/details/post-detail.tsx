@@ -18,7 +18,10 @@ import { recordReading } from '@/interactions/reading'
 import { formatRelativeTime } from '@/lib/datetime'
 import { siteHref } from '@/lib/site-url'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
-import { useIsActiveMember } from '@/screens/me/use-membership'
+import {
+  useIsActiveMember,
+  useMembershipPlans,
+} from '@/screens/me/use-membership'
 import { refreshPostBody } from '@/sync/engine'
 import { bodyIsStale, postBodyFromApi, postMetaFromApi } from '@/sync/merge'
 import { postConflictSet } from '@/sync/upsert-sets'
@@ -58,6 +61,7 @@ export function PostDetailScreen({
   const palette = usePalette()
   const session = useSession()
   const isMember = useIsActiveMember()
+  const { data: plans } = useMembershipPlans()
   const reservedBodyHeight = useReservedBodyHeight()
   const scrollRef = useRef<ScrollView>(null)
   const unlockInflightRef = useRef(false)
@@ -342,7 +346,11 @@ export function PostDetailScreen({
                 </AppText>
               </View>
             )}
-            <PaywallGate visible={showPaywallGate} webUrl={webUrl} />
+            <PaywallGate
+              appleIapEnabled={plans?.appleIap.enabled === true}
+              loggedIn={Boolean(session)}
+              visible={showPaywallGate}
+            />
                 <ArticleTail
                   kind="post"
                   likeCount={post.likeCount}
