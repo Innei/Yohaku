@@ -2,7 +2,8 @@ import { ApiError } from '@/api/errors'
 import type { MembershipStatusResult } from '@/api/membership'
 
 export function shouldRetryAppleConfirmation(error: unknown): boolean {
-  return !(error instanceof ApiError && error.status === 409)
+  if (!(error instanceof ApiError)) return true
+  return error.status === 408 || error.status === 429 || error.status >= 500
 }
 
 export async function confirmAppleWithRetry(

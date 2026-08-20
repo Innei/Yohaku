@@ -100,15 +100,33 @@ public class YohakuModule: Module {
     }.runOnQueue(.main)
 
     AsyncFunction("presentSubscriptionStore") { (payload: MembershipProductIdsPayload) -> [String: Any] in
-      try await MembershipStore.present(productIds: payload.productIds)
+      let appAccountToken = try MembershipStore.accountToken(
+        from: payload.appAccountToken
+      )
+      return try await MembershipStore.present(
+        productIds: payload.productIds,
+        appAccountToken: appAccountToken
+      )
     }.runOnQueue(.main)
 
     AsyncFunction("currentEntitlementJws") { (payload: MembershipProductIdsPayload) -> [String] in
-      await MembershipStore.currentEntitlementJws(productIds: payload.productIds)
+      let appAccountToken = try MembershipStore.accountToken(
+        from: payload.appAccountToken
+      )
+      return await MembershipStore.currentEntitlementJws(
+        productIds: payload.productIds,
+        appAccountToken: appAccountToken
+      )
     }
 
     AsyncFunction("unfinishedMembershipTransactionJws") { (payload: MembershipProductIdsPayload) -> [String] in
-      await MembershipStore.unfinishedTransactionJws(productIds: payload.productIds)
+      let appAccountToken = try MembershipStore.accountToken(
+        from: payload.appAccountToken
+      )
+      return await MembershipStore.unfinishedTransactionJws(
+        productIds: payload.productIds,
+        appAccountToken: appAccountToken
+      )
     }
 
     AsyncFunction("finishMembershipTransaction") { (signedTransactionInfo: String) in

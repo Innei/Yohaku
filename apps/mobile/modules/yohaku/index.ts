@@ -49,12 +49,19 @@ interface YohakuNativeModule {
   preloadTts(url: string): Promise<void>
   setTtsRate(rate: number): Promise<void>
   stopTts(): Promise<void>
-  presentSubscriptionStore(payload: { productIds: string[] }): Promise<
+  presentSubscriptionStore(payload: {
+    appAccountToken: string
+    productIds: string[]
+  }): Promise<
     | { signedTransactionInfo: string; status: 'purchased' | 'restored' }
     | { status: 'cancelled' }
   >
-  currentEntitlementJws(payload: { productIds: string[] }): Promise<string[]>
+  currentEntitlementJws(payload: {
+    appAccountToken: string
+    productIds: string[]
+  }): Promise<string[]>
   unfinishedMembershipTransactionJws(payload: {
+    appAccountToken: string
     productIds: string[]
   }): Promise<string[]>
   finishMembershipTransaction(signedTransactionInfo: string): Promise<void>

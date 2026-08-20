@@ -23,6 +23,16 @@ export function useMembershipStatus() {
   })
 }
 
+export function useMembershipAppleAccountToken(enabled = true) {
+  const session = useSession()
+  return useQuery({
+    enabled: enabled && Boolean(session),
+    queryFn: () => api.membershipAppleAccountToken(),
+    queryKey: ['membership', 'apple-account-token', session?.id ?? 'anon'],
+    staleTime: Number.POSITIVE_INFINITY,
+  })
+}
+
 export function useIsActiveMember() {
   const { data } = useMembershipStatus()
   return isActiveMembership(data)

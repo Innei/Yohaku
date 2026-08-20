@@ -9,7 +9,10 @@ import { showToast } from '@/components/ui/toast-store'
 import { useTranslations } from '@/i18n'
 
 import { confirmAndFinishAppleTransaction } from './confirm-apple'
-import { useMembershipPlans } from './use-membership'
+import {
+  useMembershipAppleAccountToken,
+  useMembershipPlans,
+} from './use-membership'
 
 function productIdsOf(appleIap: MembershipAppleIap | undefined): string[] {
   if (!appleIap?.monthlyProductId || !appleIap.yearlyProductId) return []
@@ -30,14 +33,26 @@ export function useMembershipCheckout(): {
   const { data: plans } = useMembershipPlans()
   const appleIap = plans?.appleIap
   const session = useSession()
+  const { data: appleAccount } = useMembershipAppleAccountToken(
+    Boolean(session && appleIap?.enabled),
+  )
   const queryClient = useQueryClient()
   const t = useTranslations('membership')
 
   const present = useCallback(async () => {
     const productIds = productIdsOf(appleIap)
-    if (!appleIap?.enabled || productIds.length === 0) return 'cancelled'
+    if (
+      !appleIap?.enabled ||
+      !appleAccount?.accountToken ||
+      productIds.length === 0
+    ) {
+      return 'cancelled'
+    }
     try {
-      const result = await YohakuNative.presentSubscriptionStore({ productIds })
+      const result = await YohakuNative.presentSubscriptionStore({
+        appAccountToken: appleAccount.accountToken,
+        productIds,
+      })
       if (result.status === 'cancelled') return 'cancelled'
       await confirmAndFinishAppleTransaction(
         api.membershipConfirmApple,
@@ -54,13 +69,23 @@ export function useMembershipCheckout(): {
       )
       return 'cancelled'
     }
-  }, [appleIap, queryClient, t])
+  }, [appleAccount?.accountToken, appleIap, queryClient, t])
 
   const syncEntitlements = useCallback(async () => {
     const productIds = productIdsOf(appleIap)
-    if (!session || !appleIap?.enabled || productIds.length === 0) return
+    if (
+      !session ||
+      !appleIap?.enabled ||
+      !appleAccount?.accountToken ||
+      productIds.length === 0
+    ) {
+      return
+    }
     try {
-      const tokens = await YohakuNative.currentEntitlementJws({ productIds })
+      const tokens = await YohakuNative.currentEntitlementJws({
+        appAccountToken: appleAccount.accountToken,
+        productIds,
+      })
       let confirmed = false
       for (const signedTransactionInfo of tokens) {
         try {
@@ -78,7 +103,7 @@ export function useMembershipCheckout(): {
         })
       }
     } catch {}
-  }, [appleIap, queryClient, session])
+  }, [appleAccount?.accountToken, appleIap, queryClient, session])
 
   return { appleIap, present, syncEntitlements }
 }

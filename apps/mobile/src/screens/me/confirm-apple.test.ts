@@ -44,16 +44,24 @@ describe('confirmAppleWithRetry', () => {
 })
 
 describe('shouldRetryAppleConfirmation', () => {
-  it('suppresses scheduled retries for a permanent binding conflict', () => {
+  it('suppresses scheduled retries for permanent client errors', () => {
     expect(
       shouldRetryAppleConfirmation(
         new ApiError(409, 'Apple ID already bound'),
+      ),
+    ).toBe(false)
+    expect(
+      shouldRetryAppleConfirmation(
+        new ApiError(400, 'Transaction account does not match'),
       ),
     ).toBe(false)
   })
 
   it('keeps retrying transient failures', () => {
     expect(shouldRetryAppleConfirmation(new ApiError(503, 'unavailable'))).toBe(
+      true,
+    )
+    expect(shouldRetryAppleConfirmation(new ApiError(429, 'rate limited'))).toBe(
       true,
     )
     expect(shouldRetryAppleConfirmation(new Error('offline'))).toBe(true)

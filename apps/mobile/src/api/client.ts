@@ -344,6 +344,8 @@ export const api = {
     }),
   membershipPlans: () => request<MembershipPlansResult>('/membership/plans'),
   membershipStatus: () => request<MembershipStatusResult>('/membership/status'),
+  membershipAppleAccountToken: () =>
+    request<{ accountToken: string }>('/membership/apple/account-token'),
   membershipConfirmApple: (signedTransactionInfo: string) =>
     request<MembershipStatusResult>('/membership/apple/confirm', undefined, {
       method: 'POST',
