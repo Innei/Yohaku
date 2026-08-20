@@ -188,6 +188,17 @@ export const api = {
     requestPaged<ApiNote>('/notes', { page, size, withSummary: 1, lang }),
   noteDetail: (nid: number, lang = getLocale()) =>
     requestDetail<ApiNote>(`/notes/nid/${nid}`, lang),
+  noteBySlugDate: (
+    year: number,
+    month: number,
+    day: number,
+    slug: string,
+    lang = getLocale(),
+  ) =>
+    requestDetail<ApiNote>(
+      `/notes/${year}/${month}/${day}/${encodeURIComponent(slug)}`,
+      lang,
+    ),
   thinkingList: async (size: number) =>
     parseThinkingList(await fetchRawJson('/recently', { size })),
   categoryList: () =>

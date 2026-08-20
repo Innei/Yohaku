@@ -47,6 +47,21 @@ describe('hrefForExternalUrl', () => {
       pathname: '/posts/tag/[name]',
       params: { name: 'react' },
     })
+    expect(hrefForExternalUrl('https://example.com/posts/coding')).toEqual({
+      pathname: '/categories/[slug]',
+      params: { slug: 'coding' },
+    })
+    expect(hrefForExternalUrl('https://example.com/notes')).toEqual({
+      pathname: '/notes',
+    })
+    expect(
+      hrefForExternalUrl(
+        'https://example.com/notes/2026/3/14/hello-note',
+      ),
+    ).toEqual({
+      pathname: '/notes/[year]/[month]/[day]/[slug]',
+      params: { year: '2026', month: '3', day: '14', slug: 'hello-note' },
+    })
   })
 
   it('does not treat /posts/tag/:name as a post detail', () => {
@@ -92,7 +107,7 @@ describe('hrefForExternalUrl', () => {
     ).toBeNull()
     expect(hrefForExternalUrl('https://example.com/thinking')).toBeNull()
     expect(
-      hrefForExternalUrl('https://example.com/notes/2024/01/01/slug'),
+      hrefForExternalUrl('https://example.com/notes/2026/13/1/slug'),
     ).toBeNull()
   })
 })
@@ -122,6 +137,13 @@ describe('pathForExternalUrl', () => {
     expect(pathForExternalUrl('https://example.com/posts/tag/react')).toBe(
       '/posts/tag/react',
     )
+    expect(pathForExternalUrl('https://example.com/notes')).toBe('/notes')
+    expect(pathForExternalUrl('https://example.com/zh/posts/coding')).toBe(
+      '/categories/coding',
+    )
+    expect(
+      pathForExternalUrl('https://example.com/en/notes/2024/01/01/hello'),
+    ).toBe('/notes/2024/1/1/hello')
   })
 })
 
@@ -159,11 +181,16 @@ describe('rewriteIncomingPath', () => {
     expect(
       rewriteIncomingPath('https://example.com/zh/posts/tag/react'),
     ).toBe('/posts/tag/react')
+    expect(rewriteIncomingPath('/notes')).toBe('/notes')
+    expect(rewriteIncomingPath('/en/notes')).toBe('/notes')
+    expect(rewriteIncomingPath('/posts/coding')).toBe('/categories/coding')
+    expect(rewriteIncomingPath('/notes/2024/01/01/slug')).toBe(
+      '/notes/2024/1/1/slug',
+    )
   })
 
   it('sends claimed but unmapped site paths home', () => {
-    expect(rewriteIncomingPath('/notes')).toBe('/')
-    expect(rewriteIncomingPath('/notes/2024/01/01/slug')).toBe('/')
+    expect(rewriteIncomingPath('/notes/2026/13/1/slug')).toBe('/')
     expect(rewriteIncomingPath('/categories')).toBe('/')
   })
 

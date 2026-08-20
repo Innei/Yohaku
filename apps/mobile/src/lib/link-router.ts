@@ -6,9 +6,12 @@ import { getSiteHosts, getSiteUrl } from '@/lib/site-url'
 const LOCALE_SEGMENT = new Set<string>(locales)
 
 const POST_PATH = /^\/posts\/([^/]+)\/([^/]+)\/?$/
+const POST_CATEGORY_PATH = /^\/posts\/([^/]+)\/?$/
 const TAG_PATH = /^\/posts\/tag\/([^/]+)\/?$/
 const CATEGORY_PATH = /^\/categories\/([^/]+)\/?$/
 const NOTE_PATH = /^\/notes\/(\d+)\/?$/
+const NOTE_INDEX_PATH = /^\/notes\/?$/
+const NOTE_SEO_PATH = /^\/notes\/(\d{4})\/(\d{1,2})\/(\d{1,2})\/([^/]+)\/?$/
 const SERIES_INDEX_PATH = /^\/notes\/series\/?$/
 const SERIES_DETAIL_PATH = /^\/notes\/series\/([^/]+)\/?$/
 const SCHEME = /^[a-z][\d+.a-z-]*:/i
@@ -19,6 +22,26 @@ function decodeParam(value: string): string {
   } catch {
     return value
   }
+}
+
+function strictDecimalUInt(value: string): number | null {
+  if (!/^\d+$/.test(value)) return null
+  const n = Number(value)
+  return Number.isSafeInteger(n) ? n : null
+}
+
+function isValidNoteSlugDateParts(
+  year: string,
+  month: string,
+  day: string,
+): boolean {
+  const y = strictDecimalUInt(year)
+  const m = strictDecimalUInt(month)
+  const d = strictDecimalUInt(day)
+  if (y === null || m === null || d === null) return false
+  if (y < 1000 || y > 9999 || m < 1 || m > 12) return false
+  const maxDay = new Date(Date.UTC(y, m, 0)).getUTCDate()
+  return d >= 1 && d <= maxDay
 }
 
 function sitePathname(pathname: string): string {
@@ -45,6 +68,13 @@ function hrefForSitePath(pathname: string): Href | null {
       params: { category: decodeParam(post[1]), slug: decodeParam(post[2]) },
     }
   }
+  const postCategory = path.match(POST_CATEGORY_PATH)
+  if (postCategory) {
+    return {
+      pathname: '/categories/[slug]',
+      params: { slug: decodeParam(postCategory[1]) },
+    }
+  }
   const category = path.match(CATEGORY_PATH)
   if (category) {
     return {
@@ -64,6 +94,21 @@ function hrefForSitePath(pathname: string): Href | null {
     return {
       pathname: '/series/[slug]',
       params: { slug: decodeParam(series[1]) },
+    }
+  }
+  if (NOTE_INDEX_PATH.test(path)) {
+    return { pathname: '/notes' }
+  }
+  const seo = path.match(NOTE_SEO_PATH)
+  if (seo && isValidNoteSlugDateParts(seo[1], seo[2], seo[3])) {
+    return {
+      pathname: '/notes/[year]/[month]/[day]/[slug]',
+      params: {
+        year: String(Number(seo[1])),
+        month: String(Number(seo[2])),
+        day: String(Number(seo[3])),
+        slug: decodeParam(seo[4]),
+      },
     }
   }
   return null
