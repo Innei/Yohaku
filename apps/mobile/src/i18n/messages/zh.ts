@@ -86,6 +86,7 @@ export const zh = {
     fallbackToSource: '回退到原文',
     clear: '清除',
     deleteRecent: '删除',
+    yearTotal: '{count} 篇',
   },
   detail: {
     bodyFailed: '正文加载失败，点此重试',

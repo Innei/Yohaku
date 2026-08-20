@@ -86,6 +86,7 @@ export const ko = {
     fallbackToSource: '원문으로 돌아감',
     clear: '지우기',
     deleteRecent: '삭제',
+    yearTotal: '{count}편',
   },
   detail: {
     bodyFailed: '본문을 불러오지 못했습니다. 눌러서 다시 시도',

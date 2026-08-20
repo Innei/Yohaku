@@ -86,6 +86,7 @@ export const zhTW = {
     fallbackToSource: '回退到原文',
     clear: '清除',
     deleteRecent: '刪除',
+    yearTotal: '{count} 篇',
   },
   detail: {
     bodyFailed: '內文載入失敗，點此重試',

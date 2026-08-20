@@ -86,6 +86,7 @@ export const ja = {
     fallbackToSource: '原文にフォールバック',
     clear: 'クリア',
     deleteRecent: '削除',
+    yearTotal: '{count} 件',
   },
   detail: {
     bodyFailed: '本文の読み込みに失敗しました。タップで再試行',

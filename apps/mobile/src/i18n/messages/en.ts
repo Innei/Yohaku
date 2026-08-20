@@ -86,6 +86,7 @@ export const en = {
     fallbackToSource: 'Fallback to original',
     clear: 'Clear',
     deleteRecent: 'Delete',
+    yearTotal: '{count}',
   },
   detail: {
     bodyFailed: 'The body failed to load. Tap to retry.',
