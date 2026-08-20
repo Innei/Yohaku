@@ -70,6 +70,18 @@ public class YohakuModule: Module {
       self.tts.preload(urlString: url)
     }.runOnQueue(.main)
 
+    AsyncFunction("presentSubscriptionStore") { (payload: MembershipProductIdsPayload) -> [String: Any] in
+      try await MembershipStore.present(productIds: payload.productIds)
+    }.runOnQueue(.main)
+
+    AsyncFunction("currentEntitlementJws") { (payload: MembershipProductIdsPayload) -> [String] in
+      await MembershipStore.currentEntitlementJws(productIds: payload.productIds)
+    }
+
+    AsyncFunction("showManageSubscriptions") {
+      try await MembershipStore.showManageSubscriptions()
+    }.runOnQueue(.main)
+
     View(ScrollEdgeContainerView.self) {
       Prop("edge") { (view: ScrollEdgeContainerView, edge: String) in
         view.setEdgeName(edge)

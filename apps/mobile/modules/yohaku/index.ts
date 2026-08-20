@@ -45,6 +45,12 @@ interface YohakuNativeModule {
   preloadTts(url: string): Promise<void>
   setTtsRate(rate: number): Promise<void>
   stopTts(): Promise<void>
+  presentSubscriptionStore(payload: { productIds: string[] }): Promise<
+    | { signedTransactionInfo: string; status: 'purchased' | 'restored' }
+    | { status: 'cancelled' }
+  >
+  currentEntitlementJws(payload: { productIds: string[] }): Promise<string[]>
+  showManageSubscriptions(): Promise<void>
 }
 
 export const YohakuNative = requireNativeModule<YohakuNativeModule>('Yohaku')
