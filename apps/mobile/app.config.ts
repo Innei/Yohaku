@@ -145,6 +145,9 @@ export function createAppConfig(): ExpoConfig {
       entitlements: {
         'aps-environment': apns,
         'com.apple.developer.usernotifications.communication': true,
+        'keychain-access-groups': [
+          `$(AppIdentifierPrefix)${site.bundleId}`,
+        ],
       },
       ...(overlayExpo?.appleTeamId
         ? { appleTeamId: overlayExpo.appleTeamId }
@@ -156,6 +159,7 @@ export function createAppConfig(): ExpoConfig {
       './plugins/with-notification-localizations.cjs',
       './plugins/with-ios-scene-lifecycle.cjs',
       './plugins/with-wipe-www-bundle.cjs',
+      './plugins/with-ios-keychain-signing.cjs',
       [
         'expo-splash-screen',
         {

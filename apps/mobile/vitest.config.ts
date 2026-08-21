@@ -35,6 +35,7 @@ export default defineConfig({
     include: [
       'src/**/*.test.ts',
       'src/**/*.test.tsx',
+      'plugins/**/*.test.ts',
       ...(overlayDir ? [path.join(overlayDir, '**/*.test.ts')] : []),
     ],
   },

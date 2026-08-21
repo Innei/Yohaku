@@ -5,6 +5,8 @@ import * as SecureStore from 'expo-secure-store'
 import { apiBaseUrl } from '@/api/base-url'
 import { site } from '@/site'
 
+import { safeSessionCookie } from './session-cookie'
+
 type AuthClient = ReturnType<typeof buildClient>
 
 type ExpoClientPlugin = ReturnType<typeof expoClient>
@@ -49,5 +51,5 @@ export function getAuthClient(): AuthClient {
 }
 
 export function getSessionCookie(): string {
-  return getAuthClient().getCookie()
+  return safeSessionCookie(() => getAuthClient().getCookie())
 }
