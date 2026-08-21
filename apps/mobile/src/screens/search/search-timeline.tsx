@@ -129,9 +129,12 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   year: {
-    fontWeight: '700',
-    letterSpacing: -0.84,
-    lineHeight: typeScale.title28.size,
+    fontFamily: 'ui-rounded',
+    fontWeight: '400',
+    fontSize: typeScale.display36.size,
+    letterSpacing: -1.1,
+    lineHeight: typeScale.display36.lineHeight,
+    fontVariant: ['tabular-nums'],
   },
   yearCount: {
     fontVariant: ['tabular-nums'],
