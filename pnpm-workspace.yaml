@@ -12,3 +12,6 @@ overrides:
   '@expo/dom-webview': link:./packages/dom-webview
   react: 19.2.3
   react-dom: 19.2.3
+
+patchedDependencies:
+  expo-image@57.0.2: patches/expo-image@57.0.2.patch

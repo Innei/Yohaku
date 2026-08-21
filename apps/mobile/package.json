@@ -13,10 +13,22 @@
     "lint": "expo lint",
     "test": "vitest run"
   },
+  "expo": {
+    "autolinking": {
+      "exclude": [
+        "expo-file-system"
+      ],
+      "ios": {
+        "buildFromSource": [
+          "expo-image"
+        ]
+      }
+    }
+  },
   "dependencies": {
     "@bacons/apple-targets": "^5.0.0",
     "@better-auth/expo": "1.6.26",
-    "@expo-google-fonts/noto-serif-sc": "^0.4.3",
+    "@expo-google-fonts/noto-serif-sc": "0.4.3",
     "@haklex/rich-compose": "0.36.0",
     "@haklex/rich-editor": "0.36.0",
     "@haklex/rich-ext-chat": "0.36.0",
@@ -43,7 +55,7 @@
     "expo-font": "~57.0.1",
     "expo-glass-effect": "~57.0.1",
     "expo-haptics": "~57.0.1",
-    "expo-image": "~57.0.2",
+    "expo-image": "57.0.2",
     "expo-linking": "~57.0.5",
     "expo-localization": "~57.0.1",
     "expo-modules-core": "~57.0.10",
