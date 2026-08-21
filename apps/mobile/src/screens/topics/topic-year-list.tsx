@@ -4,8 +4,8 @@ import { StyleSheet, View } from 'react-native'
 
 import { AppText, NativePressable } from '@/components/ui'
 import type { NoteRow } from '@/db/schema'
-import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { letterCountLabel } from '../lists/note-timeline'
 import { formatTopicNoteDate } from './topic-list'
@@ -27,12 +27,13 @@ export function TopicYearGroups({
 
 function TopicYearHead({ count, year }: { count: number; year: number }) {
   const palette = usePalette()
+  const serifFont = useNativeSerifFontStyle()
   return (
     <View style={[styles.yearHead, { borderBottomColor: palette.neutral[3] }]}>
       <View>
         <AppText
           color={palette.semantic.warning}
-          style={styles.anno}
+          style={[styles.anno, serifFont]}
           variant="eyebrow"
         >
           Anno
@@ -85,7 +86,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   anno: {
-    ...fonts.serif,
     letterSpacing: 2.8,
   },
   yearNum: {

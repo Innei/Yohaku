@@ -7,6 +7,7 @@ import { useRichBodyLabels } from '@/components/dom/use-rich-body-labels'
 import { AppText, Button } from '@/components/ui'
 import { useLocale } from '@/i18n'
 import { usePalette } from '@/theme/palette'
+import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 
 const ARTICLE_A = `# 领养文章甲\n\n${'甲文段落,验证池化领养后的内容注入速度,尽量接近真实正文长度。'.repeat(
   30,
@@ -29,6 +30,7 @@ type Stage = { content: string; forceHeight?: boolean } | null
 export function WebViewPoolLab() {
   const palette = usePalette()
   const locale = useLocale()
+  const serifFontFamily = useWebviewSerifFontFamily()
   const labels = useRichBodyLabels()
   const [stage, setStage] = useState<Stage>(null)
   const [status, setStatus] = useState('待机')
@@ -153,6 +155,7 @@ export function WebViewPoolLab() {
             content={stage.content}
             labels={labels}
             locale={locale}
+            serifFontFamily={serifFontFamily}
             theme={palette.theme}
             variant="article"
             webUrl=""

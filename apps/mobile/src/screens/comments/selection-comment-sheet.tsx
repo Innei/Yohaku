@@ -8,8 +8,8 @@ import { AppText } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import { type CommentAnchor, isRangeAnchor } from '@/lib/comment-anchor'
 import { replyTargetAuthor } from '@/lib/comment-thread'
-import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { CommentCell } from './comment-cell'
 import { CommentComposeEntry } from './comment-compose-entry'
@@ -42,6 +42,7 @@ export function SelectionCommentSheet({
 }) {
   const t = useTranslations('comment')
   const palette = usePalette()
+  const serifFont = useNativeSerifFontStyle()
   const session = useSession()
   const scrollRef = useRef<ScrollView>(null)
   const resetKey = state
@@ -91,7 +92,7 @@ export function SelectionCommentSheet({
               <AppText
                 color={palette.neutral[8]}
                 numberOfLines={4}
-                style={styles.quote}
+                style={[styles.quote, serifFont]}
               >
                 {quote}
               </AppText>
@@ -151,7 +152,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   quote: {
-    ...fonts.serif,
     fontSize: typeScale.copy15.size,
     lineHeight: typeScale.copy15.lineHeight,
   },

@@ -6,6 +6,7 @@ import { Text } from 'react-native'
 import type { FontStyle } from '@/theme/font-faces'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 export type TextRole =
   | 'largeTitle'
@@ -37,6 +38,12 @@ const roles: Record<TextRole, RoleSpec> = {
   eyebrow: { font: fonts.sans, scale: 'caption10', step: 6, letterSpacing: 3 },
 }
 
+const serifRoles = new Set<TextRole>([
+  'largeTitle',
+  'entryTitle',
+  'letterTitle',
+])
+
 export interface AppTextProps extends TextProps {
   color?: string
   variant?: TextRole
@@ -49,6 +56,7 @@ export function AppText({
   ...rest
 }: AppTextProps) {
   const palette = usePalette()
+  const serifFont = useNativeSerifFontStyle()
   const spec = roles[variant]
   const scale = typeScale[spec.scale]
 
@@ -57,6 +65,7 @@ export function AppText({
       style={[
         {
           ...spec.font,
+          ...(serifRoles.has(variant) ? serifFont : null),
           fontSize: scale.size,
           lineHeight: scale.lineHeight,
           color: color ?? palette.neutral[spec.step],

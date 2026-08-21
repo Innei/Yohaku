@@ -7,6 +7,7 @@ import { useRichBodyLabels } from '@/components/dom/use-rich-body-labels'
 import { useLocale } from '@/i18n'
 import { getSiteUrl } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
+import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 
 const WARM_DELAY_MS = 2500
 const RELEASE_DELAY_MS = 500
@@ -14,6 +15,7 @@ const RELEASE_DELAY_MS = 500
 export function WebViewPoolWarmer() {
   const palette = usePalette()
   const locale = useLocale()
+  const serifFontFamily = useWebviewSerifFontFamily()
   const labels = useRichBodyLabels()
   const [active, setActive] = useState(false)
   const [done, setDone] = useState(false)
@@ -43,6 +45,7 @@ export function WebViewPoolWarmer() {
         content=""
         labels={labels}
         locale={locale}
+        serifFontFamily={serifFontFamily}
         theme={palette.theme}
         variant="article"
         webUrl=""

@@ -25,8 +25,8 @@ import { siteHref } from '@/lib/site-url'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { ingestNotePage, syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
-import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { ListSearchToolbar } from '../search/search-chrome'
 import { TopicChip } from '../topics/topic-chip'
@@ -111,6 +111,7 @@ export function NotesListScreen() {
   const t = useTranslations('list')
   const tt = useTranslations('tabs')
   const palette = usePalette()
+  const serifFont = useNativeSerifFontStyle()
   const status = useSyncStatus()
   const [refreshing, setRefreshing] = useState(false)
   const query = useMemo(
@@ -199,6 +200,7 @@ export function NotesListScreen() {
       <Stack.Screen options={headerOptions} />
       <NotesTrailingToolbar />
       <EdgeEffectScrollView
+        alwaysBounceVertical
         contentContainerStyle={styles.content}
         headerTitleProgress={headerTitleProgress}
         scrollEventThrottle={16}
@@ -276,7 +278,7 @@ export function NotesListScreen() {
                   <View>
                     <AppText
                       color={palette.semantic.warning}
-                      style={styles.anno}
+                      style={[styles.anno, serifFont]}
                       variant="eyebrow"
                     >
                       Anno
@@ -370,6 +372,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
+    flexGrow: 1,
     paddingHorizontal: 20,
     paddingTop: 8,
     paddingBottom: 24,
@@ -407,7 +410,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   anno: {
-    ...fonts.serif,
     letterSpacing: 2.8,
   },
   yearNum: {

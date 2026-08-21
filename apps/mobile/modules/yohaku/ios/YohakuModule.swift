@@ -75,6 +75,10 @@ public class YohakuModule: Module {
       Double(sqliteDatabaseBytes())
     }
 
+    AsyncFunction("downloadSystemFont") { (postScriptName: String) -> Bool in
+      await SystemFontDomain.ensureInstalled(postScriptName: postScriptName)
+    }
+
     AsyncFunction("loadTts") { (payload: TtsLoadPayload) in
       self.tts.load(payload: payload)
     }.runOnQueue(.main)

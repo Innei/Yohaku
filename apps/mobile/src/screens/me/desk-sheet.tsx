@@ -25,11 +25,13 @@ import { fonts } from '@/theme/fonts'
 import { splashEasing, timings } from '@/theme/motion'
 import type { Palette } from '@/theme/palette'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 export function DeskSheet() {
   const t = useTranslations('desk')
   const owner = useOwner()
   const palette = usePalette()
+  const serifFont = useNativeSerifFontStyle()
   const queriesEnabled = useRouteTransitionSettled('desk')
   const snapshot = useDeskSnapshot(queriesEnabled)
 
@@ -155,13 +157,19 @@ export function DeskSheet() {
           {media ? <MediaProgress media={media} palette={palette} /> : null}
 
           {media && application ? (
-            <AppText color={palette.neutral[6]} style={styles.alsoUsing}>
+            <AppText
+              color={palette.neutral[6]}
+              style={[styles.alsoUsing, serifFont]}
+            >
               {t('alsoUsing', { app: application.displayName })}
             </AppText>
           ) : null}
         </>
       ) : (
-        <AppText color={palette.neutral[6]} style={styles.quiet}>
+        <AppText
+          color={palette.neutral[6]}
+          style={[styles.quiet, serifFont]}
+        >
           {t('quiet')}
         </AppText>
       )}
@@ -403,12 +411,10 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   alsoUsing: {
-    ...fonts.serif,
     fontSize: 12,
     lineHeight: 18,
   },
   quiet: {
-    ...fonts.serif,
     fontSize: 13,
     lineHeight: 20,
     paddingVertical: 16,

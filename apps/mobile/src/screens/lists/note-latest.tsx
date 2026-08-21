@@ -9,8 +9,8 @@ import { formatNoteListDate } from '@/lib/datetime'
 import { ArticleMetaLine } from '@/screens/details/article-meta-line'
 import { refreshNoteBody } from '@/sync/engine'
 import { bodyIsStale } from '@/sync/merge'
-import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { TopicChip } from '../topics/topic-chip'
 import { NotePreview } from './note-preview'
@@ -45,6 +45,7 @@ export function NoteLatest({
   const td = useTranslations('detail')
   const tc = useTranslations('common')
   const palette = usePalette()
+  const serifFont = useNativeSerifFontStyle()
   const { height: windowHeight } = useWindowDimensions()
   const [attempt, setAttempt] = useState(0)
   const [failSig, setFailSig] = useState<string | null>(null)
@@ -167,7 +168,7 @@ export function NoteLatest({
         <NativePressable onPress={onOpen}>
           <AppText
             color={palette.semantic.warning}
-            style={styles.readFull}
+            style={[styles.readFull, serifFont]}
             variant="meta"
           >
             {`${t('readFullNote')} →`}
@@ -213,7 +214,6 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   readFull: {
-    ...fonts.serif,
     letterSpacing: 0.4,
   },
 })

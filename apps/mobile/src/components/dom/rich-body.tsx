@@ -99,6 +99,7 @@ interface RichBodyProps {
   rangeComments?: RangeComment[]
   ref?: import('react').Ref<unknown>
   renderNonce?: number
+  serifFontFamily: string
   site?: { ownerAvatar?: string | null; ownerName?: string | null }
   theme: 'dark' | 'light'
   variant: 'article' | 'note'
@@ -262,6 +263,7 @@ export default function RichBody({
   blockComments,
   rangeComments,
   renderNonce = 0,
+  serifFontFamily,
   site,
   theme,
   variant,
@@ -652,10 +654,10 @@ export default function RichBody({
         ...createYohakuThemeStyle(bodyVariant),
         // The shared sans chain leads with var(--app-font-sans), which only
         // web's next/font defines — leaving it unset invalidates the whole font
-        // list. Sans resolves to the OS font; 'Noto Serif SC' / 'Cascadia Code
-        // PL' resolve to the @font-face rules injected below from the app's own
-        // bundled ttf assets.
+        // list. System faces resolve from iOS; bundled faces resolve to the
+        // @font-face rules injected below from the same ttf assets as native.
         '--app-font-sans': WEBVIEW_FONT_FAMILY.sans,
+        '--app-font-serif': serifFontFamily,
         '--app-font-mono': WEBVIEW_FONT_FAMILY.mono,
         '--rc-text': neutral[theme][9],
         '--rc-bg': 'transparent',
@@ -672,7 +674,7 @@ export default function RichBody({
           ? { '--app-viewport-height': `${viewportHeight}px` }
           : {}),
       }) as CSSProperties,
-    [bodyVariant, theme, viewportHeight],
+    [bodyVariant, serifFontFamily, theme, viewportHeight],
   )
 
   const openInWeb = useMemo(

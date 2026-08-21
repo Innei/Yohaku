@@ -9,8 +9,8 @@ import { useLocale, useTranslations } from '@/i18n'
 import { isRangeAnchor } from '@/lib/comment-anchor'
 import { commentAvatar, commentDisplayName } from '@/lib/comment-thread'
 import { formatRelativeTime } from '@/lib/datetime'
-import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { CommentMarkdown } from './comment-markdown'
 
@@ -34,6 +34,7 @@ export function CommentCell({
   const tc = useTranslations('common')
   const locale = useLocale()
   const palette = usePalette()
+  const serifFont = useNativeSerifFontStyle()
   const rowRef = useRef<View>(null)
   const avatar = commentAvatar(comment)
   const name = commentDisplayName(comment)
@@ -129,7 +130,7 @@ export function CommentCell({
             <AppText
               color={palette.neutral[7]}
               numberOfLines={2}
-              style={styles.quote}
+              style={[styles.quote, serifFont]}
             >
               「{comment.anchor.quote}」
             </AppText>
@@ -178,7 +179,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   quote: {
-    ...fonts.serif,
     fontSize: typeScale.copy13.size,
     lineHeight: typeScale.copy13.lineHeight,
   },

@@ -3,8 +3,10 @@ import type { StyleProp, TextStyle } from 'react-native'
 import { StyleSheet, Text, View } from 'react-native'
 
 import { RemoteImage } from '@/components/ui'
+import type { FontStyle } from '@/theme/font-faces'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import {
   type PreviewBlock,
@@ -27,16 +29,18 @@ function InlineRun({
   inline,
   accent,
   ink,
+  serifFont,
 }: {
   accent: string
   ink: string
   inline: PreviewInline
+  serifFont: FontStyle
 }) {
   if (inline.break) return '\n'
   return (
     <Text
       style={{
-        ...(inline.code ? fonts.mono : fonts.serif),
+        ...(inline.code ? fonts.mono : serifFont),
         ...(inline.italic ? { fontStyle: 'italic' as const } : null),
         ...(inline.strike
           ? { textDecorationLine: 'line-through' as const }
@@ -55,9 +59,11 @@ function InlineRun({
 
 function InlineText({
   inlines,
+  serifFont,
   style,
 }: {
   inlines: PreviewInline[]
+  serifFont: FontStyle
   style: StyleProp<TextStyle>
 }) {
   const palette = usePalette()
@@ -69,16 +75,23 @@ function InlineText({
           ink={palette.neutral[9]}
           inline={inline}
           key={inlineKey(inline, index)}
+          serifFont={serifFont}
         />
       ))}
     </Text>
   )
 }
 
-function Block({ block }: { block: PreviewBlock }) {
+function Block({
+  block,
+  serifFont,
+}: {
+  block: PreviewBlock
+  serifFont: FontStyle
+}) {
   const palette = usePalette()
   const body = {
-    ...fonts.serif,
+    ...serifFont,
     color: palette.neutral[9],
     fontSize: 18,
     lineHeight: 28,
@@ -100,6 +113,7 @@ function Block({ block }: { block: PreviewBlock }) {
     return (
       <InlineText
         inlines={block.inlines}
+        serifFont={serifFont}
         style={{
           ...body,
           fontSize: scale.size,
@@ -116,6 +130,7 @@ function Block({ block }: { block: PreviewBlock }) {
       >
         <InlineText
           inlines={block.inlines}
+          serifFont={serifFont}
           style={{ ...body, color: palette.neutral[8] }}
         />
       </View>
@@ -136,7 +151,11 @@ function Block({ block }: { block: PreviewBlock }) {
               {block.ordered ? `${index + 1}.` : '·'}
             </Text>
             <View style={styles.listBody}>
-              <InlineText inlines={item} style={body} />
+              <InlineText
+                inlines={item}
+                serifFont={serifFont}
+                style={body}
+              />
             </View>
           </View>
         ))}
@@ -144,15 +163,22 @@ function Block({ block }: { block: PreviewBlock }) {
     )
   }
 
-  return <InlineText inlines={block.inlines} style={body} />
+  return (
+    <InlineText inlines={block.inlines} serifFont={serifFont} style={body} />
+  )
 }
 
 export function NotePreview({ blocks }: { blocks: PreviewBlock[] }) {
+  const serifFont = useNativeSerifFontStyle()
   if (blocks.length === 0) return null
   return (
     <View style={styles.blocks}>
       {blocks.map((block, index) => (
-        <Block block={block} key={blockKey(block, index)} />
+        <Block
+          block={block}
+          key={blockKey(block, index)}
+          serifFont={serifFont}
+        />
       ))}
     </View>
   )

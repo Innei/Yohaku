@@ -7,6 +7,7 @@ import type { PostRow } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { formatTaxonomyDate, visibleTaxonomyTags } from './taxonomy-model'
 
@@ -21,13 +22,14 @@ export function TaxonomyYearHead({
 }) {
   const t = useTranslations('taxonomy')
   const palette = usePalette()
+  const serifFont = useNativeSerifFontStyle()
   if (!visible) return null
   return (
     <View style={[styles.yearHead, { borderBottomColor: palette.neutral[3] }]}>
       <View>
         <AppText
           color={palette.semantic.warning}
-          style={styles.anno}
+          style={[styles.anno, serifFont]}
           variant="eyebrow"
         >
           Anno
@@ -89,8 +91,8 @@ export function TaxonomyPostRow({
         {!showCategorySource
           ? visible.map((tag) => (
               <NativePressable
-                key={tag}
                 accessibilityRole="link"
+                key={tag}
                 onPress={() =>
                   router.push({
                     pathname: '/posts/tag/[name]',
@@ -126,7 +128,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   anno: {
-    ...fonts.serif,
     letterSpacing: 2.8,
   },
   yearNum: {

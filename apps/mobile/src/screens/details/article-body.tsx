@@ -44,6 +44,7 @@ import { useOwner } from '@/owner/store'
 import { SelectionCommentSheet } from '@/screens/comments/selection-comment-sheet'
 import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
+import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 import { useWebviewFontFaces } from '@/theme/webview-fonts'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
@@ -87,6 +88,7 @@ export function ArticleBody({
   const router = useRouter()
   const navigation = useNavigation()
   const fontFaces = useWebviewFontFaces()
+  const serifFontFamily = useWebviewSerifFontFamily()
   const owner = useOwner()
   const site = owner
     ? { ownerAvatar: owner.avatarUrl, ownerName: owner.name }
@@ -294,6 +296,7 @@ export function ArticleBody({
           rangeComments={rangeComments}
           ref={bodyRef}
           renderNonce={nonce}
+          serifFontFamily={serifFontFamily}
           site={site}
           theme={palette.theme}
           variant={variant}
@@ -349,6 +352,7 @@ export function ArticleBody({
                 fontFaces={fontFaces}
                 labels={labels}
                 locale={locale}
+                serifFontFamily={serifFontFamily}
                 site={site}
                 theme={palette.theme}
                 variant={variant}

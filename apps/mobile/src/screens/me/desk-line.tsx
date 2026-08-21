@@ -12,14 +12,15 @@ import { AppText, SinkPressable } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import { useOwner } from '@/owner/store'
 import { useDeskSnapshot } from '@/owner/use-desk-snapshot'
-import { fonts } from '@/theme/fonts'
 import { splashEasing } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 export function DeskLine() {
   const t = useTranslations('desk')
   const owner = useOwner()
   const palette = usePalette()
+  const serifFont = useNativeSerifFontStyle()
   const snapshot = useDeskSnapshot()
 
   if (!snapshot.visible || !owner) return null
@@ -40,7 +41,7 @@ export function DeskLine() {
         <AppText
           color={palette.neutral[7]}
           numberOfLines={1}
-          style={styles.text}
+          style={[styles.text, serifFont]}
         >
           {text}
         </AppText>
@@ -79,7 +80,6 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   text: {
-    ...fonts.serif,
     fontSize: 12,
     lineHeight: 18,
   },

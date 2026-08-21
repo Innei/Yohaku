@@ -1,10 +1,19 @@
+import type { Locale } from '@/i18n/config'
+
 export type NativeFontName =
   | 'NotoSerifSC_500Medium'
   | 'CascadiaCodePL_400Regular'
   | 'CascadiaCodePL_600SemiBold'
 
+export type FontFamily =
+  | NativeFontName
+  | 'Apple SD Gothic Neo'
+  | 'AppleMyungjo'
+  | 'Georgia'
+  | 'Hiragino Mincho ProN'
+
 export interface FontStyle {
-  fontFamily?: NativeFontName
+  fontFamily?: FontFamily
   fontWeight?: '400' | '500' | '600'
 }
 
@@ -22,6 +31,37 @@ export const WEBVIEW_FONT_FAMILY = {
   serif: 'Noto Serif SC',
   mono: 'Cascadia Code PL',
 } as const
+
+export function nativeSerifFontFamily(
+  locale: Locale,
+  koreanSerifReady: boolean,
+): FontFamily {
+  switch (locale) {
+    case 'en': {
+      return 'Georgia'
+    }
+    case 'ja': {
+      return 'Hiragino Mincho ProN'
+    }
+    case 'ko': {
+      return koreanSerifReady ? 'AppleMyungjo' : 'Apple SD Gothic Neo'
+    }
+    case 'zh':
+    case 'zh-TW': {
+      return 'NotoSerifSC_500Medium'
+    }
+  }
+}
+
+export function webviewSerifFontFamily(
+  locale: Locale,
+  koreanSerifReady: boolean,
+): string {
+  const native = nativeSerifFontFamily(locale, koreanSerifReady)
+  return native === 'NotoSerifSC_500Medium'
+    ? WEBVIEW_FONT_FAMILY.serif
+    : native
+}
 
 export interface WebviewFontFaceSpec {
   family: string
