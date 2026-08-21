@@ -1,4 +1,4 @@
-import { YohakuNative } from '@modules/yohaku'
+import { YohakuMembershipNative } from '@modules/yohaku'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { AppState } from 'react-native'
@@ -45,14 +45,14 @@ export function MembershipRecoveryHost() {
       addAppStateListener: (listener) =>
         AppState.addEventListener('change', listener),
       addTransactionListener: (listener) =>
-        YohakuNative.addListener('onMembershipTransaction', listener),
+        YohakuMembershipNative.addListener('onMembershipTransaction', listener),
       clearRetryTimer: clearTimeout,
       retryDelayMs: RETRY_DELAY_MS,
       setRetryTimer: setTimeout,
       recover: async () => {
         let tokens: string[]
         try {
-          tokens = await YohakuNative.unfinishedMembershipTransactionJws({
+          tokens = await YohakuMembershipNative.unfinishedMembershipTransactionJws({
             appAccountToken: appleAccount.accountToken,
             productIds,
           })
@@ -66,7 +66,7 @@ export function MembershipRecoveryHost() {
           try {
             await confirmAndFinishAppleTransaction(
               api.membershipConfirmApple,
-              (token) => YohakuNative.finishMembershipTransaction(token),
+              (token) => YohakuMembershipNative.finishMembershipTransaction(token),
               signedTransactionInfo,
             )
             confirmed = true

@@ -1,4 +1,4 @@
-import { YohakuNative } from '@modules/yohaku'
+import { YohakuMembershipNative } from '@modules/yohaku'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
 
@@ -22,7 +22,7 @@ function productIdsOf(appleIap: MembershipAppleIap | undefined): string[] {
 async function finishMembershipTransaction(
   signedTransactionInfo: string,
 ): Promise<void> {
-  await YohakuNative.finishMembershipTransaction(signedTransactionInfo)
+  await YohakuMembershipNative.finishMembershipTransaction(signedTransactionInfo)
 }
 
 export function useMembershipCheckout(): {
@@ -49,7 +49,7 @@ export function useMembershipCheckout(): {
       return 'cancelled'
     }
     try {
-      const result = await YohakuNative.presentSubscriptionStore({
+      const result = await YohakuMembershipNative.presentSubscriptionStore({
         appAccountToken: appleAccount.accountToken,
         productIds,
       })
@@ -82,7 +82,7 @@ export function useMembershipCheckout(): {
       return
     }
     try {
-      const tokens = await YohakuNative.currentEntitlementJws({
+      const tokens = await YohakuMembershipNative.currentEntitlementJws({
         appAccountToken: appleAccount.accountToken,
         productIds,
       })

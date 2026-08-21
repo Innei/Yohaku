@@ -8,6 +8,25 @@ struct MembershipProductIdsPayload: Record {
   @Field var productIds: [String] = []
 }
 
+struct MembershipCheckoutResult: Record {
+  @Field var status: String = "cancelled"
+  @Field var signedTransactionInfo: String = ""
+
+  static func cancelled() -> MembershipCheckoutResult {
+    MembershipCheckoutResult()
+  }
+
+  static func completed(
+    status: String,
+    signedTransactionInfo: String
+  ) -> MembershipCheckoutResult {
+    let result = MembershipCheckoutResult()
+    result.status = status
+    result.signedTransactionInfo = signedTransactionInfo
+    return result
+  }
+}
+
 enum MembershipStore {
   enum StoreError: Error, LocalizedError {
     case missingProductIds
@@ -40,7 +59,7 @@ enum MembershipStore {
   static func present(
     productIds: [String],
     appAccountToken: UUID
-  ) async throws -> [String: Any] {
+  ) async throws -> MembershipCheckoutResult {
     let ids = productIds.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     guard !ids.isEmpty else { throw StoreError.missingProductIds }
     let products = try await Product.products(for: Set(ids))
@@ -123,7 +142,7 @@ enum MembershipStore {
 
   @MainActor
   private final class Presenter: NSObject, UIAdaptivePresentationControllerDelegate {
-    private var continuation: CheckedContinuation<[String: Any], Error>?
+    private var continuation: CheckedContinuation<MembershipCheckoutResult, Error>?
     private var host: UIHostingController<MembershipSubscriptionSheet>?
     private let appAccountToken: UUID
     private let productIds: Set<String>
@@ -134,7 +153,7 @@ enum MembershipStore {
       self.productIds = productIds
     }
 
-    func present() async throws -> [String: Any] {
+    func present() async throws -> MembershipCheckoutResult {
       try await withCheckedThrowingContinuation { continuation in
         self.continuation = continuation
         let sheet = MembershipSubscriptionSheet(
@@ -160,7 +179,7 @@ enum MembershipStore {
     }
 
     func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
-      finish(payload: ["status": "cancelled"])
+      finish(payload: .cancelled())
     }
 
     private func handlePurchase(_ result: Product.PurchaseResult) {
@@ -168,10 +187,10 @@ enum MembershipStore {
       case .success(let verification):
         guard case .verified(let transaction) = verification else { return }
         guard transaction.appAccountToken == appAccountToken else { return }
-        finish(payload: [
-          "signedTransactionInfo": verification.jwsRepresentation,
-          "status": "purchased",
-        ])
+        finish(payload: .completed(
+          status: "purchased",
+          signedTransactionInfo: verification.jwsRepresentation
+        ))
       case .pending, .userCancelled:
         break
       @unknown default:
@@ -185,15 +204,15 @@ enum MembershipStore {
         guard productIds.contains(transaction.productID) else { continue }
         guard transaction.appAccountToken == appAccountToken else { continue }
         await MainActor.run {
-          self.finish(payload: [
-            "signedTransactionInfo": update.jwsRepresentation,
-            "status": "restored",
-          ])
+          self.finish(payload: .completed(
+            status: "restored",
+            signedTransactionInfo: update.jwsRepresentation
+          ))
         }
       }
     }
 
-    private func finish(payload: [String: Any]) {
+    private func finish(payload: MembershipCheckoutResult) {
       guard let continuation else { return }
       self.continuation = nil
       updatesTask?.cancel()

@@ -1,6 +1,6 @@
 {
   "platforms": ["apple"],
   "apple": {
-    "modules": ["YohakuModule"]
+    "modules": ["YohakuModule", "YohakuMembershipModule"]
   }
 }

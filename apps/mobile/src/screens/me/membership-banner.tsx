@@ -1,4 +1,4 @@
-import { YohakuNative } from '@modules/yohaku'
+import { YohakuMembershipNative } from '@modules/yohaku'
 import { radius } from '@yohaku/design-system/tokens'
 import { useFocusEffect } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
@@ -139,7 +139,7 @@ export function MembershipBanner() {
   return (
     <NativePressable
       style={cardStyle}
-      onPress={() => void YohakuNative.showManageSubscriptions()}
+      onPress={() => void YohakuMembershipNative.showManageSubscriptions()}
     >
       {content}
     </NativePressable>

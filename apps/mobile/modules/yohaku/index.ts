@@ -17,10 +17,6 @@ type TtsEvents = {
 }
 
 type NativeEvents = TtsEvents & {
-  onMembershipTransaction: (event: {
-    productId: string
-    signedTransactionInfo: string
-  }) => void
   onMeTabLongPress: () => void
 }
 
@@ -50,6 +46,27 @@ interface YohakuNativeModule {
   preloadTts(url: string): Promise<void>
   setTtsRate(rate: number): Promise<void>
   stopTts(): Promise<void>
+}
+
+export const YohakuNative = requireNativeModule<YohakuNativeModule>('Yohaku')
+
+type MembershipEvents = {
+  onMembershipTransaction: (event: {
+    productId: string
+    signedTransactionInfo: string
+  }) => void
+}
+
+interface YohakuMembershipNativeModule {
+  addListener<K extends keyof MembershipEvents>(
+    eventName: K,
+    listener: MembershipEvents[K],
+  ): EventSubscription
+  currentEntitlementJws(payload: {
+    appAccountToken: string
+    productIds: string[]
+  }): Promise<string[]>
+  finishMembershipTransaction(signedTransactionInfo: string): Promise<void>
   presentSubscriptionStore(payload: {
     appAccountToken: string
     productIds: string[]
@@ -57,19 +74,15 @@ interface YohakuNativeModule {
     | { signedTransactionInfo: string; status: 'purchased' | 'restored' }
     | { status: 'cancelled' }
   >
-  currentEntitlementJws(payload: {
-    appAccountToken: string
-    productIds: string[]
-  }): Promise<string[]>
+  showManageSubscriptions(): Promise<void>
   unfinishedMembershipTransactionJws(payload: {
     appAccountToken: string
     productIds: string[]
   }): Promise<string[]>
-  finishMembershipTransaction(signedTransactionInfo: string): Promise<void>
-  showManageSubscriptions(): Promise<void>
 }
 
-export const YohakuNative = requireNativeModule<YohakuNativeModule>('Yohaku')
+export const YohakuMembershipNative =
+  requireNativeModule<YohakuMembershipNativeModule>('YohakuMembership')
 
 type ScrollEdgeContainerProps = ViewProps & {
   edge?: 'bottom' | 'top'
