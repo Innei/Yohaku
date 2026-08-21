@@ -10,7 +10,7 @@ _余白も書くことの一部です。_
 
 </div>
 
-![MacBook Pro と iPhone 上の Yohaku クロスプラットフォーム読書体験](https://github.com/user-attachments/assets/41e668e2-cc06-443e-b2bc-a087bb5dd9f6)
+![MacBook Pro と iPhone 上の Yohaku クロスプラットフォーム読書体験](https://github.com/user-attachments/assets/885c27d6-b869-4785-9e73-00b3f6809b4e)
 
 Yohaku は、個人の執筆のためのクロスプラットフォーム出版プロダクトです。コンテンツのバックエンドに [mx-core](https://github.com/mx-space/core) を使い、Web と iOS で記事・手記・思考・タイムラインを同じかたちで見せます。インターフェースは後ろに下がり、文字とリズム、そして読むことそのものが主役になります。
 

@@ -10,7 +10,7 @@ _留白也是写作的一部分。_
 
 </div>
 
-![Yohaku 在 MacBook Pro 与 iPhone 上的跨端阅读体验](https://github.com/user-attachments/assets/0c343315-6508-41eb-bb81-b83a5b231e93)
+![Yohaku 在 MacBook Pro 与 iPhone 上的跨端阅读体验](https://github.com/user-attachments/assets/27025fdd-800b-4d3c-8167-9e3dec32c2b7)
 
 Yohaku 是一套面向个人写作的跨端出版产品。它以 [mx-core](https://github.com/mx-space/core) 为内容后端，在 Web 与 iOS 上统一呈现文章、手记、思考与时间线；界面退居其后，让文字、节奏与阅读本身成为主角。
 
