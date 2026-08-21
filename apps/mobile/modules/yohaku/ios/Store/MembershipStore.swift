@@ -3,11 +3,6 @@ import StoreKit
 import SwiftUI
 import UIKit
 
-struct MembershipProductIdsPayload: Record {
-  @Field var appAccountToken: String = ""
-  @Field var productIds: [String] = []
-}
-
 struct MembershipCheckoutResult: Record {
   @Field var status: String = "cancelled"
   @Field var signedTransactionInfo: String = ""

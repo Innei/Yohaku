@@ -57,32 +57,57 @@ type MembershipEvents = {
   }) => void
 }
 
+type MembershipAccountPayload = {
+  appAccountToken: string
+  productIds: string[]
+}
+
 interface YohakuMembershipNativeModule {
   addListener<K extends keyof MembershipEvents>(
     eventName: K,
     listener: MembershipEvents[K],
   ): EventSubscription
-  currentEntitlementJws(payload: {
-    appAccountToken: string
-    productIds: string[]
-  }): Promise<string[]>
+  currentEntitlementJws(
+    appAccountToken: string,
+    productIds: string[],
+  ): Promise<string[]>
   finishMembershipTransaction(signedTransactionInfo: string): Promise<void>
-  presentSubscriptionStore(payload: {
-    appAccountToken: string
-    productIds: string[]
-  }): Promise<
+  presentSubscriptionStore(
+    appAccountToken: string,
+    productIds: string[],
+  ): Promise<
     | { signedTransactionInfo: string; status: 'purchased' | 'restored' }
     | { status: 'cancelled' }
   >
   showManageSubscriptions(): Promise<void>
-  unfinishedMembershipTransactionJws(payload: {
-    appAccountToken: string
-    productIds: string[]
-  }): Promise<string[]>
+  unfinishedMembershipTransactionJws(
+    appAccountToken: string,
+    productIds: string[],
+  ): Promise<string[]>
 }
 
-export const YohakuMembershipNative =
+const membership =
   requireNativeModule<YohakuMembershipNativeModule>('YohakuMembership')
+
+export const YohakuMembershipNative = {
+  addListener: membership.addListener.bind(membership),
+  currentEntitlementJws: (payload: MembershipAccountPayload) =>
+    membership.currentEntitlementJws(payload.appAccountToken, payload.productIds),
+  finishMembershipTransaction: membership.finishMembershipTransaction.bind(
+    membership,
+  ),
+  presentSubscriptionStore: (payload: MembershipAccountPayload) =>
+    membership.presentSubscriptionStore(
+      payload.appAccountToken,
+      payload.productIds,
+    ),
+  showManageSubscriptions: membership.showManageSubscriptions.bind(membership),
+  unfinishedMembershipTransactionJws: (payload: MembershipAccountPayload) =>
+    membership.unfinishedMembershipTransactionJws(
+      payload.appAccountToken,
+      payload.productIds,
+    ),
+}
 
 type ScrollEdgeContainerProps = ViewProps & {
   edge?: 'bottom' | 'top'

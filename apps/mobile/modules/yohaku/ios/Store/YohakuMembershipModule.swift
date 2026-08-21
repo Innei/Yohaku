@@ -35,16 +35,29 @@ public class YohakuMembershipModule: Module {
 
     Events("onMembershipTransaction")
 
-    AsyncFunction("presentSubscriptionStore") { (payload: MembershipProductIdsPayload) in
-      try await self.presentSubscriptionStore(payload)
-    }.runOnQueue(.main)
-
-    AsyncFunction("currentEntitlementJws") { (payload: MembershipProductIdsPayload) in
-      try await self.currentEntitlementJws(payload)
+    AsyncFunction("presentSubscriptionStore") { (appAccountToken: String, productIds: [String]) -> [String: String] in
+      let result = try await MembershipStore.present(
+        productIds: productIds,
+        appAccountToken: try MembershipStore.accountToken(from: appAccountToken)
+      )
+      return [
+        "status": result.status,
+        "signedTransactionInfo": result.signedTransactionInfo,
+      ]
     }
 
-    AsyncFunction("unfinishedMembershipTransactionJws") { (payload: MembershipProductIdsPayload) in
-      try await self.unfinishedMembershipTransactionJws(payload)
+    AsyncFunction("currentEntitlementJws") { (appAccountToken: String, productIds: [String]) -> [String] in
+      try await MembershipStore.currentEntitlementJws(
+        productIds: productIds,
+        appAccountToken: try MembershipStore.accountToken(from: appAccountToken)
+      )
+    }
+
+    AsyncFunction("unfinishedMembershipTransactionJws") { (appAccountToken: String, productIds: [String]) -> [String] in
+      try await MembershipStore.unfinishedTransactionJws(
+        productIds: productIds,
+        appAccountToken: try MembershipStore.accountToken(from: appAccountToken)
+      )
     }
 
     AsyncFunction("finishMembershipTransaction") { (signedTransactionInfo: String) in
@@ -53,34 +66,6 @@ public class YohakuMembershipModule: Module {
 
     AsyncFunction("showManageSubscriptions") {
       try await MembershipStore.showManageSubscriptions()
-    }.runOnQueue(.main)
-  }
-
-  @MainActor
-  private func presentSubscriptionStore(
-    _ payload: MembershipProductIdsPayload
-  ) async throws -> MembershipCheckoutResult {
-    try await MembershipStore.present(
-      productIds: payload.productIds,
-      appAccountToken: try MembershipStore.accountToken(from: payload.appAccountToken)
-    )
-  }
-
-  private func currentEntitlementJws(
-    _ payload: MembershipProductIdsPayload
-  ) async throws -> [String] {
-    await MembershipStore.currentEntitlementJws(
-      productIds: payload.productIds,
-      appAccountToken: try MembershipStore.accountToken(from: payload.appAccountToken)
-    )
-  }
-
-  private func unfinishedMembershipTransactionJws(
-    _ payload: MembershipProductIdsPayload
-  ) async throws -> [String] {
-    await MembershipStore.unfinishedTransactionJws(
-      productIds: payload.productIds,
-      appAccountToken: try MembershipStore.accountToken(from: payload.appAccountToken)
-    )
+    }
   }
 }
