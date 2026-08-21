@@ -10,7 +10,7 @@ _The blank space is part of the writing._
 
 </div>
 
-![Yohaku reading experience on a MacBook Pro and iPhone](https://github.com/user-attachments/assets/e29b79bb-a68e-4916-ba15-cc962205e463)
+![Yohaku reading experience on a MacBook Pro and iPhone](https://github.com/user-attachments/assets/6794f804-08f1-46bd-b5f4-ab353040de24)
 
 Yohaku is a cross-platform publishing product for personal writing. It uses [mx-core](https://github.com/mx-space/core) as the content backend, and presents posts, notes, thoughts, and a timeline as one experience on Web and iOS. The interface recedes so that text, rhythm, and reading itself stay in front.
 
