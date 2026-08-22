@@ -42,6 +42,13 @@ describe('mobile notification native config', () => {
     expect(config.runtimeVersion).toEqual({ policy: 'fingerprint' })
   })
 
+  it('does not block launch waiting for an OTA fetch', () => {
+    expect(
+      resolveOverlayUpdates('/tmp', { updates: { url: 'https://ota.example' } })
+        ?.fallbackToCacheTimeout,
+    ).toBe(0)
+  })
+
   it('enables communication notifications and native extension generation', () => {
     const config = loadConfig('development')
     expect(

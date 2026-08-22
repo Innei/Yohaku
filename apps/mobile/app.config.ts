@@ -85,7 +85,7 @@ export function resolveOverlayUpdates(
   return {
     url: updates.url,
     enabled: updates.enabled ?? true,
-    fallbackToCacheTimeout: updates.fallbackToCacheTimeout ?? 10_000,
+    fallbackToCacheTimeout: updates.fallbackToCacheTimeout ?? 0,
     ...(codeSigningCertificate
       ? {
           codeSigningCertificate,
