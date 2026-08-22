@@ -181,7 +181,6 @@ export function createAppConfig(): ExpoConfig {
         },
       ],
       'expo-sqlite',
-      'expo-secure-store',
       'expo-localization',
       [
         'expo-notifications',

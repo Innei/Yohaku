@@ -14,7 +14,7 @@ rather than carrying it "for later".
 Never pass `CODE_SIGNING_ALLOWED=NO` to xcodebuild, expo, Fastlane, or any iOS
 build — including Simulator Debug. That flag strips entitlements
 (`application-identifier`, `keychain-access-groups`). The `.app` still launches;
-SecureStore then throws and public sync comes back empty.
+Keychain then throws and public sync comes back empty.
 
 Keep the settings from `plugins/with-ios-keychain-signing.cjs`:
 `ENTITLEMENTS_REQUIRED=YES`, `CODE_SIGN_INJECT_BASE_ENTITLEMENTS=YES`,

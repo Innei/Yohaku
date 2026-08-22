@@ -1,6 +1,7 @@
 import { getLocales } from 'expo-localization'
-import * as SecureStore from 'expo-secure-store'
 import { useSyncExternalStore } from 'react'
+
+import { secretStore } from '@/lib/secret-store'
 
 import type { Locale } from './config'
 import { defaultLocale, isLocale } from './config'
@@ -14,7 +15,7 @@ function readInitial(): Locale {
   // Synchronous on purpose: the api client reads the locale outside React and
   // before drizzle migrations finish, so this cannot come from SQLite.
   try {
-    const stored = SecureStore.getItem(STORAGE_KEY)
+    const stored = secretStore.getItem(STORAGE_KEY)
     if (isLocale(stored)) return stored
   } catch {
     // keychain unavailable on first launch of a restored backup; fall through
@@ -41,7 +42,7 @@ export function setLocale(next: Locale) {
   if (locale === next) return
   locale = next
   try {
-    SecureStore.setItem(STORAGE_KEY, next)
+    secretStore.setItem(STORAGE_KEY, next)
   } catch {
     // preference is best-effort; an unwritable keychain must not block the UI
   }

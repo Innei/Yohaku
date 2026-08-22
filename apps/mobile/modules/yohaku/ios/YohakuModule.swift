@@ -46,6 +46,18 @@ public class YohakuModule: Module {
       Double(sqliteDatabaseBytes())
     }
 
+    Function("secretGet") { (key: String) -> String? in
+      try SecretStore.get(key)
+    }
+
+    Function("secretSet") { (key: String, value: String) in
+      try SecretStore.set(key, value)
+    }
+
+    Function("secretDelete") { (key: String) in
+      SecretStore.delete(key)
+    }
+
     AsyncFunction("downloadSystemFont") { (postScriptName: String) -> Bool in
       await SystemFontDomain.ensureInstalled(postScriptName: postScriptName)
     }

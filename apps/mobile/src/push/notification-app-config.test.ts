@@ -65,6 +65,12 @@ describe('mobile notification native config', () => {
     )
   })
 
+  it('does not request Face ID or link expo-secure-store', () => {
+    const config = loadConfig('production')
+    expect(config.ios?.infoPlist).not.toHaveProperty('NSFaceIDUsageDescription')
+    expect(config.plugins).not.toContain('expo-secure-store')
+  })
+
   it('passes Expo a project-relative OTA signing certificate path', () => {
     const overlayDir = fs.mkdtempSync(
       path.join(os.tmpdir(), 'yohaku-ota-overlay-'),

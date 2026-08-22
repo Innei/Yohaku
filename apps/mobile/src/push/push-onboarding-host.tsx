@@ -1,9 +1,9 @@
 import { YohakuNative } from '@modules/yohaku'
-import * as SecureStore from 'expo-secure-store'
 import { useEffect, useRef } from 'react'
 import { Alert } from 'react-native'
 
 import { useTranslations } from '@/i18n'
+import { secretStoreAsync } from '@/lib/secret-store'
 
 import { loadPushConfig } from './config'
 import {
@@ -14,10 +14,7 @@ import {
 } from './onboarding'
 import { enablePush, usePushState } from './runtime'
 
-const storage = {
-  getItem: (key: string) => SecureStore.getItemAsync(key),
-  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
-}
+const storage = secretStoreAsync
 
 export function PushOnboardingHost({ ready }: { ready: boolean }) {
   const t = useTranslations('push')

@@ -33,6 +33,9 @@ interface YohakuNativeModule {
   }>
   configureCompactNativeTabBar(): Promise<void>
   databaseBytes(): number
+  secretDelete(key: string): void
+  secretGet(key: string): string | null
+  secretSet(key: string, value: string): void
   downloadSystemFont(postScriptName: string): Promise<boolean>
   liquidGlassAvailable: boolean
   loadTts(payload: {

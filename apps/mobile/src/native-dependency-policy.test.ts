@@ -9,6 +9,10 @@ import packageJson from '../package.json'
 const require = createRequire(import.meta.url)
 
 describe('native dependency policy', () => {
+  it('does not depend on expo-secure-store', () => {
+    expect(packageJson.dependencies).not.toHaveProperty('expo-secure-store')
+  })
+
   it('excludes the unused Expo FileSystem module from autolinking', () => {
     expect(packageJson.expo?.autolinking?.exclude ?? []).toContain(
       'expo-file-system',

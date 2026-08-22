@@ -4,8 +4,8 @@ const { withXcodeProject } = require('expo/config-plugins')
 
 /**
  * Simulator Debug builds from recent Xcode still ad-hoc sign the app and skip
- * injecting `application-identifier`. SecureStore then throws
- * `KeyChainException: A required entitlement isn't present`.
+ * injecting `application-identifier`. Keychain then throws
+ * `errSecMissingEntitlement`.
  *
  * `ENTITLEMENTS_REQUIRED` + `CODE_SIGN_INJECT_BASE_ENTITLEMENTS` force that
  * identifier in. `ENABLE_DEBUG_DYLIB=NO` avoids the preview-dylib signing

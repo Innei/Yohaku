@@ -1,11 +1,11 @@
 import { fetch } from 'expo/fetch'
 import * as Notifications from 'expo-notifications'
-import * as SecureStore from 'expo-secure-store'
 import { useSyncExternalStore } from 'react'
 
 import { api } from '@/api/client'
 import { refreshSession } from '@/auth/session'
 import { getSession } from '@/auth/session-store'
+import { secretStoreAsync } from '@/lib/secret-store'
 
 import { loadPushConfig } from './config'
 import { createCredentialStore } from './credentials'
@@ -69,11 +69,7 @@ export function createProductionPushController() {
       getDevicePushToken: () => Notifications.getDevicePushTokenAsync(),
     },
     relay: createProductionRelay(),
-    credentials: createCredentialStore({
-      getItem: (key) => SecureStore.getItemAsync(key),
-      setItem: (key, value) => SecureStore.setItemAsync(key, value),
-      deleteItem: (key) => SecureStore.deleteItemAsync(key),
-    }),
+    credentials: createCredentialStore(secretStoreAsync),
     api: {
       pushActivate: api.pushActivate,
     },

@@ -1,8 +1,8 @@
 import { expoClient } from '@better-auth/expo/client'
 import { createAuthClient } from 'better-auth/react'
-import * as SecureStore from 'expo-secure-store'
 
 import { apiBaseUrl } from '@/api/base-url'
+import { secretStore } from '@/lib/secret-store'
 import { site } from '@/site'
 
 import { safeSessionCookie } from './session-cookie'
@@ -23,7 +23,7 @@ function buildClient(baseURL: string) {
   const plugin = expoClient({
     scheme: AUTH_SCHEME,
     storagePrefix: 'yohaku',
-    storage: SecureStore,
+    storage: secretStore,
   }) as Omit<ExpoClientPlugin, 'getActions'> & {
     getActions: (...args: any[]) => ReturnType<ExpoClientPlugin['getActions']>
   }

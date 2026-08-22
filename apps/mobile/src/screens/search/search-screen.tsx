@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useRouter } from 'expo-router'
-import * as SecureStore from 'expo-secure-store'
 import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
@@ -20,6 +19,7 @@ import { AppText } from '@/components/ui'
 import { db } from '@/db'
 import { notes, posts, thinkings } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
+import { secretStore } from '@/lib/secret-store'
 import { siteHref } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 
@@ -56,7 +56,7 @@ const DEBOUNCE_MS = 360
 
 function loadRecents(): RecentsMap {
   try {
-    return parseRecents(SecureStore.getItem(RECENTS_KEY))
+    return parseRecents(secretStore.getItem(RECENTS_KEY))
   } catch {
     return EMPTY_RECENTS
   }
@@ -64,7 +64,7 @@ function loadRecents(): RecentsMap {
 
 function persistRecents(state: RecentsMap) {
   try {
-    SecureStore.setItem(RECENTS_KEY, serializeRecents(state))
+    secretStore.setItem(RECENTS_KEY, serializeRecents(state))
   } catch {
     // preference is best-effort
   }

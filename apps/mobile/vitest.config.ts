@@ -26,6 +26,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(mobileRoot, 'src'),
+      '@modules': path.resolve(mobileRoot, 'modules'),
       'yohaku-mobile-overlay': overlaySite,
       'yohaku-mobile-overlay/bundled-assets': overlayBundledAssets,
     },
