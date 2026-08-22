@@ -30,7 +30,6 @@ import { TtsMiniBar } from '@/tts/tts-mini-bar'
 import { useTtsSession } from '@/tts/use-tts-session'
 
 import { ArticleBody } from './article-body'
-import { ArticleListen } from './article-listen'
 import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
 import { ArticleNotice } from './article-notice'
@@ -304,13 +303,20 @@ export function PostDetailScreen({
                   ))}
                 </View>
               ) : null}
-              <ArticleListen
-                available={tts.available}
-                hidden={tts.isNarrating}
-                onPress={tts.start}
-              />
             </View>
-            <ArticleNotice id={post.id} kind="post" meta={post.articleMeta} />
+            <ArticleNotice
+              id={post.id}
+              kind="post"
+              listen={{
+                available: tts.available,
+                current: tts.current,
+                elapsed: tts.elapsed,
+                status: tts.status,
+                total: tts.total,
+                onToggle: tts.toggle,
+              }}
+              meta={post.articleMeta}
+            />
             {isMarkdown ? (
               <View style={{ minHeight: reservedBodyHeight }}>
                 <AppText

@@ -3,13 +3,17 @@ import { SymbolView } from 'expo-symbols'
 import { StyleSheet, View } from 'react-native'
 
 import type { ArticleNoticeMeta, ArticleRelatedRef } from '@/api/article-meta'
-import { aiNoticeChips, isEmptyArticleMeta } from '@/api/article-meta'
 import type { NoticeCardRow } from '@/components/ui'
 import { AppText, NoticeCard, SinkPressable } from '@/components/ui'
 import { isLocale, useTranslations } from '@/i18n'
 import { usePalette } from '@/theme/palette'
 
+import type { ArticleAiListen } from './article-ai-fold'
 import { ArticleAiFold } from './article-ai-fold'
+import {
+  shouldShowAiRow,
+  shouldShowArticleNotice,
+} from './article-notice-model'
 
 type RelatedRoute =
   | {
@@ -37,19 +41,23 @@ function routeFor(ref: ArticleRelatedRef): RelatedRoute | null {
 export function ArticleNotice({
   kind,
   id,
+  listen,
   meta,
 }: {
   id: string
   kind: 'note' | 'post'
+  listen?: ArticleAiListen
   meta: ArticleNoticeMeta | null
 }) {
   const t = useTranslations('notice')
   const tl = useTranslations('language')
   const palette = usePalette()
   const router = useRouter()
+  const listenAvailable = listen?.available === true
 
-  if (isEmptyArticleMeta(meta) || !meta) return null
-  const { related = [], translation } = meta
+  if (!shouldShowArticleNotice(meta, listenAvailable)) return null
+  const related = meta?.related ?? []
+  const translation = meta?.translation
 
   const linkable = related
     .map((ref) => ({ ref, route: routeFor(ref) }))
@@ -117,10 +125,10 @@ export function ArticleNotice({
     })
   }
 
-  if (aiNoticeChips(meta).length > 0) {
+  if (shouldShowAiRow(meta, listenAvailable)) {
     rows.push({
       key: 'ai',
-      node: <ArticleAiFold id={id} kind={kind} meta={meta} />,
+      node: <ArticleAiFold id={id} kind={kind} listen={listen} meta={meta} />,
     })
   }
 

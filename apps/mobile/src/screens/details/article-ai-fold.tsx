@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import Animated, {
   ReduceMotion,
   useAnimatedStyle,
@@ -15,7 +15,13 @@ import { AppText, SinkPressable } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
+import type { TtsStatus } from '@/tts/use-tts-session'
 
+import {
+  aiRowCanFold,
+  aiRowTrail,
+  shouldShowAiRow,
+} from './article-notice-model'
 import { ArticleSkillRow } from './article-skill-row'
 
 const BODY_GAP = 10
@@ -25,14 +31,62 @@ const foldTiming = {
   reduceMotion: ReduceMotion.System,
 }
 
+export interface ArticleAiListen {
+  available: boolean
+  current: number
+  elapsed: number
+  status: TtsStatus
+  total: number
+  onToggle: () => void
+}
+
+function ListenDisc({
+  listen,
+}: {
+  listen: ArticleAiListen
+}) {
+  const palette = usePalette()
+  const t = useTranslations('tts')
+  const playing = listen.status === 'playing'
+  const loading = listen.status === 'loading'
+  return (
+    <SinkPressable
+      accessibilityLabel={
+        loading ? t('loading') : playing ? t('pause') : t('play')
+      }
+      haptic={false}
+      hitSlop={11}
+      style={[styles.disc, { backgroundColor: `${palette.accent}1a` }]}
+      onPress={listen.onToggle}
+    >
+      {loading ? (
+        <ActivityIndicator
+          color={palette.accent}
+          size="small"
+          style={styles.spinner}
+        />
+      ) : (
+        <SymbolView
+          name={playing ? 'pause.fill' : 'play.fill'}
+          size={9}
+          style={playing ? undefined : styles.playGlyph}
+          tintColor={palette.accent}
+        />
+      )}
+    </SinkPressable>
+  )
+}
+
 export function ArticleAiFold({
   id,
   kind,
+  listen,
   meta,
 }: {
   id: string
   kind: 'note' | 'post'
-  meta: ArticleNoticeMeta
+  listen?: ArticleAiListen
+  meta: ArticleNoticeMeta | null
 }) {
   const t = useTranslations('notice')
   const palette = usePalette()
@@ -41,7 +95,13 @@ export function ArticleAiFold({
   const progress = useSharedValue(0)
   const headerH = useSharedValue(0)
   const bodyH = useSharedValue(0)
-  const chips = aiNoticeChips(meta)
+  const listenAvailable = listen?.available === true
+  const chips = meta ? aiNoticeChips(meta) : []
+  const canFold = aiRowCanFold(meta)
+  const narrating =
+    listen?.status === 'loading' ||
+    listen?.status === 'playing' ||
+    listen?.status === 'paused'
 
   const wrapStyle = useAnimatedStyle(() => {
     if (headerH.value === 0) return { overflow: 'hidden' as const }
@@ -58,66 +118,101 @@ export function ArticleAiFold({
   }))
 
   const chipStyle = useAnimatedStyle(() => ({
-    opacity: 1 - progress.value,
+    opacity: narrating ? 1 : 1 - progress.value,
   }))
 
   const chevronStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${progress.value * 180}deg` }],
   }))
 
-  if (chips.length === 0) return null
+  if (!shouldShowAiRow(meta, listenAvailable)) return null
 
   const labels = chips.map((chip) => {
     if (chip === 'summary') {
-      return meta.summary?.source === 'author' ? t('summary') : t('keyInsights')
+      return meta?.summary?.source === 'author' ? t('summary') : t('keyInsights')
     }
     if (chip === 'insights') return t('aiInsights')
     return t('skills')
   })
+  const trail = aiRowTrail({
+    chipLabels: labels,
+    current: listen?.current ?? 0,
+    elapsed: listen?.elapsed ?? 0,
+    narrating: narrating === true,
+    status: listen?.status ?? 'idle',
+    total: listen?.total ?? 0,
+  })
 
   const toggle = () => {
+    if (!canFold) return
     const next = !open
     progress.set(withTiming(next ? 1 : 0, foldTiming))
     setOpen(next)
   }
 
-  return (
-    <Animated.View style={[styles.wrap, wrapStyle]}>
-      <View onLayout={(event) => headerH.set(event.nativeEvent.layout.height)}>
+  const label = (
+    <View style={styles.head}>
+      {listenAvailable ? null : (
+        <SymbolView name="sparkles" size={15} tintColor={palette.accent} />
+      )}
+      <AppText color={palette.neutral[7]} variant="meta">
+        {t('aiSection')}
+      </AppText>
+    </View>
+  )
+  const trailNode =
+    trail !== null ? (
+      <Animated.View pointerEvents="none" style={[styles.chipLine, chipStyle]}>
+        <AppText
+          color={palette.neutral[6]}
+          numberOfLines={1}
+          style={narrating ? styles.time : undefined}
+          variant="meta"
+        >
+          {trail}
+        </AppText>
+      </Animated.View>
+    ) : null
+
+  const row = (
+    <View style={styles.header}>
+      {listenAvailable && listen ? <ListenDisc listen={listen} /> : null}
+      {canFold ? (
         <SinkPressable
           accessibilityState={{ expanded: open }}
           haptic={false}
-          style={styles.header}
+          style={styles.foldHit}
           onPress={toggle}
         >
-          <View style={styles.head}>
-            <SymbolView name="sparkles" size={15} tintColor={palette.accent} />
-            <AppText color={palette.neutral[7]} variant="meta">
-              {t('aiSection')}
-            </AppText>
-          </View>
+          {label}
           <View style={styles.trail}>
-            <Animated.View
-              pointerEvents="none"
-              style={[styles.chipLine, chipStyle]}
-            >
-              <AppText
-                color={palette.neutral[6]}
-                numberOfLines={1}
-                variant="meta"
-              >
-                {labels.join(' · ')}
-              </AppText>
-            </Animated.View>
+            {trailNode}
             <Animated.View style={chevronStyle}>
               <SymbolView
                 name="chevron.down"
-                size={12}
+                size={11}
                 tintColor={palette.neutral[5]}
               />
             </Animated.View>
           </View>
         </SinkPressable>
+      ) : (
+        <View style={styles.foldHit}>
+          {label}
+          {trailNode ? <View style={styles.trail}>{trailNode}</View> : null}
+        </View>
+      )}
+    </View>
+  )
+
+  if (!canFold || !meta) {
+    return row
+  }
+
+  return (
+    <Animated.View style={[styles.wrap, wrapStyle]}>
+      <View onLayout={(event) => headerH.set(event.nativeEvent.layout.height)}>
+        {row}
       </View>
       <Animated.View
         pointerEvents={open ? 'auto' : 'none'}
@@ -191,6 +286,27 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+  },
+  disc: {
+    width: 22,
+    height: 22,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  playGlyph: {
+    marginLeft: 1,
+  },
+  spinner: {
+    transform: [{ scale: 0.55 }],
+  },
+  foldHit: {
+    flex: 1,
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: 10,
   },
@@ -211,6 +327,9 @@ const styles = StyleSheet.create({
   chipLine: {
     flex: 1,
     minWidth: 0,
+  },
+  time: {
+    fontVariant: ['tabular-nums'],
   },
   body: {
     position: 'absolute',

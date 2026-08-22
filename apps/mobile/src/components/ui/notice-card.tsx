@@ -5,20 +5,15 @@ import { StyleSheet, View } from 'react-native'
 import { usePalette } from '@/theme/palette'
 import { shadow } from '@/theme/surfaces'
 
-// The wash and bloom are tuned for a ~353pt card, not web's full-width one:
-// carried over verbatim the accent tint reads as a rendering artifact rather
-// than an ambient layer. Dark halves the bloom, mirroring web's dark:opacity-50.
-const wash = {
-  light:
-    'linear-gradient(135deg, rgba(197,100,115,0.05) 0%, rgba(255,228,180,0.07) 52%, rgba(197,100,115,0.025) 100%)',
-  dark: 'linear-gradient(135deg, rgba(224,149,164,0.07) 0%, rgba(255,228,180,0.05) 52%, rgba(224,149,164,0.03) 100%)',
-}
+import { noticeCardHasWash } from './notice-card-theme'
 
-const bloom = {
-  light:
-    'radial-gradient(circle 150px at 88% -8%, rgba(255,228,180,0.16), rgba(255,228,180,0) 70%)',
-  dark: 'radial-gradient(circle 150px at 88% -8%, rgba(255,228,180,0.10), rgba(255,228,180,0) 70%)',
-}
+// Light-only: amber wash on parchment. Dark is plain paper — warmth at low
+// luminance reads olive, so dark does not carry the light recipe.
+const wash =
+  'linear-gradient(135deg, rgba(197,100,115,0.05) 0%, rgba(255,228,180,0.07) 52%, rgba(197,100,115,0.025) 100%)'
+
+const bloom =
+  'radial-gradient(circle 150px at 88% -8%, rgba(255,228,180,0.16), rgba(255,228,180,0) 70%)'
 
 export interface NoticeCardRow {
   key: string
@@ -39,20 +34,24 @@ export function NoticeCard({ rows }: { rows: NoticeCardRow[] }) {
         },
       ]}
     >
-      <View
-        pointerEvents="none"
-        style={[
-          StyleSheet.absoluteFill,
-          { experimental_backgroundImage: wash[palette.theme] },
-        ]}
-      />
-      <View
-        pointerEvents="none"
-        style={[
-          StyleSheet.absoluteFill,
-          { experimental_backgroundImage: bloom[palette.theme] },
-        ]}
-      />
+      {noticeCardHasWash(palette.theme) ? (
+        <>
+          <View
+            pointerEvents="none"
+            style={[
+              StyleSheet.absoluteFill,
+              { experimental_backgroundImage: wash },
+            ]}
+          />
+          <View
+            pointerEvents="none"
+            style={[
+              StyleSheet.absoluteFill,
+              { experimental_backgroundImage: bloom },
+            ]}
+          />
+        </>
+      ) : null}
       {rows.map((row, index) => (
         <View key={row.key}>
           {index > 0 ? (

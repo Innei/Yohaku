@@ -25,7 +25,6 @@ import { TtsMiniBar } from '@/tts/tts-mini-bar'
 import { useTtsSession } from '@/tts/use-tts-session'
 
 import { ArticleBody } from './article-body'
-import { ArticleListen } from './article-listen'
 import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
 import { ArticleNotice } from './article-notice'
@@ -201,15 +200,18 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                     aiGen={note.articleMeta?.aiGen}
                     parts={metaParts}
                   />
-                  <ArticleListen
-                    available={tts.available}
-                    hidden={tts.isNarrating}
-                    onPress={tts.start}
-                  />
                 </View>
                 <ArticleNotice
                   id={note.id}
                   kind="note"
+                  listen={{
+                    available: tts.available,
+                    current: tts.current,
+                    elapsed: tts.elapsed,
+                    status: tts.status,
+                    total: tts.total,
+                    onToggle: tts.toggle,
+                  }}
                   meta={note.articleMeta}
                 />
                 {isLocked ? (
