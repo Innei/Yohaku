@@ -1,5 +1,7 @@
+import { TextMenuButton } from '@modules/yohaku'
 import { GlassView, isGlassEffectAPIAvailable } from 'expo-glass-effect'
 import { SymbolView } from 'expo-symbols'
+import { useCallback } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -9,7 +11,7 @@ import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 import { shadow } from '@/theme/surfaces'
 
-import { formatDuration } from './format'
+import { formatDuration, formatRate, ttsRateMenuItems } from './format'
 import type { TtsStatus } from './use-tts-session'
 
 export function TtsMiniBar({
@@ -17,8 +19,8 @@ export function TtsMiniBar({
   current,
   duration: _duration,
   elapsed,
-  onCycleRate,
   onRecenter,
+  onSelectRate,
   onStop,
   onToggle,
   playbackRate,
@@ -30,8 +32,8 @@ export function TtsMiniBar({
   current: number
   duration: number
   elapsed: number
-  onCycleRate: () => void
   onRecenter: () => void
+  onSelectRate: (rate: number) => void
   onStop: () => void
   onToggle: () => void
   playbackRate: number
@@ -45,7 +47,13 @@ export function TtsMiniBar({
   const glass = isGlassEffectAPIAvailable()
   const loading = status === 'loading'
   const playing = status === 'playing'
-  const rateLabel = playbackRate === 1 ? '1×' : `${playbackRate}×`
+  const rateLabel = formatRate(playbackRate)
+  const handleRateAction = useCallback(
+    (event: { nativeEvent: { id: string } }) => {
+      onSelectRate(Number(event.nativeEvent.id))
+    },
+    [onSelectRate],
+  )
 
   const inner = (
     <View style={styles.row}>
@@ -83,16 +91,16 @@ export function TtsMiniBar({
           {loading ? t('loading') : t('segment', { current, total })}
         </AppText>
       </View>
-      <SinkPressable
-        accessibilityLabel={rateLabel}
+      <TextMenuButton
+        controlLabel={t('rate', { rate: rateLabel })}
         disabled={loading}
-        style={styles.ghost}
-        onPress={onCycleRate}
-      >
-        <AppText color={palette.neutral[7]} style={styles.rate}>
-          {rateLabel}
-        </AppText>
-      </SinkPressable>
+        menuItems={ttsRateMenuItems(playbackRate)}
+        style={styles.rate}
+        title={rateLabel}
+        titleColor={palette.neutral[7]}
+        titleSize={13}
+        onMenuAction={handleRateAction}
+      />
       {autoFollow ? null : (
         <SinkPressable
           accessibilityLabel={t('recenter')}
@@ -206,8 +214,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
   },
   rate: {
-    ...fonts.sansMedium,
-    fontSize: 13,
-    fontVariant: ['tabular-nums'],
+    height: 36,
+    minWidth: 58,
+    paddingHorizontal: 4,
   },
 })

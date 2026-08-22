@@ -15,6 +15,8 @@ const wash =
 const bloom =
   'radial-gradient(circle 150px at 88% -8%, rgba(255,228,180,0.16), rgba(255,228,180,0) 70%)'
 
+export const NOTICE_ICON_COL = 22
+
 export interface NoticeCardRow {
   key: string
   node: ReactNode

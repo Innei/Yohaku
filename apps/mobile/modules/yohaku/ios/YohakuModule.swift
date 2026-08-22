@@ -186,6 +186,36 @@ public class YohakuModule: Module {
       }
     }
 
+    View(TextMenuButtonView.self) {
+      ViewName("TextMenuButton")
+
+      Events("onMenuAction")
+
+      Prop("controlLabel") { (view: TextMenuButtonView, label: String) in
+        view.setAccessibilityLabel(label)
+      }
+
+      Prop("disabled") { (view: TextMenuButtonView, disabled: Bool) in
+        view.setDisabled(disabled)
+      }
+
+      Prop("menuItems") { (view: TextMenuButtonView, items: [NavigationHeaderMenuItemSpec]) in
+        view.setMenuItems(items)
+      }
+
+      Prop("title") { (view: TextMenuButtonView, title: String) in
+        view.setTitle(title)
+      }
+
+      Prop("titleColor") { (view: TextMenuButtonView, color: UIColor?) in
+        view.setTitleColor(color)
+      }
+
+      Prop("titleSize") { (view: TextMenuButtonView, size: Double) in
+        view.setTitleSize(size)
+      }
+    }
+
     View(GroupedListView.self) {
       ViewName("GroupedList")
 

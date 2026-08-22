@@ -11,7 +11,7 @@ import Animated, {
 
 import type { ArticleNoticeMeta } from '@/api/article-meta'
 import { aiNoticeChips } from '@/api/article-meta'
-import { AppText, SinkPressable } from '@/components/ui'
+import { AppText, NOTICE_ICON_COL, SinkPressable } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
@@ -19,6 +19,7 @@ import type { TtsStatus } from '@/tts/use-tts-session'
 
 import {
   aiRowCanFold,
+  aiRowListenCaption,
   aiRowTrail,
   shouldShowAiRow,
 } from './article-notice-model'
@@ -40,9 +41,11 @@ export interface ArticleAiListen {
   onToggle: () => void
 }
 
-function ListenDisc({
+function ListenLead({
+  caption,
   listen,
 }: {
+  caption: string
   listen: ArticleAiListen
 }) {
   const palette = usePalette()
@@ -55,24 +58,32 @@ function ListenDisc({
         loading ? t('loading') : playing ? t('pause') : t('play')
       }
       haptic={false}
-      hitSlop={11}
-      style={[styles.disc, { backgroundColor: `${palette.accent}1a` }]}
+      style={styles.head}
       onPress={listen.onToggle}
     >
-      {loading ? (
-        <ActivityIndicator
-          color={palette.accent}
-          size="small"
-          style={styles.spinner}
-        />
-      ) : (
-        <SymbolView
-          name={playing ? 'pause.fill' : 'play.fill'}
-          size={9}
-          style={playing ? undefined : styles.playGlyph}
-          tintColor={palette.accent}
-        />
-      )}
+      <View style={styles.icon}>
+        {loading ? (
+          <ActivityIndicator
+            color={palette.accent}
+            size="small"
+            style={styles.spinner}
+          />
+        ) : (
+          <SymbolView
+            name={playing ? 'pause.fill' : 'play.fill'}
+            size={14}
+            style={playing ? undefined : styles.playGlyph}
+            tintColor={palette.accent}
+          />
+        )}
+      </View>
+      <AppText
+        color={palette.neutral[7]}
+        style={listen.status === 'idle' ? undefined : styles.time}
+        variant="meta"
+      >
+        {caption}
+      </AppText>
     </SinkPressable>
   )
 }
@@ -118,7 +129,7 @@ export function ArticleAiFold({
   }))
 
   const chipStyle = useAnimatedStyle(() => ({
-    opacity: narrating ? 1 : 1 - progress.value,
+    opacity: 1 - progress.value,
   }))
 
   const chevronStyle = useAnimatedStyle(() => ({
@@ -134,14 +145,15 @@ export function ArticleAiFold({
     if (chip === 'insights') return t('aiInsights')
     return t('skills')
   })
-  const trail = aiRowTrail({
-    chipLabels: labels,
-    current: listen?.current ?? 0,
-    elapsed: listen?.elapsed ?? 0,
-    narrating: narrating === true,
-    status: listen?.status ?? 'idle',
-    total: listen?.total ?? 0,
-  })
+  const trail = aiRowTrail(labels)
+  const listenCaption =
+    aiRowListenCaption({
+      current: listen?.current ?? 0,
+      elapsed: listen?.elapsed ?? 0,
+      narrating: narrating === true,
+      status: listen?.status ?? 'idle',
+      total: listen?.total ?? 0,
+    }) ?? t('aiListen')
 
   const toggle = () => {
     if (!canFold) return
@@ -150,11 +162,11 @@ export function ArticleAiFold({
     setOpen(next)
   }
 
-  const label = (
+  const section = (
     <View style={styles.head}>
-      {listenAvailable ? null : (
+      <View style={styles.icon}>
         <SymbolView name="sparkles" size={15} tintColor={palette.accent} />
-      )}
+      </View>
       <AppText color={palette.neutral[7]} variant="meta">
         {t('aiSection')}
       </AppText>
@@ -163,20 +175,30 @@ export function ArticleAiFold({
   const trailNode =
     trail !== null ? (
       <Animated.View pointerEvents="none" style={[styles.chipLine, chipStyle]}>
-        <AppText
-          color={palette.neutral[6]}
-          numberOfLines={1}
-          style={narrating ? styles.time : undefined}
-          variant="meta"
-        >
+        <AppText color={palette.neutral[6]} numberOfLines={1} variant="meta">
           {trail}
         </AppText>
       </Animated.View>
     ) : null
+  const foldTrail =
+    canFold && trailNode ? (
+      <View style={styles.trail}>
+        {trailNode}
+        <Animated.View style={chevronStyle}>
+          <SymbolView
+            name="chevron.down"
+            size={11}
+            tintColor={palette.neutral[5]}
+          />
+        </Animated.View>
+      </View>
+    ) : null
 
   const row = (
     <View style={styles.header}>
-      {listenAvailable && listen ? <ListenDisc listen={listen} /> : null}
+      {listenAvailable && listen ? (
+        <ListenLead caption={listenCaption} listen={listen} />
+      ) : null}
       {canFold ? (
         <SinkPressable
           accessibilityState={{ expanded: open }}
@@ -184,23 +206,11 @@ export function ArticleAiFold({
           style={styles.foldHit}
           onPress={toggle}
         >
-          {label}
-          <View style={styles.trail}>
-            {trailNode}
-            <Animated.View style={chevronStyle}>
-              <SymbolView
-                name="chevron.down"
-                size={11}
-                tintColor={palette.neutral[5]}
-              />
-            </Animated.View>
-          </View>
+          {listenAvailable ? null : section}
+          {foldTrail}
         </SinkPressable>
       ) : (
-        <View style={styles.foldHit}>
-          {label}
-          {trailNode ? <View style={styles.trail}>{trailNode}</View> : null}
-        </View>
+        foldTrail
       )}
     </View>
   )
@@ -286,15 +296,13 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'stretch',
     gap: 10,
   },
-  disc: {
-    width: 22,
-    height: 22,
-    borderRadius: 999,
+  icon: {
+    width: NOTICE_ICON_COL,
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0,
   },
   playGlyph: {
     marginLeft: 1,
@@ -317,12 +325,13 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   trail: {
-    flex: 1,
+    flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
     gap: 8,
     minWidth: 0,
+    marginLeft: 'auto',
   },
   chipLine: {
     flex: 1,

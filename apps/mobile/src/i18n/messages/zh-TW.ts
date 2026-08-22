@@ -114,6 +114,7 @@ export const zhTW = {
     skillPromptText:
       '請載入 {url} 這個 skill 作為指導，幫我完成下面描述的任務：',
     aiSection: 'AI',
+    aiListen: 'AI 朗讀',
     aiInsights: '餘白',
     insightsLoading: '餘白載入中…',
     insightsFailed: '餘白載入失敗，點此重試',
@@ -256,6 +257,7 @@ export const zhTW = {
     narrate: '朗讀',
     pause: '暫停',
     play: '播放',
+    rate: '倍速 {rate}',
     recenter: '回到目前段落',
     segment: '{current} / {total}',
     stop: '停止',

@@ -22,25 +22,25 @@ export function aiRowCanFold(meta: ArticleNoticeMeta | null): boolean {
   return meta !== null && aiNoticeChips(meta).length > 0
 }
 
-export function aiRowTrail({
-  chipLabels,
+export function aiRowTrail(chipLabels: string[]): string | null {
+  if (chipLabels.length === 0) return null
+  return chipLabels.join(' · ')
+}
+
+export function aiRowListenCaption({
   current,
   elapsed,
   narrating,
   status,
   total,
 }: {
-  chipLabels: string[]
   current: number
   elapsed: number
   narrating: boolean
   status: TtsStatus
   total: number
 }): string | null {
-  if (narrating) {
-    if (status === 'loading' || total === 0) return '—'
-    return `${formatDuration(elapsed)} · ${current}/${total}`
-  }
-  if (chipLabels.length === 0) return null
-  return chipLabels.join(' · ')
+  if (!narrating) return null
+  if (status === 'loading' || total === 0) return '—'
+  return `${formatDuration(elapsed)} · ${current}/${total}`
 }

@@ -114,6 +114,7 @@ export const zh = {
     skillPromptText:
       '请加载 {url} 这个 skill 作为指导，帮我完成下面描述的任务：',
     aiSection: 'AI',
+    aiListen: 'AI 朗读',
     aiInsights: '余白',
     insightsLoading: '余白加载中…',
     insightsFailed: '余白加载失败，点此重试',
@@ -256,6 +257,7 @@ export const zh = {
     narrate: '朗读',
     pause: '暂停',
     play: '播放',
+    rate: '倍速 {rate}',
     recenter: '回到当前',
     segment: '{current} / {total}',
     stop: '停止',

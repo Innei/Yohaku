@@ -376,7 +376,7 @@ export function PostDetailScreen({
                   stale={tts.stale}
                   status={tts.status}
                   total={tts.total}
-                  onCycleRate={tts.cycleRate}
+                  onSelectRate={tts.setRate}
                   onRecenter={tts.recenter}
                   onStop={tts.stop}
                   onToggle={tts.toggle}

@@ -4,7 +4,12 @@ import { StyleSheet, View } from 'react-native'
 
 import type { ArticleNoticeMeta, ArticleRelatedRef } from '@/api/article-meta'
 import type { NoticeCardRow } from '@/components/ui'
-import { AppText, NoticeCard, SinkPressable } from '@/components/ui'
+import {
+  AppText,
+  NOTICE_ICON_COL,
+  NoticeCard,
+  SinkPressable,
+} from '@/components/ui'
 import { isLocale, useTranslations } from '@/i18n'
 import { usePalette } from '@/theme/palette'
 
@@ -76,7 +81,9 @@ export function ArticleNotice({
       key: 'translation',
       node: (
         <View style={styles.head}>
-          <SymbolView name="globe" size={14} tintColor={palette.neutral[6]} />
+          <View style={styles.icon}>
+            <SymbolView name="globe" size={14} tintColor={palette.neutral[6]} />
+          </View>
           <AppText color={palette.neutral[7]} variant="meta">
             {t('translatedFrom', { language })}
           </AppText>
@@ -91,7 +98,9 @@ export function ArticleNotice({
       node: (
         <>
           <View style={styles.head}>
-            <SymbolView name="link" size={14} tintColor={palette.neutral[6]} />
+            <View style={styles.icon}>
+              <SymbolView name="link" size={14} tintColor={palette.neutral[6]} />
+            </View>
             <AppText color={palette.neutral[6]} variant="meta">
               {t('related')}
             </AppText>
@@ -141,6 +150,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 7,
     minWidth: 0,
+  },
+  icon: {
+    width: NOTICE_ICON_COL,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   relatedList: {
     gap: 8,

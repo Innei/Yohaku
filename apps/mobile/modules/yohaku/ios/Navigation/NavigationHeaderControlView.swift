@@ -5,7 +5,26 @@ struct NavigationHeaderMenuItemSpec: Record {
   @Field var hidden: Bool = false
   @Field var icon: String?
   @Field var id: String = ""
+  @Field var on: Bool = false
   @Field var title: String = ""
+}
+
+func makeYohakuMenu(
+  items: [NavigationHeaderMenuItemSpec],
+  onSelect: @escaping (String) -> Void
+) -> UIMenu {
+  let actions = items
+    .filter { !$0.hidden && !$0.id.isEmpty && !$0.title.isEmpty }
+    .map { item in
+      UIAction(
+        title: item.title,
+        image: item.icon.flatMap { UIImage(systemName: $0) },
+        state: item.on ? .on : .off
+      ) { _ in
+        onSelect(item.id)
+      }
+    }
+  return UIMenu(children: actions)
 }
 
 /// A solid Paper control used by the legacy navigation header.
@@ -167,19 +186,11 @@ final class NavigationHeaderControlView: ExpoView {
       return
     }
 
-    let actions = menuItems
-      .filter { !$0.hidden && !$0.id.isEmpty && !$0.title.isEmpty }
-      .map { item in
-        UIAction(
-          title: item.title,
-          image: item.icon.flatMap { UIImage(systemName: $0) }
-        ) { [weak self] _ in
-          self?.onMenuAction(["id": item.id])
-        }
-      }
-
-    button.menu = UIMenu(children: actions)
+    let menu = makeYohakuMenu(items: menuItems) { [weak self] id in
+      self?.onMenuAction(["id": id])
+    }
+    button.menu = menu
     button.preferredMenuElementOrder = .fixed
-    button.showsMenuAsPrimaryAction = !actions.isEmpty
+    button.showsMenuAsPrimaryAction = !menu.children.isEmpty
   }
 }

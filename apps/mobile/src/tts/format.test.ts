@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatDuration, nextRate } from './format'
+import { formatDuration, formatRate, isTtsRate, ttsRateMenuItems } from './format'
 
 describe('formatDuration', () => {
   it('renders mm:ss from seconds', () => {
@@ -15,12 +15,27 @@ describe('formatDuration', () => {
   })
 })
 
-describe('nextRate', () => {
-  it('cycles the web narration rates', () => {
-    expect(nextRate(1)).toBe(1.25)
-    expect(nextRate(1.25)).toBe(1.5)
-    expect(nextRate(1.5)).toBe(1.75)
-    expect(nextRate(1.75)).toBe(2)
-    expect(nextRate(2)).toBe(1)
+describe('formatRate', () => {
+  it('renders the narration speed label', () => {
+    expect(formatRate(1)).toBe('1×')
+    expect(formatRate(1.25)).toBe('1.25×')
+    expect(formatRate(2)).toBe('2×')
+  })
+})
+
+describe('ttsRateMenuItems', () => {
+  it('marks only the current rate as selected', () => {
+    expect(ttsRateMenuItems(1.5)).toEqual([
+      { id: '1', on: false, title: '1×' },
+      { id: '1.25', on: false, title: '1.25×' },
+      { id: '1.5', on: true, title: '1.5×' },
+      { id: '1.75', on: false, title: '1.75×' },
+      { id: '2', on: false, title: '2×' },
+    ])
+  })
+
+  it('accepts only the shipped rates', () => {
+    expect(isTtsRate(1.25)).toBe(true)
+    expect(isTtsRate(1.1)).toBe(false)
   })
 })

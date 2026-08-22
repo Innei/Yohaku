@@ -115,6 +115,7 @@ export const ja = {
     skillPromptText:
       '{url} のスキルをガイドとして読み込み、以下のタスクを手伝ってください：',
     aiSection: 'AI',
+    aiListen: 'AI 朗読',
     aiInsights: '余白',
     insightsLoading: '余白を読み込み中…',
     insightsFailed: '余白の読み込みに失敗しました。タップして再試行',
@@ -260,6 +261,7 @@ export const ja = {
     narrate: '朗読',
     pause: '一時停止',
     play: '再生',
+    rate: '再生速度 {rate}',
     recenter: 'いまの段落へ',
     segment: '{current} / {total}',
     stop: '停止',

@@ -4,6 +4,7 @@ import type { ArticleNoticeMeta } from '@/api/article-meta'
 
 import {
   aiRowCanFold,
+  aiRowListenCaption,
   aiRowTrail,
   shouldShowAiRow,
   shouldShowArticleNotice,
@@ -58,20 +59,28 @@ describe('aiRowCanFold', () => {
 })
 
 describe('aiRowTrail', () => {
-  it('joins chips at rest and swaps to time while narrating', () => {
+  it('joins chips and stays chips while narrating', () => {
+    expect(aiRowTrail(['摘要', '余白'])).toBe('摘要 · 余白')
+    expect(aiRowTrail([])).toBeNull()
+  })
+})
+
+describe('aiRowListenCaption', () => {
+  it('is empty at rest so the row can show the listen label', () => {
     expect(
-      aiRowTrail({
-        chipLabels: ['摘要', '余白'],
-        current: 3,
-        elapsed: 42,
+      aiRowListenCaption({
+        current: 0,
+        elapsed: 0,
         narrating: false,
         status: 'idle',
-        total: 12,
+        total: 0,
       }),
-    ).toBe('摘要 · 余白')
+    ).toBeNull()
+  })
+
+  it('shows time while narrating', () => {
     expect(
-      aiRowTrail({
-        chipLabels: ['摘要', '余白'],
+      aiRowListenCaption({
         current: 3,
         elapsed: 42,
         narrating: true,
@@ -83,8 +92,7 @@ describe('aiRowTrail', () => {
 
   it('uses an em dash while loading or before segments exist', () => {
     expect(
-      aiRowTrail({
-        chipLabels: ['摘要'],
+      aiRowListenCaption({
         current: 0,
         elapsed: 0,
         narrating: true,
@@ -92,18 +100,5 @@ describe('aiRowTrail', () => {
         total: 0,
       }),
     ).toBe('—')
-  })
-
-  it('hides the trail when idle and there are no chips', () => {
-    expect(
-      aiRowTrail({
-        chipLabels: [],
-        current: 0,
-        elapsed: 0,
-        narrating: false,
-        status: 'idle',
-        total: 0,
-      }),
-    ).toBeNull()
   })
 })

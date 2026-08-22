@@ -8,7 +8,7 @@ import { api } from '@/api/client'
 import type { ApiTtsSegment } from '@/api/types'
 import { t } from '@/i18n'
 
-import { nextRate } from './format'
+import { isTtsRate } from './format'
 import { createTtsTimeLifecycle } from './time-lifecycle'
 
 export type TtsStatus = 'idle' | 'loading' | 'paused' | 'playing'
@@ -257,11 +257,14 @@ export function useTtsSession({
     setIsPlaying(true)
   }, [activated, available, isPlaying, playingIndex, start])
 
-  const cycleRate = useCallback(() => {
-    const next = nextRate(playbackRateRef.current)
-    setPlaybackRate(next)
-    if (isOwner() && hasTtsNative()) void YohakuNative.setTtsRate(next)
-  }, [isOwner])
+  const setRate = useCallback(
+    (rate: number) => {
+      if (!isTtsRate(rate) || rate === playbackRateRef.current) return
+      setPlaybackRate(rate)
+      if (isOwner() && hasTtsNative()) void YohakuNative.setTtsRate(rate)
+    },
+    [isOwner],
+  )
 
   const recenter = useCallback(() => {
     setAutoFollow(true)
@@ -279,7 +282,7 @@ export function useTtsSession({
     autoFollow,
     available,
     current: playingIndex === null ? 0 : playingIndex + 1,
-    cycleRate,
+    setRate,
     duration,
     elapsed,
     failed,

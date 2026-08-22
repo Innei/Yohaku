@@ -115,6 +115,7 @@ export const en = {
     skillPromptText:
       'Load the skill at {url} as guidance, then help me with the task described below:',
     aiSection: 'AI',
+    aiListen: 'AI listen',
     aiInsights: 'Yohaku',
     insightsLoading: 'Loading Yohaku…',
     insightsFailed: 'Yohaku failed to load. Tap to retry.',
@@ -260,6 +261,7 @@ export const en = {
     narrate: 'Listen',
     pause: 'Pause',
     play: 'Play',
+    rate: 'Speed {rate}',
     recenter: 'Back to current',
     segment: '{current} / {total}',
     stop: 'Stop',

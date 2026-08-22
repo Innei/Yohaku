@@ -115,6 +115,7 @@ export const ko = {
     skillPromptText:
       '{url} 스킬을 가이드로 불러온 다음 아래에 설명된 작업을 도와주세요:',
     aiSection: 'AI',
+    aiListen: 'AI 낭독',
     aiInsights: '여백',
     insightsLoading: '여백을 불러오는 중…',
     insightsFailed: '여백을 불러오지 못했습니다. 탭하여 다시 시도',
@@ -257,6 +258,7 @@ export const ko = {
     narrate: '낭독',
     pause: '일시정지',
     play: '재생',
+    rate: '재생 속도 {rate}',
     recenter: '현재 단락으로',
     segment: '{current} / {total}',
     stop: '정지',

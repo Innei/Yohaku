@@ -144,6 +144,7 @@ export type NavigationHeaderMenuItem = {
   hidden?: boolean
   icon?: string
   id: string
+  on?: boolean
   title: string
 }
 
@@ -165,6 +166,19 @@ type NavigationHeaderControlProps = ViewProps & {
 
 export const NavigationHeaderControl: ComponentType<NavigationHeaderControlProps> =
   requireNativeViewManager('Yohaku', 'NavigationHeaderControl')
+
+type TextMenuButtonProps = ViewProps & {
+  controlLabel: string
+  disabled?: boolean
+  menuItems: NavigationHeaderMenuItem[]
+  onMenuAction?: (event: NativeSyntheticEvent<{ id: string }>) => void
+  title: string
+  titleColor: string
+  titleSize: number
+}
+
+export const TextMenuButton: ComponentType<TextMenuButtonProps> =
+  requireNativeViewManager('Yohaku', 'TextMenuButton')
 
 export type GroupedListNativeRow = {
   chevron: boolean
