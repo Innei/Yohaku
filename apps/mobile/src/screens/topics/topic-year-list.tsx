@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { AppText, NativePressable } from '@/components/ui'
 import type { NoteRow } from '@/db/schema'
+import { openNote } from '@/lib/open-article'
 import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
@@ -55,12 +56,7 @@ function TopicNoteRow({ note }: { note: NoteRow }) {
   return (
     <NativePressable
       style={[styles.row, { borderTopColor: palette.neutral[3] }]}
-      onPress={() =>
-        router.push({
-          pathname: '/notes/[nid]',
-          params: { nid: String(note.nid) },
-        })
-      }
+      onPress={() => openNote(router, note)}
     >
       <AppText style={styles.rowDate} variant="meta">
         {formatTopicNoteDate(note.createdAt)}

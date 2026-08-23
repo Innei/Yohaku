@@ -7,15 +7,15 @@ import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll
 import { AppText } from '@/components/ui'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
+import { openPost } from '@/lib/open-article'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { pickFeaturedPost } from '@/screens/lists/post-list'
 import { ingestCategoryBySlug, syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
 import { usePalette } from '@/theme/palette'
 
-import { pushPost } from './push-post'
-import { TaxonomyBackControl } from './taxonomy-chrome'
 import { TaxonomyChips } from './taxonomy-chips'
+import { TaxonomyBackControl } from './taxonomy-chrome'
 import {
   categoryDisplayName,
   categoryShowsYear,
@@ -151,7 +151,7 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
           <TaxonomyPinned
             includeYear={!groupByYear}
             post={featured}
-            onPress={() => pushPost(router, featured)}
+            onPress={() => openPost(router, featured)}
           />
         ) : null}
         {isEmpty && !showMissing && !showRetry ? (
@@ -168,22 +168,22 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
             />
             {group.items.map((post) => (
               <TaxonomyPostRow
-                key={post.id}
                 includeYear={!groupByYear}
+                key={post.id}
                 post={post}
                 showCategorySource={false}
-                onPress={() => pushPost(router, post)}
+                onPress={() => openPost(router, post)}
               />
             ))}
           </View>
         ))}
         <TaxonomyChips
+          label={t('subTagsLabel')}
           items={tags.map((tag) => ({
             count: tag.count,
             key: tag.name,
             label: `#${tag.name}`,
           }))}
-          label={t('subTagsLabel')}
           onPress={(name) =>
             router.push({
               pathname: '/posts/tag/[name]',

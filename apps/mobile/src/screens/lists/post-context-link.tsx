@@ -3,10 +3,10 @@ import * as WebBrowser from 'expo-web-browser'
 import { type MouseEvent as ReactMouseEvent, useCallback, useMemo } from 'react'
 import type { GestureResponderEvent } from 'react-native'
 
-import { primeArticleBody } from '@/components/dom/prime-body'
 import type { PostRow } from '@/db/schema'
 import { useTranslations } from '@/i18n'
 import { copyUrl } from '@/lib/copy-url'
+import { openPost } from '@/lib/open-article'
 import { shareUrl } from '@/lib/share'
 import { siteHref } from '@/lib/site-url'
 
@@ -49,33 +49,16 @@ export function PostContextLink({
     [categorySlug, post.id, post.slug],
   )
 
-  const openPost = useCallback(() => {
-    if (!categorySlug || !webUrl) return
-    if (post.contentFormat === 'markdown') {
-      void WebBrowser.openBrowserAsync(webUrl)
-      return
-    }
-    if (post.contentFormat === 'lexical' && post.content) {
-      primeArticleBody({
-        content: post.content,
-        enrichments: post.enrichments ?? undefined,
-        key: post.id,
-        variant: 'article',
-        webUrl,
-      })
-    }
-    router.push({
-      pathname: '/posts/[category]/[slug]',
-      params: { category: categorySlug, postId: post.id, slug: post.slug },
-    })
-  }, [categorySlug, post, router, webUrl])
+  const handleOpenPost = useCallback(() => {
+    openPost(router, post)
+  }, [post, router])
 
   const handleLinkPress = useCallback(
     (event: LinkPressEvent) => {
       event.preventDefault()
-      openPost()
+      handleOpenPost()
     },
-    [openPost],
+    [handleOpenPost],
   )
   const openCategory = useCallback(() => {
     if (!categorySlug) return
@@ -94,7 +77,7 @@ export function PostContextLink({
   const hit = (
     <PostRowPressable
       disabled={!post.categorySlug}
-      onAccessibilityTap={openPost}
+      onAccessibilityTap={handleOpenPost}
     >
       {featured ? (
         <PostFeaturedTrigger post={post} />

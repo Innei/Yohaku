@@ -3,7 +3,6 @@ import { desc, eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack, useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
-import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
@@ -12,7 +11,6 @@ import {
   View,
 } from 'react-native'
 
-import { primeArticleBody } from '@/components/dom/prime-body'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
 import { AppText, NativePressable } from '@/components/ui'
@@ -21,7 +19,7 @@ import type { NoteRow } from '@/db/schema'
 import { notes, topics } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { formatNoteListDate } from '@/lib/datetime'
-import { siteHref } from '@/lib/site-url'
+import { openNote } from '@/lib/open-article'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { ingestNotePage, syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
@@ -39,27 +37,6 @@ import {
   nextNoteListPage,
   splitLatestNote,
 } from './note-timeline'
-
-function openNote(note: NoteRow, router: ReturnType<typeof useRouter>) {
-  const webUrl = siteHref(`/notes/${note.nid}`)
-  if (note.hasPassword || note.contentFormat === 'markdown') {
-    void WebBrowser.openBrowserAsync(webUrl)
-    return
-  }
-  if (note.contentFormat === 'lexical' && note.content) {
-    primeArticleBody({
-      content: note.content,
-      enrichments: note.enrichments ?? undefined,
-      key: note.id,
-      variant: 'note',
-      webUrl,
-    })
-  }
-  router.push({
-    pathname: '/notes/[nid]',
-    params: { nid: String(note.nid) },
-  })
-}
 
 function moodLine(note: NoteRow): string {
   return [note.weather, note.mood].filter(Boolean).join(' · ')
@@ -237,7 +214,7 @@ export function NotesListScreen() {
           <NoteLatest
             note={latest}
             topic={topicById(topicRowsInDb, latest.topicId)}
-            onOpen={() => openNote(latest, router)}
+            onOpen={() => openNote(router, latest)}
             onTitleLayout={onTitleLayout}
           />
         ) : null}
@@ -306,7 +283,7 @@ export function NotesListScreen() {
                       <View key={note.id} style={styles.entry}>
                         <NativePressable
                           style={styles.press}
-                          onPress={() => openNote(note, router)}
+                          onPress={() => openNote(router, note)}
                         >
                           <View style={styles.dateRow}>
                             <View

@@ -7,14 +7,14 @@ import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll
 import { AppText } from '@/components/ui'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
+import { openPost } from '@/lib/open-article'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { ingestTagByName, syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
 import { usePalette } from '@/theme/palette'
 
-import { pushPost } from './push-post'
-import { TaxonomyBackControl } from './taxonomy-chrome'
 import { TaxonomyChips } from './taxonomy-chips'
+import { TaxonomyBackControl } from './taxonomy-chrome'
 import { crossCategoryCounts, taxonomyYearGroups } from './taxonomy-model'
 import { readTagPosts } from './taxonomy-query'
 import { TaxonomyPostRow, TaxonomyYearHead } from './taxonomy-year-list'
@@ -148,23 +148,23 @@ export function TagDetailScreen({ name }: { name: string }) {
             />
             {group.items.map((post) => (
               <TaxonomyPostRow
-                key={post.id}
-                includeYear={!groupByYear}
-                post={post}
                 showCategorySource
-                onPress={() => pushPost(router, post)}
+                includeYear={!groupByYear}
+                key={post.id}
+                post={post}
+                onPress={() => openPost(router, post)}
               />
             ))}
           </View>
         ))}
         {cross >= 2 ? (
           <TaxonomyChips
+            label={t('crossCategoriesLabel')}
             items={counts.map((item) => ({
               count: item.count,
               key: item.slug,
               label: item.name,
             }))}
-            label={t('crossCategoriesLabel')}
             onPress={(slug) =>
               router.push({
                 pathname: '/categories/[slug]',
