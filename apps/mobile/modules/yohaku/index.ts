@@ -33,9 +33,6 @@ interface YohakuNativeModule {
   }>
   configureCompactNativeTabBar(): Promise<void>
   databaseBytes(): number
-  secretDelete(key: string): void
-  secretGet(key: string): string | null
-  secretSet(key: string, value: string): void
   downloadSystemFont(postScriptName: string): Promise<boolean>
   liquidGlassAvailable: boolean
   loadTts(payload: {
@@ -47,7 +44,11 @@ interface YohakuNativeModule {
   pauseTts(): Promise<void>
   playTts(): Promise<void>
   preloadTts(url: string): Promise<void>
+  secretDelete(key: string): void
+  secretGet(key: string): string | null
+  secretSet(key: string, value: string): void
   setTtsRate(rate: number): Promise<void>
+  simulatedLoginEnabled: boolean
   stopTts(): Promise<void>
 }
 
@@ -95,10 +96,12 @@ const membership =
 export const YohakuMembershipNative = {
   addListener: membership.addListener.bind(membership),
   currentEntitlementJws: (payload: MembershipAccountPayload) =>
-    membership.currentEntitlementJws(payload.appAccountToken, payload.productIds),
-  finishMembershipTransaction: membership.finishMembershipTransaction.bind(
-    membership,
-  ),
+    membership.currentEntitlementJws(
+      payload.appAccountToken,
+      payload.productIds,
+    ),
+  finishMembershipTransaction:
+    membership.finishMembershipTransaction.bind(membership),
   presentSubscriptionStore: (payload: MembershipAccountPayload) =>
     membership.presentSubscriptionStore(
       payload.appAccountToken,

@@ -1,4 +1,19 @@
 import ExpoModulesCore
+import Foundation
+
+private func simulatedLoginEnabled() -> Bool {
+  #if DEBUG
+    #if targetEnvironment(simulator)
+      let processInfo = ProcessInfo.processInfo
+      return processInfo.arguments.contains("-YohakuSimulateLogin")
+        || processInfo.environment["YOHAKU_SIMULATE_LOGIN"] == "1"
+    #else
+      return false
+    #endif
+  #else
+    return false
+  #endif
+}
 
 public class YohakuModule: Module {
   private let tts = TtsPlayer()
@@ -16,7 +31,8 @@ public class YohakuModule: Module {
     )
 
     Constants([
-      "liquidGlassAvailable": TabBarDomain.liquidGlassAvailable
+      "liquidGlassAvailable": TabBarDomain.liquidGlassAvailable,
+      "simulatedLoginEnabled": simulatedLoginEnabled(),
     ])
 
     OnCreate {
