@@ -18,7 +18,6 @@ import {
   AppText,
   Button,
   GroupedList,
-  RemoteImage,
   SinkPressable,
 } from '@/components/ui'
 import { showToast } from '@/components/ui/toast-store'
@@ -100,26 +99,27 @@ function Avatar({
   session: SessionUser | null
   palette: Palette
 }) {
-  return (
-    <SettingsAvatar collapseDistance={120} style={styles.avatarSlot}>
+  if (!session?.image) {
+    return (
       <View style={[styles.avatarRing, { borderColor: palette.neutral[4] }]}>
-        {session?.image ? (
-          <RemoteImage
-            contentFit="cover"
-            style={styles.avatar}
-            uri={session.image}
+        <View style={[styles.avatar, { backgroundColor: palette.neutral[3] }]}>
+          <SymbolView
+            name="person.crop.circle"
+            size={36}
+            tintColor={palette.neutral[6]}
           />
-        ) : (
-          <View style={[styles.avatar, { backgroundColor: palette.neutral[3] }]}>
-            <SymbolView
-              name="person.crop.circle"
-              size={36}
-              tintColor={palette.neutral[6]}
-            />
-          </View>
-        )}
+        </View>
       </View>
-    </SettingsAvatar>
+    )
+  }
+
+  return (
+    <SettingsAvatar
+      collapseDistance={120}
+      imageUri={session.image}
+      ringColor={palette.neutral[4]}
+      style={styles.realAvatarSlot}
+    />
   )
 }
 
@@ -394,10 +394,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  avatarSlot: {
-    width: 74,
-    height: 74,
-  },
   avatarRing: {
     width: 74,
     height: 74,
@@ -413,6 +409,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+  },
+  realAvatarSlot: {
+    width: 100,
+    height: 100,
   },
   stamp: {
     borderRadius: 4,

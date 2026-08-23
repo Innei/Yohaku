@@ -159,6 +159,14 @@ public class YohakuModule: Module {
       Prop("collapseDistance") { (view: SettingsAvatarView, value: Double) in
         view.setCollapseDistance(value)
       }
+
+      Prop("imageUri") { (view: SettingsAvatarView, value: String) in
+        view.setImageUri(value)
+      }
+
+      Prop("ringColor") { (view: SettingsAvatarView, color: UIColor?) in
+        view.setRingColor(color)
+      }
     }
 
     View(NavigationHeaderControlView.self) {
