@@ -304,6 +304,12 @@ export function ArticleBody({
           webUrl={webUrl}
           dom={{
             contentInsetAdjustmentBehavior: 'never',
+            // matchContents pins containerStyle to the DOM-reported size, and a
+            // pooled instance reports the width of whatever frame it was parked
+            // at — replayed on adoption, that stale width would stick (the
+            // narrowed viewport re-reports itself). Width is layout's job;
+            // matchContents only needs to drive height.
+            containerStyle: { width: '100%' },
             matchContents: true,
             primeKey,
             scrollEnabled: false,

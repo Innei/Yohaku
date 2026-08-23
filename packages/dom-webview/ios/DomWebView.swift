@@ -196,10 +196,22 @@ final class DomWebViewPool: NSObject, WKNavigationDelegate, WKScriptMessageHandl
     sourceURLLock.unlock()
   }
 
+  // A warm boot builds its file URL from `Bundle.main.resourceURL` while a real
+  // mount's comes through `RCTConvert` — same file, but `/private/var` vs `/var`
+  // style differences would read as different URLs and silently strand every
+  // warmed instance, so file URLs also match on standardized paths.
+  static func urlsMatch(_ lhs: URL?, _ rhs: URL) -> Bool {
+    guard let lhs else { return false }
+    if lhs.absoluteURL == rhs.absoluteURL { return true }
+    guard lhs.isFileURL, rhs.isFileURL else { return false }
+    return lhs.standardizedFileURL.resolvingSymlinksInPath().path
+      == rhs.standardizedFileURL.resolvingSymlinksInPath().path
+  }
+
   func take(url: URL?, primeKey: String?) -> Adoption? {
     guard let url else { return nil }
     let matchesURL = { (instance: PooledInstance) in
-      instance.webView.url?.absoluteURL == url.absoluteURL
+      Self.urlsMatch(instance.webView.url, url)
     }
     let primed = primeKey.flatMap { key in
       instances.firstIndex { matchesURL($0) && $0.primeKey == key }
@@ -245,6 +257,91 @@ final class DomWebViewPool: NSObject, WKNavigationDelegate, WKScriptMessageHandl
     log.info("[YohakuPool] give pooled=\(instances.count)")
   }
 
+  // Boots the pool at launch with no React mount having happened yet: the
+  // caller fabricates the boot inputs a real mount would have produced
+  // (initialProps with empty content, the body-size observer, the media
+  // rewrite) and this resolves which exported DOM component is the article
+  // body. A later real mount overwrites the source URL and boot scripts with
+  // its captured, fully-real versions.
+  func warm(
+    candidates: [URL],
+    injectedObjectJson: String,
+    injectedJavaScript: String,
+    injectedJavaScriptBeforeContentLoaded: String
+  ) {
+    guard instances.isEmpty, !backfillInFlight, bootScriptsURL == nil else {
+      log.info("[YohakuPool] warm skipped pooled=\(instances.count)")
+      return
+    }
+    // File reads (the html and the JS bundles it references, potentially MBs)
+    // stay off the main thread; only the WebKit boot hops back.
+    DispatchQueue.global(qos: .utility).async { [weak self] in
+      guard let url = Self.resolveArticleBodyURL(candidates: candidates) else {
+        log.info("[YohakuPool] warm found no article DOM component")
+        return
+      }
+      DispatchQueue.main.async {
+        guard let self else { return }
+        guard self.instances.isEmpty, !self.backfillInFlight, self.bootScriptsURL == nil else {
+          log.info("[YohakuPool] warm lost the race to a real mount")
+          return
+        }
+        var scripts: [WKUserScript] = [
+          WKUserScript(source: DomWebView.postMessageBridgeScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
+        ]
+        // Injection times mirror `DomWebView.setInjectedJS` /
+        // `setInjectedJSBeforeContentLoaded` / `setInjectedJavaScriptObject`.
+        if !injectedJavaScript.isEmpty {
+          scripts.append(WKUserScript(source: injectedJavaScript, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
+        }
+        if !injectedJavaScriptBeforeContentLoaded.isEmpty {
+          scripts.append(WKUserScript(source: injectedJavaScriptBeforeContentLoaded, injectionTime: .atDocumentStart, forMainFrameOnly: false))
+        }
+        scripts.append(WKUserScript(
+          source: DomWebView.injectedObjectJsonBridgeScript(payload: injectedObjectJson),
+          injectionTime: .atDocumentStart,
+          forMainFrameOnly: true
+        ))
+        self.noteBootScripts(scripts, for: url)
+        self.noteSourceURL(url)
+        log.info("[YohakuPool] warm booting \(url.absoluteString)")
+        self.scheduleBackfill(sourceURL: url)
+      }
+    }
+  }
+
+  // The article body's page is the one whose JS defines `window.__yohakuPrime`
+  // (already this pool's prime contract) — recognized by grepping each
+  // candidate html's referenced script files for the literal. Works on both
+  // export layouts: embedded `www.bundle` (relative `_expo/static/...` tree)
+  // and an OTA update's flat directory of content-md5 names.
+  private static let primeMarker = Data("__yohakuPrime".utf8)
+
+  private static func resolveArticleBodyURL(candidates: [URL]) -> URL? {
+    var htmls = candidates.filter { $0.pathExtension == "html" }
+    if htmls.isEmpty {
+      guard let dir = Bundle.main.resourceURL?.appendingPathComponent("www.bundle") else { return nil }
+      let listing = (try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)) ?? []
+      htmls = listing.filter { $0.pathExtension == "html" }
+    }
+    guard let scriptSrc = try? NSRegularExpression(pattern: #"src="([^"]+\.js)""#) else { return nil }
+    for html in htmls {
+      guard let text = try? String(contentsOf: html, encoding: .utf8) else { continue }
+      let dir = html.deletingLastPathComponent()
+      let range = NSRange(text.startIndex..., in: text)
+      let referencesPrime = scriptSrc.matches(in: text, range: range).contains { match in
+        guard let srcRange = Range(match.range(at: 1), in: text) else { return false }
+        var src = String(text[srcRange])
+        if src.hasPrefix("./") { src.removeFirst(2) }
+        let js = dir.appendingPathComponent(src)
+        guard let data = try? Data(contentsOf: js, options: .mappedIfSafe) else { return false }
+        return data.range(of: primeMarker) != nil
+      }
+      if referencesPrime { return html }
+    }
+    return nil
+  }
+
   func prime(url: URL, key: String, payload: String) {
     guard let literal = Self.jsStringLiteral(payload) else { return }
     prime(
@@ -258,7 +355,7 @@ final class DomWebViewPool: NSObject, WKNavigationDelegate, WKScriptMessageHandl
   private func prime(url: URL, key: String, script: String, skipping: Set<ObjectIdentifier>) {
     guard let instance = instances.first(where: {
       $0.acceptsPrime
-        && $0.webView.url?.absoluteURL == url.absoluteURL
+        && Self.urlsMatch($0.webView.url, url)
         && !skipping.contains(ObjectIdentifier($0.webView))
     }) else {
       log.info("[YohakuPool] prime miss key=\(key) pooled=\(instances.count)")
@@ -325,7 +422,7 @@ final class DomWebViewPool: NSObject, WKNavigationDelegate, WKScriptMessageHandl
     // be permanently wrong for whichever different view later adopts this
     // instance. Not a concern for any DOM component pooled today (none use
     // it), but a future one that does would need this reconsidered.
-    if bootScriptsURL?.absoluteURL == sourceURL.absoluteURL {
+    if let bootScriptsURL, Self.urlsMatch(bootScriptsURL, sourceURL) {
       for script in bootScripts {
         controller.addUserScript(script)
       }
@@ -791,7 +888,7 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     needsResetupScripts = true
   }
 
-  private static func injectedObjectJsonBridgeScript(payload: String) -> String {
+  static func injectedObjectJsonBridgeScript(payload: String) -> String {
     """
     window.ReactNativeWebView = window.ReactNativeWebView || {};
     window.ReactNativeWebView.injectedObjectJson = function () {

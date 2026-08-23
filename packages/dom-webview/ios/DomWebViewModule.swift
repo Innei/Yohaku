@@ -24,6 +24,28 @@ public final class DomWebViewModule: Module {
       DomWebViewPool.shared.sourceURL?.absoluteString
     }
 
+    // `candidates` carries the current OTA update's local asset paths so a
+    // hot-updated launch warms the updated page, never a stale generation
+    // left in `.expo-internal`; empty means an embedded launch, resolved by
+    // scanning the app bundle's `www.bundle`.
+    AsyncFunction("warmPool") { (
+      candidates: [String],
+      injectedObjectJson: String,
+      injectedJavaScript: String,
+      injectedJavaScriptBeforeContentLoaded: String
+    ) in
+      let urls = candidates.compactMap { value -> URL? in
+        if value.contains("://") { return URL(string: value) }
+        return URL(fileURLWithPath: value)
+      }
+      DomWebViewPool.shared.warm(
+        candidates: urls,
+        injectedObjectJson: injectedObjectJson,
+        injectedJavaScript: injectedJavaScript,
+        injectedJavaScriptBeforeContentLoaded: injectedJavaScriptBeforeContentLoaded
+      )
+    }.runOnQueue(.main)
+
     // Synchronous so the main-queue work is enqueued from the tap handler
     // itself: an async hop can land after the screen it primes has already
     // mounted and adopted an instance, which wastes the injection.
