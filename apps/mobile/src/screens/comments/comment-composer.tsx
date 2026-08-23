@@ -103,8 +103,8 @@ function SendCapsule({
         <SinkPressable
           disabled={!canSend}
           style={styles.send}
-          onPressIn={onPressIn}
           onPress={onSend}
+          onPressIn={onPressIn}
         >
           <Animated.Text style={[styles.sendLabel, labelStyle]}>
             {label}
@@ -117,6 +117,7 @@ function SendCapsule({
 
 export function CommentComposer({
   busy,
+  editing = false,
   error,
   keyboardHeight,
   replyToName,
@@ -128,6 +129,7 @@ export function CommentComposer({
   onSend,
 }: {
   busy: boolean
+  editing?: boolean
   error: string | null
   keyboardHeight: number
   replyToName: string | null
@@ -158,10 +160,12 @@ export function CommentComposer({
       ]}
       onLayout={(event) => onHeight(event.nativeEvent.layout.height)}
     >
-      {replyToName ? (
+      {replyToName || editing ? (
         <Capsule interactive style={styles.chip}>
           <AppText color={palette.neutral[7]} variant="meta">
-            {t('replyingTo', { name: replyToName })}
+            {editing
+              ? t('editingChip')
+              : t('replyingTo', { name: replyToName ?? '' })}
           </AppText>
           <SinkPressable
             hitSlop={8}
@@ -181,18 +185,18 @@ export function CommentComposer({
         <View style={styles.inputWrap}>
           <Capsule>
             <TextInput
-              ref={inputRef}
               autoFocus
               multiline
               editable={!busy}
               maxLength={MAX_COMMENT_LENGTH}
-              placeholder={
-                replyToName ? t('replyPlaceholder') : t('placeholder')
-              }
               placeholderTextColor={palette.neutral[5]}
+              ref={inputRef}
               selectionColor={palette.accent}
               style={[styles.input, { color: palette.neutral[9] }]}
               value={value}
+              placeholder={
+                replyToName ? t('replyPlaceholder') : t('placeholder')
+              }
               onChangeText={onChangeText}
             />
           </Capsule>

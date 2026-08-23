@@ -288,6 +288,11 @@ export const api = {
       undefined,
       { method: 'POST', body: { text } },
     ),
+  editComment: (id: string, text: string) =>
+    request<unknown>(`/comments/edit/${encodeURIComponent(id)}`, undefined, {
+      method: 'PATCH',
+      body: { text },
+    }),
   likeContent: (type: 'post' | 'note', id: string) =>
     request<unknown>('/activity/like', undefined, {
       method: 'POST',

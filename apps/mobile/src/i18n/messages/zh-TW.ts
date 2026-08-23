@@ -153,6 +153,10 @@ export const zhTW = {
     reportConfirm: '要檢舉這則評論嗎？',
     reportDone: '已收到檢舉',
     reportFailed: '檢舉失敗，稍後再試',
+    moreActions: '更多操作',
+    copyText: '複製內容',
+    edit: '編輯',
+    editingChip: '正在編輯留言',
   },
   me: {
     sectionGeneral: '通用',

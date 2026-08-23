@@ -1,13 +1,15 @@
+import { type MenuAction, MenuView } from '@react-native-menu/menu'
 import { type as typeScale } from '@yohaku/design-system/tokens'
+import * as Clipboard from 'expo-clipboard'
 import { useRef } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
 
 import { api } from '@/api/client'
 import type { ApiComment } from '@/api/types'
+import { useSession } from '@/auth/session-store'
 import {
   AppText,
   MarkdownBody,
-  NativePressable,
   RemoteImage,
   SinkPressable,
 } from '@/components/ui'
@@ -18,6 +20,7 @@ import { formatRelativeTime } from '@/lib/datetime'
 import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
+import { useOptionalCommentCompose } from './comment-compose-provider'
 
 export function CommentCell({
   comment,
@@ -41,9 +44,12 @@ export function CommentCell({
   const palette = usePalette()
   const serifFont = useNativeSerifFontStyle()
   const rowRef = useRef<View>(null)
+  const session = useSession()
+  const compose = useOptionalCommentCompose()
   const avatar = commentAvatar(comment)
   const name = commentDisplayName(comment)
   const avatarSize = isReply ? 24 : 32
+  const isOwn = session !== null && comment.reader?.id === session.id
 
   const report = () => {
     Alert.alert(t('report'), t('reportConfirm'), [
@@ -65,13 +71,31 @@ export function CommentCell({
     ])
   }
 
+  const menuActions: MenuAction[] = [
+    { id: 'copy', image: 'doc.on.doc', title: t('copyText') },
+  ]
+  if (isOwn && compose !== null) {
+    menuActions.push({ id: 'edit', image: 'pencil', title: t('edit') })
+  }
+  if (!isOwn) {
+    menuActions.push({
+      id: 'report',
+      image: 'exclamationmark.bubble',
+      title: t('report'),
+      attributes: { destructive: true },
+    })
+  }
+
+  const onMenuAction = (event: string) => {
+    if (event === 'copy') void Clipboard.setStringAsync(comment.text)
+    else if (event === 'edit')
+      compose?.edit(comment, rowRef.current ?? undefined)
+    else if (event === 'report') report()
+  }
+
   return (
     <View collapsable={false} ref={rowRef}>
-      <NativePressable
-        haptic={false}
-        style={styles.rowPress}
-        onLongPress={report}
-      >
+      <View style={styles.rowPress}>
         <View
           style={{
             width: avatarSize,
@@ -142,19 +166,36 @@ export function CommentCell({
           ) : null}
           <MarkdownBody markdown={comment.text} />
         </View>
-      </NativePressable>
-      {showReply ? (
-        <SinkPressable
-          accessibilityLabel={t('reply')}
-          hitSlop={8}
-          style={[styles.replyAction, { marginLeft: avatarSize + 10 }]}
-          onPress={() => onReply(comment, rowRef.current ?? undefined)}
+      </View>
+      <View style={[styles.actions, { marginLeft: avatarSize + 10 }]}>
+        {showReply ? (
+          <SinkPressable
+            accessibilityLabel={t('reply')}
+            hitSlop={8}
+            style={styles.actionButton}
+            onPress={() => onReply(comment, rowRef.current ?? undefined)}
+          >
+            <AppText color={palette.neutral[6]} variant="meta">
+              {t('reply')}
+            </AppText>
+          </SinkPressable>
+        ) : null}
+        <MenuView
+          actions={menuActions}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          onPressAction={({ nativeEvent }) => onMenuAction(nativeEvent.event)}
         >
-          <AppText color={palette.neutral[6]} variant="meta">
-            {t('reply')}
-          </AppText>
-        </SinkPressable>
-      ) : null}
+          <View
+            accessibilityLabel={t('moreActions')}
+            accessibilityRole="button"
+            style={styles.actionButton}
+          >
+            <AppText color={palette.neutral[6]} variant="meta">
+              ···
+            </AppText>
+          </View>
+        </MenuView>
+      </View>
     </View>
   )
 }
@@ -187,8 +228,13 @@ const styles = StyleSheet.create({
     fontSize: typeScale.copy13.size,
     lineHeight: typeScale.copy13.lineHeight,
   },
-  replyAction: {
-    alignSelf: 'flex-start',
+  actions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
     marginTop: 2,
+  },
+  actionButton: {
+    paddingVertical: 6,
   },
 })

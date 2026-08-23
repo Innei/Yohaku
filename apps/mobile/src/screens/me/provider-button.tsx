@@ -42,7 +42,7 @@ export function ProviderButton({
         <ProviderIcon
           color={palette.neutral[9]}
           provider={provider}
-          size={size >= 52 ? 22 : 18}
+          size={size >= 44 ? 22 : 18}
         />
       )}
     </SinkPressable>

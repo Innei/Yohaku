@@ -32,7 +32,6 @@ export function CommentLoginInline({ enabled = true }: { enabled?: boolean }) {
         <>
           <AppText
             color={palette.neutral[7]}
-            numberOfLines={1}
             style={styles.cta}
             variant="secondary"
           >
@@ -44,7 +43,7 @@ export function CommentLoginInline({ enabled = true }: { enabled?: boolean }) {
                 busy={busy?.kind === 'social' && busy.provider === provider}
                 key={provider}
                 provider={provider}
-                size={28}
+                size={44}
                 dimmed={
                   busy !== null &&
                   !(busy.kind === 'social' && busy.provider === provider)
@@ -55,11 +54,7 @@ export function CommentLoginInline({ enabled = true }: { enabled?: boolean }) {
           </View>
         </>
       ) : (
-        <AppText
-          color={palette.neutral[6]}
-          numberOfLines={1}
-          variant="secondary"
-        >
+        <AppText color={palette.neutral[6]} variant="secondary">
           {t('socialUnavailable')}
         </AppText>
       )}
@@ -69,23 +64,19 @@ export function CommentLoginInline({ enabled = true }: { enabled?: boolean }) {
 
 const styles = StyleSheet.create({
   well: {
-    height: 44,
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
+    gap: 12,
     borderRadius: radius.field,
     borderCurve: 'continuous',
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
   },
   cta: {
-    flex: 1,
-    flexShrink: 1,
+    textAlign: 'center',
   },
   providerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    flexShrink: 0,
+    gap: 12,
   },
 })

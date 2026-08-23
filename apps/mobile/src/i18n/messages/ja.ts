@@ -154,6 +154,10 @@ export const ja = {
     reportConfirm: 'このコメントを通報しますか？',
     reportDone: '通報を受け付けました',
     reportFailed: '通報に失敗しました。しばらくしてから再試行してください',
+    moreActions: 'その他の操作',
+    copyText: 'テキストをコピー',
+    edit: '編集',
+    editingChip: 'コメントを編集中',
   },
   me: {
     sectionGeneral: '一般',

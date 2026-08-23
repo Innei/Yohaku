@@ -35,6 +35,7 @@ export type ReplyTo = { id: string; name: string }
 interface CommentComposeValue {
   composeRoot: () => void
   composing: boolean
+  edit: (comment: ApiComment, anchor?: View | null) => void
   reply: (comment: ApiComment, anchor?: View | null) => void
   scrollBottomInset: number
 }
@@ -130,6 +131,7 @@ export function CommentComposeProvider({
   const queryClient = useQueryClient()
   const [draft, setDraft] = useState('')
   const [replyTo, setReplyTo] = useState<ReplyTo | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [sendError, setSendError] = useState<string | null>(null)
   const [focused, setFocused] = useState(autoFocus)
   const [composerHeight, setComposerHeight] = useState(56)
@@ -156,14 +158,21 @@ export function CommentComposeProvider({
   }, [])
 
   const send = useMutation({
-    mutationFn: (vars: { parentId: string | null; text: string }) =>
-      vars.parentId
-        ? api.readerReply(vars.parentId, vars.text)
-        : api.readerComment(refId, refType, vars.text, anchor),
+    mutationFn: (vars: {
+      editId: string | null
+      parentId: string | null
+      text: string
+    }) =>
+      vars.editId
+        ? api.editComment(vars.editId, vars.text)
+        : vars.parentId
+          ? api.readerReply(vars.parentId, vars.text)
+          : api.readerComment(refId, refType, vars.text, anchor),
     onSuccess: async (_data, vars) => {
-      const wasReply = vars.parentId !== null
+      const wasReply = vars.parentId !== null || vars.editId !== null
       setDraft('')
       setReplyTo(null)
+      setEditingId(null)
       setSendError(null)
       Keyboard.dismiss()
       setFocused(false)
@@ -197,6 +206,7 @@ export function CommentComposeProvider({
   const composeRoot = useCallback(() => {
     if (!allowComment || session === null) return
     setReplyTo(null)
+    setEditingId(null)
     setFocused(true)
   }, [allowComment, session])
 
@@ -204,6 +214,21 @@ export function CommentComposeProvider({
     (comment: ApiComment, anchorView?: View | null) => {
       if (!allowComment || session === null) return
       setReplyTo({ id: comment.id, name: commentDisplayName(comment) })
+      setEditingId(null)
+      setFocused(true)
+      requestAnimationFrame(() => {
+        scrollAnchorIntoView(scrollRef, anchorView)
+      })
+    },
+    [allowComment, scrollRef, session],
+  )
+
+  const edit = useCallback(
+    (comment: ApiComment, anchorView?: View | null) => {
+      if (!allowComment || session === null) return
+      setReplyTo(null)
+      setEditingId(comment.id)
+      setDraft(comment.text)
       setFocused(true)
       requestAnimationFrame(() => {
         scrollAnchorIntoView(scrollRef, anchorView)
@@ -216,8 +241,8 @@ export function CommentComposeProvider({
   const scrollBottomInset = composing ? composerHeight + keyboardHeight : 0
 
   const value = useMemo(
-    () => ({ composing, composeRoot, reply, scrollBottomInset }),
-    [composeRoot, composing, reply, scrollBottomInset],
+    () => ({ composing, composeRoot, edit, reply, scrollBottomInset }),
+    [composeRoot, composing, edit, reply, scrollBottomInset],
   )
 
   return (
@@ -234,19 +259,30 @@ export function CommentComposeProvider({
             />
             <CommentComposer
               busy={send.isPending}
+              editing={editingId !== null}
               error={sendError}
               keyboardHeight={keyboardHeight}
               replyToName={replyTo?.name ?? null}
               value={draft}
-              onCancelReply={() => setReplyTo(null)}
               onChromePressIn={keepComposer}
               onHeight={setComposerHeight}
+              onCancelReply={() => {
+                setReplyTo(null)
+                if (editingId !== null) {
+                  setEditingId(null)
+                  setDraft('')
+                }
+              }}
               onChangeText={(text) => {
                 setDraft(text)
                 if (sendError) setSendError(null)
               }}
               onSend={() =>
-                send.mutate({ parentId: replyTo?.id ?? null, text: draft.trim() })
+                send.mutate({
+                  editId: editingId,
+                  parentId: replyTo?.id ?? null,
+                  text: draft.trim(),
+                })
               }
             />
           </>

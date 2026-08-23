@@ -154,6 +154,10 @@ export const en = {
     reportConfirm: 'Report this comment?',
     reportDone: 'Report received',
     reportFailed: 'Couldn’t send the report. Try again shortly.',
+    moreActions: 'More actions',
+    copyText: 'Copy text',
+    edit: 'Edit',
+    editingChip: 'Editing comment',
   },
   me: {
     sectionGeneral: 'General',

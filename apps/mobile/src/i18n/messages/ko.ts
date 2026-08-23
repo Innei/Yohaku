@@ -154,6 +154,10 @@ export const ko = {
     reportConfirm: '이 댓글을 신고할까요?',
     reportDone: '신고를 받았습니다',
     reportFailed: '신고에 실패했습니다. 잠시 후 다시 시도해 주세요',
+    moreActions: '더 보기',
+    copyText: '텍스트 복사',
+    edit: '수정',
+    editingChip: '댓글 수정 중',
   },
   me: {
     sectionGeneral: '일반',

@@ -32,6 +32,7 @@
   "dependencies": {
     "@bacons/apple-targets": "^5.0.0",
     "@better-auth/expo": "1.6.26",
+    "@expo/dom-webview": "workspace:*",
     "@expo-google-fonts/noto-serif-sc": "0.4.3",
     "@haklex/rich-compose": "0.36.0",
     "@haklex/rich-editor": "0.36.0",
@@ -41,6 +42,7 @@
     "@icons-pack/react-simple-icons": "13.13.0",
     "@lexical/react": "0.49.0",
     "@mx-space/ws-client": "^0.1.0",
+    "@react-native-menu/menu": "^2.0.0",
     "@shikijs/core": "4.4.2",
     "@tanstack/react-query": "5.101.4",
     "@yohaku/design-system": "workspace:*",

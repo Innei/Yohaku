@@ -153,6 +153,10 @@ export const zh = {
     reportConfirm: '要举报这条评论吗？',
     reportDone: '已收到举报',
     reportFailed: '举报失败，稍后再试',
+    moreActions: '更多操作',
+    copyText: '复制内容',
+    edit: '编辑',
+    editingChip: '正在编辑评论',
   },
   me: {
     sectionGeneral: '通用',
