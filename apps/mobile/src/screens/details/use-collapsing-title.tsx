@@ -2,9 +2,12 @@ import { useHeaderHeight } from 'expo-router/react-navigation'
 import { useCallback, useMemo, useRef } from 'react'
 import type { LayoutChangeEvent } from 'react-native'
 import {
+  ReduceMotion,
   runOnJS,
   useAnimatedScrollHandler,
   useSharedValue,
+  withDelay,
+  withSpring,
 } from 'react-native-reanimated'
 
 import { CollapsingHeaderTitle } from '@/components/navigation/collapsing-header-title'
@@ -12,10 +15,11 @@ import {
   usesPaperNavigationControls,
   usesSystemNavigationAppearance,
 } from '@/components/navigation/platform'
+import { navTitleTransition } from '@/theme/motion'
 
 import type { PresenceMark } from './presence-marks'
 
-const FADE_BAND = 32
+const HIDE_HYSTERESIS = 18
 
 export function useCollapsingTitle(
   title: string | undefined,
@@ -41,6 +45,11 @@ export function useCollapsingTitle(
   const titleFontWeight = options?.titleFontWeight
   const headerHeight = useHeaderHeight()
   const progress = useSharedValue(alwaysVisible ? 1 : 0)
+  const rise = useSharedValue(alwaysVisible ? 1 : 0)
+  const titleVisible = useSharedValue(alwaysVisible)
+  const lastY = useSharedValue(0)
+  const lastTime = useSharedValue(0)
+  const velocity = useSharedValue(0)
   const readPercent = useSharedValue(0)
   const titleBottom = useSharedValue(Number.POSITIVE_INFINITY)
   const metricsRef = useRef(onScrollMetrics)
@@ -56,9 +65,48 @@ export function useCollapsingTitle(
   const onScroll = useAnimatedScrollHandler(
     (event) => {
       if (!alwaysVisible) {
+        const y = event.contentOffset.y
+        const now = performance.now()
+        if (lastTime.get() > 0) {
+          const dt = Math.max(now - lastTime.get(), 1000 / 240)
+          const instant = ((y - lastY.get()) / dt) * 1000
+          velocity.set(velocity.get() * 0.6 + instant * 0.4)
+        }
+        lastY.set(y)
+        lastTime.set(now)
         const crossing = titleBottom.get() - headerHeight
-        const traveled = event.contentOffset.y - (crossing - FADE_BAND / 2)
-        progress.set(Math.min(1, Math.max(0, traveled / FADE_BAND)))
+        const visible = titleVisible.get()
+        const shouldShow = visible
+          ? y > crossing - HIDE_HYSTERESIS
+          : y > crossing
+        if (shouldShow !== visible) {
+          titleVisible.set(shouldShow)
+          const target = shouldShow ? 1 : 0
+          const speed = Math.min(
+            Math.abs(velocity.get()) / navTitleTransition.maxVelocity,
+            1,
+          )
+          const factor = 1 - (1 - navTitleTransition.minDurationFactor) * speed
+          const dampingRatio = 1 - speed * navTitleTransition.bounceFactor
+          progress.set(
+            withSpring(target, {
+              dampingRatio,
+              duration: factor * navTitleTransition.fadeDuration,
+              reduceMotion: ReduceMotion.System,
+            }),
+          )
+          rise.set(
+            withDelay(
+              navTitleTransition.riseDelay,
+              withSpring(target, {
+                dampingRatio,
+                duration: factor * navTitleTransition.riseDuration,
+                reduceMotion: ReduceMotion.System,
+              }),
+              ReduceMotion.System,
+            ),
+          )
+        }
       }
       const contentHeight = event.contentSize.height
       if (contentHeight > 0) {
@@ -100,10 +148,13 @@ export function useCollapsingTitle(
             progress={progress}
             readPercent={readPercent}
             reserveBackClearance={reserveBackClearance}
+            rise={rise}
+            scrollVelocity={velocity}
             subtitle={subtitle}
             title={title}
             titleFontSize={titleFontSize}
             titleFontWeight={titleFontWeight}
+            visible={titleVisible}
           />
         ) : null,
       // Keep UIKit's semantic title available for the long-press back-history
@@ -124,10 +175,13 @@ export function useCollapsingTitle(
       progress,
       readPercent,
       reserveBackClearance,
+      rise,
       subtitle,
       title,
       titleFontSize,
       titleFontWeight,
+      titleVisible,
+      velocity,
     ],
   )
 

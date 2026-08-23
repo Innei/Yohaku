@@ -43,20 +43,26 @@ export function CollapsingHeaderTitle({
   progress,
   readPercent,
   reserveBackClearance = true,
+  rise,
+  scrollVelocity,
   subtitle,
   title,
   titleFontSize = TITLE_SIZE,
   titleFontWeight = 'semibold',
+  visible,
 }: {
   leadingInset?: number
   marks?: InkMark[]
   progress: SharedValue<number>
   readPercent?: SharedValue<number>
   reserveBackClearance?: boolean
+  rise?: SharedValue<number>
+  scrollVelocity?: SharedValue<number>
   subtitle: string
   title: string
   titleFontSize?: number
   titleFontWeight?: 'bold' | 'heavy' | 'medium' | 'semibold'
+  visible?: SharedValue<boolean>
 }) {
   const { width } = useWindowDimensions()
   const palette = usePalette()
@@ -64,7 +70,8 @@ export function CollapsingHeaderTitle({
     marks && marks.length > 0 && readPercent ? { marks, readPercent } : null
 
   const titleAnimatedProps = useAnimatedProps(() => ({
-    progress: progress.value,
+    scrollVelocity: scrollVelocity ? scrollVelocity.value : 0,
+    titleVisible: (visible ? visible.value : progress.value > 0.5) ? 1 : 0,
   }))
 
   return (
@@ -83,7 +90,7 @@ export function CollapsingHeaderTitle({
     >
       <AnimatedNavigationHeaderTitle
         animatedProps={titleAnimatedProps}
-        progress={0}
+        scrollVelocity={0}
         style={styles.nativeTitle}
         subtitle={subtitle}
         subtitleColor={palette.neutral[7]}
@@ -93,12 +100,14 @@ export function CollapsingHeaderTitle({
         titleColor={palette.neutral[10]}
         titleFontSize={titleFontSize}
         titleFontWeight={titleFontWeight}
+        titleVisible={0}
       />
       {ink ? (
         <TitleInk
           marks={ink.marks}
           progress={progress}
           readPercent={ink.readPercent}
+          rise={rise}
         />
       ) : null}
     </View>
@@ -109,16 +118,18 @@ function TitleInk({
   marks,
   progress,
   readPercent,
+  rise,
 }: {
   marks: InkMark[]
   progress: SharedValue<number>
   readPercent: SharedValue<number>
+  rise?: SharedValue<number>
 }) {
   const palette = usePalette()
 
   const revealStyle = useAnimatedStyle(() => ({
-    opacity: progress.value,
-    transform: [{ translateY: (1 - progress.value) * RISE }],
+    opacity: Math.min(1, Math.max(0, progress.value)),
+    transform: [{ translateY: (1 - (rise ? rise.value : progress.value)) * RISE }],
   }))
   const fillStyle = useAnimatedStyle(() => ({
     width: (readPercent.value / 100) * INK_WIDTH,

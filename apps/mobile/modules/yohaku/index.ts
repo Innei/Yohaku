@@ -130,7 +130,7 @@ export const LegacyScrollEdgeMask: ComponentType<LegacyScrollEdgeMaskProps> =
   requireNativeViewManager('Yohaku', 'LegacyScrollEdgeMask')
 
 type NavigationHeaderTitleProps = ViewProps & {
-  progress: number
+  scrollVelocity: number
   subtitle: string
   subtitleColor: string
   subtitleFontSize: number
@@ -138,6 +138,7 @@ type NavigationHeaderTitleProps = ViewProps & {
   titleColor: string
   titleFontSize: number
   titleFontWeight?: 'bold' | 'heavy' | 'medium' | 'semibold'
+  titleVisible: number
 }
 
 export const NavigationHeaderTitle: ComponentType<NavigationHeaderTitleProps> =

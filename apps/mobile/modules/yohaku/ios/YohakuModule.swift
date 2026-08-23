@@ -115,8 +115,12 @@ public class YohakuModule: Module {
     View(NavigationHeaderTitleView.self) {
       ViewName("NavigationHeaderTitle")
 
-      Prop("progress") { (view: NavigationHeaderTitleView, progress: Double) in
-        view.setProgress(progress)
+      Prop("scrollVelocity") { (view: NavigationHeaderTitleView, velocity: Double) in
+        view.setScrollVelocity(velocity)
+      }
+
+      Prop("titleVisible") { (view: NavigationHeaderTitleView, visible: Double) in
+        view.setTitleVisible(visible > 0.5)
       }
 
       Prop("title") { (view: NavigationHeaderTitleView, title: String) in
