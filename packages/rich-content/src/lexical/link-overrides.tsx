@@ -24,7 +24,21 @@ function InlineLinkRenderer({
   rel?: string
   target?: string
 }) {
-  const { slots } = useHost()
+  const { scrollToAnchor, slots } = useHost()
+  if (href.startsWith('#')) {
+    return (
+      <a
+        className={linkClassName}
+        href={href}
+        onClick={(e) => {
+          e.preventDefault()
+          void scrollToAnchor(href.slice(1))
+        }}
+      >
+        {children}
+      </a>
+    )
+  }
   if (slots?.InlineLink) {
     return (
       <slots.InlineLink
