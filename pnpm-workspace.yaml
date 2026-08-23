@@ -7,6 +7,9 @@ allowBuilds:
   '@parcel/watcher': true
   better-sqlite3: true
   esbuild: false
+  # postinstall only downloads tree-sitter/RaTeX assets; both features are
+  # disabled via the app's "enriched-markdown" config, so skip it
+  react-native-enriched-markdown: false
 
 overrides:
   '@expo/dom-webview': link:./packages/dom-webview
@@ -15,3 +18,4 @@ overrides:
 
 patchedDependencies:
   expo-image@57.0.2: patches/expo-image@57.0.2.patch
+  react-native-enriched-markdown@1.0.2: patches/react-native-enriched-markdown@1.0.2.patch

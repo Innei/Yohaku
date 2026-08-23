@@ -11,32 +11,32 @@ const enrichment = {
 }
 
 describe('thinkingBlocks', () => {
-  it('lifts a URL-only paragraph into a card when enrichment exists', () => {
+  it('lifts a URL-only line into a card when enrichment exists', () => {
     expect(thinkingBlocks(url, { [url]: enrichment })).toEqual([
       { type: 'card', href: url, enrichment },
     ])
   })
 
-  it('keeps surrounding copy and cards the trailing URL paragraph', () => {
+  it('keeps surrounding copy and cards the trailing URL line', () => {
     expect(
       thinkingBlocks(`不管看几遍，神作就是神作\n\n${url}`, {
         [url]: enrichment,
       }),
     ).toEqual([
-      {
-        type: 'paragraph',
-        spans: [{ type: 'text', text: '不管看几遍，神作就是神作' }],
-      },
+      { type: 'markdown', markdown: '不管看几遍，神作就是神作' },
       { type: 'card', href: url, enrichment },
     ])
   })
 
-  it('leaves a lone URL as a link when it is not enriched', () => {
+  it('cards a markdown link line pointing at an enriched URL', () => {
+    expect(
+      thinkingBlocks(`[看这个](${url})`, { [url]: enrichment }),
+    ).toEqual([{ type: 'card', href: url, enrichment }])
+  })
+
+  it('leaves a lone URL as markdown when it is not enriched', () => {
     expect(thinkingBlocks(url, null)).toEqual([
-      {
-        type: 'paragraph',
-        spans: [{ type: 'link', text: url, href: url }],
-      },
+      { type: 'markdown', markdown: url },
     ])
   })
 })

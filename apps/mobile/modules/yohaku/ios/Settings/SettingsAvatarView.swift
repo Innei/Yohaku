@@ -1,319 +1,407 @@
 import ExpoModulesCore
-import ImageIO
 import UIKit
 
-/// The native, collapsed avatar used by the Settings peer header.
+/// Telegram Settings-style avatar collapse.
 ///
-/// Its rendering contract follows Telegram's `AvatarNode`: the view owns image
-/// loading, display-size decoding, aspect-fill layout, circular clipping, and a
-/// deterministic initials placeholder. React supplies peer data and layout only.
+/// The React child remains the only avatar renderer. This native view is a
+/// fixed layout slot that observes its ancestor scroll view and applies the
+/// same scroll geometry used by Telegram's `PeerInfoHeaderNode`:
+///
+/// - scale: 1.0 -> 0.55
+/// - vertical compensation: 0 -> 17 pt
+/// - Dynamic Island mask progress: scroll displacement / 120 pt
+///
+/// The mask vertices are derived from Telegram's `UserAvatarMask.tgs`. They
+/// are interpolated as Core Animation paths, so no Lottie runtime is needed.
 final class SettingsAvatarView: ExpoView {
-  private static let maximumImageBytes = 20 * 1024 * 1024
-  private static let imageCache = NSCache<NSString, UIImage>()
-  private static let gradientColors: [[UIColor]] = [
-    [UIColor(red: 1, green: 0.318, blue: 0.416, alpha: 1),
-     UIColor(red: 1, green: 0.533, blue: 0.369, alpha: 1)],
-    [UIColor(red: 1, green: 0.659, blue: 0.361, alpha: 1),
-     UIColor(red: 1, green: 0.804, blue: 0.416, alpha: 1)],
-    [UIColor(red: 0.4, green: 0.373, blue: 1, alpha: 1),
-     UIColor(red: 0.51, green: 0.694, blue: 1, alpha: 1)],
-    [UIColor(red: 0.329, green: 0.796, blue: 0.408, alpha: 1),
-     UIColor(red: 0.627, green: 0.871, blue: 0.494, alpha: 1)],
-    [UIColor(red: 0.29, green: 0.8, blue: 0.804, alpha: 1),
-     UIColor(red: 0, green: 0.988, blue: 0.992, alpha: 1)],
-    [UIColor(red: 0.165, green: 0.62, blue: 0.945, alpha: 1),
-     UIColor(red: 0.447, green: 0.835, blue: 0.992, alpha: 1)],
-    [UIColor(red: 0.839, green: 0.412, blue: 0.929, alpha: 1),
-     UIColor(red: 0.878, green: 0.635, blue: 0.953, alpha: 1)],
+  private struct MaskKeyframe {
+    let time: CGFloat
+    let vertices: [CGPoint]
+  }
+
+  private static let maskSize = CGSize(width: 171, height: 171)
+  private static let animationDuration: CGFloat = 540
+  private static let avatarMinimumScale: CGFloat = 0.55
+  private static let avatarMaximumOffset: CGFloat = 17
+  private static let maskActivationThreshold: CGFloat = 0.03
+
+  private static let rectangleFrames: [MaskKeyframe] = [
+    frame(
+      75,
+      [
+        -142.5, -2.5, -145, 0, -142.5, 2.5, -106.875, 2.5, -71.25, 2.5, -35.625, 2.5, 0, 2.5,
+        35.625, 2.5, 71.25, 2.5, 106.875, 2.5, 142.5, 2.5, 145, 0, 142.5, -2.5,
+      ]),
+    frame(
+      108,
+      [
+        -142.5, -2.501, -145, -0.001, -142.5, 2.499, -106.875, 2.499, -71.25, 2.499, -35.625, 7.499,
+        0, 14.499, 35.625, 7.499, 71.25, 2.499, 106.875, 2.499, 142.5, 2.499, 145, -0.001, 142.5,
+        -2.501,
+      ]),
+    frame(
+      111,
+      [
+        -142.5, -2.484, -145, 0.016, -142.5, 2.516, -106.875, 2.516, -71.25, 2.516, -34.625, 9.516,
+        0, 19.516, 34.625, 9.516, 71.25, 2.516, 106.875, 2.516, 142.5, 2.516, 145, 0.016, 142.5,
+        -2.484,
+      ]),
+    frame(
+      114,
+      [
+        -142.5, -2.484, -145, 0.016, -142.5, 2.516, -106.875, 2.516, -71.25, 2.516, -20.625, 17.516,
+        0, 34.516, 20.625, 17.516, 71.25, 2.516, 106.875, 2.516, 142.5, 2.516, 145, 0.016, 142.5,
+        -2.484,
+      ]),
+    frame(
+      116,
+      [
+        -142.5, -2.484, -145, 0.016, -142.5, 2.516, -108.542, 2.516, -71.805, 2.682, -22.729,
+        18.127, 0, 42.294, 22.729, 18.127, 71.806, 2.682, 108.541, 2.516, 142.5, 2.516, 145, 0.016,
+        142.5, -2.484,
+      ]),
+    frame(
+      150,
+      [
+        -142.499, -2.516, -144.999, -0.016, -142.499, 2.484, -136.874, 2.484, -81.249, 5.484,
+        -58.499, 28.484, 0.001, 174.484, 58.501, 28.484, 81.251, 5.484, 136.871, 2.484, 142.501,
+        2.484, 145.001, -0.016, 142.501, -2.516,
+      ]),
+    frame(
+      152,
+      [
+        -142.499, -2.516, -144.999, -0.016, -142.499, 2.484, -136.874, 2.484, -81.249, 5.484,
+        -58.499, 28.484, 0.001, 174.484, 58.501, 28.484, 81.251, 5.484, 136.871, 2.484, 142.501,
+        2.484, 145.001, -0.016, 142.501, -2.516,
+      ]),
+    frame(
+      153,
+      [
+        -142.499, -2.492, -144.999, 0.008, -142.499, 2.508, -136.874, 2.508, -60.499, 27.508,
+        -118.999, 151.508, 0.001, 268.508, 119.001, 151.508, 60.501, 29.508, 136.871, 2.508,
+        142.501, 2.508, 145.001, 0.008, 142.501, -2.492,
+      ]),
+    frame(
+      180,
+      [
+        -142.499, -2.5, -144.999, 0, -142.499, 2.5, -136.874, 2.5, -72.499, 29.5, -112.999, 133.5,
+        0.001, 247.5, 113.001, 133.5, 72.501, 29.5, 136.871, 2.5, 142.501, 2.5, 145.001, 0, 142.501,
+        -2.5,
+      ]),
+    frame(
+      240,
+      [
+        -142.499, -2.5, -144.999, 0, -142.499, 2.5, -136.874, 2.5, -86.499, 33.5, -99.999, 103.5,
+        0.001, 201, 100.001, 103.5, 86.501, 33.5, 136.871, 2.5, 142.501, 2.5, 145.001, 0, 142.501,
+        -2.5,
+      ]),
+    frame(
+      330,
+      [
+        -142.5, -2.504, -145, -0.004, -142.5, 2.496, -129, 2.496, -91.5, 22.996, -72.5, 86.496, 0,
+        130.996, 72.5, 86.496, 91.5, 22.996, 129, 2.496, 142.5, 2.496, 145, -0.004, 142.5, -2.504,
+      ]),
+    frame(
+      420,
+      [
+        -142.5, -2.516, -145, -0.016, -142.5, 2.484, -129, 2.484, -82, 7.984, -59, 25.484, -0.5,
+        60.484, 58, 25.484, 81, 7.984, 129, 2.484, 142.5, 2.484, 145, -0.016, 142.5, -2.516,
+      ]),
+    frame(
+      498,
+      [
+        -142.5, -2.5, -145, 0, -142.5, 2.5, -106.875, 2.5, -71.25, 2.5, -35.625, 2.5, 0, 2.5,
+        35.625, 2.5, 71.25, 2.5, 106.875, 2.5, 142.5, 2.5, 145, 0, 142.5, -2.5,
+      ]),
   ]
 
-  private let placeholderView = UIView()
-  private let placeholderGradient = CAGradientLayer()
-  private let placeholderLabel = UILabel()
-  private let placeholderIcon = UIImageView()
-  private let imageView = UIImageView()
+  private static let ellipseFrames: [MaskKeyframe] = [
+    frame(
+      0,
+      [
+        102.07, 109.918, 150, 0, 102.07, -109.918, 0, -150, -102.07, -109.918, -150, 0, -102.07,
+        109.918, 0, 150,
+      ]),
+    frame(
+      30,
+      [
+        97.987, 89.396, 144, -16.125, 97.987, -121.646, -0.5, -161.625, -97.987, -121.646, -144,
+        -16.125, -97.987, 89.396, 0, 127.875,
+      ]),
+    frame(
+      60,
+      [
+        93.904, 67.171, 138, -33.794, 93.904, -134.759, -0.479, -173.012, -93.904, -134.759, -138,
+        -33.794, -93.904, 67.171, 0, 103.988,
+      ]),
+    frame(
+      90,
+      [
+        89.822, 45.869, 132, -50.357, 89.822, -146.583, -0.458, -185.041, -89.822, -146.583, -132,
+        -50.357, -89.822, 45.869, 0, 80.959,
+      ]),
+    frame(
+      102,
+      [
+        88.12, 37.05, 129.5, -56.815, 88.12, -152.679, -0.45, -192.992, -88.12, -152.679, -129.5,
+        -56.815, -88.12, 37.05, 0, 72.008,
+      ]),
+    frame(
+      111,
+      [
+        86.76, 29.908, 127.5, -64.234, 68, -170.898, -0.443, -206.398, -68, -170.898, -127.5,
+        -64.234, -86.76, 29.908, 0, 64.602,
+      ]),
+    frame(
+      120,
+      [
+        85.399, 23.959, 125.5, -68.529, 66.933, -174.588, -0.436, -236.219, -66.933, -174.588,
+        -125.5, -68.529, -85.399, 23.959, 0, 57.781,
+      ]),
+    frame(
+      150,
+      [
+        80.976, 1.773, 119, -86.311, 66, -189.016, -0.413, -236.016, -66, -189.016, -119, -86.311,
+        -80.976, 1.773, 0, 33.984,
+      ]),
+    frame(
+      153,
+      [
+        80.976, -0.091, 119, -86.849, 66, -190.173, -0.413, -236.999, -66, -190.173, -119, -86.849,
+        -80.976, -0.091, 0, 32.001,
+      ]),
+  ]
 
-  private var imageUrl = ""
-  private var peerId = ""
-  private var peerName = ""
-  private var loadedKey: String?
-  private var requestedKey: String?
-  private var requestGeneration = 0
-  private var requestTask: URLSessionDataTask?
+  private let maskLayer = CAShapeLayer()
+  private weak var observedScrollView: UIScrollView?
+  private var contentOffsetObservation: NSKeyValueObservation?
+  private var adjustedInsetObservation: NSKeyValueObservation?
+  private var collapseDistance: CGFloat = 120
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
 
     backgroundColor = .clear
-    clipsToBounds = true
-    isAccessibilityElement = true
-    accessibilityTraits = .image
-
-    placeholderGradient.startPoint = CGPoint(x: 0.5, y: 0)
-    placeholderGradient.endPoint = CGPoint(x: 0.5, y: 1)
-    placeholderView.layer.addSublayer(placeholderGradient)
-
-    placeholderLabel.adjustsFontForContentSizeCategory = true
-    placeholderLabel.adjustsFontSizeToFitWidth = true
-    placeholderLabel.baselineAdjustment = .alignCenters
-    placeholderLabel.minimumScaleFactor = 0.65
-    placeholderLabel.textAlignment = .center
-    placeholderLabel.textColor = .white
-
-    let iconConfiguration = UIImage.SymbolConfiguration(pointSize: 40, weight: .regular)
-    placeholderIcon.image = UIImage(
-      systemName: "person.fill",
-      withConfiguration: iconConfiguration
-    )
-    placeholderIcon.contentMode = .center
-    placeholderIcon.tintColor = UIColor.white.withAlphaComponent(0.82)
-
-    imageView.contentMode = .scaleAspectFill
-    imageView.isAccessibilityElement = false
-    imageView.isHidden = true
-
-    addSubview(placeholderView)
-    placeholderView.addSubview(placeholderLabel)
-    placeholderView.addSubview(placeholderIcon)
-    addSubview(imageView)
-
-    updatePlaceholder()
+    clipsToBounds = false
+    isOpaque = false
+    maskLayer.fillColor = UIColor.black.cgColor
   }
 
   deinit {
-    requestTask?.cancel()
+    detachFromScrollView()
   }
 
-  override func layoutSubviews() {
-    super.layoutSubviews()
-
-    placeholderView.frame = bounds
-    placeholderGradient.frame = placeholderView.bounds
-    placeholderLabel.frame = placeholderView.bounds.insetBy(dx: 12, dy: 12)
-    placeholderIcon.frame = placeholderView.bounds
-    imageView.frame = bounds
-
-    let diameter = min(bounds.width, bounds.height)
-    layer.cornerRadius = diameter / 2
-    placeholderGradient.cornerRadius = diameter / 2
-    placeholderLabel.font = roundedPlaceholderFont(
-      size: floor(diameter * 16 / 37)
-    )
-
-    loadImageIfNeeded()
+  override func didMoveToSuperview() {
+    super.didMoveToSuperview()
+    scheduleScrollViewAttachment()
   }
 
   override func didMoveToWindow() {
     super.didMoveToWindow()
     if window == nil {
-      requestTask?.cancel()
-      requestTask = nil
-      requestedKey = nil
+      detachFromScrollView()
+      layer.mask = nil
     } else {
-      loadImageIfNeeded()
+      scheduleScrollViewAttachment()
     }
   }
 
-  func setAccessibilityLabel(_ label: String) {
-    accessibilityLabel = label
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    updateForCurrentScrollPosition()
   }
 
-  func setImageUrl(_ value: String) {
-    guard imageUrl != value else { return }
-    imageUrl = value
-    resetImageRequest()
+  func setCollapseDistance(_ value: Double) {
+    collapseDistance = max(1, CGFloat(value))
+    updateForCurrentScrollPosition()
   }
 
-  func setPeerId(_ value: String) {
-    guard peerId != value else { return }
-    peerId = value
-    updatePlaceholder()
-  }
-
-  func setPeerName(_ value: String) {
-    guard peerName != value else { return }
-    peerName = value
-    updatePlaceholder()
-  }
-
-  private func resetImageRequest() {
-    requestGeneration += 1
-    requestTask?.cancel()
-    requestTask = nil
-    requestedKey = nil
-    loadedKey = nil
-    imageView.image = nil
-    imageView.isHidden = true
-    placeholderView.isHidden = false
-    loadImageIfNeeded()
-  }
-
-  private func loadImageIfNeeded() {
-    guard window != nil, !imageUrl.isEmpty else { return }
-    let pointSize = min(bounds.width, bounds.height)
-    guard pointSize > 0 else { return }
-
-    let scale = window?.windowScene?.screen.scale ?? traitCollection.displayScale
-    let maximumPixelSize = max(1, Int(ceil(pointSize * scale)))
-    let cacheKey = "\(imageUrl)#\(maximumPixelSize)"
-    guard cacheKey != loadedKey, cacheKey != requestedKey else { return }
-
-    requestGeneration += 1
-    let generation = requestGeneration
-    requestTask?.cancel()
-    requestTask = nil
-    requestedKey = cacheKey
-
-    if let cached = Self.imageCache.object(forKey: cacheKey as NSString) {
-      install(image: cached, key: cacheKey, generation: generation)
-      return
+  private func scheduleScrollViewAttachment() {
+    DispatchQueue.main.async { [weak self] in
+      self?.attachToAncestorScrollView()
     }
+  }
 
-    guard let url = URL(string: imageUrl) else {
-      finishFailedRequest(key: cacheKey, generation: generation)
-      return
-    }
-
-    if url.isFileURL {
-      DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-        let data = try? Data(contentsOf: url, options: [.mappedIfSafe])
-        self?.decode(
-          data: data,
-          key: cacheKey,
-          generation: generation,
-          maximumPixelSize: maximumPixelSize
-        )
+  private func attachToAncestorScrollView() {
+    guard window != nil else { return }
+    var candidate = superview
+    var scrollView: UIScrollView?
+    while let view = candidate {
+      if let match = view as? UIScrollView {
+        scrollView = match
+        break
       }
+      candidate = view.superview
+    }
+    guard let scrollView else { return }
+    guard observedScrollView !== scrollView else {
+      updateForCurrentScrollPosition()
       return
     }
 
-    guard let scheme = url.scheme?.lowercased(), scheme == "https" || scheme == "http" else {
-      finishFailedRequest(key: cacheKey, generation: generation)
+    detachFromScrollView()
+    observedScrollView = scrollView
+    contentOffsetObservation = scrollView.observe(
+      \.contentOffset,
+      options: [.initial, .new]
+    ) { [weak self] _, _ in
+      self?.updateForCurrentScrollPosition()
+    }
+    adjustedInsetObservation = scrollView.observe(
+      \.adjustedContentInset,
+      options: [.new]
+    ) { [weak self] _, _ in
+      self?.updateForCurrentScrollPosition()
+    }
+  }
+
+  private func detachFromScrollView() {
+    contentOffsetObservation?.invalidate()
+    adjustedInsetObservation?.invalidate()
+    contentOffsetObservation = nil
+    adjustedInsetObservation = nil
+    observedScrollView = nil
+  }
+
+  private func updateForCurrentScrollPosition() {
+    guard let scrollView = observedScrollView else { return }
+    let displacement = max(
+      0,
+      scrollView.contentOffset.y + scrollView.adjustedContentInset.top
+    )
+    let collapseFraction = min(1, displacement / collapseDistance)
+    let scale = 1 - (1 - Self.avatarMinimumScale) * collapseFraction
+    let verticalOffset = Self.avatarMaximumOffset * collapseFraction
+
+    CATransaction.begin()
+    CATransaction.setDisableActions(true)
+    let contentTransform = CGAffineTransform(
+      translationX: 0,
+      y: verticalOffset
+    ).scaledBy(x: scale, y: scale)
+    for contentView in subviews {
+      contentView.transform = contentTransform
+    }
+    updateDynamicIslandMask(displacement: displacement)
+    CATransaction.commit()
+  }
+
+  private func updateDynamicIslandMask(displacement: CGFloat) {
+    guard
+      let window,
+      window.bounds.width < window.bounds.height,
+      window.safeAreaInsets.top >= 51
+    else {
+      layer.mask = nil
       return
     }
 
-    var request = URLRequest(url: url)
-    request.cachePolicy = .returnCacheDataElseLoad
-    request.timeoutInterval = 20
-    requestTask = URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-      guard error == nil else {
-        DispatchQueue.main.async {
-          self?.finishFailedRequest(key: cacheKey, generation: generation)
-        }
-        return
-      }
-      if let response = response as? HTTPURLResponse,
-        !(200..<300).contains(response.statusCode)
-      {
-        DispatchQueue.main.async {
-          self?.finishFailedRequest(key: cacheKey, generation: generation)
-        }
-        return
-      }
-      self?.decode(
-        data: data,
-        key: cacheKey,
-        generation: generation,
-        maximumPixelSize: maximumPixelSize
+    let progress = min(1, max(0, displacement / 120))
+    guard progress > Self.maskActivationThreshold else {
+      layer.mask = nil
+      return
+    }
+
+    let animationTime = progress * Self.animationDuration
+    let path = CGMutablePath()
+    if animationTime < 153,
+      let vertices = Self.interpolatedVertices(
+        at: animationTime,
+        frames: Self.ellipseFrames
+      )
+    {
+      path.addPath(Self.closedSmoothPath(vertices: vertices, layerY: 254))
+    }
+    if let vertices = Self.interpolatedVertices(
+      at: animationTime,
+      frames: Self.rectangleFrames
+    ) {
+      path.addPath(Self.closedSmoothPath(vertices: vertices, layerY: 17.5))
+    }
+
+    let fixedMaskFrameInWindow = CGRect(
+      x: window.bounds.midX - Self.maskSize.width / 2,
+      y: 48,
+      width: Self.maskSize.width,
+      height: Self.maskSize.height
+    )
+    let fixedMaskFrame = convert(fixedMaskFrameInWindow, from: window)
+    maskLayer.bounds = CGRect(origin: .zero, size: Self.maskSize)
+    maskLayer.position = CGPoint(
+      x: fixedMaskFrame.midX,
+      y: fixedMaskFrame.midY
+    )
+    maskLayer.path = path
+    if layer.mask !== maskLayer {
+      layer.mask = maskLayer
+    }
+  }
+
+  private static func frame(_ time: CGFloat, _ coordinates: [CGFloat]) -> MaskKeyframe {
+    var vertices: [CGPoint] = []
+    vertices.reserveCapacity(coordinates.count / 2)
+    for index in stride(from: 0, to: coordinates.count, by: 2) {
+      vertices.append(
+        CGPoint(x: coordinates[index], y: coordinates[index + 1])
       )
     }
-    requestTask?.resume()
+    return MaskKeyframe(time: time, vertices: vertices)
   }
 
-  private func decode(
-    data: Data?,
-    key: String,
-    generation: Int,
-    maximumPixelSize: Int
-  ) {
-    guard let data, !data.isEmpty, data.count <= Self.maximumImageBytes,
-      let image = Self.downsampledImage(data: data, maximumPixelSize: maximumPixelSize)
-    else {
-      DispatchQueue.main.async { [weak self] in
-        self?.finishFailedRequest(key: key, generation: generation)
+  private static func interpolatedVertices(
+    at time: CGFloat,
+    frames: [MaskKeyframe]
+  ) -> [CGPoint]? {
+    guard let first = frames.first, let last = frames.last else { return nil }
+    if time <= first.time { return first.vertices }
+    if time >= last.time { return last.vertices }
+
+    for index in 0..<(frames.count - 1) {
+      let start = frames[index]
+      let end = frames[index + 1]
+      guard time >= start.time, time <= end.time else { continue }
+      let fraction = (time - start.time) / max(1, end.time - start.time)
+      return zip(start.vertices, end.vertices).map { start, end in
+        CGPoint(
+          x: start.x + (end.x - start.x) * fraction,
+          y: start.y + (end.y - start.y) * fraction
+        )
       }
-      return
     }
-
-    let cost = image.cgImage.map { $0.bytesPerRow * $0.height } ?? data.count
-    Self.imageCache.setObject(image, forKey: key as NSString, cost: cost)
-    DispatchQueue.main.async { [weak self] in
-      self?.install(image: image, key: key, generation: generation)
-    }
+    return last.vertices
   }
 
-  private func install(image: UIImage, key: String, generation: Int) {
-    guard generation == requestGeneration, key == requestedKey else { return }
-    requestTask = nil
-    requestedKey = nil
-    loadedKey = key
-    imageView.image = image
-    imageView.backgroundColor = .red
-    imageView.isHidden = false
-    placeholderView.isHidden = true
-    bringSubviewToFront(imageView)
-  }
-
-  private func finishFailedRequest(key: String, generation: Int) {
-    guard generation == requestGeneration, key == requestedKey else { return }
-    requestTask = nil
-    requestedKey = nil
-  }
-
-  private func updatePlaceholder() {
-    let letters = Self.initials(from: peerName)
-    placeholderLabel.text = letters
-    placeholderLabel.isHidden = letters.isEmpty
-    placeholderIcon.isHidden = !letters.isEmpty
-
-    let colors: [UIColor]
-    if peerId.isEmpty {
-      colors = [UIColor(white: 0.69, alpha: 1), UIColor(white: 0.8, alpha: 1)]
-    } else {
-      let index = Int(Self.stableHash(peerId) % UInt64(Self.gradientColors.count))
-      colors = Self.gradientColors[index]
+  private static func closedSmoothPath(
+    vertices: [CGPoint],
+    layerY: CGFloat
+  ) -> CGPath {
+    let scale = maskSize.width / 512
+    let points = vertices.map { vertex in
+      CGPoint(
+        x: (256 + vertex.x) * scale,
+        y: (-20 + layerY + vertex.y) * scale
+      )
     }
-    placeholderGradient.colors = colors.map(\.cgColor)
-  }
+    guard points.count > 2 else { return CGMutablePath() }
 
-  private func roundedPlaceholderFont(size: CGFloat) -> UIFont {
-    let base = UIFont.systemFont(ofSize: size, weight: .bold)
-    guard let descriptor = base.fontDescriptor.withDesign(.rounded) else { return base }
-    return UIFont(descriptor: descriptor, size: size)
-  }
-
-  private static func initials(from name: String) -> String {
-    let parts = name.split(whereSeparator: { $0.isWhitespace })
-    guard let first = parts.first?.first else { return "" }
-    if parts.count > 1, let last = parts.last?.first {
-      return String(first).uppercased() + String(last).uppercased()
+    let path = CGMutablePath()
+    path.move(to: points[0])
+    for index in 0..<points.count {
+      let previous = points[(index - 1 + points.count) % points.count]
+      let current = points[index]
+      let next = points[(index + 1) % points.count]
+      let following = points[(index + 2) % points.count]
+      let firstControl = CGPoint(
+        x: current.x + (next.x - previous.x) / 6,
+        y: current.y + (next.y - previous.y) / 6
+      )
+      let secondControl = CGPoint(
+        x: next.x - (following.x - current.x) / 6,
+        y: next.y - (following.y - current.y) / 6
+      )
+      path.addCurve(to: next, control1: firstControl, control2: secondControl)
     }
-    return String(first).uppercased()
-  }
-
-  private static func stableHash(_ value: String) -> UInt64 {
-    var hash: UInt64 = 1_469_598_103_934_665_603
-    for byte in value.utf8 {
-      hash ^= UInt64(byte)
-      hash &*= 1_099_511_628_211
-    }
-    return hash
-  }
-
-  private static func downsampledImage(data: Data, maximumPixelSize: Int) -> UIImage? {
-    let sourceOptions = [kCGImageSourceShouldCache: false] as CFDictionary
-    guard let source = CGImageSourceCreateWithData(data as CFData, sourceOptions) else {
-      return nil
-    }
-    let thumbnailOptions = [
-      kCGImageSourceCreateThumbnailFromImageAlways: true,
-      kCGImageSourceCreateThumbnailWithTransform: true,
-      kCGImageSourceShouldCacheImmediately: true,
-      kCGImageSourceThumbnailMaxPixelSize: maximumPixelSize,
-    ] as CFDictionary
-    guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, thumbnailOptions) else {
-      return nil
-    }
-    return UIImage(cgImage: image)
+    path.closeSubpath()
+    return path
   }
 }

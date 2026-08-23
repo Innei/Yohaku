@@ -3,7 +3,7 @@ import {
   requireNativeModule,
   requireNativeViewManager,
 } from 'expo-modules-core'
-import type { ComponentType } from 'react'
+import type { ComponentType, PropsWithChildren } from 'react'
 import type { NativeSyntheticEvent, ViewProps } from 'react-native'
 
 export type TtsRemoteAction = 'pause' | 'play' | 'stop'
@@ -48,7 +48,6 @@ interface YohakuNativeModule {
   secretGet(key: string): string | null
   secretSet(key: string, value: string): void
   setTtsRate(rate: number): Promise<void>
-  simulatedLoginEnabled: boolean
   stopTts(): Promise<void>
 }
 
@@ -147,12 +146,11 @@ type NavigationHeaderTitleProps = ViewProps & {
 export const NavigationHeaderTitle: ComponentType<NavigationHeaderTitleProps> =
   requireNativeViewManager('Yohaku', 'NavigationHeaderTitle')
 
-type SettingsAvatarProps = ViewProps & {
-  imageUrl: string
-  label: string
-  peerId: string
-  peerName: string
-}
+type SettingsAvatarProps = PropsWithChildren<
+  ViewProps & {
+    collapseDistance?: number
+  }
+>
 
 export const SettingsAvatar: ComponentType<SettingsAvatarProps> =
   requireNativeViewManager('Yohaku', 'SettingsAvatar')

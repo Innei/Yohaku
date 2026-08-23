@@ -1,20 +1,6 @@
 import ExpoModulesCore
 import Foundation
 
-private func simulatedLoginEnabled() -> Bool {
-  #if DEBUG
-    #if targetEnvironment(simulator)
-      let processInfo = ProcessInfo.processInfo
-      return processInfo.arguments.contains("-YohakuSimulateLogin")
-        || processInfo.environment["YOHAKU_SIMULATE_LOGIN"] == "1"
-    #else
-      return false
-    #endif
-  #else
-    return false
-  #endif
-}
-
 public class YohakuModule: Module {
   private let tts = TtsPlayer()
 
@@ -32,7 +18,6 @@ public class YohakuModule: Module {
 
     Constants([
       "liquidGlassAvailable": TabBarDomain.liquidGlassAvailable,
-      "simulatedLoginEnabled": simulatedLoginEnabled(),
     ])
 
     OnCreate {
@@ -171,20 +156,8 @@ public class YohakuModule: Module {
     View(SettingsAvatarView.self) {
       ViewName("SettingsAvatar")
 
-      Prop("label") { (view: SettingsAvatarView, label: String) in
-        view.setAccessibilityLabel(label)
-      }
-
-      Prop("imageUrl") { (view: SettingsAvatarView, imageUrl: String) in
-        view.setImageUrl(imageUrl)
-      }
-
-      Prop("peerId") { (view: SettingsAvatarView, peerId: String) in
-        view.setPeerId(peerId)
-      }
-
-      Prop("peerName") { (view: SettingsAvatarView, peerName: String) in
-        view.setPeerName(peerName)
+      Prop("collapseDistance") { (view: SettingsAvatarView, value: Double) in
+        view.setCollapseDistance(value)
       }
     }
 

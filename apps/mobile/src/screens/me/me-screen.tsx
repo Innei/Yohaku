@@ -1,4 +1,4 @@
-import { YohakuNative } from '@modules/yohaku'
+import { SettingsAvatar, YohakuNative } from '@modules/yohaku'
 import { desc } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import Constants from 'expo-constants'
@@ -74,7 +74,11 @@ function IdentityLine({ session }: { session: SessionUser }) {
   return (
     <View style={styles.identity}>
       {showIcon && provider ? (
-        <ProviderIcon color={palette.neutral[9]} provider={provider} size={14} />
+        <ProviderIcon
+          color={palette.neutral[9]}
+          provider={provider}
+          size={14}
+        />
       ) : null}
       {identity ? (
         <AppText numberOfLines={1} style={styles.heroSub} variant="body">
@@ -97,23 +101,25 @@ function Avatar({
   palette: Palette
 }) {
   return (
-    <View style={[styles.avatarRing, { borderColor: palette.neutral[4] }]}>
-      {session?.image ? (
-        <RemoteImage
-          contentFit="cover"
-          style={styles.avatar}
-          uri={session.image}
-        />
-      ) : (
-        <View style={[styles.avatar, { backgroundColor: palette.neutral[3] }]}>
-          <SymbolView
-            name="person.crop.circle"
-            size={36}
-            tintColor={palette.neutral[6]}
+    <SettingsAvatar collapseDistance={120} style={styles.avatarSlot}>
+      <View style={[styles.avatarRing, { borderColor: palette.neutral[4] }]}>
+        {session?.image ? (
+          <RemoteImage
+            contentFit="cover"
+            style={styles.avatar}
+            uri={session.image}
           />
-        </View>
-      )}
-    </View>
+        ) : (
+          <View style={[styles.avatar, { backgroundColor: palette.neutral[3] }]}>
+            <SymbolView
+              name="person.crop.circle"
+              size={36}
+              tintColor={palette.neutral[6]}
+            />
+          </View>
+        )}
+      </View>
+    </SettingsAvatar>
   )
 }
 
@@ -133,10 +139,7 @@ function ProfileHero() {
           </AppText>
           {session?.role === 'owner' ? (
             <View
-              style={[
-                styles.stamp,
-                { backgroundColor: `${palette.accent}2E` },
-              ]}
+              style={[styles.stamp, { backgroundColor: `${palette.accent}2E` }]}
             >
               <AppText color={palette.accent} variant="eyebrow">
                 {t('owner')}
@@ -390,6 +393,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+  },
+  avatarSlot: {
+    width: 74,
+    height: 74,
   },
   avatarRing: {
     width: 74,

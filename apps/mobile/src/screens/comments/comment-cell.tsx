@@ -4,7 +4,13 @@ import { Alert, StyleSheet, View } from 'react-native'
 
 import { api } from '@/api/client'
 import type { ApiComment } from '@/api/types'
-import { AppText, NativePressable, RemoteImage, SinkPressable } from '@/components/ui'
+import {
+  AppText,
+  MarkdownBody,
+  NativePressable,
+  RemoteImage,
+  SinkPressable,
+} from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
 import { isRangeAnchor } from '@/lib/comment-anchor'
 import { commentAvatar, commentDisplayName } from '@/lib/comment-thread'
@@ -12,7 +18,6 @@ import { formatRelativeTime } from '@/lib/datetime'
 import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
-import { CommentMarkdown } from './comment-markdown'
 
 export function CommentCell({
   comment,
@@ -135,7 +140,7 @@ export function CommentCell({
               「{comment.anchor.quote}」
             </AppText>
           ) : null}
-          <CommentMarkdown text={comment.text} />
+          <MarkdownBody markdown={comment.text} />
         </View>
       </NativePressable>
       {showReply ? (

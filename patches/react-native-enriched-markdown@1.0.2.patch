@@ -1,0 +1,46 @@
+diff --git a/ios/views/ENRMCodeBlockContainerView.m b/ios/views/ENRMCodeBlockContainerView.m
+index a668c26ebc9da0c7bda60da80c580ccbdd3571cd..48f75c541bbf9ee5333d1eaad5b132943c4246af 100644
+--- a/ios/views/ENRMCodeBlockContainerView.m
++++ b/ios/views/ENRMCodeBlockContainerView.m
+@@ -293,11 +293,21 @@ - (void)layoutScrollArea
+ // top inset then forms the single gap below the label.
+ - (CGFloat)headerHeight
+ {
++  // Yohaku patch: comments render fenced code without a language most of the
++  // time; drop the whole header strip (label + copy button) in that case.
++  if (_displayLanguage.length == 0) {
++    return 0;
++  }
+   return [self contentInset] + _headerLabelLineHeight;
+ }
+ 
+ - (void)layoutHeaderButton
+ {
++  BOOL headerHidden = _displayLanguage.length == 0;
++  _copyButton.hidden = headerHidden;
++  if (headerHidden) {
++    return;
++  }
+   CGFloat headerH = [self headerHeight];
+   CGFloat iconWidth = _copyButton.intrinsicContentSize.width;
+   if (iconWidth <= 0 || iconWidth > headerH) {
+@@ -412,7 +422,9 @@ - (CGFloat)measureHeight:(CGFloat)maxWidth
+ + (CGFloat)measureHeightForCodeBlockNode:(MarkdownASTNode *)node config:(StyleConfig *)config
+ {
+   CGFloat inset = ENRMCodeBlockContentInset(config);
+-  CGFloat headerH = inset + ENRMCodeBlockHeaderLabelLineHeight(ENRMCodeBlockHeaderFont(config));
++  // Yohaku patch: mirror headerHeight — no language, no header strip.
++  BOOL hasLanguage = ENRMCodeBlockDisplayLanguageName(ENRMCodeBlockLanguage(node)).length > 0;
++  CGFloat headerH = hasLanguage ? inset + ENRMCodeBlockHeaderLabelLineHeight(ENRMCodeBlockHeaderFont(config)) : 0;
+   NSAttributedString *code = ENRMCodeBlockPlainAttributedCode(ENRMCodeBlockExtractCode(node), config);
+   return ENRMCodeBlockCodeSize(code).height + inset * 2 + headerH;
+ }
+@@ -449,7 +461,7 @@ - (void)drawRect:(CGRect)rect
+   // Divider between the header and the code, centered in the gap the code
+   // text's top inset creates, so it adds no height of its own.
+   RCTUIColor *dividerColor = [[_config codeBlockColor] colorWithAlphaComponent:kENRMHeaderDividerAlpha];
+-  if (dividerColor) {
++  if (dividerColor && headerH > 0) {
+     CGRect dividerRect = CGRectMake(borderWidth, headerH + inset / 2, self.bounds.size.width - borderWidth * 2, 1);
+     [dividerColor setFill];
+ #if !TARGET_OS_OSX

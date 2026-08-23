@@ -3,6 +3,10 @@
   "private": true,
   "description": "Yohaku iOS client, and the design system it uses.",
   "packageManager": "pnpm@11.0.0",
+  "enriched-markdown": {
+    "enableCodeHighlight": false,
+    "enableMath": false
+  },
   "scripts": {
     "dev": "pnpm --filter @yohaku/design-system showcase:dev",
     "build": "pnpm --filter @yohaku/design-system showcase:build",
