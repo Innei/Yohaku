@@ -144,6 +144,16 @@ type NavigationHeaderTitleProps = ViewProps & {
 export const NavigationHeaderTitle: ComponentType<NavigationHeaderTitleProps> =
   requireNativeViewManager('Yohaku', 'NavigationHeaderTitle')
 
+type SettingsAvatarProps = ViewProps & {
+  imageUrl: string
+  label: string
+  peerId: string
+  peerName: string
+}
+
+export const SettingsAvatar: ComponentType<SettingsAvatarProps> =
+  requireNativeViewManager('Yohaku', 'SettingsAvatar')
+
 export type NavigationHeaderMenuItem = {
   hidden?: boolean
   icon?: string

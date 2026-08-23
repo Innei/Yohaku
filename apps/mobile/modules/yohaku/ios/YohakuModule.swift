@@ -152,6 +152,26 @@ public class YohakuModule: Module {
       }
     }
 
+    View(SettingsAvatarView.self) {
+      ViewName("SettingsAvatar")
+
+      Prop("label") { (view: SettingsAvatarView, label: String) in
+        view.setAccessibilityLabel(label)
+      }
+
+      Prop("imageUrl") { (view: SettingsAvatarView, imageUrl: String) in
+        view.setImageUrl(imageUrl)
+      }
+
+      Prop("peerId") { (view: SettingsAvatarView, peerId: String) in
+        view.setPeerId(peerId)
+      }
+
+      Prop("peerName") { (view: SettingsAvatarView, peerName: String) in
+        view.setPeerName(peerName)
+      }
+    }
+
     View(NavigationHeaderControlView.self) {
       ViewName("NavigationHeaderControl")
 
