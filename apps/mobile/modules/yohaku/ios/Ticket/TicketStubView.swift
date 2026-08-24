@@ -5,7 +5,7 @@ final class TicketStubView: ExpoView {
   private let fillLayer = CALayer()
   private var cornerRadius: CGFloat = 18
   private var divisions = 3
-  private var fillColor = UIColor.white
+  private var fillColor = UIColor.secondarySystemGroupedBackground
   private var notchRadius: CGFloat = 5
 
   required init(appContext: AppContext? = nil) {
@@ -31,6 +31,13 @@ final class TicketStubView: ExpoView {
     redrawFill()
   }
 
+  override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+    super.traitCollectionDidChange(previousTraitCollection)
+    if traitCollection.hasDifferentColorAppearance(comparedTo: previousTraitCollection) {
+      setNeedsLayout()
+    }
+  }
+
   func setCornerRadius(_ radius: Double) {
     cornerRadius = max(0, CGFloat(radius))
     setNeedsLayout()
@@ -42,7 +49,7 @@ final class TicketStubView: ExpoView {
   }
 
   func setFillColor(_ color: UIColor?) {
-    fillColor = color ?? .white
+    fillColor = color ?? .secondarySystemGroupedBackground
     setNeedsLayout()
   }
 
@@ -75,6 +82,7 @@ final class TicketStubView: ExpoView {
       return
     }
 
+    let resolvedFill = fillColor.resolvedColor(with: traitCollection)
     let format = UIGraphicsImageRendererFormat()
     format.opaque = false
     format.scale = UIScreen.main.scale
@@ -108,7 +116,7 @@ final class TicketStubView: ExpoView {
           )
         }
       }
-      cg.setFillColor(fillColor.cgColor)
+      cg.setFillColor(resolvedFill.cgColor)
       cg.drawPath(using: .eoFill)
     }
     fillLayer.contentsScale = UIScreen.main.scale

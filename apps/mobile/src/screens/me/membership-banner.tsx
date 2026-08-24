@@ -1,5 +1,4 @@
 import { YohakuMembershipNative } from '@modules/yohaku'
-import { radius } from '@yohaku/design-system/tokens'
 import { useFocusEffect } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import { useCallback } from 'react'
@@ -11,11 +10,15 @@ import {
   remainingMembershipDays,
 } from '@/api/membership'
 import { useSession } from '@/auth/session-store'
-import { AppText, NativePressable } from '@/components/ui'
+import {
+  AppText,
+  groupedListFill,
+  groupedListRadius,
+  NativePressable,
+} from '@/components/ui'
 import type { Locale } from '@/i18n'
 import { translate, useLocale, useTranslations } from '@/i18n'
 import { usePalette } from '@/theme/palette'
-import { shadow } from '@/theme/surfaces'
 
 import { useMembershipPlans, useMembershipStatus } from './use-membership'
 import { useMembershipCheckout } from './use-membership-checkout'
@@ -60,16 +63,7 @@ export function MembershipBanner() {
 
   if (kind === 'cta') {
     return (
-      <NativePressable
-        style={[
-          styles.card,
-          {
-            backgroundColor: palette.surface.paper,
-            boxShadow: shadow.paperSmall[palette.theme],
-          },
-        ]}
-        onPress={() => void present()}
-      >
+      <NativePressable style={styles.card} onPress={() => void present()}>
         <View
           style={[styles.icon, { backgroundColor: `${palette.accent}1F` }]}
         >
@@ -96,13 +90,6 @@ export function MembershipBanner() {
   const planLabel =
     period.plan === 'yearly' ? t('planYearly') : t('planMonthly')
   const canManageInApple = isAppleManagedMembership(period)
-  const cardStyle = [
-    styles.card,
-    {
-      backgroundColor: palette.surface.paper,
-      boxShadow: shadow.paperSmall[palette.theme],
-    },
-  ]
   const content = (
     <>
       <View style={[styles.icon, { backgroundColor: `${palette.accent}1F` }]}>
@@ -134,11 +121,11 @@ export function MembershipBanner() {
     </>
   )
 
-  if (!canManageInApple) return <View style={cardStyle}>{content}</View>
+  if (!canManageInApple) return <View style={styles.card}>{content}</View>
 
   return (
     <NativePressable
-      style={cardStyle}
+      style={styles.card}
       onPress={() => void YohakuMembershipNative.showManageSubscriptions()}
     >
       {content}
@@ -153,7 +140,8 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    borderRadius: radius.paper,
+    backgroundColor: groupedListFill,
+    borderRadius: groupedListRadius,
     borderCurve: 'continuous',
     minHeight: 64,
   },

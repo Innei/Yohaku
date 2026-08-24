@@ -1,10 +1,23 @@
 import { useState } from 'react'
-import type { StyleProp, ViewStyle } from 'react-native'
+import {
+  Platform,
+  PlatformColor,
+  type ColorValue,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native'
 
 import { usePalette } from '@/theme/palette'
 
 import type { GroupedListNativeRow } from '../../../modules/yohaku'
 import { GroupedListView } from '../../../modules/yohaku'
+
+export const groupedListRadius =
+  Number.parseInt(String(Platform.Version), 10) >= 26 ? 26 : 10
+
+export const groupedListFill: ColorValue = PlatformColor(
+  'secondarySystemGroupedBackground',
+)
 
 export interface GroupedListRow {
   chevron?: boolean

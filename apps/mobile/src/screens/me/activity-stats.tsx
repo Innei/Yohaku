@@ -1,16 +1,21 @@
 import { TicketStubView } from '@modules/yohaku'
-import { radius, type as typeScale } from '@yohaku/design-system/tokens'
+import { type as typeScale } from '@yohaku/design-system/tokens'
 import { useRouter } from 'expo-router'
 import { Fragment } from 'react'
 import type { TextStyle } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 
-import { AppText, NativePressable, SlotText } from '@/components/ui'
+import {
+  AppText,
+  groupedListFill,
+  groupedListRadius,
+  NativePressable,
+  SlotText,
+} from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import { fonts } from '@/theme/fonts'
 import type { Palette } from '@/theme/palette'
 import { usePalette } from '@/theme/palette'
-import { ticketShadow } from '@/theme/surfaces'
 
 const PERFORATION_DOTS = 5
 const NOTCH_RADIUS = 5
@@ -44,7 +49,6 @@ export function ActivityStats({
   const t = useTranslations('me')
   const palette = usePalette()
   const router = useRouter()
-  const lift = ticketShadow[palette.theme]
   const countStyle: TextStyle = {
     ...fonts.sansMedium,
     fontSize: typeScale.title24.size,
@@ -71,15 +75,11 @@ export function ActivityStats({
   return (
     <View style={styles.wrap}>
       <TicketStubView
-        cornerRadius={radius.paper}
+        cornerRadius={groupedListRadius}
         divisions={tiles.length}
-        fillColor={palette.surface.paper}
+        fillColor={groupedListFill}
         notchRadius={NOTCH_RADIUS}
         pointerEvents="none"
-        shadowColor={lift.color}
-        shadowOffsetY={lift.offsetY}
-        shadowOpacity={lift.opacity}
-        shadowRadius={lift.radius}
         style={StyleSheet.absoluteFill}
       />
       <View style={styles.ticket}>

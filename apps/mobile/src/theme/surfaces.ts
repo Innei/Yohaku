@@ -24,18 +24,3 @@ export const shadow = {
     dark: 'inset 0 1.5px 4px rgba(0,0,0,0.5)',
   },
 } satisfies Record<string, ShadowSet>
-
-export const ticketShadow = {
-  light: {
-    color: 'rgb(20, 19, 18)',
-    offsetY: 4,
-    opacity: 0.08,
-    radius: 8,
-  },
-  dark: {
-    color: 'rgb(0, 0, 0)',
-    offsetY: 4,
-    opacity: 0.3,
-    radius: 8,
-  },
-} as const

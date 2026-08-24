@@ -4,7 +4,7 @@ import {
   requireNativeViewManager,
 } from 'expo-modules-core'
 import type { ComponentType } from 'react'
-import type { NativeSyntheticEvent, ViewProps } from 'react-native'
+import type { ColorValue, NativeSyntheticEvent, ViewProps } from 'react-native'
 
 export type TtsRemoteAction = 'pause' | 'play' | 'stop'
 
@@ -232,12 +232,12 @@ export const NativePressView: ComponentType<NativePressViewProps> =
 type TicketStubViewProps = ViewProps & {
   cornerRadius: number
   divisions: number
-  fillColor: string
+  fillColor: ColorValue
   notchRadius: number
-  shadowColor: string
-  shadowOffsetY: number
-  shadowOpacity: number
-  shadowRadius: number
+  shadowColor?: string
+  shadowOffsetY?: number
+  shadowOpacity?: number
+  shadowRadius?: number
 }
 
 export const TicketStubView: ComponentType<TicketStubViewProps> =
