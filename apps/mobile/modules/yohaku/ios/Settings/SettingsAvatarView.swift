@@ -769,8 +769,17 @@ final class SettingsAvatarView: ExpoView {
   }
 
   private func updateForCurrentScrollPosition() {
-    guard let window, bounds.width > 0, bounds.height > 0 else { return }
-    ensureCompositor(in: window)
+    guard
+      let window,
+      let hostView = owningViewController()?.view,
+      hostView.window === window,
+      bounds.width > 0,
+      bounds.height > 0
+    else {
+      compositorView.removeFromSuperview()
+      return
+    }
+    ensureCompositor(in: hostView)
 
     let displacement: CGFloat
     if let scrollView = observedScrollView {
@@ -781,10 +790,11 @@ final class SettingsAvatarView: ExpoView {
     } else {
       displacement = 0
     }
-    let avatarFrame = convert(bounds, to: window)
+    let avatarFrame = convert(bounds, to: hostView)
+    let avatarFrameInWindow = convert(bounds, to: window)
     let collapseFraction: CGFloat
     if supportsDynamicIsland(in: window) {
-      let restingCenterY = avatarFrame.midY + displacement
+      let restingCenterY = avatarFrameInWindow.midY + displacement
       let mergeStartDisplacement = max(
         0,
         restingCenterY - Self.initialMaskAvatarCenterY
@@ -806,18 +816,34 @@ final class SettingsAvatarView: ExpoView {
       scale: scale,
       verticalOffset: verticalOffset
     )
-    updateDynamicIslandMask(progress: collapseFraction, in: window)
+    updateDynamicIslandMask(
+      progress: collapseFraction,
+      in: window,
+      hostView: hostView
+    )
     CATransaction.commit()
   }
 
-  private func ensureCompositor(in window: UIWindow) {
-    if compositorView.superview !== window {
+  private func owningViewController() -> UIViewController? {
+    var responder: UIResponder? = next
+    while let current = responder {
+      if let viewController = current as? UIViewController {
+        return viewController
+      }
+      responder = current.next
+    }
+    return nil
+  }
+
+  private func ensureCompositor(in hostView: UIView) {
+    if compositorView.superview !== hostView {
       compositorView.removeFromSuperview()
-      compositorView.frame = window.bounds
-      window.addSubview(compositorView)
+      compositorView.frame = hostView.bounds
+      compositorView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+      hostView.addSubview(compositorView)
       compositorView.setRingColor(ringColor)
-    } else if compositorView.frame != window.bounds {
-      compositorView.frame = window.bounds
+    } else if compositorView.frame != hostView.bounds {
+      compositorView.frame = hostView.bounds
     }
   }
 
@@ -825,7 +851,11 @@ final class SettingsAvatarView: ExpoView {
     window.bounds.width < window.bounds.height && window.safeAreaInsets.top >= 51
   }
 
-  private func updateDynamicIslandMask(progress: CGFloat, in window: UIWindow) {
+  private func updateDynamicIslandMask(
+    progress: CGFloat,
+    in window: UIWindow,
+    hostView: UIView
+  ) {
     guard supportsDynamicIsland(in: window) else {
       compositorView.disableDynamicIslandMask()
       return
@@ -861,12 +891,13 @@ final class SettingsAvatarView: ExpoView {
       contentPath.addPath(rectanglePath)
     }
 
-    let fixedMaskFrame = CGRect(
+    let fixedMaskFrameInWindow = CGRect(
       x: window.bounds.midX - Self.maskSize.width / 2,
       y: Self.maskFrameY,
       width: Self.maskSize.width,
       height: Self.maskSize.height
     )
+    let fixedMaskFrame = window.convert(fixedMaskFrameInWindow, to: hostView)
     compositorView.updateDynamicIsland(
       progress: progress,
       maskPath: contentPath,
