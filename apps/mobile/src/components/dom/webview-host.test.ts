@@ -2,6 +2,7 @@ import { assertFetchJSONContract } from '@yohaku/rich-content/host-contract'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MobileCodeBlock } from './code-block'
+import { MobileFileCard } from './file-card'
 import { createWebviewHost } from './webview-host'
 
 const deps = {
@@ -37,9 +38,19 @@ describe('createWebviewHost', () => {
     expect(createWebviewHost(deps).slots?.CodeBlock).toBeUndefined()
   })
 
-  it('supplies only a CodeBlock chrome slot', () => {
+  it('omits FileCard unless the caller passes one', () => {
     const { slots } = createWebviewHost({ ...deps, codeBlock: MobileCodeBlock })
+    expect(slots?.FileCard).toBeUndefined()
+  })
+
+  it('supplies only the chrome slots it was given', () => {
+    const { slots } = createWebviewHost({
+      ...deps,
+      codeBlock: MobileCodeBlock,
+      fileCard: MobileFileCard,
+    })
     expect(slots?.CodeBlock).toBe(MobileCodeBlock)
+    expect(slots?.FileCard).toBe(MobileFileCard)
     expect(slots?.BlockLinkCard).toBeUndefined()
     expect(slots?.InlineLink).toBeUndefined()
     expect(slots?.MapBlock).toBeUndefined()

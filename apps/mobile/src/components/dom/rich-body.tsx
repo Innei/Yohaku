@@ -37,6 +37,7 @@ import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
 import { extractBlockInfos } from './anchor-utils'
 import { MobileCodeBlock } from './code-block'
+import { MobileFileCard } from './file-card'
 import {
   applyBlockWashes,
   applyCommentHighlights,
@@ -613,6 +614,7 @@ export default function RichBody({
         apiBase,
         codeBlock: MobileCodeBlock,
         enrichments: bodyEnrichments,
+        fileCard: MobileFileCard,
         locale,
         labels: { nestedDocCollapse, nestedDocExpand, nestedDocLabel },
         nestedDocPresentation: canExpandNestedDoc ? 'modal' : 'inline',

@@ -156,6 +156,14 @@ export interface HostCapabilities {
   }
   slots?: {
     BlockLinkCard?: ComponentType<{ fallback?: ReactNode; url: string }>
+    FileCard?: ComponentType<{
+      display?: 'block' | 'inline'
+      ext?: string
+      mimeType?: string
+      name: string
+      size?: number
+      src: string
+    }>
     CodeBlock?: ComponentType<{
       code: string
       fold?: boolean

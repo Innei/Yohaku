@@ -47,6 +47,7 @@ export interface WebviewHostDeps {
   apiBase: string
   codeBlock?: NonNullable<HostCapabilities['slots']>['CodeBlock']
   enrichments?: HostCapabilities['enrichments']
+  fileCard?: NonNullable<HostCapabilities['slots']>['FileCard']
   labels: HostCapabilities['labels']
   locale?: string
   nestedDocPresentation?: HostCapabilities['nestedDocPresentation']
@@ -59,6 +60,9 @@ export interface WebviewHostDeps {
 }
 
 export function createWebviewHost(deps: WebviewHostDeps): HostCapabilities {
+  const slots: NonNullable<HostCapabilities['slots']> = {}
+  if (deps.codeBlock) slots.CodeBlock = deps.codeBlock
+  if (deps.fileCard) slots.FileCard = deps.fileCard
   return {
     apiBase: deps.apiBase,
     diagramPreview: 'openImage',
@@ -79,7 +83,7 @@ export function createWebviewHost(deps: WebviewHostDeps): HostCapabilities {
     openLink: (url) => deps.onLinkPress(url),
     scrollToAnchor: (id) => deps.onScrollToAnchor(id),
     site: deps.site,
-    slots: deps.codeBlock ? { CodeBlock: deps.codeBlock } : undefined,
+    slots: Object.keys(slots).length > 0 ? slots : undefined,
     theme: deps.theme,
     webOrigin: deps.webOrigin,
   }
