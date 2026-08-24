@@ -18,6 +18,7 @@ import {
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
+import { FileNodeLab } from './file-node-lab'
 import { SplashReplayControls, useSplashReplay } from './splash-replay'
 import { WebViewPoolLab } from './webview-pool-lab'
 
@@ -178,6 +179,10 @@ export function DevDemos() {
 
         <Section title="MARKDOWN">
           <MarkdownBody markdown={markdownSample} />
+        </Section>
+
+        <Section title="FILE NODE">
+          <FileNodeLab />
         </Section>
 
         <Section title="SPLASH">
