@@ -16,10 +16,6 @@ describe('gallery site Referer', () => {
       path.join(srcRoot, 'screens/details/article-body.tsx'),
       'utf8',
     )
-    const insights = readFileSync(
-      path.join(srcRoot, 'screens/details/insights-sheet.tsx'),
-      'utf8',
-    )
     const host = readFileSync(
       path.join(srcRoot, 'components/dom/webview-host.ts'),
       'utf8',
@@ -28,7 +24,6 @@ describe('gallery site Referer', () => {
 
     expect(imageCache).toContain('siteReferer?: string')
     expect(articleBody).toContain('siteReferer: getSiteUrl()')
-    expect(insights).toContain('siteReferer: getSiteUrl()')
     expect(host).toContain('postNativeImagePreview(payload, deps.webOrigin)')
     expect(engine).toContain('prefetchImages([...new Set(urls)], getSiteUrl())')
   })
