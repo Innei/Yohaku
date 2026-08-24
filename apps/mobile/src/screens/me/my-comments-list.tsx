@@ -83,7 +83,6 @@ function MyCommentRow({ comment }: { comment: ApiMyComment }) {
       <ActivityEntry
         accent={view.accent}
         createdAt={view.createdAt}
-        excerpt={view.excerpt}
         title={view.title}
       />
     )
@@ -96,7 +95,6 @@ function MyCommentRow({ comment }: { comment: ApiMyComment }) {
       <ActivityEntry
         accent={view.accent}
         createdAt={view.createdAt}
-        excerpt={view.excerpt}
         title={view.title}
         onAccessibilityTap={open}
       />

@@ -1,4 +1,3 @@
-import { type as typeScale } from '@yohaku/design-system/tokens'
 import { SymbolView } from 'expo-symbols'
 import { type ReactNode, Fragment } from 'react'
 import { StyleSheet, View } from 'react-native'
@@ -11,24 +10,15 @@ import {
 import type { PostRow } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { formatRelativeTime } from '@/lib/datetime'
-import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import {
-  featuredSummaryChars,
-  indexSummaryChars,
-  partitionTags,
-  postListSummary,
-} from './post-list'
-
-function Dot() {
-  const palette = usePalette()
-  return (
-    <AppText color={palette.neutral[4]} variant="meta">
-      ·
-    </AppText>
-  )
-}
+  ListEntry,
+  ListEntryDot,
+  ListEntryMeta,
+  ListEntryTitle,
+} from './list-entry'
+import { partitionTags } from './post-list'
 
 export function PostMetaLine({
   hiddenCount = 0,
@@ -47,13 +37,13 @@ export function PostMetaLine({
   const palette = usePalette()
 
   return (
-    <View style={styles.metaRow}>
+    <ListEntryMeta>
       <AppText variant="meta">
         {formatRelativeTime(post.createdAt, locale)}
       </AppText>
       {post.categoryName ? (
         <>
-          <Dot />
+          <ListEntryDot />
           <NativePressable
             accessibilityRole="link"
             disabled={!onCategoryPress || !post.categorySlug}
@@ -97,7 +87,7 @@ export function PostMetaLine({
           ) : null}
         </>
       ) : null}
-    </View>
+    </ListEntryMeta>
   )
 }
 
@@ -131,51 +121,19 @@ function PostCounts({ post }: { post: PostRow }) {
 export function PostFeaturedTrigger({ post }: { post: PostRow }) {
   const t = useTranslations('list')
   const palette = usePalette()
-  const summary = postListSummary(post, featuredSummaryChars)
 
   return (
     <>
       <AppText color={palette.accent} style={styles.pin} variant="meta">
         {t('pinned')}
       </AppText>
-      <AppText style={styles.listTitle} variant="entryTitleSans">
-        {post.title}
-      </AppText>
-      {summary ? (
-        <AppText
-          color={palette.neutral[6]}
-          numberOfLines={2}
-          style={styles.featuredSummary}
-          variant="secondary"
-        >
-          {summary}
-        </AppText>
-      ) : null}
+      <ListEntryTitle>{post.title}</ListEntryTitle>
     </>
   )
 }
 
 export function PostIndexTrigger({ post }: { post: PostRow }) {
-  const palette = usePalette()
-  const summary = postListSummary(post, indexSummaryChars)
-
-  return (
-    <>
-      <AppText style={styles.listTitle} variant="entryTitleSans">
-        {post.title}
-      </AppText>
-      {summary ? (
-        <AppText
-          color={palette.neutral[6]}
-          numberOfLines={1}
-          style={styles.itemSummary}
-          variant="secondary"
-        >
-          {summary}
-        </AppText>
-      ) : null}
-    </>
-  )
+  return <ListEntryTitle>{post.title}</ListEntryTitle>
 }
 
 export function PostFeaturedSheet({
@@ -227,8 +185,7 @@ export function PostIndexItem({
   const { hiddenCount, visible } = partitionTags(post.tags)
 
   return (
-    <View style={styles.item}>
-      {trigger}
+    <ListEntry titleSlot={trigger}>
       <PostMetaLine
         hiddenCount={hiddenCount}
         onCategoryPress={onCategoryPress}
@@ -236,7 +193,7 @@ export function PostIndexItem({
         post={post}
         tags={visible}
       />
-    </View>
+    </ListEntry>
   )
 }
 
@@ -272,23 +229,6 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 6,
   },
-  listTitle: {
-    ...fonts.sansMedium,
-    fontSize: typeScale.copy16.size,
-    lineHeight: typeScale.copy16.lineHeight,
-  },
-  featuredSummary: {
-    marginTop: 8,
-    lineHeight: 20,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    columnGap: 6,
-    rowGap: 2,
-    marginTop: 10,
-  },
   counts: {
     position: 'relative',
     flexDirection: 'row',
@@ -309,12 +249,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-  },
-  item: {
-    paddingTop: 12,
-    paddingBottom: 11,
-  },
-  itemSummary: {
-    marginTop: 4,
   },
 })

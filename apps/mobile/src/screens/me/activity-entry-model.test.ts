@@ -81,31 +81,14 @@ function thinking(overrides: Partial<ThinkingRow> = {}): ThinkingRow {
 }
 
 describe('viewLikedItem', () => {
-  it('uses the post title, excerpt, created time, and category', () => {
+  it('uses the post title, created time, and category', () => {
     expect(
       viewLikedItem({ kind: 'post', likedAt, post: post() }, labels),
     ).toEqual({
       kind: 'entry',
       title: '关于这台新电脑',
-      excerpt: '搬进新机器的第一周。',
       createdAt,
       accent: '日常',
-    })
-  })
-
-  it('falls back to truncated post text when excerpt is empty', () => {
-    const long = '字'.repeat(90)
-    const view = viewLikedItem(
-      {
-        kind: 'post',
-        likedAt,
-        post: post({ excerpt: null, text: long }),
-      },
-      labels,
-    )
-    expect(view).toMatchObject({
-      kind: 'entry',
-      excerpt: '字'.repeat(80),
     })
   })
 
@@ -115,19 +98,17 @@ describe('viewLikedItem', () => {
     ).toEqual({
       kind: 'entry',
       title: '春分前後',
-      excerpt: '窓の外が先に明るくなった。',
       createdAt,
       accent: '手记',
     })
   })
 
-  it('uses thinking content as the title with no excerpt', () => {
+  it('uses thinking content as the title', () => {
     expect(
       viewLikedItem({ kind: 'thinking', likedAt, thinking: thinking() }, labels),
     ).toEqual({
       kind: 'entry',
       title: '把桌面再收一收就好了。',
-      excerpt: '',
       createdAt,
       accent: '思考',
     })
@@ -147,7 +128,6 @@ describe('viewReadingItem', () => {
     ).toEqual({
       kind: 'entry',
       title: '关于这台新电脑',
-      excerpt: '搬进新机器的第一周。',
       createdAt,
       accent: '日常',
     })
@@ -172,7 +152,6 @@ describe('viewMyComment', () => {
       ),
     ).toEqual({
       title: '写得很好。',
-      excerpt: '',
       createdAt: new Date('2026-07-03T08:00:00.000Z'),
       accent: '关于这台新电脑',
     })

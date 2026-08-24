@@ -1,5 +1,3 @@
-export const featuredSummaryChars = 150
-export const indexSummaryChars = 80
 export const postListPageSize = 20
 
 export function nextPostListPage(

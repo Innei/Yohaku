@@ -91,7 +91,6 @@ function ReadingRow({
       <ActivityEntry
         accent={view.accent}
         createdAt={view.createdAt}
-        excerpt={view.excerpt}
         title={view.title}
         onAccessibilityTap={open}
       />

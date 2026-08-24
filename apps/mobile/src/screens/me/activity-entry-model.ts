@@ -1,6 +1,5 @@
 import type { ApiMyComment } from '@/api/types'
 
-import { indexSummaryChars, postListSummary } from '../lists/post-list'
 import type { LikedListItem } from './liked-list-model'
 import type { ReadingListItem } from './reading-list-model'
 
@@ -13,7 +12,6 @@ export type ActivityEntryView =
   | {
       accent: string | null
       createdAt: Date
-      excerpt: string
       kind: 'entry'
       title: string
     }
@@ -24,8 +22,6 @@ function articleView(
   row: {
     categoryName?: string | null
     createdAt: Date
-    excerpt: string | null
-    text: string | null
     title: string
   },
   labels: ActivityKindLabel,
@@ -33,7 +29,6 @@ function articleView(
   return {
     kind: 'entry',
     title: row.title,
-    excerpt: postListSummary(row, indexSummaryChars),
     createdAt: row.createdAt,
     accent: kind === 'post' ? (row.categoryName ?? null) : labels.note,
   }
@@ -49,7 +44,6 @@ export function viewLikedItem(
   return {
     kind: 'entry',
     title: item.thinking.content,
-    excerpt: '',
     createdAt: item.thinking.createdAt,
     accent: labels.thinking,
   }
@@ -70,7 +64,6 @@ export function viewMyComment(
 ) {
   return {
     title: comment.text,
-    excerpt: '',
     createdAt: new Date(comment.createdAt),
     accent: comment.sourceTitle ?? unavailableLabel,
   }
