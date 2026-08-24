@@ -1,4 +1,4 @@
-import { YohakuMembershipNative } from '@modules/yohaku'
+import { TicketStubView, YohakuMembershipNative } from '@modules/yohaku'
 import { useFocusEffect } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import { useCallback } from 'react'
@@ -10,18 +10,25 @@ import {
   remainingMembershipDays,
 } from '@/api/membership'
 import { useSession } from '@/auth/session-store'
-import {
-  AppText,
-  groupedListFill,
-  groupedListRadius,
-  NativePressable,
-} from '@/components/ui'
+import { AppText, groupedListRadius, NativePressable } from '@/components/ui'
 import type { Locale } from '@/i18n'
 import { translate, useLocale, useTranslations } from '@/i18n'
 import { usePalette } from '@/theme/palette'
 
 import { useMembershipPlans, useMembershipStatus } from './use-membership'
 import { useMembershipCheckout } from './use-membership-checkout'
+
+function CardFill() {
+  return (
+    <TicketStubView
+      cornerRadius={groupedListRadius}
+      divisions={1}
+      notchRadius={0}
+      pointerEvents="none"
+      style={StyleSheet.absoluteFill}
+    />
+  )
+}
 
 function formatExpiry(iso: string, locale: Locale): string {
   const date = new Date(iso)
@@ -64,6 +71,7 @@ export function MembershipBanner() {
   if (kind === 'cta') {
     return (
       <NativePressable style={styles.card} onPress={() => void present()}>
+        <CardFill />
         <View
           style={[styles.icon, { backgroundColor: `${palette.accent}1F` }]}
         >
@@ -92,6 +100,7 @@ export function MembershipBanner() {
   const canManageInApple = isAppleManagedMembership(period)
   const content = (
     <>
+      <CardFill />
       <View style={[styles.icon, { backgroundColor: `${palette.accent}1F` }]}>
         <SymbolView name="crown.fill" size={18} tintColor={palette.accent} />
       </View>
@@ -140,7 +149,6 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    backgroundColor: groupedListFill,
     borderRadius: groupedListRadius,
     borderCurve: 'continuous',
     minHeight: 64,

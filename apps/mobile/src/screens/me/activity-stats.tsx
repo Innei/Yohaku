@@ -7,7 +7,6 @@ import { StyleSheet, View } from 'react-native'
 
 import {
   AppText,
-  groupedListFill,
   groupedListRadius,
   NativePressable,
   SlotText,
@@ -77,7 +76,6 @@ export function ActivityStats({
       <TicketStubView
         cornerRadius={groupedListRadius}
         divisions={tiles.length}
-        fillColor={groupedListFill}
         notchRadius={NOTCH_RADIUS}
         pointerEvents="none"
         style={StyleSheet.absoluteFill}

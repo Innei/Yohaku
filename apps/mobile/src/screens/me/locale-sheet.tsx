@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import { StyleSheet, View } from 'react-native'
 
-import { AppText, Paper, SinkPressable } from '@/components/ui'
+import { AppText, GroupedCard, SinkPressable } from '@/components/ui'
 import type { Locale } from '@/i18n'
 import {
   localeNames,
@@ -35,7 +35,7 @@ export function LocaleSheet() {
       <AppText style={styles.title} variant="entryTitle">
         {t('language')}
       </AppText>
-      <Paper style={styles.card}>
+      <GroupedCard style={styles.card}>
         {locales.map((locale, index) => (
           <View key={locale}>
             {index > 0 ? (
@@ -58,7 +58,7 @@ export function LocaleSheet() {
             </SinkPressable>
           </View>
         ))}
-      </Paper>
+      </GroupedCard>
     </View>
   )
 }

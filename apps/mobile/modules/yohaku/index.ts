@@ -232,7 +232,7 @@ export const NativePressView: ComponentType<NativePressViewProps> =
 type TicketStubViewProps = ViewProps & {
   cornerRadius: number
   divisions: number
-  fillColor: ColorValue
+  fillColor?: ColorValue
   notchRadius: number
   shadowColor?: string
   shadowOffsetY?: number

@@ -1,6 +1,6 @@
 import { StyleSheet, Switch, View } from 'react-native'
 
-import { AppText, Paper } from '@/components/ui'
+import { AppText, GroupedCard } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import type { Palette } from '@/theme/palette'
 import { usePalette } from '@/theme/palette'
@@ -72,7 +72,7 @@ export function NotificationSettings() {
       >
         {t('sectionTitle')}
       </AppText>
-      <Paper style={styles.card}>
+      <GroupedCard style={styles.card}>
         <ToggleRow
           disabled={push.working}
           label={t('mainToggle')}
@@ -98,7 +98,7 @@ export function NotificationSettings() {
             />
           </View>
         ))}
-      </Paper>
+      </GroupedCard>
       {push.error ? (
         <AppText style={styles.error} variant="body">
           {push.error}

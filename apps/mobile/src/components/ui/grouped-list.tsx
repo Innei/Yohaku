@@ -1,23 +1,35 @@
 import { useState } from 'react'
 import {
   Platform,
-  PlatformColor,
-  type ColorValue,
+  StyleSheet,
+  View,
   type StyleProp,
+  type ViewProps,
   type ViewStyle,
 } from 'react-native'
 
 import { usePalette } from '@/theme/palette'
 
 import type { GroupedListNativeRow } from '../../../modules/yohaku'
-import { GroupedListView } from '../../../modules/yohaku'
+import { GroupedListView, TicketStubView } from '../../../modules/yohaku'
 
 export const groupedListRadius =
   Number.parseInt(String(Platform.Version), 10) >= 26 ? 26 : 10
 
-export const groupedListFill: ColorValue = PlatformColor(
-  'secondarySystemGroupedBackground',
-)
+export function GroupedCard({ style, children, ...rest }: ViewProps) {
+  return (
+    <View style={style} {...rest}>
+      <TicketStubView
+        cornerRadius={groupedListRadius}
+        divisions={1}
+        notchRadius={0}
+        pointerEvents="none"
+        style={StyleSheet.absoluteFill}
+      />
+      {children}
+    </View>
+  )
+}
 
 export interface GroupedListRow {
   chevron?: boolean
