@@ -123,6 +123,7 @@ private final class DynamicIslandCoverView: UIView {
 
 private final class SettingsAvatarCompositorView: UIView {
   let avatarImageView = UIImageView()
+  var onDisplayLink: (() -> Void)?
 
   private let bottomCoverView = UIView()
   private let avatarView = UIView()
@@ -223,6 +224,10 @@ private final class SettingsAvatarCompositorView: UIView {
     bottomCoverView.isHidden = true
     topCoverView.isHidden = true
     topCoverView.update(0)
+  }
+
+  @objc func displayLinkDidFire(_ displayLink: CADisplayLink) {
+    onDisplayLink?()
   }
 }
 
@@ -604,6 +609,8 @@ final class SettingsAvatarView: ExpoView {
   private weak var observedScrollView: UIScrollView?
   private var contentOffsetObservation: NSKeyValueObservation?
   private var adjustedInsetObservation: NSKeyValueObservation?
+  private var compensationDisplayLink: CADisplayLink?
+  private var dynamicIslandCoversVisible = false
   private var imageTask: URLSessionDataTask?
   private var imageUri: String?
   private var imageLoadGeneration = 0
@@ -617,12 +624,15 @@ final class SettingsAvatarView: ExpoView {
     clipsToBounds = false
     isOpaque = false
     isUserInteractionEnabled = false
+    compositorView.onDisplayLink = { [weak self] in
+      self?.updateTransitionCompensation()
+    }
   }
 
   deinit {
     imageTask?.cancel()
     detachFromScrollView()
-    compositorView.removeFromSuperview()
+    detachCompositor()
   }
 
   override func didMoveToSuperview() {
@@ -634,7 +644,7 @@ final class SettingsAvatarView: ExpoView {
     super.didMoveToWindow()
     if window == nil {
       detachFromScrollView()
-      compositorView.removeFromSuperview()
+      detachCompositor()
     } else {
       scheduleScrollViewAttachment()
       updateForCurrentScrollPosition()
@@ -771,15 +781,20 @@ final class SettingsAvatarView: ExpoView {
   private func updateForCurrentScrollPosition() {
     guard
       let window,
-      let hostView = owningViewController()?.view,
+      let ownerViewController = owningViewController(),
+      let hostView = ownerViewController.view,
       hostView.window === window,
       bounds.width > 0,
       bounds.height > 0
     else {
-      compositorView.removeFromSuperview()
+      detachCompositor()
       return
     }
     ensureCompositor(in: hostView)
+
+    if dynamicIslandCoversVisible, ownerViewController.transitionCoordinator != nil {
+      return
+    }
 
     let displacement: CGFloat
     if let scrollView = observedScrollView {
@@ -847,6 +862,52 @@ final class SettingsAvatarView: ExpoView {
     }
   }
 
+  private func detachCompositor() {
+    stopCompensationDisplayLink()
+    compositorView.removeFromSuperview()
+  }
+
+  private func updateCompensationDisplayLink() {
+    guard dynamicIslandCoversVisible, window != nil else {
+      stopCompensationDisplayLink()
+      return
+    }
+    guard compensationDisplayLink == nil else { return }
+
+    let displayLink = CADisplayLink(
+      target: compositorView,
+      selector: #selector(SettingsAvatarCompositorView.displayLinkDidFire(_:))
+    )
+    displayLink.add(to: .main, forMode: .common)
+    compensationDisplayLink = displayLink
+  }
+
+  private func stopCompensationDisplayLink() {
+    compensationDisplayLink?.invalidate()
+    compensationDisplayLink = nil
+    compositorView.transform = .identity
+  }
+
+  private func updateTransitionCompensation() {
+    guard
+      dynamicIslandCoversVisible,
+      let hostView = compositorView.superview,
+      let window = hostView.window,
+      let presentedHostLayer = hostView.layer.presentation(),
+      let presentedWindowLayer = window.layer.presentation()
+    else {
+      compositorView.transform = .identity
+      return
+    }
+
+    let hostCenter = CGPoint(x: hostView.bounds.midX, y: hostView.bounds.midY)
+    let presentedCenter = presentedHostLayer.convert(hostCenter, to: presentedWindowLayer)
+    compositorView.transform = CGAffineTransform(
+      translationX: window.bounds.midX - presentedCenter.x,
+      y: 0
+    )
+  }
+
   private func supportsDynamicIsland(in window: UIWindow) -> Bool {
     window.bounds.width < window.bounds.height && window.safeAreaInsets.top >= 51
   }
@@ -857,7 +918,9 @@ final class SettingsAvatarView: ExpoView {
     hostView: UIView
   ) {
     guard supportsDynamicIsland(in: window) else {
+      dynamicIslandCoversVisible = false
       compositorView.disableDynamicIslandMask()
+      updateCompensationDisplayLink()
       return
     }
 
@@ -891,19 +954,20 @@ final class SettingsAvatarView: ExpoView {
       contentPath.addPath(rectanglePath)
     }
 
-    let fixedMaskFrameInWindow = CGRect(
-      x: window.bounds.midX - Self.maskSize.width / 2,
+    let fixedMaskFrame = CGRect(
+      x: hostView.bounds.midX - Self.maskSize.width / 2,
       y: Self.maskFrameY,
       width: Self.maskSize.width,
       height: Self.maskSize.height
     )
-    let fixedMaskFrame = window.convert(fixedMaskFrameInWindow, to: hostView)
+    dynamicIslandCoversVisible = progress > Self.maskActivationThreshold
     compositorView.updateDynamicIsland(
       progress: progress,
       maskPath: contentPath,
       maskFrame: fixedMaskFrame,
-      coversVisible: progress > Self.maskActivationThreshold
+      coversVisible: dynamicIslandCoversVisible
     )
+    updateCompensationDisplayLink()
   }
 
   private static func frame(_ time: CGFloat, _ coordinates: [CGFloat]) -> MaskKeyframe {
