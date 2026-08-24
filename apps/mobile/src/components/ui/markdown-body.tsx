@@ -6,18 +6,23 @@ import type { MarkdownStyle } from 'react-native-enriched-markdown'
 import { EnrichedMarkdownText } from 'react-native-enriched-markdown'
 
 import { hrefForExternalUrl } from '@/lib/link-router'
+import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 export interface MarkdownBodyProps {
   fontSize?: number
+  headingColor?: string
   lineHeight?: number
   markdown: string
+  onLinkPress?: (url: string) => boolean | void
 }
 
 export function MarkdownBody({
+  headingColor,
   markdown,
   fontSize = typeScale.copy15.size,
   lineHeight = typeScale.copy15.lineHeight,
+  onLinkPress,
 }: MarkdownBodyProps) {
   const palette = usePalette()
   const router = useRouter()
@@ -30,7 +35,11 @@ export function MarkdownBody({
       marginTop: 0,
       marginBottom: 8,
     }
-    const heading = { ...body, fontWeight: '600' }
+    const heading = {
+      ...body,
+      color: headingColor ?? body.color,
+      fontWeight: '600',
+    }
     return {
       paragraph: body,
       h1: { ...heading, fontSize: fontSize + 2 },
@@ -57,6 +66,7 @@ export function MarkdownBody({
         itemSpacing: 4,
       },
       codeBlock: {
+        fontFamily: fonts.mono.fontFamily,
         fontSize: typeScale.copy13.size,
         color: palette.neutral[9],
         backgroundColor: 'transparent',
@@ -81,6 +91,7 @@ export function MarkdownBody({
         cellPaddingVertical: 6,
       },
       code: {
+        fontFamily: fonts.mono.fontFamily,
         fontSize: typeScale.copy13.size,
         color: palette.neutral[8],
         backgroundColor: 'transparent',
@@ -90,9 +101,10 @@ export function MarkdownBody({
       image: { maxHeight: 240, borderRadius: 10, marginTop: 0, marginBottom: 8 },
       thematicBreak: { color: palette.neutral[3], height: 1 },
     }
-  }, [palette, fontSize, lineHeight])
+  }, [headingColor, palette, fontSize, lineHeight])
 
   const openLink = async (url: string) => {
+    if (onLinkPress?.(url)) return
     const internal = hrefForExternalUrl(url)
     if (internal) {
       router.push(internal)

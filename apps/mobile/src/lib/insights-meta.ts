@@ -1,5 +1,3 @@
-import { getSiteUrl } from '@/lib/site-url'
-
 export interface InsightsMeta {
   difficulty: 'easy' | 'medium' | 'hard'
   genre: string
@@ -118,29 +116,4 @@ export function formatInsightsMetaLine(
     : meta.genre
 
   return [time, difficulty, genre].join(' · ')
-}
-
-export function insightsWebViewDom(header?: {
-  meta?: string | null
-  metaColor: string
-  title: string
-  titleColor: string
-}) {
-  return {
-    automaticallyAdjustContentInsets: false,
-    contentInsetAdjustmentBehavior: 'never' as const,
-    headerMeta: header?.meta ?? '',
-    headerMetaColor: header?.metaColor,
-    headerTitle: header?.title ?? '',
-    headerTitleColor: header?.titleColor,
-    matchContents: false,
-    pooled: false,
-    siteReferer: getSiteUrl(),
-    scrollEdgeEffects: {
-      bottom: 'automatic' as const,
-      top: 'automatic' as const,
-    },
-    scrollEnabled: true,
-    style: { flex: 1 },
-  }
 }

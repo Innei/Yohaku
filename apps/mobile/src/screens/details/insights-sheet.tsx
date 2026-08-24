@@ -1,24 +1,25 @@
+import { type as typeScale } from '@yohaku/design-system/tokens'
 import { useQuery } from '@tanstack/react-query'
-import { useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
-import { StyleSheet, View } from 'react-native'
+import { SymbolView } from 'expo-symbols'
+import { Fragment, useMemo, useState } from 'react'
+import { ScrollView, StyleSheet, View } from 'react-native'
 
-import { apiBaseUrl } from '@/api/base-url'
 import { api } from '@/api/client'
-import InsightsBody from '@/components/dom/insights-body'
 import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
-import { AppText } from '@/components/ui'
+import { AppText, MarkdownBody } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
-import { presentImagePreview } from '@/lib/image-cache'
 import {
   extractInsightsMeta,
   formatInsightsMetaLine,
-  insightsWebViewDom,
 } from '@/lib/insights-meta'
-import { hrefForExternalUrl } from '@/lib/link-router'
-import { getSiteUrl } from '@/lib/site-url'
+import { insightsBlocks, parseYohakuRefUrl } from '@/lib/insights-markup'
+import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
-import { useWebviewFontFaces } from '@/theme/webview-fonts'
+
+import { InsightsMermaid } from './insights-mermaid'
+
+const INSIGHTS_SIZE = typeScale.copy13.size
+const INSIGHTS_LINE = Math.round(INSIGHTS_SIZE * 1.8)
 
 export function InsightsSheet({
   id,
@@ -31,8 +32,10 @@ export function InsightsSheet({
   const ty = useTranslations('yohaku')
   const palette = usePalette()
   const locale = useLocale()
-  const router = useRouter()
-  const fontFaces = useWebviewFontFaces()
+  const [openRef, setOpenRef] = useState<{
+    blockIndex: number
+    quote: string
+  } | null>(null)
   const queriesEnabled = useRouteTransitionSettled(
     `insights:${locale}:${kind}:${id}`,
   )
@@ -52,6 +55,7 @@ export function InsightsSheet({
         literary,
       )
     : null
+  const blocks = useMemo(() => insightsBlocks(markdown), [markdown])
 
   if (query.isPending) {
     return (
@@ -78,7 +82,7 @@ export function InsightsSheet({
     )
   }
 
-  if (!markdown.trim()) {
+  if (blocks.length === 0) {
     return (
       <AppText
         color={palette.neutral[6]}
@@ -91,49 +95,85 @@ export function InsightsSheet({
   }
 
   return (
-    <View style={[styles.sheet, { backgroundColor: palette.surface.desk }]}>
-      <InsightsBody
-        apiBase={apiBaseUrl()}
-        background={palette.surface.desk}
-        fontFaces={fontFaces}
-        headerInset={56}
-        labels={{ missing: t('insightsMissing') }}
-        locale={locale}
-        markdown={markdown}
-        theme={palette.theme}
-        variant={kind}
-        webOrigin={getSiteUrl()}
-        dom={insightsWebViewDom({
-          meta: metaLine,
-          metaColor: palette.neutral[7],
-          title: t('aiInsights'),
-          titleColor: palette.neutral[9],
-        })}
-        onImagePress={async ({ images, index, src }) => {
-          const urls = images.length > 0 ? images : src ? [src] : []
-          if (urls.length === 0) return
-          await presentImagePreview({
-            index: Math.max(0, index),
-            siteReferer: getSiteUrl(),
-            urls,
-          })
-        }}
-        onLinkPress={async (url) => {
-          const href = hrefForExternalUrl(url)
-          if (href) {
-            router.push(href)
-          } else {
-            await WebBrowser.openBrowserAsync(url)
-          }
-        }}
-      />
-    </View>
+    // RNScreens only sizes a formSheet's ScrollView when it is the direct
+    // child of the screen content — wrapping it in a View blanks the sheet.
+    <ScrollView
+      contentContainerStyle={styles.content}
+      style={{ backgroundColor: palette.surface.desk }}
+    >
+      <View style={styles.head}>
+        <SymbolView name="sparkles" size={15} tintColor={palette.accent} />
+        <AppText color={palette.neutral[9]} style={styles.title}>
+          {t('aiInsights')}
+        </AppText>
+      </View>
+      {metaLine ? (
+        <AppText color={palette.neutral[7]} variant="meta">
+          {metaLine}
+        </AppText>
+      ) : null}
+      {blocks.map((block, blockIndex) =>
+        block.type === 'mermaid' ? (
+          <InsightsMermaid
+            content={block.content}
+            // eslint-disable-next-line @eslint-react/no-array-index-key -- blocks derive solely from content
+            key={blockIndex}
+          />
+        ) : (
+          <Fragment
+            // eslint-disable-next-line @eslint-react/no-array-index-key -- blocks derive solely from content
+            key={blockIndex}
+          >
+            <MarkdownBody
+              fontSize={INSIGHTS_SIZE}
+              headingColor={palette.accent}
+              lineHeight={INSIGHTS_LINE}
+              markdown={block.markdown}
+              onLinkPress={(url) => {
+                const ref = parseYohakuRefUrl(url)
+                if (!ref) return false
+                setOpenRef((current) =>
+                  current?.blockIndex === blockIndex &&
+                  current.quote === ref.quote
+                    ? null
+                    : { blockIndex, quote: ref.quote },
+                )
+                return true
+              }}
+            />
+            {openRef?.blockIndex === blockIndex && openRef.quote ? (
+              <AppText color={palette.neutral[7]} style={styles.quote}>
+                {openRef.quote}
+              </AppText>
+            ) : null}
+          </Fragment>
+        ),
+      )}
+    </ScrollView>
   )
 }
 
 const styles = StyleSheet.create({
-  sheet: {
-    flex: 1,
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 24,
+    paddingBottom: 40,
+    gap: 14,
+  },
+  head: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  title: {
+    ...fonts.sansMedium,
+    fontSize: 15,
+    lineHeight: 24,
+  },
+  quote: {
+    fontSize: 12,
+    lineHeight: 20,
+    marginTop: -6,
   },
   status: {
     flex: 1,

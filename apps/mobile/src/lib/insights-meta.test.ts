@@ -1,29 +1,10 @@
-import { createRequire } from 'node:module'
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
 import { describe, expect, it } from 'vitest'
 
 import {
   extractInsightsMeta,
   formatInsightsMetaLine,
-  insightsWebViewDom,
   numToHan,
 } from './insights-meta'
-import { getSiteUrl } from './site-url'
-
-const require = createRequire(import.meta.url)
-const { findWorkspaceRoot, resolveOverlayDir } =
-  require('../../workspace-root.cjs') as {
-    findWorkspaceRoot: (startDir: string) => string
-    resolveOverlayDir: (workspaceRoot: string) => string | null
-  }
-
-const mobileRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-)
-const overlayPresent = resolveOverlayDir(findWorkspaceRoot(mobileRoot)) !== null
 
 describe('extractInsightsMeta', () => {
   it('reads the last insights-meta trailer', () => {
@@ -98,30 +79,5 @@ describe('formatInsightsMetaLine', () => {
         true,
       ),
     ).toBe('四分而尽 · 中等 · 指要')
-  })
-})
-
-describe('insightsWebViewDom', () => {
-  it('opts the insights surface out of the article pool', () => {
-    expect(insightsWebViewDom()).toMatchObject({
-      headerTitle: '',
-      matchContents: false,
-      pooled: false,
-      scrollEdgeEffects: { bottom: 'automatic', top: 'automatic' },
-      scrollEnabled: true,
-      siteReferer: overlayPresent ? getSiteUrl() : '',
-    })
-    expect(
-      insightsWebViewDom({
-        meta: '4 分钟 · 简单 · 散文',
-        metaColor: '#6f6d66',
-        title: '余白',
-        titleColor: '#24231f',
-      }),
-    ).toMatchObject({
-      headerMeta: '4 分钟 · 简单 · 散文',
-      headerTitle: '余白',
-      headerTitleColor: '#24231f',
-    })
   })
 })
