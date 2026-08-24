@@ -4,6 +4,7 @@ import {
   PREVIEW_MAX_PIXEL,
   rasterizeLoadedImageToPng,
   rasterizeSvgMarkupToPng,
+  svgMarkupFromDataUrl,
 } from './rasterize-to-png'
 
 const PNG = 'data:image/png;base64,QQ=='
@@ -66,6 +67,51 @@ describe('rasterizeSvgMarkupToPng', () => {
       width: PREVIEW_MAX_PIXEL,
       height: PREVIEW_MAX_PIXEL / 2,
     })
+  })
+
+  it('upscales a small svg by devicePixelRatio, not to PREVIEW_MAX_PIXEL', async () => {
+    Object.defineProperty(window, 'devicePixelRatio', {
+      configurable: true,
+      value: 3,
+    })
+    const canvases = installCanvasMock()
+    installImageMock(200, 100)
+
+    await rasterizeSvgMarkupToPng(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" width="200" height="100"/>',
+    )
+
+    expect(canvases[0]).toEqual({ width: 600, height: 300 })
+  })
+
+  it('uses viewBox size when width is 100%', async () => {
+    Object.defineProperty(window, 'devicePixelRatio', {
+      configurable: true,
+      value: 3,
+    })
+    const canvases = installCanvasMock()
+    installImageMock(300, 150)
+
+    await rasterizeSvgMarkupToPng(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 400" width="100%" height="100%"/>',
+    )
+
+    expect(canvases[0]).toEqual({
+      width: PREVIEW_MAX_PIXEL,
+      height: Math.round(PREVIEW_MAX_PIXEL / 5),
+    })
+  })
+})
+
+describe('svgMarkupFromDataUrl', () => {
+  it('decodes utf-8 base64 svg data urls', () => {
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg">中文</svg>'
+    const bytes = new TextEncoder().encode(svg)
+    let binary = ''
+    for (const byte of bytes) binary += String.fromCodePoint(byte)
+    const src = `data:image/svg+xml;base64,${btoa(binary)}`
+
+    expect(svgMarkupFromDataUrl(src)).toBe(svg)
   })
 })
 
