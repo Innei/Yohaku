@@ -212,6 +212,8 @@ export const zhTW = {
     planYearly: '年度會員',
     expireAt: '{date} 到期',
     daysLeft: '還剩 {count} 天',
+    testPurchaseSuccess:
+      'TestFlight 測試購買成功，不會扣款，也不會開通正式會員。',
     confirmFailed: '開通失敗，請稍後再試',
     appleAlreadyBound: '這個 Apple ID 已經開過會員',
   },

@@ -69,6 +69,16 @@ describe('shouldRetryAppleConfirmation', () => {
 })
 
 describe('confirmAndFinishAppleTransaction', () => {
+  it('finishes a TestFlight transaction after the backend acknowledges it', async () => {
+    const confirm = vi.fn().mockResolvedValue({ status: 'test' })
+    const finish = vi.fn()
+
+    await expect(
+      confirmAndFinishAppleTransaction(confirm, finish, 'sandbox-jws'),
+    ).resolves.toEqual({ status: 'test' })
+    expect(finish).toHaveBeenCalledWith('sandbox-jws')
+  })
+
   it('finishes the StoreKit transaction after backend confirmation', async () => {
     const events: string[] = []
     const confirm = vi.fn(async () => {

@@ -64,12 +64,12 @@ export function MembershipRecoveryHost() {
         let needsRetry = false
         for (const signedTransactionInfo of tokens) {
           try {
-            await confirmAndFinishAppleTransaction(
+            const confirmation = await confirmAndFinishAppleTransaction(
               api.membershipConfirmApple,
               (token) => YohakuMembershipNative.finishMembershipTransaction(token),
               signedTransactionInfo,
             )
-            confirmed = true
+            confirmed ||= confirmation.status !== 'test'
           } catch (error) {
             if (shouldRetryAppleConfirmation(error)) needsRetry = true
           }

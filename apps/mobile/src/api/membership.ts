@@ -30,6 +30,10 @@ export type MembershipStatusResult =
   | MembershipStatusNone
   | MembershipStatusPeriod
 
+export type MembershipAppleConfirmationResult =
+  | MembershipStatusResult
+  | { status: 'test' }
+
 export type MembershipBannerKind = 'hidden' | 'active' | 'cta'
 
 export interface MembershipAppleIap {

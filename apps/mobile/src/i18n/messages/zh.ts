@@ -212,6 +212,8 @@ export const zh = {
     planYearly: '年度会员',
     expireAt: '{date} 到期',
     daysLeft: '还剩 {count} 天',
+    testPurchaseSuccess:
+      'TestFlight 测试购买成功，不会扣费，也不会开通正式会员。',
     confirmFailed: '开通失败，请稍后重试',
     appleAlreadyBound: '这个 Apple ID 已经开过会员',
   },

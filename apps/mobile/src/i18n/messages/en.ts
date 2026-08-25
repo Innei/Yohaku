@@ -215,6 +215,8 @@ export const en = {
     planYearly: 'Yearly',
     expireAt: 'Renews {date}',
     daysLeft: '{count} days left',
+    testPurchaseSuccess:
+      "TestFlight test purchase succeeded. You won't be charged or receive a production membership.",
     confirmFailed: 'Couldn’t start your membership. Try again.',
     appleAlreadyBound: 'This Apple ID already has a membership',
   },

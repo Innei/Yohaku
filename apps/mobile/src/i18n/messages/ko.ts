@@ -213,6 +213,8 @@ export const ko = {
     planYearly: '연간 플랜',
     expireAt: '{date} 갱신',
     daysLeft: '{count}일 남음',
+    testPurchaseSuccess:
+      'TestFlight 테스트 구매가 완료되었습니다. 요금은 청구되지 않으며 정식 멤버십도 활성화되지 않습니다.',
     confirmFailed: '멤버십을 시작하지 못했습니다. 잠시 후 다시 시도하세요',
     appleAlreadyBound: '이 Apple ID는 이미 멤버십이 있습니다',
   },

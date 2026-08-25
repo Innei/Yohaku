@@ -11,6 +11,7 @@ import { camelize } from './camelize'
 import { camelizeEnrichments } from './enrichments'
 import { ApiError, extractServerMessage } from './errors'
 import type {
+  MembershipAppleConfirmationResult,
   MembershipPlansResult,
   MembershipStatusResult,
 } from './membership'
@@ -369,8 +370,12 @@ export const api = {
   membershipAppleAccountToken: () =>
     request<{ accountToken: string }>('/membership/apple/account-token'),
   membershipConfirmApple: (signedTransactionInfo: string) =>
-    request<MembershipStatusResult>('/membership/apple/confirm', undefined, {
-      method: 'POST',
-      body: { signedTransactionInfo },
-    }),
+    request<MembershipAppleConfirmationResult>(
+      '/membership/apple/confirm',
+      undefined,
+      {
+        method: 'POST',
+        body: { signedTransactionInfo },
+      },
+    ),
 }

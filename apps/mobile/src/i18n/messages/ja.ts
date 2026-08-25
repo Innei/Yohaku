@@ -216,6 +216,8 @@ export const ja = {
     planYearly: '年額プラン',
     expireAt: '{date} まで',
     daysLeft: '残り {count} 日',
+    testPurchaseSuccess:
+      'TestFlight のテスト購入が完了しました。料金は発生せず、正式な会員資格も付与されません。',
     confirmFailed: '会員登録に失敗しました。しばらくしてから再試行してください',
     appleAlreadyBound: 'この Apple ID はすでに会員です',
   },

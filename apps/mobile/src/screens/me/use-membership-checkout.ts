@@ -54,11 +54,15 @@ export function useMembershipCheckout(): {
         productIds,
       })
       if (result.status === 'cancelled') return 'cancelled'
-      await confirmAndFinishAppleTransaction(
+      const confirmation = await confirmAndFinishAppleTransaction(
         api.membershipConfirmApple,
         finishMembershipTransaction,
         result.signedTransactionInfo,
       )
+      if (confirmation.status === 'test') {
+        showToast(t('testPurchaseSuccess'))
+        return 'confirmed'
+      }
       await queryClient.invalidateQueries({ queryKey: ['membership', 'status'] })
       return 'confirmed'
     } catch (error) {
@@ -89,12 +93,12 @@ export function useMembershipCheckout(): {
       let confirmed = false
       for (const signedTransactionInfo of tokens) {
         try {
-          await confirmAndFinishAppleTransaction(
+          const confirmation = await confirmAndFinishAppleTransaction(
             api.membershipConfirmApple,
             finishMembershipTransaction,
             signedTransactionInfo,
           )
-          confirmed = true
+          confirmed ||= confirmation.status !== 'test'
         } catch {}
       }
       if (confirmed) {
