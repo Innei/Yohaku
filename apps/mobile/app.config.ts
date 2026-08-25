@@ -160,6 +160,7 @@ export function createAppConfig(): ExpoConfig {
       './plugins/with-ios-scene-lifecycle.cjs',
       './plugins/with-wipe-www-bundle.cjs',
       './plugins/with-ios-keychain-signing.cjs',
+      './plugins/with-ios-mermaid-pods.cjs',
       [
         'expo-splash-screen',
         {

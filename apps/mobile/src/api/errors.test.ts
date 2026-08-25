@@ -1,23 +1,33 @@
 import { describe, expect, it } from 'vitest'
 
-import { extractServerMessage } from './errors'
+import { ApiError, extractServerMessage, formatApiErrorLine } from './errors'
 
-describe('extractServerMessage', () => {
-  it('reads a string message', () => {
+describe('formatApiErrorLine', () => {
+  it('prefers HTTP status and the server message', () => {
     expect(
-      extractServerMessage('{"message":"You already supported this"}'),
-    ).toBe('You already supported this')
+      formatApiErrorLine(
+        new ApiError(403, 'HTTP 403 /ai/insights/article/1 {}', 'Forbidden'),
+      ),
+    ).toBe('HTTP 403 Forbidden')
   })
 
-  it('reads the first entry of a message array', () => {
-    expect(extractServerMessage('{"message":["text too long","other"]}')).toBe(
-      'text too long',
+  it('falls back to the thrown message when the server sent no copy', () => {
+    expect(formatApiErrorLine(new ApiError(422, 'HTTP 422 /ai/x {}'))).toBe(
+      'HTTP 422 /ai/x {}',
     )
   })
 
-  it('returns undefined for non-json or missing message', () => {
-    expect(extractServerMessage('<html>bad gateway</html>')).toBeUndefined()
-    expect(extractServerMessage('{"error":"x"}')).toBeUndefined()
-    expect(extractServerMessage('')).toBeUndefined()
+  it('keeps a generic Error message', () => {
+    expect(formatApiErrorLine(new Error('Aborted'))).toBe('Aborted')
+  })
+})
+
+describe('extractServerMessage', () => {
+  it('reads mx-core { error: { message } } envelopes', () => {
+    expect(
+      extractServerMessage(
+        '{"error":{"code":"HTTP_ERROR","message":"Forbidden resource"}}',
+      ),
+    ).toBe('Forbidden resource')
   })
 })

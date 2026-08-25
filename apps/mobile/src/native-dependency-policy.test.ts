@@ -8,9 +8,20 @@ import packageJson from '../package.json'
 
 const require = createRequire(import.meta.url)
 
+const mobileRoot = path.resolve(import.meta.dirname, '..')
+
 describe('native dependency policy', () => {
   it('does not depend on expo-secure-store', () => {
     expect(packageJson.dependencies).not.toHaveProperty('expo-secure-store')
+  })
+
+  it('does not depend on beautiful-mermaid from app code', () => {
+    expect(packageJson.dependencies).not.toHaveProperty('beautiful-mermaid')
+  })
+
+  it('does not install expo-file-system', () => {
+    expect(packageJson.dependencies).not.toHaveProperty('expo-file-system')
+    expect(() => require.resolve('expo-file-system')).toThrow()
   })
 
   it('excludes the unused Expo FileSystem module from autolinking', () => {
@@ -37,5 +48,18 @@ describe('native dependency policy', () => {
     expect(podspec).not.toContain("s.dependency 'SDWebImageAVIFCoder'")
     expect(podspec).not.toContain("s.dependency 'libavif")
     expect(imageModule).not.toContain('AVIFCoder')
+  })
+
+  it('pods ElkSwift and BeautifulMermaid for native mermaid', () => {
+    const lock = readFileSync(path.join(mobileRoot, 'ios/Podfile.lock'), 'utf8')
+    expect(lock).toContain('ElkSwift (1.0.2)')
+    expect(lock).toContain('BeautifulMermaid (1.0.4)')
+  })
+
+  it('does not pod-link FileSystem or AVIF', () => {
+    const lock = readFileSync(path.join(mobileRoot, 'ios/Podfile.lock'), 'utf8')
+    expect(lock).not.toMatch(/ExpoFileSystem|EXFileSystem/)
+    expect(lock).not.toContain('libavif')
+    expect(lock).not.toContain('SDWebImageAVIFCoder')
   })
 })

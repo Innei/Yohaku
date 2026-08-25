@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  isAppleManagedMembership,
+  insightsTapAction,
   isActiveMembership,
+  isAppleManagedMembership,
   membershipBannerKind,
   paywallCtaKind,
   remainingMembershipDays,
@@ -173,5 +174,47 @@ describe('paywallCtaKind', () => {
         visible: false,
       }),
     ).toBe('none')
+  })
+})
+
+describe('insightsTapAction', () => {
+  it('opens Yohaku when the article is not locked', () => {
+    expect(
+      insightsTapAction({
+        checkoutEnabled: true,
+        locked: false,
+        loggedIn: false,
+      }),
+    ).toBe('open')
+  })
+
+  it('sends signed-out readers to log in when locked', () => {
+    expect(
+      insightsTapAction({
+        checkoutEnabled: true,
+        locked: true,
+        loggedIn: false,
+      }),
+    ).toBe('login')
+  })
+
+  it('starts checkout when locked and the reader can buy', () => {
+    expect(
+      insightsTapAction({
+        checkoutEnabled: true,
+        locked: true,
+        loggedIn: true,
+      }),
+    ).toBe('subscribe')
+  })
+
+  it('opens the web article when locked and IAP is not configured', () => {
+    expect(
+      insightsTapAction({
+        checkoutEnabled: false,
+        locked: true,
+        loggedIn: true,
+      }),
+    ).toBe('web')
   })
 })

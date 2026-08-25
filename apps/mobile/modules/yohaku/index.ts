@@ -44,6 +44,11 @@ interface YohakuNativeModule {
   pauseTts(): Promise<void>
   playTts(): Promise<void>
   preloadTts(url: string): Promise<void>
+  renderMermaid(payload: {
+    bg: string
+    fg: string
+    source: string
+  }): Promise<{ height: number; uri: string; width: number }>
   secretDelete(key: string): void
   secretGet(key: string): string | null
   secretSet(key: string, value: string): void

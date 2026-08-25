@@ -94,3 +94,16 @@ export function paywallCtaKind(input: {
   if (input.appleIapEnabled) return 'subscribe'
   return 'none'
 }
+
+export type InsightsTapAction = 'login' | 'open' | 'subscribe' | 'web'
+
+export function insightsTapAction(input: {
+  checkoutEnabled: boolean
+  locked: boolean
+  loggedIn: boolean
+}): InsightsTapAction {
+  if (!input.locked) return 'open'
+  if (!input.loggedIn) return 'login'
+  if (input.checkoutEnabled) return 'subscribe'
+  return 'web'
+}

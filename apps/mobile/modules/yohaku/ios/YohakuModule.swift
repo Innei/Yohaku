@@ -43,6 +43,19 @@ public class YohakuModule: Module {
       ]
     }
 
+    AsyncFunction("renderMermaid") { (payload: MermaidRenderPayload) -> [String: Any] in
+      let rendered = try await MermaidDomain.render(
+        source: payload.source,
+        bg: payload.bg,
+        fg: payload.fg
+      )
+      return [
+        "height": rendered.height,
+        "uri": rendered.uri,
+        "width": rendered.width,
+      ]
+    }
+
     Function("databaseBytes") { () -> Double in
       Double(sqliteDatabaseBytes())
     }

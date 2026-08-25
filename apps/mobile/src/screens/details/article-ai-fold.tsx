@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
+import * as WebBrowser from 'expo-web-browser'
 import { useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import Animated, {
@@ -11,8 +12,12 @@ import Animated, {
 
 import type { ArticleNoticeMeta } from '@/api/article-meta'
 import { aiNoticeChips } from '@/api/article-meta'
+import { insightsTapAction } from '@/api/membership'
+import { useSession } from '@/auth/session-store'
 import { AppText, NOTICE_ICON_COL, SinkPressable } from '@/components/ui'
 import { useTranslations } from '@/i18n'
+import { useMembershipPlans } from '@/screens/me/use-membership'
+import { useMembershipCheckout } from '@/screens/me/use-membership-checkout'
 import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
 import type { TtsStatus } from '@/tts/use-tts-session'
@@ -93,15 +98,20 @@ export function ArticleAiFold({
   kind,
   listen,
   meta,
+  webUrl,
 }: {
   id: string
   kind: 'note' | 'post'
   listen?: ArticleAiListen
   meta: ArticleNoticeMeta | null
+  webUrl?: string
 }) {
   const t = useTranslations('notice')
   const palette = usePalette()
   const router = useRouter()
+  const session = useSession()
+  const { data: plans } = useMembershipPlans()
+  const { present } = useMembershipCheckout()
   const [open, setOpen] = useState(false)
   const progress = useSharedValue(0)
   const headerH = useSharedValue(0)
@@ -256,12 +266,31 @@ export function ArticleAiFold({
           <SinkPressable
             haptic={false}
             style={styles.item}
-            onPress={() =>
-              router.push({
-                pathname: '/insights/[kind]/[id]',
-                params: { kind, id },
+            onPress={() => {
+              const action = insightsTapAction({
+                checkoutEnabled: plans?.appleIap?.enabled === true,
+                locked: meta.paywall?.locked === true,
+                loggedIn: !!session,
               })
-            }
+              if (action === 'login') {
+                router.push('/login')
+                return
+              }
+              if (action === 'subscribe') {
+                void present()
+                return
+              }
+              if (action === 'web') {
+                if (webUrl) void WebBrowser.openBrowserAsync(webUrl)
+                return
+              }
+              if (action === 'open') {
+                router.push({
+                  pathname: '/insights/[kind]/[id]',
+                  params: { kind, id },
+                })
+              }
+            }}
           >
             <AppText color={palette.neutral[8]} variant="secondary">
               {t('aiInsights')}

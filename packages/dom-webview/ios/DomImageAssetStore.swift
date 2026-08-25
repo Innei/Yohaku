@@ -54,6 +54,16 @@ struct DomImageAssetSource: Hashable {
     if url.scheme?.lowercased() == DomAssetSchemeHandler.scheme {
       return resolveAssetURL(url, rawValue: rawValue)
     }
+    if url.isFileURL {
+      guard isCachedFile(url) else { return nil }
+      let file = url.standardizedFileURL
+      return DomImageAssetSource(
+        rawValue: rawValue,
+        remoteURL: file,
+        referer: nil,
+        cacheKey: digest("file\n\(file.path)")
+      )
+    }
     guard url.scheme?.lowercased() == "https" else { return nil }
     let referer = SiteReferer.normalized(siteReferer)
     return DomImageAssetSource(
@@ -81,6 +91,15 @@ struct DomImageAssetSource: Hashable {
       referer: referer,
       cacheKey: digest("remote\n\(targetURL.absoluteString)\n\(referer ?? "")")
     )
+  }
+
+  /// Insights mermaid writes PNGs into Caches. Preview used to only accept
+  /// `data:` / `https`, so tapping a `file://` diagram did nothing.
+  private static func isCachedFile(_ url: URL) -> Bool {
+    let path = url.standardizedFileURL.path
+    let caches = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+      .standardizedFileURL.path
+    return path == caches || path.hasPrefix(caches + "/")
   }
 
   private static func digest(_ value: String) -> String {

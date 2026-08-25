@@ -48,11 +48,13 @@ export function ArticleNotice({
   id,
   listen,
   meta,
+  webUrl,
 }: {
   id: string
   kind: 'note' | 'post'
   listen?: ArticleAiListen
   meta: ArticleNoticeMeta | null
+  webUrl?: string
 }) {
   const t = useTranslations('notice')
   const tl = useTranslations('language')
@@ -137,7 +139,15 @@ export function ArticleNotice({
   if (shouldShowAiRow(meta, listenAvailable)) {
     rows.push({
       key: 'ai',
-      node: <ArticleAiFold id={id} kind={kind} listen={listen} meta={meta} />,
+      node: (
+        <ArticleAiFold
+          id={id}
+          kind={kind}
+          listen={listen}
+          meta={meta}
+          webUrl={webUrl}
+        />
+      ),
     })
   }
 
