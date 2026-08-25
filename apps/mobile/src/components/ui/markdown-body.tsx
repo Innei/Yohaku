@@ -8,6 +8,7 @@ import { EnrichedMarkdownText } from 'react-native-enriched-markdown'
 import { hrefForExternalUrl } from '@/lib/link-router'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 export interface MarkdownBodyProps {
   fontSize?: number
@@ -26,6 +27,7 @@ export function MarkdownBody({
 }: MarkdownBodyProps) {
   const palette = usePalette()
   const router = useRouter()
+  const serif = useNativeSerifFontStyle()
 
   const markdownStyle = useMemo<MarkdownStyle>(() => {
     const body = {
@@ -77,18 +79,22 @@ export function MarkdownBody({
         marginTop: 0,
         marginBottom: 8,
       },
+      // Set as printed type, not as a grid: the patched native table draws only
+      // horizontal rules, and the header renders as a tracked-out label.
       table: {
+        fontFamily: serif.fontFamily,
         fontSize: typeScale.copy13.size,
+        lineHeight: Math.round(typeScale.copy13.size * 1.7),
         color: palette.neutral[9],
-        borderColor: palette.neutral[3],
+        borderColor: palette.neutral[8],
         borderWidth: 1,
         borderRadius: 0,
         headerBackgroundColor: 'transparent',
-        headerTextColor: palette.neutral[8],
+        headerTextColor: palette.neutral[6],
         rowEvenBackgroundColor: 'transparent',
         rowOddBackgroundColor: 'transparent',
-        cellPaddingHorizontal: 10,
-        cellPaddingVertical: 6,
+        cellPaddingHorizontal: 14,
+        cellPaddingVertical: 9,
         horizontalOverflow: 20,
       },
       code: {
@@ -102,7 +108,7 @@ export function MarkdownBody({
       image: { maxHeight: 240, borderRadius: 10, marginTop: 0, marginBottom: 8 },
       thematicBreak: { color: palette.neutral[3], height: 1 },
     }
-  }, [headingColor, palette, fontSize, lineHeight])
+  }, [headingColor, palette, fontSize, lineHeight, serif.fontFamily])
 
   const openLink = async (url: string) => {
     if (onLinkPress?.(url)) return

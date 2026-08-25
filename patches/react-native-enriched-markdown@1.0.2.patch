@@ -1,8 +1,7 @@
 diff --git a/ios/views/ENRMCodeBlockContainerView.m b/ios/views/ENRMCodeBlockContainerView.m
-index a668c26ebc9da0c7bda60da80c580ccbdd3571cd..48f75c541bbf9ee5333d1eaad5b132943c4246af 100644
 --- a/ios/views/ENRMCodeBlockContainerView.m
 +++ b/ios/views/ENRMCodeBlockContainerView.m
-@@ -293,11 +293,21 @@ - (void)layoutScrollArea
+@@ -293,11 +293,21 @@
  // top inset then forms the single gap below the label.
  - (CGFloat)headerHeight
  {
@@ -24,7 +23,7 @@ index a668c26ebc9da0c7bda60da80c580ccbdd3571cd..48f75c541bbf9ee5333d1eaad5b13294
    CGFloat headerH = [self headerHeight];
    CGFloat iconWidth = _copyButton.intrinsicContentSize.width;
    if (iconWidth <= 0 || iconWidth > headerH) {
-@@ -412,7 +422,9 @@ - (CGFloat)measureHeight:(CGFloat)maxWidth
+@@ -412,7 +422,9 @@
  + (CGFloat)measureHeightForCodeBlockNode:(MarkdownASTNode *)node config:(StyleConfig *)config
  {
    CGFloat inset = ENRMCodeBlockContentInset(config);
@@ -35,7 +34,7 @@ index a668c26ebc9da0c7bda60da80c580ccbdd3571cd..48f75c541bbf9ee5333d1eaad5b13294
    NSAttributedString *code = ENRMCodeBlockPlainAttributedCode(ENRMCodeBlockExtractCode(node), config);
    return ENRMCodeBlockCodeSize(code).height + inset * 2 + headerH;
  }
-@@ -449,7 +461,7 @@ - (void)drawRect:(CGRect)rect
+@@ -449,7 +461,7 @@
    // Divider between the header and the code, centered in the gap the code
    // text's top inset creates, so it adds no height of its own.
    RCTUIColor *dividerColor = [[_config codeBlockColor] colorWithAlphaComponent:kENRMHeaderDividerAlpha];
@@ -44,3 +43,123 @@ index a668c26ebc9da0c7bda60da80c580ccbdd3571cd..48f75c541bbf9ee5333d1eaad5b13294
      CGRect dividerRect = CGRectMake(borderWidth, headerH + inset / 2, self.bounds.size.width - borderWidth * 2, 1);
      [dividerColor setFill];
  #if !TARGET_OS_OSX
+diff --git a/ios/views/ENRMTableIOSGridView.m b/ios/views/ENRMTableIOSGridView.m
+--- a/ios/views/ENRMTableIOSGridView.m
++++ b/ios/views/ENRMTableIOSGridView.m
+@@ -69,6 +69,16 @@
+ 
+ #pragma mark - Drawing
+ 
++// Yohaku patch: row separators are the border color at reduced alpha, so a
++// single `borderColor` still drives both the heavy and the hairline rule.
++static const CGFloat kENRMTableHairlineAlpha = 0.32;
++
++static void ENRMTableDrawRule(CGFloat y, CGFloat width, CGFloat thickness, UIColor *color)
++{
++  [color setFill];
++  UIRectFill(CGRectMake(0, y, width, thickness));
++}
++
+ - (void)drawRect:(CGRect)dirtyRect
+ {
+   if (!_tableRows.count || !_columnWidths.count || !_rowHeights.count)
+@@ -88,11 +98,6 @@
+       [rowData.backgroundColor setFill];
+       UIRectFill(cellRect);
+ 
+-      [_borderColor setStroke];
+-      UIBezierPath *border = [UIBezierPath bezierPathWithRect:cellRect];
+-      border.lineWidth = _borderWidth;
+-      [border stroke];
+-
+       NSAttributedString *text = rowData.cellTexts[c];
+       if (text.length > 0) {
+         CGRect textRect = CGRectMake(xOffset + _horizontalCellPadding, yOffset + _verticalCellPadding,
+@@ -106,8 +111,38 @@
+     }
+     yOffset += rowHeight;
+   }
++
++  [self drawHorizontalRules];
+ }
+ 
++// Yohaku patch: 三线表 — the table is set as printed type, not as a grid. No
++// vertical rules at all; a heavy rule opens and closes the block, a hairline
++// separates the header and each body row.
++- (void)drawHorizontalRules
++{
++  CGFloat totalWidth = 0;
++  for (NSNumber *width in _columnWidths) {
++    totalWidth += width.doubleValue;
++  }
++  if (totalWidth <= 0 || !_borderColor)
++    return;
++
++  UIColor *hairline = [_borderColor colorWithAlphaComponent:kENRMTableHairlineAlpha];
++  CGFloat strongWidth = _borderWidth * 2;
++
++  CGFloat y = 0;
++  ENRMTableDrawRule(0, totalWidth, strongWidth, _borderColor);
++  for (NSUInteger r = 0; r < _rowHeights.count; r++) {
++    y += [_rowHeights[r] doubleValue];
++    BOOL isLast = (r == _rowHeights.count - 1);
++    if (isLast) {
++      ENRMTableDrawRule(y - strongWidth, totalWidth, strongWidth, _borderColor);
++    } else {
++      ENRMTableDrawRule(y, totalWidth, _borderWidth, hairline);
++    }
++  }
++}
++
+ #pragma mark - Link hit-testing
+ 
+ - (BOOL)cellAtPoint:(CGPoint)point
+diff --git a/ios/views/TableContainerView.m b/ios/views/TableContainerView.m
+--- a/ios/views/TableContainerView.m
++++ b/ios/views/TableContainerView.m
+@@ -53,15 +53,28 @@
+   return [buffer copy];
+ }
+ 
++// Yohaku patch: header label metrics, derived from the table font so a single
++// `fontSize` still drives the whole table.
++static const CGFloat kENRMTableHeaderFontScale = 0.78;
++static const CGFloat kENRMTableHeaderMinFontSize = 10.0;
++static const CGFloat kENRMTableHeaderKernRatio = 0.16;
++
++static CGFloat ENRMTableHeaderFontSize(StyleConfig *config)
++{
++  return MAX(config.tableFontSize * kENRMTableHeaderFontScale, kENRMTableHeaderMinFontSize);
++}
++
+ static StyleConfig *ENRMTableCellConfig(StyleConfig *config, BOOL isHeader)
+ {
+   StyleConfig *cellConfig = [config copy];
+ 
+-  [cellConfig setParagraphFontSize:config.tableFontSize];
++  // Yohaku patch: the header is a typographic label, not a bold copy of the
++  // body — smaller, medium weight, wide-tracked (kern applied at render time).
++  [cellConfig setParagraphFontSize:isHeader ? ENRMTableHeaderFontSize(config) : config.tableFontSize];
+   NSString *headerFamily =
+       config.tableHeaderFontFamily.length > 0 ? config.tableHeaderFontFamily : config.tableFontFamily;
+   [cellConfig setParagraphFontFamily:isHeader ? headerFamily : config.tableFontFamily];
+-  [cellConfig setParagraphFontWeight:isHeader ? @"bold" : config.tableFontWeight];
++  [cellConfig setParagraphFontWeight:isHeader ? @"medium" : config.tableFontWeight];
+   [cellConfig setParagraphColor:isHeader ? config.tableHeaderTextColor : config.tableColor];
+   [cellConfig setParagraphLineHeight:config.tableLineHeight];
+ 
+@@ -141,6 +154,14 @@
+         cell.attributedText =
+             ENRMTableRenderCellNode(cellNode, cellConfig, cell.alignment, allowFontScaling, maxFontSizeMultiplier,
+                                     writingDirectionMode, resolvedLayoutDirection);
++        // Yohaku patch: track the header out; CJK headers get the same airing
++        // as Latin ones, which is what reads as a printed label.
++        if (cell.isHeader && cell.attributedText.length > 0) {
++          CGFloat kern = ENRMTableHeaderFontSize(config) * kENRMTableHeaderKernRatio;
++          [cell.attributedText addAttribute:NSKernAttributeName
++                                      value:@(kern)
++                                      range:NSMakeRange(0, cell.attributedText.length)];
++        }
+         [rowCells addObject:cell];
+       }
+       colCount = MAX(colCount, rowCells.count);
