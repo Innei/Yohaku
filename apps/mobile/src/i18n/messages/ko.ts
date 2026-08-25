@@ -189,6 +189,11 @@ export const ko = {
     componentGallery: '컴포넌트 목록',
     componentGalleryHint: '기본 컴포넌트와 상태 견본, 실기기 조정용',
   },
+  study: {
+    me: '나',
+    account: '계정',
+    tabFallback: '여백',
+  },
   membership: {
     divider: '여기부터 멤버 전용',
     lockedTitle: '멤버 전용 콘텐츠',

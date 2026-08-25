@@ -7,7 +7,6 @@ import { NativeTabs } from 'expo-router/unstable-native-tabs'
 import { useEffect, useRef } from 'react'
 import { DynamicColorIOS, PixelRatio, useColorScheme } from 'react-native'
 
-import { useSession } from '@/auth/session-store'
 import {
   INITIAL_SECRET_TAP,
   nextSecretTap,
@@ -17,7 +16,9 @@ import { PaperTabBar } from '@/components/navigation/paper-tab-bar'
 import { PaperTabBarInsetProvider } from '@/components/navigation/paper-tab-bar-inset'
 import { useTranslations } from '@/i18n'
 import { type TabAvatarIconSource, tabAvatarIconSource } from '@/lib/tab-avatar'
+import { useOwner } from '@/owner/store'
 import { openDevTools } from '@/screens/dev/open-dev-tools'
+import { tabAccessibilityLabel } from '@/screens/study/guest-card'
 
 const tabIcons = {
   notes: {
@@ -66,9 +67,11 @@ function useMeSecretTap() {
 function NativeTabsLayout() {
   const colorScheme = useColorScheme()
   const t = useTranslations('tabs')
+  const tStudy = useTranslations('study')
   const router = useRouter()
-  const session = useSession()
-  const avatar = tabAvatar(session?.image)
+  const owner = useOwner()
+  const avatar = tabAvatar(owner?.avatarUrl)
+  const studyLabel = tabAccessibilityLabel(owner, tStudy('tabFallback'))
   const onMeSecretTap = useMeSecretTap()
 
   useEffect(() => {
@@ -112,11 +115,11 @@ function NativeTabsLayout() {
         </NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger
-        accessibilityLabel={t('me')}
+        accessibilityLabel={studyLabel}
+        name="(study)"
         listeners={{
           tabPress: onMeSecretTap,
         }}
-        name="(me)"
       >
         {avatar ? (
           <NativeTabs.Trigger.Icon renderingMode="original" src={avatar} />
@@ -128,7 +131,7 @@ function NativeTabsLayout() {
             }}
           />
         )}
-        <NativeTabs.Trigger.Label hidden>{t('me')}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Label hidden>{studyLabel}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   )
@@ -136,9 +139,11 @@ function NativeTabsLayout() {
 
 function PaperTabsLayout() {
   const t = useTranslations('tabs')
+  const tStudy = useTranslations('study')
   const router = useRouter()
-  const session = useSession()
-  const avatar = tabAvatar(session?.image)
+  const owner = useOwner()
+  const avatar = tabAvatar(owner?.avatarUrl)
+  const studyLabel = tabAccessibilityLabel(owner, tStudy('tabFallback'))
   const onMeSecretTap = useMeSecretTap()
 
   return (
@@ -146,6 +151,11 @@ function PaperTabsLayout() {
       <Tabs
         backBehavior="history"
         initialRouteName="(posts)"
+        screenOptions={{
+          animation: 'none',
+          headerShown: false,
+          tabBarHideOnKeyboard: true,
+        }}
         tabBar={(props) => (
           <PaperTabBar
             {...props}
@@ -153,11 +163,6 @@ function PaperTabsLayout() {
             onMeLongPress={() => openDevTools(router)}
           />
         )}
-        screenOptions={{
-          animation: 'none',
-          headerShown: false,
-          tabBarHideOnKeyboard: true,
-        }}
       >
         <Tabs.Screen
           name="(posts)"
@@ -181,13 +186,13 @@ function PaperTabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="(me)"
+          name="(study)"
           listeners={{
             tabPress: onMeSecretTap,
           }}
           options={{
-            tabBarAccessibilityLabel: t('me'),
-            title: t('me'),
+            tabBarAccessibilityLabel: studyLabel,
+            title: studyLabel,
           }}
         />
       </Tabs>

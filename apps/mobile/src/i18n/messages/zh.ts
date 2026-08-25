@@ -188,6 +188,11 @@ export const zh = {
     componentGallery: '组件目录',
     componentGalleryHint: '基础组件与状态样张，真机调校用',
   },
+  study: {
+    me: '我',
+    account: '账号',
+    tabFallback: '余白',
+  },
   membership: {
     divider: '以下为会员专享',
     lockedTitle: '会员专享内容',

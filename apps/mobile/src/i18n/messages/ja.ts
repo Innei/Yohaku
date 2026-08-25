@@ -192,6 +192,11 @@ export const ja = {
     componentGallery: 'コンポーネント一覧',
     componentGalleryHint: '基本コンポーネントと状態見本、実機調整用',
   },
+  study: {
+    me: '自分',
+    account: 'アカウント',
+    tabFallback: '余白',
+  },
   membership: {
     divider: 'ここから会員限定',
     lockedTitle: '会員限定コンテンツ',

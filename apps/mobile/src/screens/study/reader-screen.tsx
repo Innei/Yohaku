@@ -5,7 +5,6 @@ import Constants from 'expo-constants'
 import { Link, useFocusEffect, useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import * as Updates from 'expo-updates'
-import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useState } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
 
@@ -14,33 +13,24 @@ import type { SessionUser } from '@/auth/session-store'
 import { useSession } from '@/auth/session-store'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import type { GroupedListRow } from '@/components/ui'
-import {
-  AppText,
-  Button,
-  GroupedList,
-  SinkPressable,
-} from '@/components/ui'
+import { AppText, Button, GroupedList, SinkPressable } from '@/components/ui'
 import { showToast } from '@/components/ui/toast-store'
 import { db } from '@/db'
 import { likedRefs, readingHistory } from '@/db/schema'
 import { localeNames, useLocale, useTranslations } from '@/i18n'
 import { likedActivityCount } from '@/interactions/liked-count'
 import { clearImageCache, imageCacheBytes } from '@/lib/image-cache'
-import { getPrivacyUrl } from '@/lib/site-url'
-import { useOwner } from '@/owner/store'
 import { loadPushConfig } from '@/push/config'
 import { NotificationSettings } from '@/push/notification-settings'
 import type { Palette } from '@/theme/palette'
 import { usePalette } from '@/theme/palette'
 
-import { ActivityStats } from './activity-stats'
-import { showDeleteAccount, showMyComments } from './activity-visibility'
-import { commentTotalFromPage } from './comment-total'
-import { DeskLine } from './desk-line'
-import { MeAmbienceGrain, MeAmbienceWash } from './me-ambience'
-import { MembershipBanner } from './membership-banner'
-import { hasProviderIcon, ProviderIcon } from './provider-icon'
-import { useMyCommentsQuery } from './use-my-comments'
+import { ActivityStats } from '../me/activity-stats'
+import { showDeleteAccount, showMyComments } from '../me/activity-visibility'
+import { commentTotalFromPage } from '../me/comment-total'
+import { hasProviderIcon, ProviderIcon } from '../me/provider-icon'
+import { useMyCommentsQuery } from '../me/use-my-comments'
+import { showReaderHero } from './guest-card'
 
 function formatStorageBytes(bytes: number): string {
   if (bytes < 1024) return `${Math.max(0, Math.round(bytes))} B`
@@ -133,20 +123,9 @@ function ProfileHero() {
     <View style={styles.hero}>
       <Avatar palette={palette} session={session} />
       <View style={styles.heroText}>
-        <View style={styles.nameRow}>
-          <AppText variant="entryTitleSans">
-            {session ? (session.name ?? t('anonymous')) : t('signedOut')}
-          </AppText>
-          {session?.role === 'owner' ? (
-            <View
-              style={[styles.stamp, { backgroundColor: `${palette.accent}2E` }]}
-            >
-              <AppText color={palette.accent} variant="eyebrow">
-                {t('owner')}
-              </AppText>
-            </View>
-          ) : null}
-        </View>
+        <AppText variant="entryTitleSans">
+          {session ? (session.name ?? t('anonymous')) : t('signedOut')}
+        </AppText>
         {session ? (
           <IdentityLine session={session} />
         ) : (
@@ -171,7 +150,7 @@ function Section({ label, rows }: { label: string; rows: GroupedListRow[] }) {
   return (
     <View style={styles.section}>
       <AppText
-        color={palette.neutral[5]}
+        color={palette.neutral[6]}
         style={styles.sectionLabel}
         variant="eyebrow"
       >
@@ -182,14 +161,14 @@ function Section({ label, rows }: { label: string; rows: GroupedListRow[] }) {
   )
 }
 
-export function MeScreen() {
+export function ReaderScreen() {
   const t = useTranslations('me')
+  const ts = useTranslations('study')
   const ta = useTranslations('auth')
   const tc = useTranslations('common')
   const palette = usePalette()
   const router = useRouter()
   const locale = useLocale()
-  const owner = useOwner()
   const session = useSession()
   const version = Constants.expoConfig?.version ?? '—'
   const versionLabel = Updates.isEmbeddedLaunch
@@ -223,7 +202,6 @@ export function MeScreen() {
   )
 
   const pushConfigured = loadPushConfig().configured
-  const privacyUrl = getPrivacyUrl()
   const generalRows: GroupedListRow[] = [
     {
       id: 'language',
@@ -232,27 +210,6 @@ export function MeScreen() {
       chevron: true,
       onPress: () => router.push('/locale'),
     },
-    ...(owner?.webUrl
-      ? [
-          {
-            id: 'blog',
-            label: t('blog'),
-            value: owner.siteHost,
-            chevron: true,
-            onPress: () => void WebBrowser.openBrowserAsync(owner.webUrl),
-          } satisfies GroupedListRow,
-        ]
-      : []),
-    ...(privacyUrl
-      ? [
-          {
-            id: 'privacy',
-            label: t('privacy'),
-            chevron: true,
-            onPress: () => void WebBrowser.openBrowserAsync(privacyUrl),
-          } satisfies GroupedListRow,
-        ]
-      : []),
     {
       id: 'storage',
       label: t('storage'),
@@ -322,13 +279,15 @@ export function MeScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
-      <MeAmbienceWash />
       <EdgeEffectScrollView
         contentContainerStyle={styles.content}
         style={styles.scroll}
       >
-        <ProfileHero />
-        <MembershipBanner />
+        {showReaderHero(session) ? (
+          <ProfileHero />
+        ) : (
+          <AppText variant="largeTitleSans">{ts('account')}</AppText>
+        )}
         <ActivityStats
           commentsCount={commentsCount ?? 0}
           likedCount={likedCount}
@@ -340,7 +299,6 @@ export function MeScreen() {
         {accountRows.length > 0 ? (
           <Section label={t('sectionAccount')} rows={accountRows} />
         ) : null}
-        <DeskLine />
         {__DEV__ ? (
           <Link asChild href="/dev-demos">
             <SinkPressable style={styles.dev}>
@@ -352,7 +310,6 @@ export function MeScreen() {
           </Link>
         ) : null}
       </EdgeEffectScrollView>
-      <MeAmbienceGrain />
     </View>
   )
 }
@@ -389,11 +346,6 @@ const styles = StyleSheet.create({
     gap: 6,
     maxWidth: '100%',
   },
-  nameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
   avatarRing: {
     width: 74,
     height: 74,
@@ -413,12 +365,6 @@ const styles = StyleSheet.create({
   realAvatarSlot: {
     width: 100,
     height: 100,
-  },
-  stamp: {
-    borderRadius: 4,
-    borderCurve: 'continuous',
-    paddingHorizontal: 6,
-    paddingVertical: 3,
   },
   section: {
     gap: 8,

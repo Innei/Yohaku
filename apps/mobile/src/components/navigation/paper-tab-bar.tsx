@@ -59,7 +59,7 @@ function TabIcon({
   const palette = usePalette()
   const tintColor = focused ? palette.accent : palette.neutral[6]
 
-  if (routeName === '(me)') {
+  if (routeName === '(study)') {
     if (avatar) {
       return <Image source={avatar} style={styles.avatar} />
     }
@@ -179,12 +179,12 @@ export function PaperTabBar({
               key={route.key}
               style={[styles.tab, { width: slotWidth }]}
               testID={`paper-tab-${route.name.replaceAll(/[()]/g, '')}`}
+              onPress={onPress}
               onLongPress={
-                route.name === '(me)' && onMeLongPress
+                route.name === '(study)' && onMeLongPress
                   ? onMeLongPress
                   : undefined
               }
-              onPress={onPress}
             >
               <TabIcon
                 avatar={avatar}

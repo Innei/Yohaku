@@ -191,6 +191,11 @@ export const en = {
     componentGalleryHint:
       'Base components and state specimens, for on-device tuning',
   },
+  study: {
+    me: 'Me',
+    account: 'Account',
+    tabFallback: 'Yohaku',
+  },
   membership: {
     divider: 'Members only beyond this point',
     lockedTitle: 'Members-only content',

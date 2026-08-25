@@ -104,11 +104,35 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
       }
     }
   }
-  return (defaultResolveRequest ?? context.resolveRequest)(
-    context,
-    moduleName,
-    platform,
-  )
+
+  const resolve = defaultResolveRequest ?? context.resolveRequest
+  try {
+    return resolve(context, moduleName, platform)
+  } catch (error) {
+    // pnpm isolates undeclared peers (e.g. @better-auth/expo → react-native)
+    // inside .pnpm/<pkg>/node_modules. Metro realpaths there, walks up past
+    // the app, and never sees apps/mobile/node_modules. Retry as if the
+    // import came from the app.
+    if (
+      moduleName.startsWith('.') ||
+      moduleName.startsWith('/') ||
+      moduleName.startsWith('#')
+    ) {
+      throw error
+    }
+    try {
+      return resolve(
+        {
+          ...context,
+          originModulePath: path.join(projectRoot, 'package.json'),
+        },
+        moduleName,
+        platform,
+      )
+    } catch {
+      throw error
+    }
+  }
 }
 
 module.exports = config

@@ -188,6 +188,11 @@ export const zhTW = {
     componentGallery: '元件目錄',
     componentGalleryHint: '基礎元件與狀態樣張，實機調校用',
   },
+  study: {
+    me: '我',
+    account: '帳號',
+    tabFallback: '余白',
+  },
   membership: {
     divider: '以下為會員專享',
     lockedTitle: '會員專享內容',
