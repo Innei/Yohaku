@@ -1,3 +1,5 @@
+import { isRecord } from '@/lib/is-record'
+
 export interface OwnerSnapshot {
   avatarUrl: string | null
   name: string
@@ -51,10 +53,6 @@ export function snapshotFromAggregate(value: unknown): OwnerSnapshot | null {
     webUrl: webUrl || `https://${siteHost}`,
     avatarUrl: httpUrl(asText(user?.avatar) || asText(user?.image)),
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === 'object' && !Array.isArray(value)
 }
 
 function asText(value: unknown): string {

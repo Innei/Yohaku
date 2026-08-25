@@ -1,3 +1,5 @@
+import { isRecord } from '@/lib/is-record'
+
 import type { PushInstallationCredential } from './types'
 
 export const PUSH_INSTALLATION_STORAGE_KEY = 'yohaku.push-installation'
@@ -19,10 +21,6 @@ export type PushCredentialStore = {
     config: CredentialConfigMatch,
   ) => Promise<PushInstallationCredential | null>
   write: (credential: PushInstallationCredential) => Promise<void>
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
 function parseCredential(value: unknown): PushInstallationCredential | null {

@@ -1,3 +1,5 @@
+import { isRecord } from '@/lib/is-record'
+
 export interface ArticleSummaryMeta {
   createdAt: string | null
   source: 'ai' | 'author'
@@ -48,10 +50,6 @@ export interface ArticleNoticeMeta {
 }
 
 export type AiNoticeChip = 'summary' | 'insights' | 'skills'
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
 
 function asString(value: unknown): string | null {
   return typeof value === 'string' && value.length > 0 ? value : null

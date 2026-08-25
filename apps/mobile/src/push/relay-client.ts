@@ -1,3 +1,5 @@
+import { isRecord } from '@/lib/is-record'
+
 import type {
   PushPreferences,
   RegisterInstallationRequest,
@@ -83,10 +85,6 @@ function assertApnsToken(token: string): void {
       'APNs token must be lowercase hex of at least 64 characters',
     )
   }
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return !!value && typeof value === 'object' && !Array.isArray(value)
 }
 
 function stringField(value: unknown, min: number): string | null {
