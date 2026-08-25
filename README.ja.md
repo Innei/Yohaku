@@ -16,6 +16,8 @@ Yohaku は、個人の執筆のためのクロスプラットフォーム出版�
 
 完全な Web プロダクトは、初期のオープンソースフロントエンド [Shiro](https://github.com/Innei/Shiro) から発展し、いまはクローズドソースとして開発を続けています。このリポジトリでは iOS クライアントと Yohaku デザインシステムを公開しています。
 
+**ここにあるのは App Store で配信している Yohaku iOS アプリそのもののソース**で、MIT で公開しています。自分の mx-core を指定し、bundle id とアイコンを差し替えれば、自分の Apple Developer アカウントでビルドして、自分のアプリとして App Store に出せます。追加の許諾は要りません。
+
 > [!IMPORTANT]
 > 現在の Web バージョンは **mx-core v12 以上** が必要です。mx-core v11 以前と互換にする場合は [`721bb617`](https://github.com/Innei-dev/Yohaku/commit/721bb617db0dd1571751dbdf01cc6dfe74defedf) を使ってください。
 
@@ -24,8 +26,8 @@ Yohaku は、個人の執筆のためのクロスプラットフォーム出版�
 | 層 | 役割 | 公開状態 |
 | -- | ---- | -------- |
 | **Web** | レスポンシブな個人サイト、長文の読書、完全なコンテンツ体験 | [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku) でクローズドソースとして保守。公開インスタンスは [innei.in](https://innei.in) |
-| **iOS** | 単一サイト向けのネイティブ読書クライアント。iOS 18 以上 | 本リポジトリ [`apps/mobile/`](./apps/mobile/) |
-| **デザインシステム** | 色、書体、余白、モーション、テンプレート、AI Skill を束ねるデザイン契約 | [MIT オープンソース](./design-system) |
+| **iOS** | 単一サイト向けのネイティブ読書クライアント。iOS 18 以上 | 本リポジトリ [`apps/mobile/`](./apps/mobile/)。[MIT](./apps/mobile/LICENSE) で、自分でビルドして配信できます |
+| **デザインシステム** | 色、書体、余白、モーション、テンプレート、Claude Code / Cursor 向けの [AI Skill 契約](./design-system/SKILL.md) | [MIT オープンソース](./design-system) |
 | **コンテンツサービス** | コンテンツ、コメント、認証、リアルタイムデータ | [mx-core](https://github.com/mx-space/core) ベース、v12 以上 |
 
 ## 読書体験
@@ -37,6 +39,13 @@ Yohaku は、個人の執筆のためのクロスプラットフォーム出版�
 | **抑制された操作** | アクセントは一色、ニュートラルは三段階。軽いフィードバックでインターフェースのノイズを下げます。 |
 | **呼吸するモーション** | 内容は読書の進行とともに自然に展開します。初回訪問でリズムをつくり、再訪では余計な邪魔をしません。 |
 | **クロスプラットフォーム** | Web と iOS はコンテンツモデルとリッチテキストのセマンティクスを共有しつつ、ブラウザとネイティブ、それぞれの操作に従います。 |
+
+<div align="center">
+  <img src="./assets/preview-ios-home.png" width="23%" alt="Home" />
+  <img src="./assets/preview-ios-post.png" width="23%" alt="Post" />
+  <img src="./assets/preview-ios-notes.png" width="23%" alt="Notes" />
+  <img src="./assets/preview-ios-thinking.png" width="23%" alt="Thinking" />
+</div>
 
 ## リポジトリの境界
 
@@ -60,16 +69,38 @@ Yohaku
 | Node.js | 22 以上 |
 | pnpm | 11.20.0 |
 | mx-core | 12 以上 |
-| Xcode | 実機 / シミュレータで iOS をビルドするときに必要 |
+| Xcode | 実機 / シミュレータで iOS をビルドするときに必要（Xcode 16+ 推奨） |
+
+### 1. デザインシステムの Showcase とサンプル
 
 ```bash
 pnpm install
+pnpm dev             # デザインシステムの Showcase を起動 (http://localhost:5173)
+pnpm demo:pdf        # 長文、履歴書、ワンページレポートの PDF デモを生成
+pnpm check           # トークンの不整合とテンプレートのリントを検証
+```
+
+### 2. iOS クライアントを起動
+
+```bash
 # apps/mobile/src/site-config.ts の publicSite を編集
 pnpm --filter @yohaku/mobile start
 pnpm --filter @yohaku/mobile ios   # macOS + Xcode
 ```
 
-API の初期値は空、bundle id は `dev.yohaku.app`。生成された `ios/` はコミットしないでください。詳細は [`apps/mobile/README.en.md`](./apps/mobile/README.en.md)。
+API の初期値は空、bundle id は `dev.yohaku.app`。生成された `ios/` はコミットしないでください。詳細は [`apps/mobile/README.ja.md`](./apps/mobile/README.ja.md)。
+
+## 自分で App Store に出す
+
+`apps/mobile/` は MIT なので、自分の Apple Developer アカウントで自分のアプリとして App Store に出せます。追加の許諾は不要です。変更するところ：
+
+1. `apps/mobile/src/site-config.ts`：`apiUrl` と `siteUrl` を自分の mx-core とサイトに向ける。
+2. bundle id と scheme：`src/site-config.ts` の `bundleId` / `scheme` と、`app.config.ts` 冒頭の `PUBLIC_BUNDLE_ID` / `PUBLIC_SCHEME` を揃える。アプリ名は `app.config.ts` の `name`。
+3. アイコン：`assets/images/icon.png` と `assets/expo.icon`。
+4. Developer ポータルでその App ID の Push Notifications を有効にする。entitlements に `aps-environment` があるため、揃っていないと署名に失敗します。
+5. `pnpm --filter @yohaku/mobile ios` で `ios/` を生成し、その中の `.xcworkspace` を Xcode で開いて Archive → Distribute App。
+
+プッシュ自体には自前の APNs 中継サービスが別途必要で、これはこのリポジトリには含まれません。設定しなくても他の機能には影響しません。
 
 ## アクセスを申請する
 
