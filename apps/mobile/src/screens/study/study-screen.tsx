@@ -1,6 +1,7 @@
 import { SettingsAvatar } from '@modules/yohaku'
 import { useQuery } from '@tanstack/react-query'
 import { Image } from 'expo-image'
+import * as Linking from 'expo-linking'
 import { useFocusEffect, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useState } from 'react'
@@ -15,7 +16,7 @@ import { AppText, GroupedList, SinkPressable, SlotText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
 import { getPrivacyUrl } from '@/lib/site-url'
 import { displaySite } from '@/owner/snapshot'
-import { socialLinks } from '@/owner/social-links'
+import { openSocialLink, socialLinks } from '@/owner/social-links'
 import { useOwner } from '@/owner/store'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
@@ -122,7 +123,7 @@ function SocialRow() {
           accessibilityRole="link"
           key={link.type}
           style={styles.social}
-          onPress={() => void WebBrowser.openBrowserAsync(link.href)}
+          onPress={() => void openSocialLink(link, Linking)}
         >
           <Image
             contentFit="contain"

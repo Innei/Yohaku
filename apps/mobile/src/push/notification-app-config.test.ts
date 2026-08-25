@@ -65,6 +65,25 @@ describe('mobile notification native config', () => {
     )
   })
 
+  it('declares social and music schemes so canOpenURL can see installed apps', () => {
+    const config = loadConfig('development')
+    expect(config.ios?.infoPlist?.LSApplicationQueriesSchemes).toEqual(
+      expect.arrayContaining([
+        'orpheus',
+        'qqmusic',
+        'github',
+        'twitter',
+        'tg',
+        'bilibili',
+        'mqqwpa',
+        'sinaweibo',
+        'steam',
+        'bluesky',
+        'discord',
+      ]),
+    )
+  })
+
   it('does not request Face ID or link expo-secure-store', () => {
     const config = loadConfig('production')
     expect(config.ios?.infoPlist).not.toHaveProperty('NSFaceIDUsageDescription')
