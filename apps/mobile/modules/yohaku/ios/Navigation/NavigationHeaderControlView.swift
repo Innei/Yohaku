@@ -2,6 +2,7 @@ import ExpoModulesCore
 import UIKit
 
 struct NavigationHeaderMenuItemSpec: Record {
+  @Field var category: String = ""
   @Field var hidden: Bool = false
   @Field var icon: String?
   @Field var id: String = ""
@@ -13,18 +14,36 @@ func makeYohakuMenu(
   items: [NavigationHeaderMenuItemSpec],
   onSelect: @escaping (String) -> Void
 ) -> UIMenu {
-  let actions = items
-    .filter { !$0.hidden && !$0.id.isEmpty && !$0.title.isEmpty }
-    .map { item in
-      UIAction(
-        title: item.title,
-        image: item.icon.flatMap { UIImage(systemName: $0) },
-        state: item.on ? .on : .off
-      ) { _ in
-        onSelect(item.id)
-      }
+  let visible = items.filter { !$0.hidden && !$0.id.isEmpty && !$0.title.isEmpty }
+
+  func action(for item: NavigationHeaderMenuItemSpec) -> UIAction {
+    UIAction(
+      title: item.title,
+      image: item.icon.flatMap { UIImage(systemName: $0) },
+      state: item.on ? .on : .off
+    ) { _ in
+      onSelect(item.id)
     }
-  return UIMenu(children: actions)
+  }
+
+  var groups: [[NavigationHeaderMenuItemSpec]] = []
+  for item in visible {
+    if let last = groups.last, last.first?.category == item.category {
+      groups[groups.count - 1].append(item)
+    } else {
+      groups.append([item])
+    }
+  }
+
+  if groups.count <= 1 {
+    return UIMenu(children: visible.map(action))
+  }
+
+  return UIMenu(
+    children: groups.map { group in
+      UIMenu(title: "", options: .displayInline, children: group.map(action))
+    }
+  )
 }
 
 /// A solid Paper control used by the legacy navigation header.

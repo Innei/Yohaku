@@ -161,6 +161,7 @@ export const SettingsAvatar: ComponentType<SettingsAvatarProps> =
   requireNativeViewManager('Yohaku', 'SettingsAvatar')
 
 export type NavigationHeaderMenuItem = {
+  category?: string
   hidden?: boolean
   icon?: string
   id: string

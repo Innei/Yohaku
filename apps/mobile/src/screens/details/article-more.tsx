@@ -8,6 +8,8 @@ import { useTranslations } from '@/i18n'
 import { copyUrl } from '@/lib/copy-url'
 import { shareUrl } from '@/lib/share'
 
+import { groupMenuItemsByCategory } from './article-more-menu'
+
 export function ArticleMore({
   listenAvailable = false,
   listening = false,
@@ -35,35 +37,41 @@ export function ArticleMore({
   const paperMenuItems = useMemo(
     () => [
       {
+        category: 'article',
         hidden: !listenAvailable || listening || !onListen,
-        icon: 'headphones',
+        icon: 'headphones' as const,
         id: 'listen',
         title: tts('narrate'),
       },
       {
+        category: 'article',
         hidden: !onPrompt || !promptLabel,
-        icon: 'wand.and.stars',
+        icon: 'wand.and.stars' as const,
         id: 'prompt',
         title: promptLabel ?? '',
       },
       {
+        category: 'article',
         hidden: !tocAvailable || !onToc,
-        icon: 'list.bullet',
+        icon: 'list.bullet' as const,
         id: 'toc',
         title: t('toc'),
       },
       {
-        icon: 'square.and.arrow.up',
+        category: 'share',
+        icon: 'square.and.arrow.up' as const,
         id: 'share',
         title: t('share'),
       },
       {
-        icon: 'link',
+        category: 'share',
+        icon: 'link' as const,
         id: 'copy-link',
         title: t('copyLink'),
       },
       {
-        icon: 'safari',
+        category: 'share',
+        icon: 'safari' as const,
         id: 'open-in-browser',
         title: t('openInBrowser'),
       },
@@ -79,6 +87,10 @@ export function ArticleMore({
       tocAvailable,
       tts,
     ],
+  )
+  const menuGroups = useMemo(
+    () => groupMenuItemsByCategory(paperMenuItems),
+    [paperMenuItems],
   )
   const handlePaperMenuAction = useCallback(
     (id: string) => {
@@ -141,42 +153,22 @@ export function ArticleMore({
   return (
     <Stack.Toolbar placement="right">
       <Stack.Toolbar.Menu accessibilityLabel={t('more')} icon="ellipsis">
-        <Stack.Toolbar.MenuAction
-          hidden={!listenAvailable || listening || !onListen}
-          icon="headphones"
-          onPress={onListen}
-        >
-          {tts('narrate')}
-        </Stack.Toolbar.MenuAction>
-        <Stack.Toolbar.MenuAction
-          hidden={!onPrompt || !promptLabel}
-          icon="wand.and.stars"
-          onPress={onPrompt}
-        >
-          {promptLabel ?? ''}
-        </Stack.Toolbar.MenuAction>
-        <Stack.Toolbar.MenuAction
-          hidden={!tocAvailable || !onToc}
-          icon="list.bullet"
-          onPress={onToc}
-        >
-          {t('toc')}
-        </Stack.Toolbar.MenuAction>
-        <Stack.Toolbar.MenuAction
-          icon="square.and.arrow.up"
-          onPress={() => void shareUrl(url, title)}
-        >
-          {t('share')}
-        </Stack.Toolbar.MenuAction>
-        <Stack.Toolbar.MenuAction icon="link" onPress={() => void copyUrl(url)}>
-          {t('copyLink')}
-        </Stack.Toolbar.MenuAction>
-        <Stack.Toolbar.MenuAction
-          icon="safari"
-          onPress={() => void WebBrowser.openBrowserAsync(url)}
-        >
-          {t('openInBrowser')}
-        </Stack.Toolbar.MenuAction>
+        {menuGroups.map((group) => (
+          <Stack.Toolbar.Menu
+            key={group[0]?.category ?? group[0]?.id}
+            inline
+          >
+            {group.map((item) => (
+              <Stack.Toolbar.MenuAction
+                key={item.id}
+                icon={item.icon}
+                onPress={() => handlePaperMenuAction(item.id)}
+              >
+                {item.title}
+              </Stack.Toolbar.MenuAction>
+            ))}
+          </Stack.Toolbar.Menu>
+        ))}
       </Stack.Toolbar.Menu>
     </Stack.Toolbar>
   )
