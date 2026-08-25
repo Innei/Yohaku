@@ -1,3 +1,4 @@
+import { SettingsAvatar } from '@modules/yohaku'
 import { useFocusEffect } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { useCallback } from 'react'
@@ -7,7 +8,7 @@ import { refreshSession } from '@/auth/session'
 import { useSession } from '@/auth/session-store'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import type { GroupedListRow } from '@/components/ui'
-import { AppText, GroupedList, RemoteImage } from '@/components/ui'
+import { AppText, GroupedList } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import { getPrivacyUrl } from '@/lib/site-url'
 import { displaySite } from '@/owner/snapshot'
@@ -26,10 +27,11 @@ function OwnerHero() {
   return (
     <View style={styles.hero}>
       {owner?.avatarUrl ? (
-        <RemoteImage
-          contentFit="cover"
+        <SettingsAvatar
+          collapseDistance={120}
+          imageUri={owner.avatarUrl}
+          ringColor={palette.neutral[4]}
           style={styles.avatar}
-          uri={owner.avatarUrl}
         />
       ) : (
         <View style={[styles.avatar, { backgroundColor: palette.neutral[10] }]} />
@@ -121,10 +123,8 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   avatar: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    overflow: 'hidden',
+    width: 100,
+    height: 100,
   },
   host: {
     textTransform: 'uppercase',
