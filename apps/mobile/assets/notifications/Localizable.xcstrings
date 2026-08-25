@@ -1,36 +1,6 @@
 {
   "sourceLanguage": "en",
   "strings": {
-    "PUSH_CONTENT_NOTE_SUBTITLE": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "New note" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "新しい手記" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "새 수기" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "新手记" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "新手記" } }
-      }
-    },
-    "PUSH_CONTENT_POST_SUBTITLE": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "New post" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "新しい記事" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "새 글" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "新文章" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "新文章" } }
-      }
-    },
-    "PUSH_CONTENT_RECENTLY_SUBTITLE": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "New thinking" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "新しい思考" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "새로운 생각" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "新思考" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "新思考" } }
-      }
-    },
     "PUSH_CONTENT_SUMMARY": {
       "extractionState": "manual",
       "localizations": {
@@ -69,6 +39,136 @@
         "ko": { "stringUnit": { "state": "translated", "value": "%@님이 답글을 남겼습니다" } },
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 回复了你" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 回覆了你" } }
+      }
+    },
+    "PUSH_THINKING_WATCHED": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@ watched “%@”" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@さんが「%@」を観た" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@님이 “%@”을(를) 봤어요" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 观看了「%@」" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 觀看了「%@」" } }
+      }
+    },
+    "PUSH_THINKING_READ": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@ read “%@”" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@さんが「%@」を読んだ" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@님이 “%@”을(를) 읽었어요" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 读了「%@」" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 讀了「%@」" } }
+      }
+    },
+    "PUSH_THINKING_LISTENED": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@ listened to “%@”" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@さんが「%@」を聴いた" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@님이 “%@”을(를) 들었어요" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 听了「%@」" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 聽了「%@」" } }
+      }
+    },
+    "PUSH_THINKING_STUDIED": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@ studied “%@”" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@さんが「%@」を読んだ" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@님이 “%@”을(를) 읽었어요" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 读了「%@」" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 讀了「%@」" } }
+      }
+    },
+    "PUSH_THINKING_LINKED": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@ linked to “%@”" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@さんが「%@」にリンク" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@님이 “%@”에 링크" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 链接到「%@」" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 連結到「%@」" } }
+      }
+    },
+    "PUSH_THINKING_PLAIN": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@：%@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@：%@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@：%@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@：%@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@：%@" } }
+      }
+    },
+    "PUSH_THINKING_FACT_CREATOR": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@ · %@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@ · %@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@ · %@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ · %@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ · %@" } }
+      }
+    },
+    "PUSH_THINKING_FACT_CREATOR_ONLY": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@" } }
+      }
+    },
+    "PUSH_THINKING_FACT_TV": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Series · %@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ドラマ · %@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "시리즈 · %@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "剧集 · %@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "劇集 · %@" } }
+      }
+    },
+    "PUSH_THINKING_FACT_MOVIE": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Movie · %@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "映画 · %@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "영화 · %@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "电影 · %@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "電影 · %@" } }
+      }
+    },
+    "PUSH_THINKING_FACT_BOOK": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Book · %@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "書籍 · %@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "책 · %@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "图书 · %@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "圖書 · %@" } }
+      }
+    },
+    "PUSH_THINKING_FACT_ALBUM": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Album · %@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "アルバム · %@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "앨범 · %@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "专辑 · %@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "專輯 · %@" } }
+      }
+    },
+    "PUSH_THINKING_FACT_SONG": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Song · %@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "曲 · %@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "곡 · %@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "单曲 · %@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "單曲 · %@" } }
       }
     }
   },

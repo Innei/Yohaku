@@ -18,16 +18,34 @@ describe('notification localization catalog', () => {
     }
     const keys = [
       'PUSH_CONTENT_TITLE',
-      'PUSH_CONTENT_POST_SUBTITLE',
-      'PUSH_CONTENT_NOTE_SUBTITLE',
-      'PUSH_CONTENT_RECENTLY_SUBTITLE',
       'PUSH_CONTENT_SUMMARY',
       'PUSH_REPLY_TITLE',
       'PUSH_REPLY_BODY',
+      'PUSH_THINKING_WATCHED',
+      'PUSH_THINKING_READ',
+      'PUSH_THINKING_LISTENED',
+      'PUSH_THINKING_STUDIED',
+      'PUSH_THINKING_LINKED',
+      'PUSH_THINKING_PLAIN',
+      'PUSH_THINKING_FACT_CREATOR',
+      'PUSH_THINKING_FACT_CREATOR_ONLY',
+      'PUSH_THINKING_FACT_TV',
+      'PUSH_THINKING_FACT_MOVIE',
+      'PUSH_THINKING_FACT_BOOK',
+      'PUSH_THINKING_FACT_ALBUM',
+      'PUSH_THINKING_FACT_SONG',
+    ]
+    const removed = [
+      'PUSH_CONTENT_POST_SUBTITLE',
+      'PUSH_CONTENT_NOTE_SUBTITLE',
+      'PUSH_CONTENT_RECENTLY_SUBTITLE',
     ]
     const locales = ['en', 'ja', 'ko', 'zh-Hans', 'zh-Hant']
 
     expect(Object.keys(catalog.strings).sort()).toEqual(keys.sort())
+    for (const key of removed) {
+      expect(catalog.strings[key]).toBeUndefined()
+    }
     for (const key of keys) {
       for (const locale of locales) {
         expect(
