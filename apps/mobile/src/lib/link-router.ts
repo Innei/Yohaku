@@ -15,6 +15,31 @@ const NOTE_SEO_PATH = /^\/notes\/(\d{4})\/(\d{1,2})\/(\d{1,2})\/([^/]+)\/?$/
 const SERIES_INDEX_PATH = /^\/notes\/series\/?$/
 const SERIES_DETAIL_PATH = /^\/notes\/series\/([^/]+)\/?$/
 const SCHEME = /^[a-z][\d+.a-z-]*:/i
+const PAGE_PATH = /^\/([^/]+)\/?$/
+// Web serves standalone pages from the site root, so a single segment is only
+// a page when it is not one of the site's own top-level routes.
+const RESERVED_ROOT_SEGMENTS = new Set([
+  'api',
+  'auth',
+  'categories',
+  'common',
+  'dev',
+  'feed',
+  'friends',
+  'login',
+  'notes',
+  'og',
+  'posts',
+  'preview',
+  'privacy',
+  'projects',
+  'says',
+  'search',
+  'sitemap',
+  'skills',
+  'thinking',
+  'timeline',
+])
 
 function decodeParam(value: string): string {
   try {
@@ -52,7 +77,9 @@ function sitePathname(pathname: string): string {
   return pathname
 }
 
-function hrefForSitePath(pathname: string): Href | null {
+// `allowPage` is only ever true for links proven to point at the site host:
+// a bare `/x` could just as well be one of the app's own routes.
+function hrefForSitePath(pathname: string, allowPage = false): Href | null {
   const path = sitePathname(pathname)
   const tag = path.match(TAG_PATH)
   if (tag) {
@@ -111,6 +138,10 @@ function hrefForSitePath(pathname: string): Href | null {
       },
     }
   }
+  const page = allowPage ? path.match(PAGE_PATH) : null
+  if (page && !RESERVED_ROOT_SEGMENTS.has(page[1])) {
+    return { pathname: '/pages/[slug]', params: { slug: decodeParam(page[1]) } }
+  }
   return null
 }
 
@@ -145,7 +176,7 @@ export function hrefForExternalUrl(url: string): Href | null {
     return null
   }
   if (!getSiteHosts().includes(parsed.hostname)) return null
-  return hrefForSitePath(parsed.pathname)
+  return hrefForSitePath(parsed.pathname, true)
 }
 
 export function pathForExternalUrl(url: string): string | null {

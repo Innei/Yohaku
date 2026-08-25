@@ -4,6 +4,7 @@ export interface OwnerSnapshot {
   avatarUrl: string | null
   name: string
   siteHost: string
+  socialIds?: Record<string, string> | null
   webUrl: string
 }
 
@@ -35,6 +36,7 @@ export function parseSnapshot(value: unknown): OwnerSnapshot | null {
     siteHost,
     webUrl,
     avatarUrl: httpUrl(asText(value.avatarUrl)),
+    socialIds: asSocialIds(value.socialIds),
   }
 }
 
@@ -52,7 +54,17 @@ export function snapshotFromAggregate(value: unknown): OwnerSnapshot | null {
     siteHost,
     webUrl: webUrl || `https://${siteHost}`,
     avatarUrl: httpUrl(asText(user?.avatar) || asText(user?.image)),
+    socialIds: asSocialIds(user?.socialIds),
   }
+}
+
+function asSocialIds(value: unknown): Record<string, string> | null {
+  if (!isRecord(value)) return null
+  const entries = Object.entries(value).flatMap(([key, raw]) => {
+    const id = asText(raw)
+    return id ? [[key, id] as const] : []
+  })
+  return entries.length > 0 ? Object.fromEntries(entries) : null
 }
 
 function asText(value: unknown): string {

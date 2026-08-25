@@ -89,6 +89,7 @@ export function MarkdownBody({
         rowOddBackgroundColor: 'transparent',
         cellPaddingHorizontal: 10,
         cellPaddingVertical: 6,
+        horizontalOverflow: 20,
       },
       code: {
         fontFamily: fonts.mono.fontFamily,

@@ -15,6 +15,20 @@ describe('hrefForExternalUrl', () => {
     resetSiteRuntime()
   })
 
+  it('maps standalone page URLs but leaves site routes alone', () => {
+    expect(hrefForExternalUrl('https://example.com/about')).toEqual({
+      pathname: '/pages/[slug]',
+      params: { slug: 'about' },
+    })
+    expect(hrefForExternalUrl('https://example.com/zh/about/')).toEqual({
+      pathname: '/pages/[slug]',
+      params: { slug: 'about' },
+    })
+    expect(hrefForExternalUrl('https://example.com/friends')).toBeNull()
+    expect(hrefForExternalUrl('https://example.com/timeline')).toBeNull()
+    expect(hrefForExternalUrl('https://example.com/')).toBeNull()
+  })
+
   it('maps unprefixed post and note URLs', () => {
     expect(
       hrefForExternalUrl('https://example.com/posts/coding/hello'),

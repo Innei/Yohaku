@@ -28,6 +28,20 @@ export interface ApiPost {
   title: string
 }
 
+export interface ApiPage {
+  content: string | null
+  contentFormat: 'markdown' | 'lexical' | null
+  createdAt: string
+  id: string
+  meta?: { aiGen?: unknown } | null
+  modifiedAt: string | null
+  order: number
+  slug: string
+  subtitle: string | null
+  text: string | null
+  title: string
+}
+
 export interface ApiTagSum {
   count: number
   name: string
@@ -101,7 +115,7 @@ export interface ApiThinking {
   up: number
 }
 
-export type CommentRefType = 'post' | 'note' | 'recently'
+export type CommentRefType = 'post' | 'note' | 'recently' | 'page'
 
 export interface ApiMyCommentSource {
   categorySlug?: string | null
@@ -206,6 +220,13 @@ export interface ApiAggregate {
     name?: string | null
     url?: string | null
   } | null
+}
+
+export interface ApiSiteInfo {
+  firstPublishDate: string | null
+  noteCount: number
+  postCount: number
+  totalWordCount: number
 }
 
 export interface ApiSessionUser {

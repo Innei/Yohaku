@@ -38,26 +38,29 @@ export function DeskCard() {
   const palette = usePalette()
   const snapshot = useDeskSnapshot()
 
-  if (!snapshot.visible || !owner) return null
-  const media = snapshot.media
-  const application = snapshot.application
+  const media = snapshot.visible ? snapshot.media : null
+  const application = snapshot.visible ? snapshot.application : null
   const title = media
     ? (media.title ?? media.artist ?? media.playerDisplayName ?? '')
     : (application?.displayName ?? '')
-  if (!title) return null
+  // The card holds its slot even with nothing on the desk: collapsing it would
+  // shove the whole study around every time the owner starts or stops something.
+  if (!owner || !title) return <EmptyDesk />
 
   const iconUrl = media?.artworkUrl ?? application?.iconUrl ?? null
-  const byline = media
-    ? buildMediaByline(media)
-    : (application?.detail ?? null)
+  const alsoUsing =
+    media && application ? t('alsoUsing', { app: application.displayName }) : null
+  const mediaByline = media ? buildMediaByline(media) : null
+  const byline =
+    [media ? mediaByline : application?.detail, alsoUsing]
+      .filter(Boolean)
+      .join(' · ') || null
   const stateText = media
     ? t(media.playbackState === 'playing' ? 'playing' : 'paused')
     : t('using')
   const kicker = media?.playerDisplayName
     ? `${media.playerDisplayName} · ${stateText}`
     : stateText
-  const alsoUsing =
-    media && application ? t('alsoUsing', { app: application.displayName }) : null
   const playback = media?.playbackUrl
     ? musicPlaybackTarget(media.playbackUrl)
     : null
@@ -100,11 +103,6 @@ export function DeskCard() {
               {byline}
             </AppText>
           ) : null}
-          {alsoUsing ? (
-            <AppText numberOfLines={1} variant="meta">
-              {alsoUsing}
-            </AppText>
-          ) : null}
         </View>
       </View>
       {media ? <MediaProgress media={media} palette={palette} /> : null}
@@ -121,6 +119,30 @@ export function DeskCard() {
     >
       {card}
     </SinkPressable>
+  )
+}
+
+function EmptyDesk() {
+  const t = useTranslations('desk')
+  const palette = usePalette()
+
+  return (
+    <GroupedCard style={styles.card}>
+      <View style={styles.row}>
+        <View style={[styles.cover, { backgroundColor: palette.neutral[3] }]}>
+          <SymbolView
+            name="cup.and.saucer"
+            size={18}
+            tintColor={palette.neutral[6]}
+          />
+        </View>
+        <View style={styles.copy}>
+          <AppText color={palette.neutral[6]} variant="secondary">
+            {t('quiet')}
+          </AppText>
+        </View>
+      </View>
+    </GroupedCard>
   )
 }
 
@@ -201,9 +223,16 @@ function formatDuration(ms: number): string {
   return `${minutes}:${String(seconds).padStart(2, '0')}`
 }
 
+// Every desk state renders at this height, so the study never reflows when the
+// owner starts, switches, or stops something. Sized to the tallest variant:
+// kicker + title + byline (72) plus the media progress row (12 + 16).
+const CARD_MIN_HEIGHT = 128
+
 const styles = StyleSheet.create({
   card: {
     gap: 12,
+    justifyContent: 'center',
+    minHeight: CARD_MIN_HEIGHT,
     paddingHorizontal: 14,
     paddingVertical: 14,
   },

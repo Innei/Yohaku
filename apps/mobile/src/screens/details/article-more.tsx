@@ -12,12 +12,20 @@ export function ArticleMore({
   listenAvailable = false,
   listening = false,
   onListen,
+  onPrompt,
+  onToc,
+  promptLabel,
+  tocAvailable = false,
   title,
   url,
 }: {
   listenAvailable?: boolean
   listening?: boolean
   onListen?: () => void
+  onPrompt?: () => void
+  onToc?: () => void
+  promptLabel?: string
+  tocAvailable?: boolean
   title?: string
   url: string
 }) {
@@ -31,6 +39,18 @@ export function ArticleMore({
         icon: 'headphones',
         id: 'listen',
         title: tts('narrate'),
+      },
+      {
+        hidden: !onPrompt || !promptLabel,
+        icon: 'wand.and.stars',
+        id: 'prompt',
+        title: promptLabel ?? '',
+      },
+      {
+        hidden: !tocAvailable || !onToc,
+        icon: 'list.bullet',
+        id: 'toc',
+        title: t('toc'),
       },
       {
         icon: 'square.and.arrow.up',
@@ -48,13 +68,31 @@ export function ArticleMore({
         title: t('openInBrowser'),
       },
     ],
-    [listenAvailable, listening, onListen, t, tts],
+    [
+      listenAvailable,
+      listening,
+      onListen,
+      onPrompt,
+      onToc,
+      promptLabel,
+      t,
+      tocAvailable,
+      tts,
+    ],
   )
   const handlePaperMenuAction = useCallback(
     (id: string) => {
       switch (id) {
         case 'listen': {
           onListen?.()
+          break
+        }
+        case 'prompt': {
+          onPrompt?.()
+          break
+        }
+        case 'toc': {
+          onToc?.()
           break
         }
         case 'share': {
@@ -71,7 +109,7 @@ export function ArticleMore({
         }
       }
     },
-    [onListen, title, url],
+    [onListen, onPrompt, onToc, title, url],
   )
 
   if (usesPaperNavigationControls) {
@@ -109,6 +147,20 @@ export function ArticleMore({
           onPress={onListen}
         >
           {tts('narrate')}
+        </Stack.Toolbar.MenuAction>
+        <Stack.Toolbar.MenuAction
+          hidden={!onPrompt || !promptLabel}
+          icon="wand.and.stars"
+          onPress={onPrompt}
+        >
+          {promptLabel ?? ''}
+        </Stack.Toolbar.MenuAction>
+        <Stack.Toolbar.MenuAction
+          hidden={!tocAvailable || !onToc}
+          icon="list.bullet"
+          onPress={onToc}
+        >
+          {t('toc')}
         </Stack.Toolbar.MenuAction>
         <Stack.Toolbar.MenuAction
           icon="square.and.arrow.up"

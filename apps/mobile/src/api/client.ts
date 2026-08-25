@@ -26,6 +26,7 @@ import type {
   ApiEnrichment,
   ApiMyComment,
   ApiNote,
+  ApiPage,
   ApiPaged,
   ApiPagination,
   ApiPost,
@@ -33,6 +34,7 @@ import type {
   ApiSearchNote,
   ApiSearchPost,
   ApiSessionUser,
+  ApiSiteInfo,
   ApiTagDetail,
   ApiTopic,
   ApiTts,
@@ -184,6 +186,12 @@ export const api = {
       `/posts/${encodeURIComponent(categorySlug)}/${encodeURIComponent(slug)}`,
       lang,
     ),
+  // ponytail: mx-core's GET /pages has no truncate option, so every row drags
+  // its full body along (~100KB). Swap to a summary endpoint if it grows.
+  pageList: (lang = getLocale()) =>
+    requestPaged<ApiPage>('/pages', { page: 1, size: 30, lang }),
+  pageDetail: (slug: string, lang = getLocale()) =>
+    requestDetail<ApiPage>(`/pages/slug/${encodeURIComponent(slug)}`, lang),
   noteList: (page: number, size: number, lang = getLocale()) =>
     requestPaged<ApiNote>('/notes', { page, size, withSummary: 1, lang }),
   noteDetail: (nid: number, lang = getLocale()) =>
@@ -257,6 +265,15 @@ export const api = {
       sortOrder: -1,
     }),
   aggregate: () => request<ApiAggregate>('/aggregate'),
+  siteInfo: () => request<ApiSiteInfo>('/aggregate/site_info'),
+  skillMarkdown: async (name: string) => {
+    const res = await fetch(
+      `${apiBaseUrl()}/s/sk/${encodeURIComponent(name)}/SKILL.md`,
+      { headers: { accept: 'text/markdown, text/plain, */*' } },
+    )
+    if (!res.ok) throw new ApiError(res.status, `HTTP ${res.status} skill`)
+    return res.text()
+  },
   authProviders: () => request<string[]>('/auth/providers'),
   authSession: () => request<ApiSessionUser | null>('/auth/session'),
   commentList: (refId: string, page: number, size = 10) =>

@@ -1,5 +1,5 @@
+import { useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
-import * as WebBrowser from 'expo-web-browser'
 import { Share, StyleSheet, View } from 'react-native'
 
 import type { ArticleSkillRef } from '@/api/article-meta'
@@ -8,10 +8,6 @@ import type { Translator } from '@/i18n'
 import { siteHref } from '@/lib/site-url'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
-
-function skillPageUrl(name: string) {
-  return siteHref(`/skills/${encodeURIComponent(name)}`)
-}
 
 function skillPromptUrl(name: string) {
   return siteHref(`/skills/${encodeURIComponent(name)}/SKILL.md`)
@@ -25,6 +21,7 @@ export function ArticleSkillRow({
   t: Translator<'notice'>
 }) {
   const palette = usePalette()
+  const router = useRouter()
   return (
     <View style={styles.item}>
       <View style={styles.body}>
@@ -33,7 +30,10 @@ export function ArticleSkillRow({
             haptic={false}
             style={styles.nameHit}
             onPress={() =>
-              void WebBrowser.openBrowserAsync(skillPageUrl(skill.name))
+              router.push({
+                pathname: '/skills/[name]',
+                params: { name: skill.name, description: skill.description },
+              })
             }
           >
             <AppText

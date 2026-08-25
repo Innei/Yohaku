@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm'
 import { Stack, useIsPreview, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 
@@ -16,6 +16,7 @@ import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
 import { formatRelativeTime } from '@/lib/datetime'
+import { extractHeadings } from '@/lib/lexical-headings'
 import { siteHref } from '@/lib/site-url'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import {
@@ -66,6 +67,7 @@ export function PostDetailScreen({
   const unlockInflightRef = useRef(false)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
+  const [tocOpen, setTocOpen] = useState(false)
 
   const { snapshot, updatesEnabled } = useDatabaseSnapshot({
     identity: `post:${locale}:${routePostId ?? ''}:${categorySlug}:${slug}`,
@@ -185,6 +187,10 @@ export function PostDetailScreen({
 
   const body =
     post?.contentFormat === 'lexical' && post.content ? post.content : null
+  const hasHeadings = useMemo(
+    () => extractHeadings(body ?? '').length > 0,
+    [body],
+  )
 
   const { marks, onScrollMetrics } = useReadingPresence({
     articleId: isPreview ? undefined : post?.id,
@@ -219,8 +225,10 @@ export function PostDetailScreen({
         listenAvailable={tts.available}
         listening={tts.isNarrating}
         title={post?.title}
+        tocAvailable={hasHeadings}
         url={webUrl}
         onListen={tts.start}
+        onToc={() => setTocOpen(true)}
       />
       {post ? (
         <CommentComposeHost
@@ -307,6 +315,8 @@ export function PostDetailScreen({
             <ArticleNotice
               id={post.id}
               kind="post"
+              meta={post.articleMeta}
+              webUrl={webUrl}
               listen={{
                 available: tts.available,
                 current: tts.current,
@@ -315,7 +325,6 @@ export function PostDetailScreen({
                 total: tts.total,
                 onToggle: tts.toggle,
               }}
-              meta={post.articleMeta}
             />
             {isMarkdown ? (
               <View style={{ minHeight: reservedBodyHeight }}>
@@ -338,8 +347,10 @@ export function PostDetailScreen({
                 refId={post.id}
                 refType="post"
                 scrollRef={scrollRef}
-                variant="article"
+                    tocOpen={tocOpen}
+                    variant="article"
                 webUrl={webUrl}
+                onTocClose={() => setTocOpen(false)}
               />
             ) : showPaywallGate ? null : (
               <View style={{ minHeight: reservedBodyHeight }}>
@@ -376,8 +387,8 @@ export function PostDetailScreen({
                   stale={tts.stale}
                   status={tts.status}
                   total={tts.total}
-                  onSelectRate={tts.setRate}
                   onRecenter={tts.recenter}
+                  onSelectRate={tts.setRate}
                   onStop={tts.stop}
                   onToggle={tts.toggle}
                 />

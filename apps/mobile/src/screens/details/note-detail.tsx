@@ -1,7 +1,7 @@
 import { and, eq } from 'drizzle-orm'
 import { Stack } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 
@@ -15,6 +15,7 @@ import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
 import { formatRelativeTime } from '@/lib/datetime'
+import { extractHeadings } from '@/lib/lexical-headings'
 import { siteHref } from '@/lib/site-url'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import { refreshNoteBody } from '@/sync/engine'
@@ -45,6 +46,7 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
   const scrollRef = useRef<ScrollView>(null)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
+  const [tocOpen, setTocOpen] = useState(false)
 
   const { snapshot, updatesEnabled } = useDatabaseSnapshot({
     identity: `note:${locale}:${nid}`,
@@ -129,6 +131,10 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
 
   const body =
     note?.contentFormat === 'lexical' && note.content ? note.content : null
+  const hasHeadings = useMemo(
+    () => extractHeadings(body ?? '').length > 0,
+    [body],
+  )
 
   const { marks, onScrollMetrics } = useReadingPresence({
     articleId: note?.id,
@@ -161,8 +167,10 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
         listenAvailable={tts.available}
         listening={tts.isNarrating}
         title={note?.title}
+        tocAvailable={hasHeadings}
         url={webUrl}
         onListen={tts.start}
+        onToc={() => setTocOpen(true)}
       />
       {note ? (
         <CommentComposeHost
@@ -204,6 +212,8 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                 <ArticleNotice
                   id={note.id}
                   kind="note"
+                  meta={note.articleMeta}
+                  webUrl={webUrl}
                   listen={{
                     available: tts.available,
                     current: tts.current,
@@ -212,7 +222,6 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                     total: tts.total,
                     onToggle: tts.toggle,
                   }}
-                  meta={note.articleMeta}
                 />
                 {isLocked ? (
                   <View style={{ minHeight: reservedBodyHeight, gap: 8 }}>
@@ -248,8 +257,10 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                     refId={note.id}
                     refType="note"
                     scrollRef={scrollRef}
+                    tocOpen={tocOpen}
                     variant="note"
                     webUrl={webUrl}
+                    onTocClose={() => setTocOpen(false)}
                   />
                 ) : (
                   <View style={{ minHeight: reservedBodyHeight }}>
@@ -284,8 +295,8 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                   stale={tts.stale}
                   status={tts.status}
                   total={tts.total}
-                  onSelectRate={tts.setRate}
                   onRecenter={tts.recenter}
+                  onSelectRate={tts.setRate}
                   onStop={tts.stop}
                   onToggle={tts.toggle}
                 />

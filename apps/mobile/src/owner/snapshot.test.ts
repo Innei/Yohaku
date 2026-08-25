@@ -12,6 +12,7 @@ const sampleOwner = {
   avatarUrl: 'https://cdn.example.com/a.png',
   siteHost: 'example.com',
   webUrl: 'https://example.com',
+  socialIds: null,
 }
 
 describe('hostFromUrl', () => {
@@ -48,6 +49,7 @@ describe('snapshotFromAggregate', () => {
       avatarUrl: 'https://cdn.example.com/a.png',
       siteHost: 'example.com',
       webUrl: 'https://example.com',
+      socialIds: null,
     })
   })
 
@@ -63,6 +65,7 @@ describe('snapshotFromAggregate', () => {
       avatarUrl: 'https://cdn.example.com/a.png',
       siteHost: 'example.com',
       webUrl: 'https://example.com',
+      socialIds: null,
     })
   })
 

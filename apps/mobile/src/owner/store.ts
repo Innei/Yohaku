@@ -54,6 +54,7 @@ function sameOwner(a: OwnerSnapshot, b: OwnerSnapshot): boolean {
     a.name === b.name &&
     a.avatarUrl === b.avatarUrl &&
     a.siteHost === b.siteHost &&
-    a.webUrl === b.webUrl
+    a.webUrl === b.webUrl &&
+    JSON.stringify(a.socialIds ?? null) === JSON.stringify(b.socialIds ?? null)
   )
 }

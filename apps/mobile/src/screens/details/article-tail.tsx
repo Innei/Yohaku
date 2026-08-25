@@ -2,11 +2,17 @@ import { radius, type as typeScale } from '@yohaku/design-system/tokens'
 import { SymbolView } from 'expo-symbols'
 import { StyleSheet, View } from 'react-native'
 
+import { useSession } from '@/auth/session-store'
 import { AppText, SinkPressable, SlotText } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import { useLikeContent } from '@/interactions/use-like-content'
 import { shareUrl } from '@/lib/share'
 import { CommentSection } from '@/screens/comments/comment-section'
+import {
+  useIsActiveMember,
+  useMembershipPlans,
+} from '@/screens/me/use-membership'
+import { useMembershipCheckout } from '@/screens/me/use-membership-checkout'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
@@ -27,7 +33,14 @@ export function ArticleTail({
 }) {
   const palette = usePalette()
   const t = useTranslations('common')
+  const tm = useTranslations('membership')
+  const session = useSession()
+  const { data: plans } = useMembershipPlans(Boolean(session))
+  const isMember = useIsActiveMember()
+  const { present } = useMembershipCheckout()
   const { liked, like, pending } = useLikeContent(kind, refId)
+  const showSupport =
+    Boolean(session) && plans?.appleIap?.enabled === true && !isMember
 
   const outline = {
     backgroundColor: palette.surface.paper,
@@ -71,6 +84,23 @@ export function ArticleTail({
             tintColor={palette.neutral[7]}
           />
         </SinkPressable>
+        {showSupport ? (
+          <SinkPressable
+            accessibilityLabel={tm('support')}
+            accessibilityRole="button"
+            style={[styles.likePill, outline]}
+            onPress={() => void present()}
+          >
+            <SymbolView
+              name="heart.circle"
+              size={16}
+              tintColor={palette.accent}
+            />
+            <AppText color={palette.accent} variant="secondary">
+              {tm('support')}
+            </AppText>
+          </SinkPressable>
+        ) : null}
       </View>
       <View
         style={[styles.hairline, { backgroundColor: palette.neutral[3] }]}
