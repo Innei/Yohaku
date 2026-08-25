@@ -3,7 +3,7 @@ import { Stack, useIsPreview, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
-import { StyleSheet, View } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 
 import { translatedBodyNeedsRefresh } from '@/api/article-meta'
 import { api } from '@/api/client'
@@ -15,6 +15,7 @@ import { posts } from '@/db/schema'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
+import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
 import { siteHref } from '@/lib/site-url'
@@ -67,7 +68,6 @@ export function PostDetailScreen({
   const unlockInflightRef = useRef(false)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
-  const [tocOpen, setTocOpen] = useState(false)
 
   const { snapshot, updatesEnabled } = useDatabaseSnapshot({
     identity: `post:${locale}:${routePostId ?? ''}:${categorySlug}:${slug}`,
@@ -187,10 +187,7 @@ export function PostDetailScreen({
 
   const body =
     post?.contentFormat === 'lexical' && post.content ? post.content : null
-  const hasHeadings = useMemo(
-    () => extractHeadings(body ?? '').length > 0,
-    [body],
-  )
+  const headings = useMemo(() => extractHeadings(body ?? ''), [body])
 
   const { marks, onScrollMetrics } = useReadingPresence({
     articleId: isPreview ? undefined : post?.id,
@@ -225,10 +222,13 @@ export function PostDetailScreen({
         listenAvailable={tts.available}
         listening={tts.isNarrating}
         title={post?.title}
-        tocAvailable={hasHeadings}
+        tocAvailable={headings.length > 0}
         url={webUrl}
         onListen={tts.start}
-        onToc={() => setTocOpen(true)}
+        onToc={() => {
+          presentArticleToc(headings, Dimensions.get('window').height)
+          router.push(tocHref())
+        }}
       />
       {post ? (
         <CommentComposeHost
@@ -347,10 +347,8 @@ export function PostDetailScreen({
                 refId={post.id}
                 refType="post"
                 scrollRef={scrollRef}
-                    tocOpen={tocOpen}
                     variant="article"
                 webUrl={webUrl}
-                onTocClose={() => setTocOpen(false)}
               />
             ) : showPaywallGate ? null : (
               <View style={{ minHeight: reservedBodyHeight }}>

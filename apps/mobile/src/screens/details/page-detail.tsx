@@ -1,15 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
-import { Stack } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import type { ReactNode } from 'react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { ScrollView } from 'react-native'
-import { StyleSheet, View } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 
 import { api } from '@/api/client'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { AppText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
+import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
 import { siteHref } from '@/lib/site-url'
@@ -24,6 +25,7 @@ import { useReservedBodyHeight } from './body-slot'
 import { useCollapsingTitle } from './use-collapsing-title'
 
 export function PageDetailScreen({ slug }: { slug: string }) {
+  const router = useRouter()
   const locale = useLocale()
   const t = useTranslations('detail')
   const tc = useTranslations('common')
@@ -43,11 +45,7 @@ export function PageDetailScreen({ slug }: { slug: string }) {
   const isMarkdown = page?.contentFormat === 'markdown'
   const body =
     page?.contentFormat === 'lexical' && page.content ? page.content : null
-  const hasHeadings = useMemo(
-    () => extractHeadings(body ?? '').length > 0,
-    [body],
-  )
-  const [tocOpen, setTocOpen] = useState(false)
+  const headings = useMemo(() => extractHeadings(body ?? ''), [body])
 
   useEffect(() => {
     if (isMarkdown) void WebBrowser.openBrowserAsync(webUrl)
@@ -81,9 +79,12 @@ export function PageDetailScreen({ slug }: { slug: string }) {
       <Stack.Screen options={headerOptions} />
       <ArticleMore
         title={page?.title}
-        tocAvailable={hasHeadings}
+        tocAvailable={headings.length > 0}
         url={webUrl}
-        onToc={() => setTocOpen(true)}
+        onToc={() => {
+          presentArticleToc(headings, Dimensions.get('window').height)
+          router.push(tocHref())
+        }}
       />
       {page ? (
         <CommentComposeHost
@@ -120,10 +121,8 @@ export function PageDetailScreen({ slug }: { slug: string }) {
                     refId={page.id}
                     refType="page"
                     scrollRef={scrollRef}
-                    tocOpen={tocOpen}
                     variant="article"
                     webUrl={webUrl}
-                    onTocClose={() => setTocOpen(false)}
                   />
                 ) : (
                   <View style={{ minHeight: reservedBodyHeight }}>

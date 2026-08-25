@@ -6,12 +6,11 @@ import {
 } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import type { RefObject } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ScrollView as ScrollViewType } from 'react-native'
 import {
   Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -30,8 +29,9 @@ import type {
 } from '@/components/dom/rich-body'
 import RichBody from '@/components/dom/rich-body'
 import { useRichBodyLabels } from '@/components/dom/use-rich-body-labels'
-import { AppText, SinkPressable } from '@/components/ui'
+import { AppText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
+import { subscribeTocJump } from '@/lib/article-toc'
 import type { WatchdogPhase } from '@/lib/body-render-watchdog'
 import {
   nextWatchdogPhase,
@@ -39,7 +39,6 @@ import {
   WATCHDOG_TIMEOUT_MS,
 } from '@/lib/body-render-watchdog'
 import { presentImagePreview } from '@/lib/image-cache'
-import { extractHeadings } from '@/lib/lexical-headings'
 import { hrefForExternalUrl } from '@/lib/link-router'
 import { getSiteUrl } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
@@ -53,67 +52,6 @@ import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 import { useReservedBodyHeight } from './body-slot'
 import { useArticleSelection } from './use-article-selection'
 
-function TocSheet({
-  headings,
-  onClose,
-  onSelect,
-  visible,
-}: {
-  headings: { blockId: string; level: number; text: string }[]
-  onClose: () => void
-  onSelect: (blockId: string) => void
-  visible: boolean
-}) {
-  const palette = usePalette()
-  const t = useTranslations('common')
-  const minLevel = headings.reduce(
-    (lowest, heading) => Math.min(lowest, heading.level),
-    6,
-  )
-
-  return (
-    <Modal
-      animationType="slide"
-      presentationStyle="pageSheet"
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <View
-        style={[styles.toc, { backgroundColor: palette.surface.desk }]}
-      >
-        <AppText style={styles.tocTitle} variant="entryTitleSans">
-          {t('toc')}
-        </AppText>
-        <ScrollView contentContainerStyle={styles.tocList}>
-          {headings.map((heading) => (
-            <SinkPressable
-              accessibilityRole="button"
-              key={heading.blockId}
-              style={[
-                styles.tocRow,
-                { paddingLeft: (heading.level - minLevel) * 16 },
-              ]}
-              onPress={() => onSelect(heading.blockId)}
-            >
-              <AppText
-                numberOfLines={2}
-                variant={heading.level === minLevel ? 'body' : 'secondary'}
-                color={
-                  heading.level === minLevel
-                    ? palette.neutral[9]
-                    : palette.neutral[7]
-                }
-              >
-                {heading.text}
-              </AppText>
-            </SinkPressable>
-          ))}
-        </ScrollView>
-      </View>
-    </Modal>
-  )
-}
-
 const SKELETON_LINE_WIDTHS = [92, 100, 96, 60]
 const SKELETON_PARAGRAPHS = [0, 1, 2, 3, 4, 5]
 
@@ -124,11 +62,9 @@ export function ArticleBody({
   highlightBlockId = null,
   primeKey,
   queriesEnabled = true,
-  onTocClose,
   refId,
   refType,
   scrollRef,
-  tocOpen = false,
   variant,
   webUrl,
 }: {
@@ -138,10 +74,8 @@ export function ArticleBody({
   highlightBlockId?: string | null
   primeKey: string
   queriesEnabled?: boolean
-  onTocClose?: () => void
   refId: string
   refType: CommentRefType
-  tocOpen?: boolean
   scrollRef: RefObject<ScrollViewType | null>
   variant: 'article' | 'note'
   webUrl: string
@@ -266,7 +200,10 @@ export function ArticleBody({
     scrollToBlock(highlightBlockId, 0.38)
   }, [autoFollow, highlightBlockId, scrollToBlock])
 
-  const headings = useMemo(() => extractHeadings(content), [content])
+  useEffect(
+    () => subscribeTocJump((blockId) => scrollToBlock(blockId, 0.12)),
+    [scrollToBlock],
+  )
 
   const bodyStyle = useAnimatedStyle(() => ({ opacity: opacity.value }))
 
@@ -454,15 +391,6 @@ export function ArticleBody({
           </View>
         </View>
       </Modal>
-      <TocSheet
-        headings={headings}
-        visible={tocOpen}
-        onClose={() => onTocClose?.()}
-        onSelect={(blockId) => {
-          onTocClose?.()
-          scrollToBlock(blockId, 0.12)
-        }}
-      />
       <SelectionCommentSheet
         refId={refId}
         refType={refType}
@@ -475,21 +403,6 @@ export function ArticleBody({
 }
 
 const styles = StyleSheet.create({
-  toc: {
-    flex: 1,
-    paddingTop: 20,
-  },
-  tocTitle: {
-    paddingBottom: 8,
-    paddingHorizontal: 20,
-  },
-  tocList: {
-    paddingBottom: 32,
-    paddingHorizontal: 20,
-  },
-  tocRow: {
-    paddingVertical: 10,
-  },
   sheet: {
     flex: 1,
   },

@@ -1,9 +1,9 @@
 import { and, eq } from 'drizzle-orm'
-import { Stack } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
-import { StyleSheet, View } from 'react-native'
+import { Dimensions, StyleSheet, View } from 'react-native'
 
 import { translatedBodyNeedsRefresh } from '@/api/article-meta'
 import { api } from '@/api/client'
@@ -14,6 +14,7 @@ import { notes, topics } from '@/db/schema'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
+import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
 import { siteHref } from '@/lib/site-url'
@@ -37,6 +38,7 @@ import { useReadingPresence } from './use-reading-presence'
 import { useRetryableBodyRefresh } from './use-retryable-body-refresh'
 
 export function NoteDetailScreen({ nid }: { nid: number }) {
+  const router = useRouter()
   const locale = useLocale()
   const t = useTranslations('detail')
   const tc = useTranslations('common')
@@ -46,7 +48,6 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
   const scrollRef = useRef<ScrollView>(null)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
-  const [tocOpen, setTocOpen] = useState(false)
 
   const { snapshot, updatesEnabled } = useDatabaseSnapshot({
     identity: `note:${locale}:${nid}`,
@@ -131,10 +132,7 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
 
   const body =
     note?.contentFormat === 'lexical' && note.content ? note.content : null
-  const hasHeadings = useMemo(
-    () => extractHeadings(body ?? '').length > 0,
-    [body],
-  )
+  const headings = useMemo(() => extractHeadings(body ?? ''), [body])
 
   const { marks, onScrollMetrics } = useReadingPresence({
     articleId: note?.id,
@@ -167,10 +165,13 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
         listenAvailable={tts.available}
         listening={tts.isNarrating}
         title={note?.title}
-        tocAvailable={hasHeadings}
+        tocAvailable={headings.length > 0}
         url={webUrl}
         onListen={tts.start}
-        onToc={() => setTocOpen(true)}
+        onToc={() => {
+          presentArticleToc(headings, Dimensions.get('window').height)
+          router.push(tocHref())
+        }}
       />
       {note ? (
         <CommentComposeHost
@@ -257,10 +258,8 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                     refId={note.id}
                     refType="note"
                     scrollRef={scrollRef}
-                    tocOpen={tocOpen}
                     variant="note"
                     webUrl={webUrl}
-                    onTocClose={() => setTocOpen(false)}
                   />
                 ) : (
                   <View style={{ minHeight: reservedBodyHeight }}>

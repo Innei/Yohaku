@@ -31,6 +31,7 @@ import { usePushLifecycle } from '@/push/use-push-lifecycle'
 import { MembershipRecoveryHost } from '@/screens/me/membership-recovery-host'
 import { useSocketLifecycle } from '@/socket/use-socket-lifecycle'
 import { useSyncLifecycle } from '@/sync/use-sync-lifecycle'
+import { parseTocDetents } from '@/lib/article-toc'
 import { useAppFonts } from '@/theme/fonts'
 import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
@@ -206,6 +207,15 @@ export default function RootLayout() {
                   sheetAllowedDetents: [0.72, 1],
                   sheetGrabberVisible: true,
                 }}
+              />
+              <Stack.Screen
+                name="toc"
+                options={({ route }) => ({
+                  headerShown: false,
+                  presentation: 'formSheet',
+                  sheetAllowedDetents: parseTocDetents(route.params),
+                  sheetGrabberVisible: true,
+                })}
               />
             </Stack>
             <PushOnboardingHost ready={dataReady && !failed && splashDone} />
