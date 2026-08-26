@@ -32,6 +32,7 @@ import {
   useSyncExternalStore,
 } from 'react'
 
+import type { CommentAnchor } from '@/lib/comment-anchor'
 import { WEBVIEW_FONT_FAMILY } from '@/theme/font-faces'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
@@ -39,6 +40,7 @@ import { extractBlockInfos } from './anchor-utils'
 import { MobileCodeBlock } from './code-block'
 import { MobileFileCard } from './file-card'
 import {
+  applyActiveCommentHighlight,
   applyBlockWashes,
   applyCommentHighlights,
   type BlockComment,
@@ -83,6 +85,7 @@ export interface RichBodyPrime {
 }
 
 interface RichBodyProps {
+  activeCommentAnchor?: CommentAnchor | null
   apiBase: string
   blockComments?: BlockComment[]
   content: string
@@ -253,6 +256,7 @@ class BodyErrorBoundary extends Component<
 }
 
 export default function RichBody({
+  activeCommentAnchor = null,
   apiBase,
   content,
   enrichments,
@@ -450,6 +454,14 @@ export default function RichBody({
         : (JSON.parse(blockCommentsKey) as BlockComment[]),
     [blockCommentsKey],
   )
+  const activeAnchorKey = JSON.stringify(activeCommentAnchor ?? null)
+  const stableActiveAnchor = useMemo(
+    () =>
+      activeAnchorKey === 'null'
+        ? null
+        : (JSON.parse(activeAnchorKey) as CommentAnchor),
+    [activeAnchorKey],
+  )
   const blockInfos = useMemo(
     () => extractBlockInfos(bodyContent),
     [bodyContent],
@@ -481,6 +493,7 @@ export default function RichBody({
       const root = host?.querySelector('.rich-content') ?? null
       applyCommentHighlights(root, blockInfos, stableRangeComments)
       applyBlockWashes(root, blockInfos, stableBlockComments)
+      applyActiveCommentHighlight(root, blockInfos, stableActiveAnchor)
     }
     apply()
     const timer = window.setTimeout(apply, 80)
@@ -492,8 +505,15 @@ export default function RichBody({
         blockInfos,
         [],
       )
+      applyActiveCommentHighlight(null, blockInfos, null)
     }
-  }, [blockInfos, bodyContent, stableBlockComments, stableRangeComments])
+  }, [
+    blockInfos,
+    bodyContent,
+    stableActiveAnchor,
+    stableBlockComments,
+    stableRangeComments,
+  ])
 
   useEffect(() => {
     const container = containerRef.current
@@ -751,13 +771,20 @@ export default function RichBody({
           padding-inline: 20px;
           background: color-mix(in srgb, var(--color-accent) 6%, transparent);
         }
-        ::highlight(comment-block) {
-          background-color: color-mix(in srgb, var(--color-accent) 8%, transparent);
-        }
+        ::highlight(comment-block),
         ::highlight(comment-highlight) {
-          text-decoration: underline dashed;
-          text-decoration-color: var(--color-accent);
-          text-underline-offset: 2px;
+          background-color: color-mix(in srgb, var(--color-accent) 14%, transparent);
+          text-decoration: underline solid;
+          text-decoration-color: color-mix(in srgb, var(--color-accent) 42%, transparent);
+          text-underline-offset: 3px;
+          text-decoration-thickness: 1px;
+        }
+        ::highlight(comment-selection-active) {
+          background-color: color-mix(in srgb, var(--color-accent) 20%, transparent);
+          text-decoration: underline solid;
+          text-decoration-color: color-mix(in srgb, var(--color-accent) 70%, transparent);
+          text-underline-offset: 3px;
+          text-decoration-thickness: 1px;
         }
       `}</style>
       {body}

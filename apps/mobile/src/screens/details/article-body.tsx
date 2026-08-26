@@ -297,6 +297,7 @@ export function ArticleBody({
         }}
       >
         <RichBody
+          activeCommentAnchor={selectionSheet?.anchor ?? null}
           apiBase={apiBaseUrl()}
           blockComments={blockComments}
           content={content}

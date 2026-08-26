@@ -1,4 +1,8 @@
-import type { BlockAnchor, RangeAnchor } from '@/lib/comment-anchor'
+import type {
+  BlockAnchor,
+  CommentAnchor,
+  RangeAnchor,
+} from '@/lib/comment-anchor'
 import { isRangeAnchor, rangeAnchorKey } from '@/lib/comment-anchor'
 
 import { resolveRangeAnchor } from './anchor-resolve'
@@ -11,6 +15,7 @@ import {
 
 const HIGHLIGHT_NAME = 'comment-highlight'
 const BLOCK_HIGHLIGHT_NAME = 'comment-block'
+const ACTIVE_HIGHLIGHT_NAME = 'comment-selection-active'
 
 interface MutableHighlightRegistry {
   delete(name: string): boolean
@@ -116,7 +121,6 @@ export function applyCommentHighlights(
 ) {
   const highlights = highlightApi()
   if (!highlights) return
-  highlights.delete('comment-selection-active')
   if (!contentEl || comments.length === 0) {
     highlights.delete(HIGHLIGHT_NAME)
     return
@@ -195,6 +199,41 @@ export function applyBlockWashes(
   }
   if (ranges.length === 0) highlights.delete(BLOCK_HIGHLIGHT_NAME)
   else highlights.set(BLOCK_HIGHLIGHT_NAME, new Highlight(...ranges))
+}
+
+export function applyActiveCommentHighlight(
+  contentEl: Element | null,
+  blockInfos: BlockInfo[],
+  anchor: CommentAnchor | null,
+) {
+  const highlights = highlightApi()
+  if (!highlights) return
+  if (!contentEl || !anchor) {
+    highlights.delete(ACTIVE_HIGHLIGHT_NAME)
+    return
+  }
+  if (isRangeAnchor(anchor)) {
+    const range = rangeForAnchor(contentEl, blockInfos, anchor)
+    if (!range) {
+      highlights.delete(ACTIVE_HIGHLIGHT_NAME)
+      return
+    }
+    highlights.set(ACTIVE_HIGHLIGHT_NAME, new Highlight(range))
+    return
+  }
+  const index = blockInfos.findIndex((info) => info.blockId === anchor.blockId)
+  const blockEl = index >= 0 ? contentEl.children[index] : null
+  if (!blockEl) {
+    highlights.delete(ACTIVE_HIGHLIGHT_NAME)
+    return
+  }
+  try {
+    const range = document.createRange()
+    range.selectNodeContents(blockEl)
+    highlights.set(ACTIVE_HIGHLIGHT_NAME, new Highlight(range))
+  } catch {
+    highlights.delete(ACTIVE_HIGHLIGHT_NAME)
+  }
 }
 
 let lastBlockIndex: number | null = null
