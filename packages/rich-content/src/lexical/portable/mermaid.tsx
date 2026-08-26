@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../lib/sx'
+import { atoms } from '../../styles/atoms.stylex'
 
 import { MermaidRenderer } from '@haklex/rich-compose/modules/mermaid'
 import { ColorSchemeProvider } from '@haklex/rich-editor'
@@ -139,7 +141,7 @@ export const Mermaid = ({ content }: { content: string }) => {
       {/* min-h override: @haklex/rich-compose <= 0.29.0 keeps its estimated
           placeholder min-height on the rendered diagram, leaving large blank
           space; drop once the upstream fix ships. */}
-      <div className="[&>div]:min-h-0!" ref={containerRef}>
+      <div {...sx(atoms._and_div_min_h_0important_)} ref={containerRef}>
         <MermaidRenderer content={content} />
       </div>
     </ColorSchemeProvider>

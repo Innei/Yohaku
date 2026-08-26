@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../../lib/sx'
+import { atoms } from '../../../styles/atoms.stylex'
 
 import type { RichRendererModule } from '@haklex/rich-compose'
 import type {
@@ -77,7 +79,7 @@ export class ExcalidrawNode extends DecoratorNode<ReactElement> {
     return (
       <PrintCaption kind="excalidraw">
         <BlockBoundary label="画板">
-          <div className="my-4 aspect-[16/9] w-full">
+          <div {...sx(atoms.my_4, atoms.aspect__16_9, atoms.w_full)}>
             <StaticExcalidraw data={this.__snapshot} />
           </div>
         </BlockBoundary>

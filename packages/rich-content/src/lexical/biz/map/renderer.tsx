@@ -1,4 +1,6 @@
 'use client'
+import { sx, sxClass } from '../../../lib/sx'
+import { atoms } from '../../../styles/atoms.stylex'
 
 import type { MapSlotProps } from '../../../host'
 import { useHost, usePrintFallback } from '../../../host'
@@ -24,30 +26,30 @@ export function YohakuMapRenderer(props: MapSlotProps) {
   const pois = props.pois ?? []
 
   return (
-    <figure className="not-prose my-6 overflow-hidden rounded-xl bg-(--color-neutral-1) font-sans ring-1 ring-(--color-neutral-3)">
-      <div className="px-4 py-5">
-        <div className="flex items-center gap-2">
-          <i className="i-mingcute-map-pin-line text-(--color-neutral-6)" />
-          <span className="text-copy-15 text-(--color-neutral-9)">
+    <figure {...sxClass("not-prose", atoms.my_6, atoms.overflow_hidden, atoms.rounded_xl, atoms.bg____color_neutral_1, atoms.font_sans, atoms.ring_1, atoms.ring____color_neutral_3)}>
+      <div {...sx(atoms.px_4, atoms.py_5)}>
+        <div {...sx(atoms.flex, atoms.items_center, atoms.gap_2)}>
+          <i {...sxClass("i-mingcute-map-pin-line", atoms.text____color_neutral_6)} />
+          <span {...sx(atoms.text_copy_15, atoms.text____color_neutral_9)}>
             {props.title || '地图'}
           </span>
-          <span className="text-label-12 text-(--color-neutral-6)">
+          <span {...sx(atoms.text_label_12, atoms.text____color_neutral_6)}>
             {pois.length} 个地点
           </span>
         </div>
         {pois.length > 0 ? (
-          <ul className="mt-3 flex flex-col gap-1.5 p-0">
+          <ul {...sx(atoms.mt_3, atoms.flex, atoms.flex_col, atoms.gap_1dot5, atoms.p_0)}>
             {pois.slice(0, 6).map((poi, index) => (
               <li
-                className="text-label-12 flex items-center gap-2 text-(--color-neutral-8)"
+                {...sx(atoms.text_label_12, atoms.flex, atoms.items_center, atoms.gap_2, atoms.text____color_neutral_8)}
                 key={index}
               >
-                <span className="size-1 shrink-0 rounded-full bg-(--color-neutral-5)" />
-                <span className="truncate">{poiLabel(poi, index)}</span>
+                <span {...sx(atoms.size_1, atoms.shrink_0, atoms.rounded_full, atoms.bg____color_neutral_5)} />
+                <span {...sx(atoms.truncate)}>{poiLabel(poi, index)}</span>
               </li>
             ))}
             {pois.length > 6 ? (
-              <li className="text-label-12 text-(--color-neutral-6)">
+              <li {...sx(atoms.text_label_12, atoms.text____color_neutral_6)}>
                 +{pois.length - 6} 个地点
               </li>
             ) : null}
@@ -55,7 +57,7 @@ export function YohakuMapRenderer(props: MapSlotProps) {
         ) : null}
         {webOrigin ? (
           <button
-            className="text-label-12 mt-3 rounded-lg bg-(--color-neutral-3) px-3 py-1.5 text-(--color-neutral-9)"
+            {...sx(atoms.text_label_12, atoms.mt_3, atoms.rounded_lg, atoms.bg____color_neutral_3, atoms.px_3, atoms.py_1dot5, atoms.text____color_neutral_9)}
             type="button"
             onClick={() => void openLink(webOrigin)}
           >

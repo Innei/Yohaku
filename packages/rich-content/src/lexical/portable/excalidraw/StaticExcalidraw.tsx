@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../../lib/sx'
+import { atoms } from '../../../styles/atoms.stylex'
 
 import './fonts.css'
 
@@ -64,7 +66,7 @@ export const StaticExcalidraw: FC<StaticExcalidrawProps> = ({
 
   return (
     <div
-      className={clsxm('relative size-full overflow-hidden', className)}
+      {...sx(atoms.relative, atoms.size_full, atoms.overflow_hidden, className)}
       ref={containerRef}
     >
       {entered ? (
@@ -80,8 +82,8 @@ export const StaticExcalidraw: FC<StaticExcalidrawProps> = ({
 }
 
 const Placeholder: FC<{ label?: string }> = ({ label = 'Whiteboard' }) => (
-  <div className="absolute inset-0 flex items-center justify-center text-neutral-7">
-    <span className="text-sm">{label}</span>
+  <div {...sx(atoms.absolute, atoms.inset_0, atoms.flex, atoms.items_center, atoms.justify_center, atoms.text_neutral_7)}>
+    <span {...sx(atoms.text_sm)}>{label}</span>
   </div>
 )
 
@@ -89,13 +91,13 @@ function ExcalidrawLoading() {
   return (
     <div
       aria-hidden
-      className="my-6 h-64 w-full animate-pulse rounded-xl bg-(--color-neutral-2)"
+      {...sx(atoms.my_6, atoms.h_64, atoms.w_full, atoms.animate_pulse, atoms.rounded_xl, atoms.bg____color_neutral_2)}
     />
   )
 }
 
 const ErrorMessage: FC<{ message: string }> = ({ message }) => (
-  <div className="absolute inset-0 flex items-center justify-center text-sm text-red-500">
+  <div {...sx(atoms.absolute, atoms.inset_0, atoms.flex, atoms.items_center, atoms.justify_center, atoms.text_sm, atoms.text_red_500)}>
     {message}
   </div>
 )
@@ -195,7 +197,7 @@ const SceneFrame: FC<{
   theme: StaticTheme
 }> = ({ scene, showExpandButton, theme }) => {
   return (
-    <div className="relative size-full overflow-hidden rounded-md bg-(--surface-paper) ring-1 ring-border">
+    <div {...sx(atoms.relative, atoms.size_full, atoms.overflow_hidden, atoms.rounded_md, atoms.bg____surface_paper, atoms.ring_1, atoms.ring_border)}>
       <InteractiveScene
         files={scene.files}
         scene={scene}

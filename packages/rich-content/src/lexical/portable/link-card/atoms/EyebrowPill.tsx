@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC, ReactNode } from 'react'
 
 import { clsxm } from '../../../../lib/clsxm'
@@ -9,8 +11,8 @@ interface Props {
 
 export const EyebrowPill: FC<Props> = ({ children, className }) => (
   <span
-    className={clsxm(
-      'shrink-0 rounded-md border border-border/60 bg-neutral-2/60 px-1.5 py-0.5 font-mono text-[0.7rem] text-neutral-7 dark:bg-neutral-3/40',
+    {...sx(
+      atoms.shrink_0, atoms.rounded_md, atoms.border, atoms.border_border_60, atoms.bg_neutral_2_60, atoms.px_1dot5, atoms.py_0dot5, atoms.font_mono, atoms.text__0dot7rem, atoms.text_neutral_7, atoms.dark_bg_neutral_3_40,
       className,
     )}
   >

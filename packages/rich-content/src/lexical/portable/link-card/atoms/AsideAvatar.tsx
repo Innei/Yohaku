@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC, ReactNode } from 'react'
 
 import { clsxm } from '../../../../lib/clsxm'
@@ -23,7 +25,7 @@ const sizeClass = (shape: Shape) =>
 export const AsideAvatar: FC<ImageProps> = ({ src, alt, shape = 'square' }) => (
   <img
     alt={alt}
-    className={clsxm('bg-neutral-2 object-cover', sizeClass(shape))}
+    {...sx(atoms.bg_neutral_2, atoms.object_cover, sizeClass(shape))}
     loading="lazy"
     src={src}
   />
@@ -35,8 +37,8 @@ export const AsidePlaceholder: FC<PlaceholderProps> = ({
 }) => (
   <div
     aria-hidden
-    className={clsxm(
-      'flex items-center justify-center bg-neutral-2 text-neutral-6',
+    {...sx(
+      atoms.flex, atoms.items_center, atoms.justify_center, atoms.bg_neutral_2, atoms.text_neutral_6,
       sizeClass(shape),
     )}
   >

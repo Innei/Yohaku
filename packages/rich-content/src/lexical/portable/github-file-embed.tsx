@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../lib/sx'
+import { atoms } from '../../styles/atoms.stylex'
 
 import { useMemo } from 'react'
 
@@ -34,7 +36,7 @@ export function PortableGithubFileEmbed({ href }: { href: string }) {
     return (
       <div
         aria-hidden
-        className="my-4 h-48 w-full animate-pulse rounded-xl bg-(--color-neutral-2)"
+        {...sx(atoms.my_4, atoms.h_48, atoms.w_full, atoms.animate_pulse, atoms.rounded_xl, atoms.bg____color_neutral_2)}
         data-github-file-embed=""
       />
     )
@@ -45,16 +47,16 @@ export function PortableGithubFileEmbed({ href }: { href: string }) {
 
   return (
     <div
-      className="my-4 flex w-full flex-col items-center"
+      {...sx(atoms.my_4, atoms.flex, atoms.w_full, atoms.flex_col, atoms.items_center)}
       data-github-file-embed=""
     >
-      <div className="w-full">
+      <div {...sx(atoms.w_full)}>
         <CodeFold code={code}>
           <Code code={code} fold={false} language={parsed.language} />
         </CodeFold>
       </div>
       <a
-        className="mt-3 text-[12px] text-neutral-7"
+        {...sx(atoms.mt_3, atoms.text__12px, atoms.text_neutral_7)}
         href={href}
         rel="noreferrer"
         target="_blank"
