@@ -38,6 +38,13 @@ internal struct ImagePreviewPayload: Record {
   @Field var siteReferer: String?
 }
 
+internal struct FilePreviewPayload: Record {
+  @Field var url: String = ""
+  @Field var name: String = ""
+  @Field var mimeType: String?
+  @Field var siteReferer: String?
+}
+
 internal struct ScrollToParam: Record {
   @Field
   var x: Double = 0

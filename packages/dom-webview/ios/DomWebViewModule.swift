@@ -68,6 +68,15 @@ public final class DomWebViewModule: Module {
       )
     }.runOnQueue(.main)
 
+    AsyncFunction("presentFilePreview") { (payload: FilePreviewPayload) in
+      DomFilePreviewDomain.present(
+        url: payload.url,
+        name: payload.name,
+        mimeType: payload.mimeType,
+        siteReferer: payload.siteReferer
+      )
+    }.runOnQueue(.main)
+
     AsyncFunction("prefetchImages") { (urls: [String], siteReferer: String?) in
       DomImageAssetStore.shared.prefetch(urls, siteReferer: siteReferer)
     }

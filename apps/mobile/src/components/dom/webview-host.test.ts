@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MobileCodeBlock } from './code-block'
 import { MobileFileCard } from './file-card'
-import { createWebviewHost } from './webview-host'
+import { createWebviewHost, postNativeFilePreview } from './webview-host'
 
 const deps = {
   apiBase: 'https://mx.example.com/api/v3',
@@ -103,6 +103,29 @@ describe('createWebviewHost', () => {
       },
       src: 'b',
       type: 'yohaku:image-preview',
+    })
+  })
+
+  it('posts a file preview message the native Quick Look handler can decode', () => {
+    const postMessage = vi.fn()
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true,
+      value: { ReactNativeWebView: { postMessage } },
+    })
+    expect(
+      postNativeFilePreview({
+        mimeType: 'application/pdf',
+        name: '季度报告.pdf',
+        siteReferer: 'https://example.com',
+        url: 'https://cdn.example/file/report.pdf',
+      }),
+    ).toBe(true)
+    expect(JSON.parse(postMessage.mock.calls[0][0])).toEqual({
+      mimeType: 'application/pdf',
+      name: '季度报告.pdf',
+      siteReferer: 'https://example.com',
+      type: 'yohaku:file-preview',
+      url: 'https://cdn.example/file/report.pdf',
     })
   })
 

@@ -7,6 +7,7 @@ import {
 
 const IMAGE_PREVIEW_MESSAGE = 'yohaku:image-preview'
 const IMAGE_PREWARM_MESSAGE = 'yohaku:image-preview-prewarm'
+const FILE_PREVIEW_MESSAGE = 'yohaku:file-preview'
 
 function postNativeMessage(message: object): boolean {
   if (typeof window === 'undefined') return false
@@ -28,7 +29,7 @@ export function postNativeImagePreview(
   payload: OpenImagePayload,
   siteReferer?: string,
 ): boolean {
-  if (!payload.source) return false
+  if (!payload.src && payload.images.length === 0) return false
   return postNativeMessage({
     ...payload,
     siteReferer,
@@ -40,6 +41,22 @@ export function prewarmNativeImagePreview(element: HTMLImageElement): boolean {
   return postNativeMessage({
     source: imagePreviewSourceFromElement(element),
     type: IMAGE_PREWARM_MESSAGE,
+  })
+}
+
+export function postNativeFilePreview(payload: {
+  mimeType?: string
+  name: string
+  siteReferer?: string
+  url: string
+}): boolean {
+  if (!payload.url) return false
+  return postNativeMessage({
+    mimeType: payload.mimeType,
+    name: payload.name,
+    siteReferer: payload.siteReferer,
+    type: FILE_PREVIEW_MESSAGE,
+    url: payload.url,
   })
 }
 

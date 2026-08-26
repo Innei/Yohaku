@@ -40,11 +40,24 @@ const CONTENT = JSON.stringify({
         src: 'https://raw.githubusercontent.com/Innei/Yohaku/main/README.md',
       }),
       file({
+        ext: 'png',
+        mimeType: 'image/png',
+        name: 'cover.png',
+        size: 86_040,
+        src: 'https://picsum.photos/seed/yohaku-file/800/600',
+      }),
+      file({
         ext: 'pdf',
         mimeType: 'application/pdf',
-        name: '季度报告.pdf',
-        size: 2_411_724,
-        src: 'https://cdn.example/file/report.pdf',
+        name: 'dummy.pdf',
+        size: 13_264,
+        src: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+      }),
+      file({
+        ext: 'zip',
+        mimeType: 'application/zip',
+        name: 'archive.zip',
+        src: 'https://cdn.example/file/archive.zip',
       }),
       {
         type: 'paragraph',

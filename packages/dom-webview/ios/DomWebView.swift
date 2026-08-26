@@ -1086,7 +1086,9 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     if message.name == Self.POST_MESSAGE_HANDLER_NAME {
       if message.frameInfo.isMainFrame,
         let sourceWebView = message.webView,
-        DomImagePreviewDomain.handle(messageBody: message.body, from: sourceWebView) {
+        DomImagePreviewDomain.handle(messageBody: message.body, from: sourceWebView)
+          || DomFilePreviewDomain.handle(messageBody: message.body, from: sourceWebView)
+      {
         return
       }
       var payload = createBaseEventPayload()

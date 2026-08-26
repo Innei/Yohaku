@@ -30,6 +30,12 @@ const DomWebViewModule = requireNativeModule<{
 function warmLabels(): RichBodyLabels {
   const locale = getLocale()
   return {
+    fileDownloadFull: translate(locale, 'detail', 'fileDownloadFull'),
+    filePreviewDownload: translate(locale, 'detail', 'filePreviewDownload'),
+    filePreviewTruncated: translate(locale, 'detail', 'filePreviewTruncated', {
+      size: '512 KB',
+    }),
+    filePreviewUnavailable: translate(locale, 'detail', 'filePreviewUnavailable'),
     nestedDocCollapse: translate(locale, 'detail', 'nestedDocCollapse'),
     nestedDocExpand: translate(locale, 'detail', 'nestedDocExpand'),
     nestedDocLabel: translate(locale, 'detail', 'nestedDoc'),

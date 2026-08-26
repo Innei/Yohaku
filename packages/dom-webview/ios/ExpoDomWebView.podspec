@@ -17,6 +17,7 @@ Pod::Spec.new do |s|
   s.source         = { git: 'https://github.com/expo/expo.git' }
   s.static_framework = true
   s.dependency 'ExpoModulesCore'
+  s.frameworks = 'QuickLook'
 
   # Swift/Objective-C compatibility
   s.pod_target_xcconfig = {

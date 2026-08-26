@@ -69,6 +69,10 @@ export interface RichBodyFontFace {
 // The DOM sandbox has no access to native modules, so the locale store cannot
 // be imported here — every string and the locale itself arrive as props.
 export interface RichBodyLabels {
+  fileDownloadFull: string
+  filePreviewDownload: string
+  filePreviewTruncated: string
+  filePreviewUnavailable: string
   nestedDocCollapse: string
   nestedDocExpand: string
   nestedDocLabel: string
@@ -616,6 +620,10 @@ export default function RichBody({
   // and would invalidate this memo — and with it the whole renderer subtree —
   // on every render.
   const {
+    fileDownloadFull,
+    filePreviewDownload,
+    filePreviewTruncated,
+    filePreviewUnavailable,
     nestedDocCollapse,
     nestedDocExpand,
     nestedDocLabel,
@@ -634,7 +642,17 @@ export default function RichBody({
         apiBase,
         codeBlock: MobileCodeBlock,
         enrichments: bodyEnrichments,
-        fileCard: MobileFileCard,
+        fileCard: (props) => (
+          <MobileFileCard
+            {...props}
+            labels={{
+              fileDownloadFull,
+              filePreviewDownload,
+              filePreviewTruncated,
+              filePreviewUnavailable,
+            }}
+          />
+        ),
         locale,
         labels: { nestedDocCollapse, nestedDocExpand, nestedDocLabel },
         nestedDocPresentation: canExpandNestedDoc ? 'modal' : 'inline',
@@ -650,6 +668,10 @@ export default function RichBody({
       bodyEnrichments,
       bodyWebUrl,
       canExpandNestedDoc,
+      fileDownloadFull,
+      filePreviewDownload,
+      filePreviewTruncated,
+      filePreviewUnavailable,
       handlers,
       locale,
       nestedDocCollapse,
