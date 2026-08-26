@@ -1,3 +1,6 @@
+import { sx, sxClass } from '../../../lib/sx'
+import { extras } from '../../../styles/extras.stylex'
+import { atoms } from '../../../styles/atoms.stylex'
 import type { FC, MouseEvent, PointerEvent as ReactPointerEvent } from 'react'
 import {
   useCallback,
@@ -337,10 +340,7 @@ export const InteractiveScene: FC<InteractiveSceneProps> = ({
       data-color-scheme={theme}
       ref={containerRef}
       style={{ cursor: panRef.current ? 'grabbing' : 'grab' }}
-      className={clsxm(
-        'group/excalidraw relative size-full touch-none select-none overflow-hidden',
-        className,
-      )}
+      {...sx(atoms.relative, atoms.size_full, atoms.touch_none, atoms.select_none, atoms.overflow_hidden, className)} data-group="excalidraw"
       onPointerCancel={handlePointerCancel}
       onPointerDown={handlePointerDown}
       onPointerLeave={handlePointerCancel}
@@ -348,7 +348,7 @@ export const InteractiveScene: FC<InteractiveSceneProps> = ({
       onPointerUp={handlePointerUp}
     >
       <svg
-        className="block size-full"
+        {...sx(atoms.block, atoms.size_full)}
         preserveAspectRatio="xMinYMin meet"
         ref={svgRef}
         role="img"
@@ -393,29 +393,25 @@ const Toolbar: FC<ToolbarProps> = ({
 }) => {
   return (
     <div
-      className={clsxm(
-        'absolute bottom-2 right-2 z-10 flex items-center gap-1 rounded-md border border-neutral-3 bg-(--surface-paper) px-1 py-1 text-sm',
-        'opacity-0 transition-opacity duration-150 group-hover/excalidraw:opacity-100 focus-within:opacity-100',
-        'pointer-coarse:opacity-90',
-      )}
+      {...sx(extras.pointerCoarseOpacity90, atoms.absolute, atoms.bottom_2, atoms.right_2, atoms.z_10, atoms.flex, atoms.items_center, atoms.gap_1, atoms.rounded_md, atoms.border, atoms.border_neutral_3, atoms.bg____surface_paper, atoms.px_1, atoms.py_1, atoms.text_sm, atoms.opacity_0, atoms.transition_opacity, atoms.duration_150, atoms.group_hover_excalidraw_opacity_100, atoms.focus_within_opacity_100)}
       onPointerDown={(e) => e.stopPropagation()}
     >
       <ToolButton title="Zoom out (⌘/Ctrl + scroll)" onClick={onZoomOut}>
         <i className="i-mingcute-zoom-out-line" />
       </ToolButton>
-      <span className="min-w-[3.25rem] px-1.5 text-center text-caption-12 text-neutral-7 tabular-nums">
+      <span {...sx(atoms.min_w__3dot25rem, atoms.px_1dot5, atoms.text_center, atoms.text_neutral_7, atoms.tabular_nums, extras.textCaption12)}>
         {Math.round(scale * 100)}%
       </span>
       <ToolButton title="Zoom in (⌘/Ctrl + scroll)" onClick={onZoomIn}>
         <i className="i-mingcute-zoom-in-line" />
       </ToolButton>
-      <span className="mx-0.5 h-4 w-px bg-neutral-3" />
+      <span {...sx(atoms.mx_0dot5, atoms.h_4, atoms.w_px, atoms.bg_neutral_3)} />
       <ToolButton title="Reset to fit" onClick={onReset}>
         <i className="i-mingcute-refresh-2-line" />
       </ToolButton>
       {onExpand && (
         <>
-          <span className="mx-0.5 h-4 w-px bg-neutral-3" />
+          <span {...sx(atoms.mx_0dot5, atoms.h_4, atoms.w_px, atoms.bg_neutral_3)} />
           <ToolButton title="Open SVG in new tab" onClick={onExpand}>
             <i className="i-mingcute-external-link-line" />
           </ToolButton>
@@ -432,7 +428,7 @@ const ToolButton: FC<{
 }> = ({ children, onClick, title }) => (
   <button
     aria-label={title}
-    className="flex size-7 items-center justify-center rounded text-neutral-7 hover:bg-neutral-2 hover:text-neutral-10"
+    {...sx(atoms.flex, atoms.size_7, atoms.items_center, atoms.justify_center, atoms.rounded, atoms.text_neutral_7, atoms.hover_bg_neutral_2, atoms.hover_text_neutral_10)}
     title={title}
     type="button"
     onClick={onClick}
