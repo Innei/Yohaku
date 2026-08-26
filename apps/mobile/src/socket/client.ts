@@ -6,6 +6,10 @@ import { camelize } from '@/api/camelize'
 import { getSessionCookie } from '@/auth/client'
 import { getLocale } from '@/i18n/locale-store'
 import { queryClient } from '@/lib/query-client'
+import {
+  liveDeskQueryDataFromSocket,
+  liveDeskQueryKey,
+} from '@/owner/companion-presence'
 
 import { getAnonymousSessionId } from './anonymous-id'
 import { GATEWAY_EVENTS } from './events'
@@ -13,9 +17,9 @@ import { socketGatewayConnectUrl, socketGatewayUrl } from './gateway-url'
 import {
   applyPresenceLeave,
   applyPresenceUpdate,
-  presenceRoomQueryKey,
   type PresenceMap,
   type PresenceRecord,
+  presenceRoomQueryKey,
 } from './presence-sync'
 import { socketTrace } from './trace'
 import { currentPresenceVisitor } from './visitor'
@@ -249,9 +253,12 @@ function handleGatewayEvent(event: string, raw: unknown) {
     return
   }
   if (event === 'companion_presence.changed') {
-    void queryClient.invalidateQueries({
-      queryKey: ['companion', 'presence', 'public'],
-    })
+    const data = liveDeskQueryDataFromSocket(camelize(raw))
+    if (data) {
+      queryClient.setQueryData(liveDeskQueryKey, data)
+      return
+    }
+    void queryClient.invalidateQueries({ queryKey: liveDeskQueryKey })
   }
 }
 

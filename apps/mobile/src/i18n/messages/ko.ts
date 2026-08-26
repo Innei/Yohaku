@@ -232,6 +232,10 @@ export const ko = {
     openInNetease: '넷이즈 클라우드 뮤직에서 열기',
     openInQqMusic: 'QQ 뮤직에서 열기',
     quiet: '지금은 조용해요',
+    seated: '책상 앞',
+    seatedJustNow: '방금 앉음',
+    seatedMinutes: '{count}분',
+    seatedHours: '{count}시간',
   },
   dev: {
     title: '개발자 도구',

@@ -231,6 +231,10 @@ export const zhTW = {
     openInNetease: '在網易雲音樂打開',
     openInQqMusic: '在 QQ 音樂打開',
     quiet: '此刻很安靜',
+    seated: '已在桌前',
+    seatedJustNow: '剛剛坐下',
+    seatedMinutes: '{count} 分鐘',
+    seatedHours: '{count} 小時',
   },
   dev: {
     title: '開發者工具',

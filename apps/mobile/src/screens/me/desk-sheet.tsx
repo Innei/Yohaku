@@ -40,7 +40,9 @@ export function DeskSheet() {
   const title = media
     ? (media.title ?? media.artist ?? media.playerDisplayName ?? '')
     : (application?.displayName ?? '')
-  const byline = media ? buildMediaByline(media) : (application?.detail ?? null)
+  const byline = media
+    ? buildMediaByline(media)
+    : (application?.detail ?? application?.windowTitle ?? null)
   const stateText = media
     ? t(media.playbackState === 'playing' ? 'playing' : 'paused')
     : t('using')

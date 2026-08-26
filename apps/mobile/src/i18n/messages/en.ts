@@ -234,6 +234,10 @@ export const en = {
     openInNetease: 'Open in NetEase Cloud Music',
     openInQqMusic: 'Open in QQ Music',
     quiet: 'All quiet right now',
+    seated: 'At the desk',
+    seatedJustNow: 'Just sat down',
+    seatedMinutes: '{count} min',
+    seatedHours: '{count} hr',
   },
   dev: {
     title: 'Developer tools',

@@ -72,6 +72,7 @@ describe('parseDeskSnapshot', () => {
         detail: 'writing Yohaku',
         displayName: 'Xcode',
         iconUrl: 'https://cdn/xcode.png',
+        windowTitle: 'post-detail.tsx',
       },
       media: null,
       visible: true,

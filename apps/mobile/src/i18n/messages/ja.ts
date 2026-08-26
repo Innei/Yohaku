@@ -235,6 +235,10 @@ export const ja = {
     openInNetease: 'NetEase Cloud Musicで開く',
     openInQqMusic: 'QQ音楽で開く',
     quiet: 'いまは静かです',
+    seated: 'デスクにいる',
+    seatedJustNow: 'いま着いた',
+    seatedMinutes: '{count} 分',
+    seatedHours: '{count} 時間',
   },
   dev: {
     title: '開発者ツール',

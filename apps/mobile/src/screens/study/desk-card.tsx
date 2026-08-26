@@ -1,6 +1,6 @@
 import * as Linking from 'expo-linking'
 import { SymbolView } from 'expo-symbols'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import Animated, {
   useAnimatedStyle,
@@ -18,7 +18,14 @@ import {
 } from '@/components/ui'
 import { useTranslations } from '@/i18n'
 import {
+  createSeatClock,
+  deskSeatKey,
+  formatSeatElapsed,
+  seatRailPath,
+} from '@/owner/desk-seat'
+import {
   buildMediaByline,
+  type DeskApplication,
   type DeskMedia,
   projectMediaPositionMs,
 } from '@/owner/live-desk'
@@ -28,26 +35,37 @@ import {
 } from '@/owner/music-playback'
 import { useOwner } from '@/owner/store'
 import { useDeskSnapshot } from '@/owner/use-desk-snapshot'
+import { fonts } from '@/theme/fonts'
 import { splashEasing } from '@/theme/motion'
 import type { Palette } from '@/theme/palette'
 import { usePalette } from '@/theme/palette'
+
+const CARD_MIN_HEIGHT = 128
+const SEAT_TICK_MS = 15_000
 
 export function DeskCard() {
   const t = useTranslations('desk')
   const owner = useOwner()
   const palette = usePalette()
   const snapshot = useDeskSnapshot()
+  const seatClock = useRef(createSeatClock()).current
+  const [now, setNow] = useState(() => Date.now())
 
   const media = snapshot.visible ? snapshot.media : null
   const application = snapshot.visible ? snapshot.application : null
   const title = media
     ? (media.title ?? media.artist ?? media.playerDisplayName ?? '')
     : (application?.displayName ?? '')
-  // The card holds its slot even with nothing on the desk: collapsing it would
-  // shove the whole study around every time the owner starts or stops something.
-  if (!owner || !title) return <EmptyDesk />
+  const live = Boolean(owner && title)
+  const seatKey = deskSeatKey(snapshot)
 
-  const iconUrl = media?.artworkUrl ?? application?.iconUrl ?? null
+  useEffect(() => {
+    if (!seatKey) return
+    const timer = setInterval(() => setNow(Date.now()), SEAT_TICK_MS)
+    return () => clearInterval(timer)
+  }, [seatKey])
+
+  const elapsedMs = seatClock.elapsedMs(seatKey, now)
   const alsoUsing =
     media && application ? t('alsoUsing', { app: application.displayName }) : null
   const mediaByline = media ? buildMediaByline(media) : null
@@ -67,82 +85,158 @@ export function DeskCard() {
   const openLabel = playback
     ? t(playback.provider === 'qq' ? 'openInQqMusic' : 'openInNetease')
     : null
+  const iconUrl = media?.artworkUrl ?? application?.iconUrl ?? null
+  const ticket = {
+    application,
+    byline,
+    elapsedMs,
+    iconUrl,
+    kicker,
+    media,
+    openLabel,
+    playback,
+    title,
+  }
+  const lastTicketRef = useRef(ticket)
+  if (live) lastTicketRef.current = ticket
+  const shown = live ? ticket : lastTicketRef.current
+
+  const still = useSharedValue(live ? 0 : 1)
+  useEffect(() => {
+    still.set(
+      withTiming(live ? 0 : 1, {
+        duration: 280,
+        easing: splashEasing.seal,
+      }),
+    )
+  }, [live, still])
+
+  const stillStyle = useAnimatedStyle(() => ({ opacity: still.value }))
+  const ticketStyle = useAnimatedStyle(() => ({ opacity: 1 - still.value }))
 
   const card = (
     <GroupedCard style={styles.card}>
-      <View style={styles.row}>
-        {iconUrl ? (
-          <RemoteImage
-            contentFit="cover"
-            style={styles.cover}
-            uri={iconUrl}
+      <Animated.View
+        accessibilityElementsHidden={live}
+        importantForAccessibility={live ? 'no-hide-descendants' : 'yes'}
+        pointerEvents={live ? 'none' : 'auto'}
+        style={[styles.still, stillStyle]}
+      >
+        <View style={[styles.stillMark, { backgroundColor: palette.neutral[3] }]}>
+          <SymbolView
+            name="cup.and.saucer"
+            size={20}
+            tintColor={palette.neutral[6]}
           />
-        ) : (
-          <View
-            style={[styles.cover, { backgroundColor: palette.neutral[3] }]}
-          >
-            <SymbolView
-              name={media ? 'music.note' : 'macwindow'}
-              size={18}
-              tintColor={palette.neutral[6]}
-            />
-          </View>
-        )}
-        <View style={styles.copy}>
-          <View style={styles.kicker}>
-            <BreathDot color={palette.accent} />
-            <AppText numberOfLines={1} variant="meta">
-              {kicker}
-            </AppText>
-          </View>
-          <AppText numberOfLines={1} variant="entryTitleSans">
-            {title}
-          </AppText>
-          {byline ? (
-            <AppText numberOfLines={1} variant="secondary">
-              {byline}
-            </AppText>
-          ) : null}
         </View>
-      </View>
-      {media ? <MediaProgress media={media} palette={palette} /> : null}
+        <AppText color={palette.neutral[7]} variant="secondary">
+          {t('quiet')}
+        </AppText>
+      </Animated.View>
+
+      <Animated.View
+        accessibilityElementsHidden={!live}
+        importantForAccessibility={live ? 'yes' : 'no-hide-descendants'}
+        pointerEvents={live ? 'auto' : 'none'}
+        style={[styles.ticket, ticketStyle]}
+      >
+        <View style={styles.row}>
+          {shown.iconUrl ? (
+            <RemoteImage
+              contentFit="cover"
+              style={styles.cover}
+              uri={shown.iconUrl}
+            />
+          ) : (
+            <View
+              style={[styles.cover, { backgroundColor: palette.neutral[3] }]}
+            >
+              <SymbolView
+                name={shown.media ? 'music.note' : 'macwindow'}
+                size={18}
+                tintColor={palette.neutral[6]}
+              />
+            </View>
+          )}
+          <View style={styles.copy}>
+            <View style={styles.kicker}>
+              <BreathDot color={palette.accent} />
+              <AppText numberOfLines={1} variant="meta">
+                {shown.kicker}
+              </AppText>
+            </View>
+            <AppText numberOfLines={1} variant="entryTitleSans">
+              {shown.title}
+            </AppText>
+            {shown.byline ? (
+              <AppText numberOfLines={1} variant="secondary">
+                {shown.byline}
+              </AppText>
+            ) : null}
+          </View>
+        </View>
+        {shown.media ? (
+          <MediaProgress media={shown.media} palette={palette} />
+        ) : shown.application && shown.elapsedMs !== null ? (
+          <SeatRail
+            application={shown.application}
+            elapsedMs={shown.elapsedMs}
+            palette={palette}
+          />
+        ) : null}
+      </Animated.View>
     </GroupedCard>
   )
 
-  if (!playback || !openLabel) return card
+  if (!shown.playback || !shown.openLabel) return card
 
   return (
     <SinkPressable
-      accessibilityLabel={`${title}. ${openLabel}`}
+      accessibilityLabel={`${shown.title}. ${shown.openLabel}`}
       accessibilityRole="link"
-      onPress={() => void openMusicPlayback(playback.httpsUrl, Linking)}
+      onPress={() => void openMusicPlayback(shown.playback.httpsUrl, Linking)}
     >
       {card}
     </SinkPressable>
   )
 }
 
-function EmptyDesk() {
+function SeatRail({
+  application,
+  elapsedMs,
+  palette,
+}: {
+  application: DeskApplication
+  elapsedMs: number
+  palette: Palette
+}) {
   const t = useTranslations('desk')
-  const palette = usePalette()
+  const elapsed = formatSeatElapsed(elapsedMs)
+  const path = seatRailPath(application)
+
+  if (elapsed.kind === 'just') {
+    return (
+      <AppText color={palette.neutral[7]} style={styles.railLabel}>
+        {t('seatedJustNow')}
+      </AppText>
+    )
+  }
 
   return (
-    <GroupedCard style={styles.card}>
-      <View style={styles.row}>
-        <View style={[styles.cover, { backgroundColor: palette.neutral[3] }]}>
-          <SymbolView
-            name="cup.and.saucer"
-            size={18}
-            tintColor={palette.neutral[6]}
-          />
-        </View>
-        <View style={styles.copy}>
-          <AppText color={palette.neutral[6]} variant="secondary">
-            {t('quiet')}
-          </AppText>
-        </View>
-      </View>
-    </GroupedCard>
+    <View style={styles.rail}>
+      <AppText
+        color={palette.neutral[7]}
+        numberOfLines={1}
+        style={[styles.railLabel, path ? fonts.mono : null]}
+      >
+        {path ?? t('seated')}
+      </AppText>
+      <AppText color={palette.neutral[6]} style={styles.railClock}>
+        {t(elapsed.kind === 'minutes' ? 'seatedMinutes' : 'seatedHours', {
+          count: elapsed.count,
+        })}
+      </AppText>
+    </View>
   )
 }
 
@@ -223,13 +317,27 @@ function formatDuration(ms: number): string {
   return `${minutes}:${String(seconds).padStart(2, '0')}`
 }
 
-// Every desk state renders at this height, so the study never reflows when the
-// owner starts, switches, or stops something. Sized to the tallest variant:
-// kicker + title + byline (72) plus the media progress row (12 + 16).
-const CARD_MIN_HEIGHT = 128
-
 const styles = StyleSheet.create({
   card: {
+    minHeight: CARD_MIN_HEIGHT,
+    overflow: 'hidden',
+  },
+  still: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 14,
+  },
+  stillMark: {
+    alignItems: 'center',
+    borderCurve: 'continuous',
+    borderRadius: 12,
+    height: 44,
+    justifyContent: 'center',
+    width: 44,
+  },
+  ticket: {
     gap: 12,
     justifyContent: 'center',
     minHeight: CARD_MIN_HEIGHT,
@@ -285,6 +393,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   time: {
+    fontSize: 11,
+    fontVariant: ['tabular-nums'],
+    lineHeight: 16,
+  },
+  rail: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
+    minHeight: 16,
+  },
+  railLabel: {
+    flex: 1,
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  railClock: {
     fontSize: 11,
     fontVariant: ['tabular-nums'],
     lineHeight: 16,

@@ -231,6 +231,10 @@ export const zh = {
     openInNetease: '在网易云音乐打开',
     openInQqMusic: '在 QQ 音乐打开',
     quiet: '此刻很安静',
+    seated: '已在桌前',
+    seatedJustNow: '刚刚坐下',
+    seatedMinutes: '{count} 分钟',
+    seatedHours: '{count} 小时',
   },
   dev: {
     title: '开发者工具',

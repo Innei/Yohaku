@@ -4,6 +4,7 @@ export interface DeskApplication {
   detail: string | null
   displayName: string
   iconUrl: string | null
+  windowTitle: string | null
 }
 
 export interface DeskMedia {
@@ -56,9 +57,10 @@ function parseApplication(raw: unknown): DeskApplication | null {
   const displayName = text(app.displayName)
   if (!displayName) return null
   return {
-    detail: text(app.activity?.customLabel) ?? text(app.window?.title),
+    detail: text(app.activity?.customLabel),
     displayName,
     iconUrl: url(app.icon),
+    windowTitle: text(app.window?.title),
   }
 }
 
