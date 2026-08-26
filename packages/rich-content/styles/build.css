@@ -1,4 +1,1 @@
-@import 'tailwindcss';
-@config "../tailwind.config.ts";
-@import '@yohaku/design-system/tokens.css';
-@source "./src/**/*.{ts,tsx}";
+/* Compiled by scripts/build-rich-css.mjs — do not import Tailwind here. */
