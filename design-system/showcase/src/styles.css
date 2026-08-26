@@ -1161,7 +1161,7 @@ code,
 }
 
 [data-theme='dark'] .shiki-card__copy:hover {
-  background: color-mix(in srgb, var(--color-accent) 8%, black);
+  background: color-mix(in srgb, var(--code-accent) 8%, black);
 }
 
 .shiki-card__divider {
