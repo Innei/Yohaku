@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../../lib/sx'
+import { atoms } from '../../../styles/atoms.stylex'
 
 import type {
   PollDataAdapter,
@@ -42,9 +44,9 @@ function PollFrame({
 }) {
   return (
     <div
-      className={clsx(
-        'border-accent my-4 border-l-2 py-1 pl-4',
-        closed && 'opacity-70',
+      {...sx(
+        atoms.border_accent, atoms.my_4, atoms.border_l_2, atoms.py_1, atoms.pl_4,
+        closed && atoms.opacity_70,
       )}
     >
       {children}
@@ -55,13 +57,13 @@ function PollFrame({
 function PollStaticFallback({ question, options }: PollRendererProps) {
   return (
     <PollFrame>
-      <p className="text-neutral-10 mb-3 text-copy-14 font-medium">
+      <p {...sx(atoms.text_neutral_10, atoms.mb_3, atoms.text_copy_14, atoms.font_medium)}>
         {question}
       </p>
-      <ul className="m-0 list-none p-0">
+      <ul {...sx(atoms.m_0, atoms.list_none, atoms.p_0)}>
         {options.map((option) => (
           <li
-            className="text-neutral-7 border-border flex items-baseline justify-between gap-3 border-b py-[9px] last:border-b-0"
+            {...sx(atoms.text_neutral_7, atoms.border_border, atoms.flex, atoms.items_baseline, atoms.justify_between, atoms.gap_3, atoms.border_b, atoms.py__9px, atoms.last_border_b_0)}
             key={option.id}
           >
             <span>{option.label}</span>
@@ -76,8 +78,7 @@ interface PollInteractiveProps {
   adapter: PollDataAdapter
   closeAt?: string
   mode: 'single' | 'multiple'
-  options: PollOption[]
-  pollId: string
+  options: PollOption[]n  pollId: string
   question: string
   showResults?: PollShowResults
 }
@@ -154,10 +155,10 @@ function PollInteractive({
   if (state.status === 'loading') {
     return (
       <PollFrame>
-        <div className="bg-neutral-3 mb-4 h-[1.1rem] w-3/5 animate-pulse rounded-sm" />
+        <div {...sx(atoms.bg_neutral_3, atoms.mb_4, atoms.h__1dot1rem, atoms.w_3_5, atoms.animate_pulse, atoms.rounded_sm)} />
         {options.map((option) => (
           <div
-            className="bg-neutral-3 my-[9px] h-5 animate-pulse rounded-sm"
+            {...sx(atoms.bg_neutral_3, atoms.my__9px, atoms.h_5, atoms.animate_pulse, atoms.rounded_sm)}
             key={option.id}
           />
         ))}
@@ -167,10 +168,10 @@ function PollInteractive({
 
   return (
     <PollFrame closed={isClosed}>
-      <p className="text-neutral-10 mb-3 text-copy-14 font-medium">
+      <p {...sx(atoms.text_neutral_10, atoms.mb_3, atoms.text_copy_14, atoms.font_medium)}>
         {question}
       </p>
-      <ul className="m-0 list-none p-0">
+      <ul {...sx(atoms.m_0, atoms.list_none, atoms.p_0)}>
         {options.map((option) => {
           const isUserChoice = state.userVote?.includes(option.id) ?? false
           const isPending = pendingSelection.includes(option.id)
@@ -186,15 +187,11 @@ function PollInteractive({
           return (
             <li
               key={option.id}
-              className={clsx(
-                'group border-border relative flex items-baseline justify-between gap-3 border-b py-[9px] transition-colors duration-150 last:border-b-0',
-                canInteract ? 'cursor-pointer' : 'cursor-default',
-                labelHighlighted
-                  ? 'text-neutral-10 font-medium'
+              {...sx(atoms.border_border, atoms.relative, atoms.flex, atoms.items_baseline, atoms.justify_between, atoms.gap_3, atoms.border_b, atoms.py__9px, atoms.transition_colors, atoms.duration_150, atoms.last_border_b_0, canInteract ? atoms.cursor_pointer : atoms.cursor_default, labelHighlighted
+                  ? [atoms.text_neutral_10, atoms.font_medium]
                   : canInteract
-                    ? 'text-neutral-7 hover:text-neutral-9'
-                    : 'text-neutral-7',
-              )}
+                    ? [atoms.text_neutral_7, atoms.hover_text_neutral_9]
+                    : atoms.text_neutral_7)} data-group=""
               onClick={handleClick}
               {...(canInteract
                 ? {
@@ -211,14 +208,11 @@ function PollInteractive({
             >
               <span
                 aria-hidden
-                className={clsx(
-                  'pointer-events-none absolute -bottom-px left-0 h-px transition-[width,background-color] duration-300',
-                  isPending && mode === 'multiple'
-                    ? 'bg-accent/50 w-full!'
+                {...sx(atoms.pointer_events_none, atoms.absolute, atoms._bottom_px, atoms.left_0, atoms.h_px, atoms.transition__width_background_color, atoms.duration_300, isPending && mode === 'multiple'
+                    ? [atoms.bg_accent_50, atoms.w_fullimportant_]
                     : isUserChoice
-                      ? 'bg-accent'
-                      : 'bg-neutral-4',
-                )}
+                      ? atoms.bg_accent
+                      : atoms.bg_neutral_4)}
                 style={{
                   width:
                     isPending && mode === 'multiple'
@@ -226,18 +220,18 @@ function PollInteractive({
                       : `${share * 100}%`,
                 }}
               />
-              <span className="min-w-0 flex-1">{option.label}</span>
+              <span {...sx(atoms.min_w_0, atoms.flex_1)}>{option.label}</span>
               {showCounts ? (
                 <span
-                  className={clsx(
-                    'font-mono text-label-12 tabular-nums',
-                    labelHighlighted ? 'text-neutral-10' : 'text-neutral-6',
+                  {...sx(
+                    atoms.font_mono, atoms.text_label_12, atoms.tabular_nums,
+                    labelHighlighted ? atoms.text_neutral_10 : atoms.text_neutral_6,
                   )}
                 >
                   {Math.round(share * 100)}%
                 </span>
               ) : canInteract && mode === 'single' ? (
-                <span className="text-neutral-5 font-mono text-[0.7rem] opacity-0 transition-opacity duration-150 group-hover:opacity-100">
+                <span {...sx(atoms.text_neutral_5, atoms.font_mono, atoms.text__0dot7rem, atoms.opacity_0, atoms.transition_opacity, atoms.duration_150, atoms.group_hover_opacity_100)}>
                   点选即投
                 </span>
               ) : null}
@@ -247,15 +241,15 @@ function PollInteractive({
       </ul>
 
       {canInteract && mode === 'multiple' && (
-        <div className="mt-3">
+        <div {...sx(atoms.mt_3)}>
           <button
             aria-busy={isSubmitting || undefined}
             disabled={pendingSelection.length === 0 || isSubmitting}
             type="button"
-            className={clsx(
-              'inline-flex select-none items-center justify-center gap-1.5 rounded-md border px-2.5 py-0.5 text-label-12 font-medium transition-all duration-200',
-              'border-accent/30 bg-accent/8 text-accent hover:bg-accent/12 hover:border-accent/45',
-              'disabled:cursor-not-allowed disabled:border-accent/15 disabled:bg-accent/4 disabled:text-accent/40',
+            {...sx(
+              atoms.inline_flex, atoms.select_none, atoms.items_center, atoms.justify_center, atoms.gap_1dot5, atoms.rounded_md, atoms.border, atoms.px_2dot5, atoms.py_0dot5, atoms.text_label_12, atoms.font_medium, atoms.transition_all, atoms.duration_200,
+              atoms.border_accent_30, atoms.bg_accent_8, atoms.text_accent, atoms.hover_bg_accent_12, atoms.hover_border_accent_45,
+              atoms.disabled_cursor_not_allowed, atoms.disabled_border_accent_15, atoms.disabled_bg_accent_4, atoms.disabled_text_accent_40,
             )}
             onClick={handleMultiSubmit}
           >
@@ -268,14 +262,14 @@ function PollInteractive({
         </div>
       )}
 
-      <div className="text-neutral-6 mt-3 flex justify-between font-mono text-[0.7rem]">
+      <div {...sx(atoms.text_neutral_6, atoms.mt_3, atoms.flex, atoms.justify_between, atoms.font_mono, atoms.text__0dot7rem)}>
         {showCounts && state.totalVotes > 0 ? (
           <span>{state.totalVotes.toLocaleString()} 票</span>
         ) : (
           <span />
         )}
         {isClosed ? (
-          <span className="text-accent">已闭</span>
+          <span {...sx(atoms.text_accent)}>已闭</span>
         ) : closeAt ? (
           <span>{closeAt} 截</span>
         ) : (
@@ -284,11 +278,11 @@ function PollInteractive({
       </div>
 
       {state.status === 'error' && state.errorMessage ? (
-        <p className="text-error mt-2 font-mono text-[0.7rem]">
+        <p {...sx(atoms.text_error, atoms.mt_2, atoms.font_mono, atoms.text__0dot7rem)}>
           {state.errorMessage}
         </p>
       ) : !state.canVote && !userVoted && !isClosed && state.errorMessage ? (
-        <p className="text-neutral-6 mt-2 font-mono text-[0.7rem]">
+        <p {...sx(atoms.text_neutral_6, atoms.mt_2, atoms.font_mono, atoms.text__0dot7rem)}>
           {state.errorMessage}
         </p>
       ) : null}

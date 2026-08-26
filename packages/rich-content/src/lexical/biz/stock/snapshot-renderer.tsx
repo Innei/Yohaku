@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../../lib/sx'
+import { atoms } from '../../../styles/atoms.stylex'
 
 import { useId, useState } from 'react'
 import { SlotText } from 'slot-text/react'
@@ -184,7 +186,7 @@ export function SnapshotCard({ quote }: { quote: Quote }) {
         }
       />
 
-      <div className="relative mt-4 w-full" style={{ height: SPARK_H }}>
+      <div {...sx(atoms.relative, atoms.mt_4, atoms.w_full)} style={{ height: SPARK_H }}>
         <svg
           aria-hidden="true"
           height={SPARK_H}
@@ -215,7 +217,7 @@ export function SnapshotCard({ quote }: { quote: Quote }) {
         {line ? (
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute block rounded-full"
+            {...sx(atoms.pointer_events_none, atoms.absolute, atoms.block, atoms.rounded_full)}
             style={{
               left: `${(endX / SPARK_W) * 100}%`,
               top: `${(endY / SPARK_H) * 100}%`,
