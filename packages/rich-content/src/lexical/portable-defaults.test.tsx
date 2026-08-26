@@ -304,6 +304,23 @@ it('collapses a long code block behind an expand control', () => {
   expect(html).toContain('展开')
 })
 
+it('prints a long code block fully expanded', () => {
+  const html = renderStatic(
+    [
+      {
+        code: Array.from({ length: 24 }, (_, i) => `line ${i}`).join('\n'),
+        language: 'ts',
+        type: 'code-block',
+        version: 1,
+      },
+    ],
+    { ...baseHost, printMode: true },
+  )
+  expect(html).toContain('line 23')
+  expect(html).not.toContain('yohaku-code-block--collapsed')
+  expect(html).not.toContain('展开')
+})
+
 it('highlights code through shiki once the async bundle resolves', async () => {
   await renderClient([codeNode], baseHost)
   const shikiEl = mountEl.querySelector('.yohaku-code-block__shiki')

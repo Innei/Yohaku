@@ -12,6 +12,7 @@ import type {
 import { DecoratorNode } from 'lexical'
 import type { ReactElement } from 'react'
 
+import { PrintCaption } from '../../../host'
 import { BlockBoundary } from '../../block-boundary'
 import { StaticExcalidraw } from './StaticExcalidraw'
 
@@ -74,11 +75,13 @@ export class ExcalidrawNode extends DecoratorNode<ReactElement> {
 
   decorate(_editor: LexicalEditor, _config: EditorConfig): ReactElement {
     return (
-      <BlockBoundary label="画板">
-        <div className="my-4 aspect-[16/9] w-full">
-          <StaticExcalidraw data={this.__snapshot} />
-        </div>
-      </BlockBoundary>
+      <PrintCaption kind="excalidraw">
+        <BlockBoundary label="画板">
+          <div className="my-4 aspect-[16/9] w-full">
+            <StaticExcalidraw data={this.__snapshot} />
+          </div>
+        </BlockBoundary>
+      </PrintCaption>
     )
   }
 }

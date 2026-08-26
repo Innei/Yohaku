@@ -1,6 +1,46 @@
 import { describe, expect, it } from 'vitest'
 
-import { groupMenuItemsByCategory } from './article-more-menu'
+import {
+  buildArticleMoreItems,
+  groupMenuItemsByCategory,
+} from './article-more-menu'
+
+describe('buildArticleMoreItems', () => {
+  it('puts print in the share group and hides it when printing is unavailable', () => {
+    const visible = buildArticleMoreItems({
+      copyLink: '复制链接',
+      listenAvailable: false,
+      listening: false,
+      narrate: '朗读',
+      openInBrowser: '在网页中打开',
+      print: '打印',
+      printAvailable: true,
+      share: '分享',
+      toc: '目录',
+      tocAvailable: false,
+    })
+    expect(visible.find((item) => item.id === 'print')).toMatchObject({
+      category: 'share',
+      hidden: false,
+      icon: 'printer',
+    })
+    expect(
+      buildArticleMoreItems({
+        copyLink: '复制链接',
+        listenAvailable: false,
+        listening: false,
+        narrate: '朗读',
+        openInBrowser: '在网页中打开',
+        print: '打印',
+        printAvailable: false,
+        share: '分享',
+        toc: '目录',
+        tocAvailable: false,
+      }).find((item) => item.id === 'print')?.hidden,
+    ).toBe(true)
+  })
+})
+
 
 describe('groupMenuItemsByCategory', () => {
   it('drops hidden items then splits on category changes', () => {

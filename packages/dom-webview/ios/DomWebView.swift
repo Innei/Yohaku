@@ -611,6 +611,10 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
   // never take, give, or overwrite the article pool's source URL / boot scripts.
   var pooled: Bool = true
 
+  var printTarget: Bool = false {
+    didSet { DomPrintDomain.mark(id: id, enabled: printTarget) }
+  }
+
   // MARK: - WKWebView / UIScrollView props (mutable post-creation)
 
   var webviewDebuggingEnabled: Bool = false {
@@ -754,6 +758,7 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
   }
 
   deinit {
+    DomPrintDomain.mark(id: id, enabled: false)
     let shouldPool = pooled
     if let webView {
       DispatchQueue.main.async {

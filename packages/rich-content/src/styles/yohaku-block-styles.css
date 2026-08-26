@@ -607,3 +607,34 @@
   --card-wash-alpha-dim: 0.045;
   --card-wash-base: var(--surface-paper, var(--color-neutral-2));
 }
+
+@media print {
+  .yohaku-details::details-content,
+  .yohaku-details[open]::details-content {
+    height: auto !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    content-visibility: visible !important;
+  }
+
+  .m-code-block,
+  .yohaku-code-block,
+  .yohaku-code-fold,
+  .rich-code-block,
+  .rich-table-scroll,
+  pre {
+    overflow: visible !important;
+    max-height: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+
+  .m-code-block--collapsed .m-code-block__body,
+  .yohaku-code-block--collapsed .yohaku-code-block__body,
+  .yohaku-code-fold--collapsed .yohaku-code-fold__body {
+    max-height: none !important;
+    overflow: visible !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+}

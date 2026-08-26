@@ -71,6 +71,8 @@ export interface WebviewHostDeps {
   onImagePress: (payload: OpenImagePayload) => Promise<void>
   onLinkPress: (url: string) => Promise<void>
   onScrollToAnchor: (id: string) => Promise<void>
+  printCaption?: HostCapabilities['printCaption']
+  printMode?: boolean
   site?: HostCapabilities['site']
   theme: 'dark' | 'light'
   webOrigin: string
@@ -93,6 +95,8 @@ export function createWebviewHost(deps: WebviewHostDeps): HostCapabilities {
     labels: deps.labels,
     locale: deps.locale,
     nestedDocPresentation: deps.nestedDocPresentation ?? 'inline',
+    printCaption: deps.printCaption,
+    printMode: deps.printMode,
     openImage: (payload) => {
       if (postNativeImagePreview(payload, deps.webOrigin)) return
       return deps.onImagePress(payload)

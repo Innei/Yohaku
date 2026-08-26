@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState } from 'react'
 
+import { useOptionalHost } from '../../host'
 import { shouldCollapseCode } from './code-collapse'
 import { useExpandHeight } from './tween-height'
 
@@ -12,7 +13,8 @@ export function CodeFold({
   children: ReactNode
   code: string
 }) {
-  const long = shouldCollapseCode(code)
+  const printMode = Boolean(useOptionalHost()?.printMode)
+  const long = !printMode && shouldCollapseCode(code)
   const [expandedFor, setExpandedFor] = useState<string | null>(null)
   const collapsed = long && expandedFor !== code
   const { capture, ref } = useExpandHeight(collapsed)

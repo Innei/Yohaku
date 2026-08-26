@@ -14,6 +14,7 @@ import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
 import { siteHref } from '@/lib/site-url'
+import { useOwner } from '@/owner/store'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import { CommentSection } from '@/screens/comments/comment-section'
 import { usePalette } from '@/theme/palette'
@@ -21,6 +22,7 @@ import { usePalette } from '@/theme/palette'
 import { ArticleBody } from './article-body'
 import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
+import { useArticlePrint } from './article-print-host'
 import { useReservedBodyHeight } from './body-slot'
 import { useCollapsingTitle } from './use-collapsing-title'
 
@@ -30,6 +32,10 @@ export function PageDetailScreen({ slug }: { slug: string }) {
   const t = useTranslations('detail')
   const tc = useTranslations('common')
   const tl = useTranslations('list')
+  const tm = useTranslations('me')
+  const tp = useTranslations('print')
+  const owner = useOwner()
+  const { host: printHost, print } = useArticlePrint()
   const palette = usePalette()
   const scrollRef = useRef<ScrollView>(null)
   const reservedBodyHeight = useReservedBodyHeight()
@@ -76,11 +82,27 @@ export function PageDetailScreen({ slug }: { slug: string }) {
 
   return (
     <View style={styles.screen}>
+      {printHost}
       <Stack.Screen options={headerOptions} />
       <ArticleMore
+        printAvailable={Boolean(body)}
         title={page?.title}
         tocAvailable={headings.length > 0}
         url={webUrl}
+        onPrint={
+          page && body
+            ? () =>
+                print({
+                  category: tm('pages'),
+                  content: body,
+                  createdAt: new Date(page.createdAt),
+                  siteName: owner?.name || tp('site'),
+                  title: page.title,
+                  url: webUrl,
+                  variant: 'article',
+                })
+            : undefined
+        }
         onToc={() => {
           presentArticleToc(headings, Dimensions.get('window').height)
           router.push(tocHref())

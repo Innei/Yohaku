@@ -19,6 +19,7 @@ import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { FileNodeLab } from './file-node-lab'
+import { PrintLab } from './print-lab'
 import { SplashReplayControls, useSplashReplay } from './splash-replay'
 import { WebViewPoolLab } from './webview-pool-lab'
 
@@ -96,6 +97,10 @@ export function DevDemos() {
         <AppText style={styles.intro} variant="secondary">
           纸上桌面基调的全部基础组件与状态,供真机调校。
         </AppText>
+
+        <Section title="PRINT">
+          <PrintLab />
+        </Section>
 
         <Section title="TEXT">
           {textRoles.map(({ role, sample }) => (

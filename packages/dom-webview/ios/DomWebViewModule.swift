@@ -89,6 +89,11 @@ public final class DomWebViewModule: Module {
       Double(DomImageAssetStore.shared.diskBytes())
     }
 
+    AsyncFunction("printTargetWebView") { (siteName: String) -> Bool in
+      await DomPrintDomain.printTarget(siteName: siteName)
+      return true
+    }
+
     // swiftlint:disable closure_body_length
     View(DomWebView.self) {
       Events("onMessage", "onContentProcessDidTerminate")
@@ -139,6 +144,10 @@ public final class DomWebViewModule: Module {
 
       Prop("pooled") { (view: DomWebView, value: Bool) in
         view.pooled = value
+      }
+
+      Prop("printTarget") { (view: DomWebView, value: Bool) in
+        view.printTarget = value
       }
 
       Prop("siteReferer") { (view: DomWebView, value: String?) in

@@ -47,6 +47,13 @@ export interface DomWebViewProps
   pooled?: boolean
 
   /**
+   * Marks this WebView as the current AirPrint target. Pair with
+   * `printTargetWebView` on ExpoDomWebViewModule.
+   * @platform ios
+   */
+  printTarget?: boolean
+
+  /**
    * Enables WebView remote debugging using Chrome (Android) or Safari (iOS).
    */
   webviewDebuggingEnabled?: boolean

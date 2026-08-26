@@ -14,6 +14,7 @@ export const ko = {
     retry: '눌러서 다시 시도',
     like: '좋아요',
     share: '공유',
+    print: '인쇄',
   },
   tabs: {
     posts: '글',
@@ -259,6 +260,20 @@ export const ko = {
     otaFailed: '확인 실패',
     otaSourceEmbedded: '내장 번들',
     otaSourceUpdate: 'OTA',
+  },
+  print: {
+    site: '여백',
+    poll: '투표: {question} ({count}개 선택지)',
+    map: '지도: {title}',
+    nestedDoc: '중첩 문서: {title}',
+    file: '파일: {name}',
+    video: '동영상',
+    chat: '대화',
+    embed: '임베드',
+    stock: '주식: {symbol}',
+    afilmory: '앨범: {title}',
+    dynamic: '동적 위젯',
+    excalidraw: '손그림',
   },
   time: {
     justNow: '방금',

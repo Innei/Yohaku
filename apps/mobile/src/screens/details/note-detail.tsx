@@ -18,6 +18,7 @@ import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
 import { siteHref } from '@/lib/site-url'
+import { useOwner } from '@/owner/store'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import { refreshNoteBody } from '@/sync/engine'
 import { bodyIsStale, noteBodyFromApi, noteMetaFromApi } from '@/sync/merge'
@@ -29,6 +30,7 @@ import { useTtsSession } from '@/tts/use-tts-session'
 import { ArticleBody } from './article-body'
 import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
+import { useArticlePrint } from './article-print-host'
 import { ArticleNotice } from './article-notice'
 import { ArticleTail } from './article-tail'
 import { useReservedBodyHeight } from './body-slot'
@@ -43,6 +45,9 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
   const t = useTranslations('detail')
   const tc = useTranslations('common')
   const tt = useTranslations('tabs')
+  const tp = useTranslations('print')
+  const owner = useOwner()
+  const { host: printHost, print } = useArticlePrint()
   const palette = usePalette()
   const reservedBodyHeight = useReservedBodyHeight()
   const scrollRef = useRef<ScrollView>(null)
@@ -160,14 +165,30 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
 
   return (
     <View style={styles.screen}>
+      {printHost}
       <Stack.Screen options={headerOptions} />
       <ArticleMore
         listenAvailable={tts.available}
         listening={tts.isNarrating}
+        printAvailable={Boolean(body) && !isLocked}
         title={note?.title}
         tocAvailable={headings.length > 0}
         url={webUrl}
         onListen={tts.start}
+        onPrint={
+          note && body
+            ? () =>
+                print({
+                  category: tt('notes'),
+                  content: body,
+                  createdAt: new Date(note.createdAt),
+                  siteName: owner?.name || tp('site'),
+                  title: note.title,
+                  url: webUrl,
+                  variant: 'note',
+                })
+            : undefined
+        }
         onToc={() => {
           presentArticleToc(headings, Dimensions.get('window').height)
           router.push(tocHref())

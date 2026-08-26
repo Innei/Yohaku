@@ -14,6 +14,7 @@ export const ja = {
     retry: 'タップで再試行',
     like: 'いいね',
     share: '共有',
+    print: '印刷',
   },
   tabs: {
     posts: '記事',
@@ -262,6 +263,20 @@ export const ja = {
     otaFailed: '確認に失敗',
     otaSourceEmbedded: '内蔵',
     otaSourceUpdate: 'OTA',
+  },
+  print: {
+    site: '余白',
+    poll: '投票：{question}（{count} 件）',
+    map: '地図：{title}',
+    nestedDoc: '入れ子ドキュメント：{title}',
+    file: 'ファイル：{name}',
+    video: '動画',
+    chat: '会話',
+    embed: '埋め込み',
+    stock: '株式：{symbol}',
+    afilmory: 'アルバム：{title}',
+    dynamic: '動的ウィジェット',
+    excalidraw: '手描き',
   },
   time: {
     justNow: 'たった今',

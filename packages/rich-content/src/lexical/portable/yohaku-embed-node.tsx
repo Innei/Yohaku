@@ -11,6 +11,7 @@ import type {
 } from 'lexical'
 import type { ReactElement } from 'react'
 
+import { PrintCaption } from '../../host'
 import { parseGithubFileUrl } from './github-file'
 import { PortableGithubFileEmbed } from './github-file-embed'
 
@@ -32,9 +33,12 @@ export class YohakuEmbedNode extends EmbedNode {
 
   decorate(editor: LexicalEditor, config: EditorConfig): ReactElement {
     const url = this.getUrl()
-    if (this.getSource() === 'github-file' || parseGithubFileUrl(url)) {
-      return <PortableGithubFileEmbed href={url} />
-    }
-    return super.decorate(editor, config)
+    const body =
+      this.getSource() === 'github-file' || parseGithubFileUrl(url) ? (
+        <PortableGithubFileEmbed href={url} />
+      ) : (
+        super.decorate(editor, config)
+      )
+    return <PrintCaption kind="embed">{body}</PrintCaption>
   }
 }

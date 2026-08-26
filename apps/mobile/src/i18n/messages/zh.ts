@@ -14,6 +14,7 @@ export const zh = {
     retry: '点此重试',
     like: '赞',
     share: '分享',
+    print: '打印',
   },
   tabs: {
     posts: '博文',
@@ -258,6 +259,20 @@ export const zh = {
     otaFailed: '检查失败',
     otaSourceEmbedded: '内置包',
     otaSourceUpdate: '热更包',
+  },
+  print: {
+    site: '余白',
+    poll: '投票：{question}（{count} 个选项）',
+    map: '地图：{title}',
+    nestedDoc: '嵌套文档：{title}',
+    file: '文件：{name}',
+    video: '视频',
+    chat: '对话',
+    embed: '嵌入内容',
+    stock: '股票：{symbol}',
+    afilmory: '相册：{title}',
+    dynamic: '动态组件',
+    excalidraw: '手绘',
   },
   time: {
     justNow: '刚刚',

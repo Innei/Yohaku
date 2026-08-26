@@ -14,6 +14,7 @@ export const zhTW = {
     retry: '點此重試',
     like: '讚',
     share: '分享',
+    print: '列印',
   },
   tabs: {
     posts: '文章',
@@ -258,6 +259,20 @@ export const zhTW = {
     otaFailed: '檢查失敗',
     otaSourceEmbedded: '內建包',
     otaSourceUpdate: '熱更新',
+  },
+  print: {
+    site: '餘白',
+    poll: '投票：{question}（{count} 個選項）',
+    map: '地圖：{title}',
+    nestedDoc: '嵌套文件：{title}',
+    file: '檔案：{name}',
+    video: '影片',
+    chat: '對話',
+    embed: '嵌入內容',
+    stock: '股票：{symbol}',
+    afilmory: '相簿：{title}',
+    dynamic: '動態元件',
+    excalidraw: '手繪',
   },
   time: {
     justNow: '剛剛',

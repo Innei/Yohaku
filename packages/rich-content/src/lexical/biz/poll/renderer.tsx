@@ -11,6 +11,7 @@ import {
   useInitialPollState,
   usePollDataAdapter,
 } from '@haklex/rich-compose/modules/poll'
+import { usePrintFallback } from '../../../host'
 import clsx from 'clsx'
 import { useCallback, useMemo, useState } from 'react'
 
@@ -296,7 +297,14 @@ function PollInteractive({
 }
 
 export function YohakuPollRenderer(props: PollRendererProps) {
+  const printFallback = usePrintFallback('poll', {
+    count: props.options.length,
+    question: props.question,
+  })
   const adapter = usePollDataAdapter()
+  if (printFallback !== null) {
+    return <p className="print-block-fallback">{printFallback}</p>
+  }
   if (!adapter) return <PollStaticFallback {...props} />
   return <PollInteractive adapter={adapter} {...props} />
 }

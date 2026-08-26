@@ -14,6 +14,7 @@ export const en = {
     retry: 'Tap to retry',
     like: 'Like',
     share: 'Share',
+    print: 'Print',
   },
   tabs: {
     posts: 'Posts',
@@ -262,6 +263,20 @@ export const en = {
     otaFailed: 'Check failed',
     otaSourceEmbedded: 'Embedded',
     otaSourceUpdate: 'OTA',
+  },
+  print: {
+    site: 'Yohaku',
+    poll: 'Poll: {question} ({count} options)',
+    map: 'Map: {title}',
+    nestedDoc: 'Nested document: {title}',
+    file: 'File: {name}',
+    video: 'Video',
+    chat: 'Chat',
+    embed: 'Embed',
+    stock: 'Stock: {symbol}',
+    afilmory: 'Album: {title}',
+    dynamic: 'Dynamic widget',
+    excalidraw: 'Drawing',
   },
   time: {
     justNow: 'Just now',

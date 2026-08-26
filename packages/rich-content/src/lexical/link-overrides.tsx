@@ -166,11 +166,13 @@ export function LinkCardOverride({ url }: { url: string }) {
 export function CodeBlockOverride(
   props: ComponentProps<typeof CodeBlockRenderer>,
 ) {
-  const { slots } = useHost()
+  const { printMode, slots } = useHost()
+  const fold = !printMode
   if (slots?.CodeBlock) {
     return (
       <slots.CodeBlock
         code={props.code}
+        fold={fold}
         language={props.language || undefined}
       />
     )
@@ -178,6 +180,7 @@ export function CodeBlockOverride(
   return (
     <PortableCodeBlock
       code={props.code}
+      fold={fold}
       language={props.language || undefined}
     />
   )

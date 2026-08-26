@@ -1,7 +1,7 @@
 'use client'
 
 import type { MapSlotProps } from '../../../host'
-import { useHost } from '../../../host'
+import { useHost, usePrintFallback } from '../../../host'
 
 interface PlaceholderPoi {
   description?: string
@@ -15,6 +15,10 @@ function poiLabel(poi: unknown, index: number): string {
 
 export function YohakuMapRenderer(props: MapSlotProps) {
   const { openLink, slots, webOrigin } = useHost()
+  const printFallback = usePrintFallback('map', { title: props.title || '' })
+  if (printFallback !== null) {
+    return <p className="print-block-fallback">{printFallback}</p>
+  }
   if (slots?.MapBlock) return <slots.MapBlock {...props} />
 
   const pois = props.pois ?? []

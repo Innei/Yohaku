@@ -12,7 +12,7 @@ import { NestedDocRenderer } from '@haklex/rich-ext-nested-doc'
 import type { SerializedEditorState } from 'lexical'
 import { useCallback, useMemo, useState } from 'react'
 
-import { useHost } from '../../host'
+import { useHost, usePrintFallback } from '../../host'
 
 const PREVIEW_NODE_LIMIT = 6
 
@@ -74,6 +74,7 @@ export function LexicalNestedDocOverride({
     }
     return walk(firstChild).slice(0, 80)
   }, [rootChildren])
+  const printFallback = usePrintFallback('nestedDoc', { title })
 
   const contextVariant = useVariant()
   const handleOpen = useCallback(
@@ -112,6 +113,10 @@ export function LexicalNestedDocOverride({
       title,
     ],
   )
+
+  if (printFallback !== null) {
+    return <p className="print-block-fallback">{printFallback}</p>
+  }
 
   if (!hasPreview) {
     return null

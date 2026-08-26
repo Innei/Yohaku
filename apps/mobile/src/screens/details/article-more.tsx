@@ -8,14 +8,19 @@ import { useTranslations } from '@/i18n'
 import { copyUrl } from '@/lib/copy-url'
 import { shareUrl } from '@/lib/share'
 
-import { groupMenuItemsByCategory } from './article-more-menu'
+import {
+  buildArticleMoreItems,
+  groupMenuItemsByCategory,
+} from './article-more-menu'
 
 export function ArticleMore({
   listenAvailable = false,
   listening = false,
   onListen,
+  onPrint,
   onPrompt,
   onToc,
+  printAvailable = false,
   promptLabel,
   tocAvailable = false,
   title,
@@ -24,8 +29,10 @@ export function ArticleMore({
   listenAvailable?: boolean
   listening?: boolean
   onListen?: () => void
+  onPrint?: () => void
   onPrompt?: () => void
   onToc?: () => void
+  printAvailable?: boolean
   promptLabel?: string
   tocAvailable?: boolean
   title?: string
@@ -35,53 +42,28 @@ export function ArticleMore({
   const t = useTranslations('common')
   const tts = useTranslations('tts')
   const paperMenuItems = useMemo(
-    () => [
-      {
-        category: 'article',
-        hidden: !listenAvailable || listening || !onListen,
-        icon: 'headphones' as const,
-        id: 'listen',
-        title: tts('narrate'),
-      },
-      {
-        category: 'article',
-        hidden: !onPrompt || !promptLabel,
-        icon: 'wand.and.stars' as const,
-        id: 'prompt',
-        title: promptLabel ?? '',
-      },
-      {
-        category: 'article',
-        hidden: !tocAvailable || !onToc,
-        icon: 'list.bullet' as const,
-        id: 'toc',
-        title: t('toc'),
-      },
-      {
-        category: 'share',
-        icon: 'square.and.arrow.up' as const,
-        id: 'share',
-        title: t('share'),
-      },
-      {
-        category: 'share',
-        icon: 'link' as const,
-        id: 'copy-link',
-        title: t('copyLink'),
-      },
-      {
-        category: 'share',
-        icon: 'safari' as const,
-        id: 'open-in-browser',
-        title: t('openInBrowser'),
-      },
-    ],
+    () =>
+      buildArticleMoreItems({
+        copyLink: t('copyLink'),
+        listenAvailable: listenAvailable && Boolean(onListen) && !listening,
+        listening: false,
+        narrate: tts('narrate'),
+        openInBrowser: t('openInBrowser'),
+        print: t('print'),
+        printAvailable: printAvailable && Boolean(onPrint),
+        promptLabel: onPrompt ? promptLabel : undefined,
+        share: t('share'),
+        toc: t('toc'),
+        tocAvailable: tocAvailable && Boolean(onToc),
+      }),
     [
       listenAvailable,
       listening,
       onListen,
+      onPrint,
       onPrompt,
       onToc,
+      printAvailable,
       promptLabel,
       t,
       tocAvailable,
@@ -107,6 +89,10 @@ export function ArticleMore({
           onToc?.()
           break
         }
+        case 'print': {
+          onPrint?.()
+          break
+        }
         case 'share': {
           void shareUrl(url, title)
           break
@@ -121,7 +107,7 @@ export function ArticleMore({
         }
       }
     },
-    [onListen, onPrompt, onToc, title, url],
+    [onListen, onPrint, onPrompt, onToc, title, url],
   )
 
   if (usesPaperNavigationControls) {

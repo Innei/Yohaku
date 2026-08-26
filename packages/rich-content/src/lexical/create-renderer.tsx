@@ -26,7 +26,10 @@ import {
   usePollDataAdapter,
 } from '@haklex/rich-compose/modules/poll'
 import { rubyModule } from '@haklex/rich-compose/modules/ruby'
-import { videoModule } from '@haklex/rich-compose/modules/video'
+import {
+  videoModule,
+  VideoRenderer,
+} from '@haklex/rich-compose/modules/video'
 import type { RichEditorVariant } from '@haklex/rich-editor'
 import { allNodes } from '@haklex/rich-editor/static'
 import { NESTED_DOC_NODE_KEY } from '@haklex/rich-ext-nested-doc'
@@ -38,6 +41,7 @@ import {
   type HostCapabilities,
   imagePreviewSourceFromElement,
   useHost,
+  withPrintCaption,
 } from '../host'
 import { AFILMORY_NODE_KEY } from './biz/afilmory/afilmory-augment'
 import { AfilmoryRenderer } from './biz/afilmory/AfilmoryRenderer'
@@ -187,9 +191,25 @@ const yohakuEmbedModule: RichRendererModule = {
   nodes: [YohakuEmbedNode],
 }
 
+function withPrintRenderers(
+  kind: string,
+  module: RichRendererModule,
+): RichRendererModule {
+  if (!module.renderers) return module
+  return {
+    ...module,
+    renderers: Object.fromEntries(
+      Object.entries(module.renderers).map(([key, Comp]) => [
+        key,
+        withPrintCaption(kind, Comp as ComponentType<object>),
+      ]),
+    ),
+  }
+}
+
 const modules: RichRendererModule[] = [
-  configuredDynamicModule,
-  yohakuEmbedModule,
+  withPrintRenderers('dynamic', configuredDynamicModule),
+  withPrintRenderers('embed', yohakuEmbedModule),
   configuredNestedDocModule,
   staticExcalidrawModule,
   yohakuChatModule,
@@ -200,7 +220,7 @@ const modules: RichRendererModule[] = [
   configuredImageModule,
   mentionModule,
   rubyModule,
-  videoModule,
+  withPrintRenderers('video', videoModule),
   yohakuFileModule,
   mermaidModule,
   boundedPollModule,
@@ -217,6 +237,7 @@ const RichContent = composeRenderer({
   overrides: {
     Image: LexicalImageOverride,
     Mermaid: withBoundary('图表', Mermaid),
+    Video: withPrintCaption('video', VideoRenderer),
     [NESTED_DOC_NODE_KEY]: LexicalNestedDocOverride,
   },
 })

@@ -32,7 +32,13 @@ import {
   useSyncExternalStore,
 } from 'react'
 
+import type { Locale } from '@/i18n/config'
 import type { CommentAnchor } from '@/lib/comment-anchor'
+import {
+  type PrintBlockKind,
+  type PrintMasthead,
+  printBlockFallback,
+} from '@/screens/details/article-print'
 import { WEBVIEW_FONT_FAMILY } from '@/theme/font-faces'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
@@ -93,7 +99,10 @@ interface RichBodyProps {
   apiBase: string
   blockComments?: BlockComment[]
   content: string
-  dom?: import('expo/dom').DOMProps
+  dom?: import('expo/dom').DOMProps & {
+    pooled?: boolean
+    printTarget?: boolean
+  }
   enrichments?: Record<string, HostEnrichment>
   fontFaces?: RichBodyFontFace[]
   highlightBlockId?: string | null
@@ -102,8 +111,10 @@ interface RichBodyProps {
   onImagePress: (payload: RichBodyImagePress) => Promise<void>
   onLinkPress: (url: string) => Promise<void>
   onNestedDocExpand?: (payload: RichBodyNestedDocExpand) => Promise<void>
+  onPrintReady?: () => Promise<boolean | void>
   onScrollToAnchor: (id: string) => Promise<void>
   primeKey?: string
+  printDocument?: PrintMasthead
   rangeComments?: RangeComment[]
   ref?: import('react').Ref<unknown>
   renderNonce?: number
@@ -280,7 +291,9 @@ export default function RichBody({
   onLinkPress,
   onImagePress,
   onNestedDocExpand,
+  onPrintReady,
   onScrollToAnchor,
+  printDocument,
   webUrl,
 }: RichBodyProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -642,20 +655,28 @@ export default function RichBody({
         apiBase,
         codeBlock: MobileCodeBlock,
         enrichments: bodyEnrichments,
-        fileCard: (props) => (
-          <MobileFileCard
-            {...props}
-            labels={{
-              fileDownloadFull,
-              filePreviewDownload,
-              filePreviewTruncated,
-              filePreviewUnavailable,
-            }}
-          />
-        ),
+        fileCard: (props) =>
+          printDocument ? (
+            <p className="print-block-fallback">
+              {printBlockFallback('file', { name: props.name }, locale as Locale)}
+            </p>
+          ) : (
+            <MobileFileCard
+              {...props}
+              labels={{
+                fileDownloadFull,
+                filePreviewDownload,
+                filePreviewTruncated,
+                filePreviewUnavailable,
+              }}
+            />
+          ),
         locale,
         labels: { nestedDocCollapse, nestedDocExpand, nestedDocLabel },
         nestedDocPresentation: canExpandNestedDoc ? 'modal' : 'inline',
+        printCaption: (kind, fields) =>
+          printBlockFallback(kind as PrintBlockKind, fields ?? {}, locale as Locale),
+        printMode: Boolean(printDocument),
         onImagePress: handlers.onImagePress,
         onLinkPress: handlers.onLinkPress,
         onScrollToAnchor: handlers.onScrollToAnchor,
@@ -677,6 +698,7 @@ export default function RichBody({
       nestedDocCollapse,
       nestedDocExpand,
       nestedDocLabel,
+      printDocument,
       siteOwnerAvatar,
       siteOwnerName,
       theme,
@@ -703,22 +725,23 @@ export default function RichBody({
         '--app-font-sans': WEBVIEW_FONT_FAMILY.sans,
         '--app-font-serif': serifFontFamily,
         '--app-font-mono': WEBVIEW_FONT_FAMILY.mono,
-        '--rc-text': neutral[theme][9],
-        '--rc-bg': 'transparent',
-        '--surface-paper': neutral[theme][1],
-        '--color-accent': accent[theme],
+        '--rc-text': printDocument ? neutral.light[10] : neutral[theme][9],
+        '--rc-bg': printDocument ? '#ffffff' : 'transparent',
+        '--surface-paper': printDocument ? '#ffffff' : neutral[theme][1],
+        '--color-accent': printDocument ? accent.light : accent[theme],
         ...Object.fromEntries(
-          Object.entries(neutral[theme]).map(([step, value]) => [
-            `--color-neutral-${step}`,
-            value,
-          ]),
+          Object.entries(printDocument ? neutral.light : neutral[theme]).map(
+            ([step, value]) => [`--color-neutral-${step}`, value],
+          ),
         ),
-        color: neutral[theme][9],
-        ...(viewportHeight
-          ? { '--app-viewport-height': `${viewportHeight}px` }
-          : {}),
+        color: printDocument ? neutral.light[10] : neutral[theme][9],
+        ...(printDocument
+          ? { '--app-viewport-height': '1056px' }
+          : viewportHeight
+            ? { '--app-viewport-height': `${viewportHeight}px` }
+            : {}),
       }) as CSSProperties,
-    [bodyVariant, serifFontFamily, theme, viewportHeight],
+    [bodyVariant, printDocument, serifFontFamily, theme, viewportHeight],
   )
 
   const openInWeb = useMemo(
@@ -758,7 +781,7 @@ export default function RichBody({
           {bodyContent.trim() === '' ? null : editorState ? (
             <RichContent
               style={vars}
-              theme={theme}
+              theme={printDocument ? 'light' : theme}
               value={editorState}
               variant={bodyVariant}
             />
@@ -768,20 +791,116 @@ export default function RichBody({
         </HostProvider>
       </BodyErrorBoundary>
     ),
-    [bodyContent, bodyVariant, editorState, host, openInWeb, theme, vars],
+    [bodyContent, bodyVariant, editorState, host, openInWeb, printDocument, theme, vars],
   )
+
+  useEffect(() => {
+    if (!printDocument) return
+    for (const node of document.querySelectorAll('details')) node.open = true
+  }, [bodyContent, printDocument])
+
+  useEffect(() => {
+    if (!printDocument || !onPrintReady) return
+    let cancelled = false
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        const assets = Promise.all([
+          document.fonts?.ready ?? Promise.resolve(),
+          ...[...document.images].map(
+            (image) =>
+              image.complete ||
+              new Promise<void>((resolve) => {
+                image.addEventListener('load', () => resolve(), { once: true })
+                image.addEventListener('error', () => resolve(), { once: true })
+              }),
+          ),
+        ])
+        await Promise.race([
+          assets,
+          new Promise<void>((resolve) => window.setTimeout(resolve, 2500)),
+        ])
+        if (cancelled) return
+        const usedNative = await onPrintReady().catch(() => false)
+        if (!usedNative) window.print()
+      })()
+    }, 80)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [bodyContent, onPrintReady, printDocument])
 
   return (
     <div
-      className={theme === 'dark' ? 'rich-body-root dark' : 'rich-body-root'}
+      className={
+        theme === 'dark' && !printDocument
+          ? 'rich-body-root dark'
+          : 'rich-body-root'
+      }
       ref={containerRef}
       style={vars}
     >
       <style>{`
         ${buildFontFaceCss(fontFaces)}
-        html, body { width: 100%; overflow-x: hidden; background: transparent; margin: 0; }
+        html, body { width: 100%; overflow-x: hidden; background: ${printDocument ? '#fff' : 'transparent'}; margin: 0; }
         .font-mono, code, kbd, samp { font-family: var(--font-mono); }
-        .rich-body-root { width: 100vw; overflow-x: hidden; box-sizing: border-box; background: transparent; }
+        .rich-body-root { width: 100vw; overflow-x: hidden; box-sizing: border-box; background: ${printDocument ? '#fff' : 'transparent'}; }
+        ${
+          printDocument
+            ? `
+        @page { margin: 18mm 16mm 20mm; }
+        .yohaku-details::details-content,
+        .yohaku-details[open]::details-content {
+          height: auto !important;
+          overflow: visible !important;
+          opacity: 1 !important;
+          content-visibility: visible !important;
+        }
+        .m-code-block, .yohaku-code-block, .yohaku-code-fold,
+        .rich-code-block, .rich-table-scroll, pre {
+          overflow: visible !important;
+          max-height: none !important;
+          mask-image: none !important;
+          -webkit-mask-image: none !important;
+        }
+        .m-code-block--collapsed .m-code-block__body,
+        .yohaku-code-block--collapsed .yohaku-code-block__body,
+        .yohaku-code-fold--collapsed .yohaku-code-fold__body {
+          max-height: none !important;
+          overflow: visible !important;
+          mask-image: none !important;
+          -webkit-mask-image: none !important;
+        }
+        @media print {
+          html, body, .rich-body-root { background: #fff !important; color: var(--color-neutral-10); }
+          button, [data-hide-print] { display: none !important; }
+          .print-masthead { break-after: avoid; }
+          .print-block-fallback { font-size: 12px; line-height: 1.5; color: var(--color-neutral-7); margin: 12px 0; }
+          figure, img { break-inside: avoid; }
+          .rich-content blockquote { border-left-color: var(--color-accent); }
+          .rich-content pre { background: var(--color-neutral-1); }
+        }
+        .print-masthead { padding: 8px 20px 24px; }
+        .print-masthead h1 {
+          margin: 0;
+          font-family: var(--app-font-serif), var(--font-serif);
+          font-size: 28px;
+          font-weight: 500;
+          line-height: 1.29;
+          color: var(--color-neutral-10);
+        }
+        .print-masthead-rule { height: 1px; margin: 16px 0 12px; background: var(--color-accent); border: 0; }
+        .print-masthead-meta, .print-masthead-url {
+          margin: 0;
+          font-size: 12px;
+          line-height: 1.5;
+          color: var(--color-neutral-7);
+        }
+        .print-masthead-url { margin-top: 4px; word-break: break-all; }
+        .print-block-fallback { font-size: 12px; line-height: 1.5; color: var(--color-neutral-7); margin: 12px 20px; }
+        `
+            : ''
+        }
         .rich-content { max-width: 100% !important; box-sizing: border-box; overflow-wrap: break-word; padding-inline: 20px; }
         .rich-content img, .rich-content video, .rich-content iframe { max-width: 100%; }
         .rich-content pre { max-width: 100%; overflow-x: auto; }
@@ -809,6 +928,16 @@ export default function RichBody({
           text-decoration-thickness: 1px;
         }
       `}</style>
+      {printDocument ? (
+        <header className="print-masthead">
+          <h1>{printDocument.title}</h1>
+          <hr className="print-masthead-rule" />
+          <p className="print-masthead-meta">
+            {printDocument.category} · {printDocument.dateLabel}
+          </p>
+          <p className="print-masthead-url">{printDocument.url}</p>
+        </header>
+      ) : null}
       {body}
     </div>
   )

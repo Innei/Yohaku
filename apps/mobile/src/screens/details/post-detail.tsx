@@ -19,6 +19,7 @@ import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
 import { siteHref } from '@/lib/site-url'
+import { useOwner } from '@/owner/store'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import {
   useIsActiveMember,
@@ -34,6 +35,7 @@ import { useTtsSession } from '@/tts/use-tts-session'
 import { ArticleBody } from './article-body'
 import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
+import { useArticlePrint } from './article-print-host'
 import { ArticleNotice } from './article-notice'
 import { ArticleTail } from './article-tail'
 import { useReservedBodyHeight } from './body-slot'
@@ -59,6 +61,9 @@ export function PostDetailScreen({
   const tc = useTranslations('common')
   const tl = useTranslations('list')
   const tt = useTranslations('tabs')
+  const tp = useTranslations('print')
+  const owner = useOwner()
+  const { host: printHost, print } = useArticlePrint()
   const palette = usePalette()
   const session = useSession()
   const isMember = useIsActiveMember()
@@ -217,14 +222,30 @@ export function PostDetailScreen({
 
   return (
     <View style={styles.screen}>
+      {printHost}
       <Stack.Screen options={headerOptions} />
       <ArticleMore
         listenAvailable={tts.available}
         listening={tts.isNarrating}
+        printAvailable={Boolean(body) && !showPaywallGate}
         title={post?.title}
         tocAvailable={headings.length > 0}
         url={webUrl}
         onListen={tts.start}
+        onPrint={
+          post && body
+            ? () =>
+                print({
+                  category: post.categoryName ?? tt('posts'),
+                  content: body,
+                  createdAt: new Date(post.createdAt),
+                  siteName: owner?.name || tp('site'),
+                  title: post.title,
+                  url: webUrl,
+                  variant: 'article',
+                })
+            : undefined
+        }
         onToc={() => {
           presentArticleToc(headings, Dimensions.get('window').height)
           router.push(tocHref())

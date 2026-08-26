@@ -148,6 +148,11 @@ export interface HostCapabilities {
   locale?: string
   nestedDocPresentation: 'inline' | 'modal'
   openImage(payload: OpenImagePayload): void | Promise<void>
+  printCaption?(
+    kind: string,
+    fields?: Record<string, string | number>,
+  ): string
+  printMode?: boolean
   openLink(url: string): void | Promise<void>
   scrollToAnchor(id: string): void | Promise<void>
   site?: {
@@ -198,6 +203,45 @@ export function useHost(): HostCapabilities {
     throw new Error('useHost must be called inside <HostProvider>')
   }
   return host
+}
+
+export function usePrintFallback(
+  kind: string,
+  fields?: Record<string, string | number>,
+): string | null {
+  const host = useHost()
+  if (!host.printMode) return null
+  return host.printCaption?.(kind, fields ?? {}) ?? ''
+}
+
+export function PrintCaption({
+  children,
+  fields,
+  kind,
+}: {
+  children: ReactNode
+  fields?: Record<string, string | number>
+  kind: string
+}) {
+  const host = useOptionalHost()
+  if (!host?.printMode) return children
+  const caption = host.printCaption?.(kind, fields ?? {}) ?? ''
+  return <p className="print-block-fallback">{caption}</p>
+}
+
+export function withPrintCaption<P extends object>(
+  kind: string,
+  Comp: ComponentType<P>,
+  fields?: (props: P) => Record<string, string | number> | undefined,
+): ComponentType<P> {
+  function Wrapped(props: P) {
+    return (
+      <PrintCaption fields={fields?.(props)} kind={kind}>
+        <Comp {...props} />
+      </PrintCaption>
+    )
+  }
+  return Wrapped
 }
 
 // For components that also render outside a HostProvider (e.g. link-card
