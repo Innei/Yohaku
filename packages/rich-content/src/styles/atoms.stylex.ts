@@ -832,8 +832,7 @@ export const atoms = stylex.create({
   },
   /** items-center */
   items_center: {
-    alignItems: 'center',
-  },
+    alignItems: 'center',   },
   /** items-end */
   items_end: {
     alignItems: 'flex-end',
@@ -852,8 +851,7 @@ export const atoms = stylex.create({
   },
   /** justify-center */
   justify_center: {
-    justifyContent: 'center',
-  },
+    justifyContent: 'center',   },
   /** justify-end */
   justify_end: {
     justifyContent: 'flex-end',
@@ -961,6 +959,30 @@ export const atoms = stylex.create({
   mb_4: {
     marginBottom: spacing[4],
   },
+  /** mb-[0.25em] */
+  mb__0dot25em: {
+    marginBottom: '0.25em',
+  },
+  /** mb-[0.35em] */
+  mb__0dot35em: {
+    marginBottom: '0.35em',
+  },
+  /** mb-[0.3em] */
+  mb__0dot3em: {
+    marginBottom: '0.3em',
+  },
+  /** mb-[0.45em] */
+  mb__0dot45em: {
+    marginBottom: '0.45em',
+  },
+  /** mb-[0.4em] */
+  mb__0dot4em: {
+    marginBottom: '0.4em',
+  },
+  /** mb-[0.5em] */
+  mb__0dot5em: {
+    marginBottom: '0.5em',
+  },
   /** md:columns-4 */
   md_columns_4: {
     ['@media (min-width: 48rem)']: {
@@ -1030,6 +1052,30 @@ export const atoms = stylex.create({
   /** mt-4 */
   mt_4: {
     marginTop: spacing[4],
+  },
+  /** mt-[1.1em] */
+  mt__1dot1em: {
+    marginTop: '1.1em',
+  },
+  /** mt-[1.2em] */
+  mt__1dot2em: {
+    marginTop: '1.2em',
+  },
+  /** mt-[1.3em] */
+  mt__1dot3em: {
+    marginTop: '1.3em',
+  },
+  /** mt-[1.4em] */
+  mt__1dot4em: {
+    marginTop: '1.4em',
+  },
+  /** mt-[1.5em] */
+  mt__1dot5em: {
+    marginTop: '1.5em',
+  },
+  /** mt-[1em] */
+  mt__1em: {
+    marginTop: '1em',
   },
   /** mx-0.5 */
   mx_0dot5: {
@@ -1574,6 +1620,18 @@ export const atoms = stylex.create({
   text__1dot0625rem: {
     fontSize: '1.0625rem',
   },
+  /** text-[1.125em] */
+  text__1dot125em: {
+    fontSize: '1.125em',
+  },
+  /** text-[1.25em] */
+  text__1dot25em: {
+    fontSize: '1.25em',
+  },
+  /** text-[1.5em] */
+  text__1dot5em: {
+    fontSize: '1.5em',
+  },
   /** text-[10px] */
   text__10px: {
     fontSize: '10px',
@@ -1590,6 +1648,14 @@ export const atoms = stylex.create({
   text__13px: {
     fontSize: '13px',
   },
+  /** text-[1em] */
+  text__1em: {
+    fontSize: '1em',
+  },
+  /** text-[2em] */
+  text__2em: {
+    fontSize: '2em',
+  },
   /** text-[9px] */
   text__9px: {
     fontSize: '9px',
@@ -1605,8 +1671,7 @@ export const atoms = stylex.create({
   },
   /** text-center */
   text_center: {
-    textAlign: 'center',
-  },
+    textAlign: 'center',   },
   /** text-copy-13 */
   text_copy_13: {
     fontSize: yohaku.copy13,
