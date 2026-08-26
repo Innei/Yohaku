@@ -1,4 +1,6 @@
 'use client'
+import { sx, sxClass } from '../../lib/sx'
+import { atoms } from '../../styles/atoms.stylex'
 
 import clsx from 'clsx'
 import EXIF from 'exif-js'
@@ -163,50 +165,45 @@ export function ImageExifOverlay({ src }: { src: string | undefined }) {
         aria-label={exifOpen ? 'Hide EXIF' : 'Show EXIF'}
         aria-pressed={exifOpen}
         type="button"
-        className={clsx(
-          'pointer-events-auto absolute right-2.5 bottom-2.5 z-10',
-          'inline-flex items-center gap-1 rounded-full px-2 py-1',
-          'bg-black/35 backdrop-blur-xs',
-          'font-mono text-[9px] tracking-[0.14em] text-white/85 uppercase',
-          'transition-[opacity,scale] duration-200 ease-out active:scale-[0.96]',
-          'after:absolute after:top-1/2 after:left-1/2 after:size-10 after:-translate-x-1/2 after:-translate-y-1/2',
+        {...sx(
+          atoms.pointer_events_auto, atoms.absolute, atoms.right_2dot5, atoms.bottom_2dot5, atoms.z_10,
+          atoms.inline_flex, atoms.items_center, atoms.gap_1, atoms.rounded_full, atoms.px_2, atoms.py_1,
+          atoms.bg_black_35, atoms.backdrop_blur_xs,
+          atoms.font_mono, atoms.text__9px, atoms.tracking__0dot14em, atoms.text_white_85, atoms.uppercase,
+          atoms.transition__opacity_scale, atoms.duration_200, atoms.ease_out, atoms.active_scale__0dot96,
+          atoms.after_absolute, atoms.after_top_1_2, atoms.after_left_1_2, atoms.after_size_10, atoms.after__translate_x_1_2, atoms.after__translate_y_1_2,
           exifOpen
-            ? 'pointer-events-none scale-95 opacity-0'
-            : 'scale-100 opacity-100 group-hover/image:opacity-0 [.rr-image-frame:hover_&]:opacity-0',
+            ? [atoms.pointer_events_none, atoms.scale_95, atoms.opacity_0]
+            : [atoms.scale_100, atoms.opacity_100, atoms.group_hover_image_opacity_0, atoms._dotrr_image_frame_hover_and_opacity_0],
         )}
         onClick={(e) => {
           e.stopPropagation()
           setExifOpenState({ open: true, src })
         }}
       >
-        <span className="size-1 rounded-full bg-white/70" />
+        <span {...sx(atoms.size_1, atoms.rounded_full, atoms.bg_white_70)} />
         <span>EXIF</span>
       </button>
       <div
         aria-hidden={!exifOpen}
-        className={clsx(
-          'not-prose absolute inset-0 z-[9] flex flex-col justify-end p-4',
-          'bg-gradient-to-b from-transparent via-black/55 to-black/85',
-          'transition-opacity duration-[220ms] ease-out',
-          exifOpen
-            ? 'pointer-events-auto opacity-100'
-            : 'pointer-events-none opacity-0 group-hover/image:opacity-100 [.rr-image-frame:hover_&]:opacity-100',
-        )}
+        {...sxClass("not-prose", atoms.absolute, atoms.inset_0, atoms.z__9, atoms.flex, atoms.flex_col, atoms.justify_end, atoms.p_4, atoms.bg_gradient_to_b, atoms.from_transparent, atoms.via_black_55, atoms.to_black_85, atoms.transition_opacity, atoms.duration__220ms, atoms.ease_out, exifOpen
+            ? [atoms.pointer_events_auto, atoms.opacity_100]
+            : [atoms.pointer_events_none, atoms.opacity_0, atoms.group_hover_image_opacity_100, atoms._dotrr_image_frame_hover_and_opacity_100])}
         onClick={(e) => {
           e.stopPropagation()
           setExifOpenState({ open: false, src })
         }}
       >
         {exifRows.device && (
-          <div className="font-mono text-[13px] tracking-[0.01em] text-white/95 text-pretty">
+          <div {...sx(atoms.font_mono, atoms.text__13px, atoms.tracking__0dot01em, atoms.text_white_95, atoms.text_pretty)}>
             {exifRows.device}
           </div>
         )}
         {exifRows.params && (
           <div
-            className={clsx(
-              'font-mono text-[11px] tracking-[0.05em] text-white/65 tabular-nums',
-              exifRows.device && 'mt-0.5',
+            {...sx(
+              atoms.font_mono, atoms.text__11px, atoms.tracking__0dot05em, atoms.text_white_65, atoms.tabular_nums,
+              exifRows.device && atoms.mt_0dot5,
             )}
           >
             {exifRows.params}

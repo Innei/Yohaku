@@ -1,4 +1,7 @@
 'use client'
+import { sx, sxClass } from '../../lib/sx'
+import { atoms } from '../../styles/atoms.stylex'
+import { extras } from '../../styles/extras.stylex'
 
 import { useNestedDocConfig } from '@haklex/rich-compose/modules/nested-doc'
 import {
@@ -127,7 +130,7 @@ export function LexicalNestedDocOverride({
   return (
     <div
       aria-expanded={nestedDocPresentation === 'inline' ? showFull : undefined}
-      className="rich-nestdoc-yohaku group relative my-4 cursor-pointer border-l border-(--color-neutral-3) py-1 pl-6 transition-colors hover:border-(--color-accent)"
+      {...sxClass("rich-nestdoc-yohaku", atoms.relative, atoms.my_4, atoms.cursor_pointer, atoms.border_l, atoms.border____color_neutral_3, atoms.py_1, atoms.pl_6, atoms.transition_colors, atoms.hover_border____color_accent)} data-group=""
       role="button"
       tabIndex={0}
       onClick={(e) => handleOpen(e.currentTarget)}
@@ -138,14 +141,14 @@ export function LexicalNestedDocOverride({
         }
       }}
     >
-      <div className="text-caption-10 mb-2 flex items-center gap-2 tracking-[0.06em] text-(--color-neutral-7) uppercase">
+      <div {...sx(atoms.text_caption_10, atoms.mb_2, atoms.flex, atoms.items_center, atoms.gap_2, atoms.tracking__0dot06em, atoms.text____color_neutral_7, atoms.uppercase)}>
         <span>{labels.nestedDocLabel}</span>
-        <span aria-hidden className="h-px flex-1 bg-(--color-neutral-3)" />
-        <span className="inline-flex items-center gap-1">
+        <span aria-hidden {...sx(atoms.h_px, atoms.flex_1, atoms.bg____color_neutral_3)} />
+        <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1)}>
           {showFull ? labels.nestedDocCollapse : labels.nestedDocExpand}
           <span
             aria-hidden
-            className="inline-block transition-transform group-hover:translate-x-0.5"
+            {...sx(extras.groupHoverTranslateX05, atoms.inline_block, atoms.transition_transform)}
             style={showFull ? { transform: 'rotate(90deg)' } : undefined}
           >
             ›
@@ -153,7 +156,7 @@ export function LexicalNestedDocOverride({
         </span>
       </div>
       <div
-        className={showFull ? undefined : 'pointer-events-none overflow-hidden'}
+        {...sx(!showFull && [extras.pointerEventsNone, atoms.overflow_hidden])}
         // Expanded content renders real interactive descendants (links,
         // nested block boundaries); without this, any click inside bubbles
         // up to the outer toggle above and immediately closes the block
@@ -165,7 +168,7 @@ export function LexicalNestedDocOverride({
       {needsTruncation && !showFull && (
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-10 bg-[linear-gradient(to_bottom,transparent,var(--surface-paper))]"
+          {...sx(atoms.absolute, atoms.inset_x_0, atoms.bottom_0, atoms.h_10, atoms.bg__linear_gradient_to_bottom_transparent_var___surface_paper)}
         />
       )}
     </div>
