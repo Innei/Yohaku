@@ -57,3 +57,25 @@ export function AfilmoryRenderer(props: AfilmorySlotProps) {
   }
   return <AfilmoryGalleryView {...props} />
 }
+
+function aspectFromDims(w: number, h: number): string {
+  if (w > 0 && h > 0) return `${w} / ${h}`
+  return '3 / 2'
+}
+
+function getDisplayAspect(photo: AfilmoryManifestPhoto): string {
+  return aspectFromDims(photo.width, photo.height)
+}
+
+function formatShutter(s: string | number | undefined | null): string | null {
+  if (s === undefined || s === null || s === '') return null
+  if (typeof s === 'number') {
+    if (!Number.isFinite(s)) return null
+    return s >= 1 ? `${s}s` : `1/${Math.round(1 / s)}s`
+  }
+  const str = String(s)
+  if (str.includes('/')) return `${str}s`
+  const n = Number(str)
+  if (!Number.isFinite(n)) return str
+  return n >= 1 ? `${n}s` : `1/${Math.round(1 / n)}s`
+}
