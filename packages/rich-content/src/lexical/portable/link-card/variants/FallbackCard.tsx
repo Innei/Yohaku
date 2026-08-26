@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import { LinkFavicon } from '@haklex/rich-editor/static'
 import type { CSSProperties, FC } from 'react'
 
@@ -42,39 +44,39 @@ export const FallbackCard: FC<Props> = ({ data, className }) => {
   return (
     <LinkCardShell
       external
-      className={clsxm('w-full max-w-[36rem]', className)}
+      {...sx(atoms.w_full, atoms.max_w__36rem, className)}
       href={data.url}
       style={shellStyle}
     >
-      <div className="min-w-0 flex-1">
-        <div className="line-clamp-2 text-copy-16 leading-6 font-medium text-neutral-10">
+      <div {...sx(atoms.min_w_0, atoms.flex_1)}>
+        <div {...sx(atoms.line_clamp_2, atoms.text_copy_16, atoms.leading_6, atoms.font_medium, atoms.text_neutral_10)}>
           {data.title}
         </div>
         {data.description && (
-          <div className="mt-2 line-clamp-2 text-[0.9375rem] leading-relaxed text-neutral-7">
+          <div {...sx(atoms.mt_2, atoms.line_clamp_2, atoms.text__0dot9375rem, atoms.leading_relaxed, atoms.text_neutral_7)}>
             {data.description}
           </div>
         )}
-        <MetaRow className="flex-nowrap overflow-hidden">
-          <span className="inline-flex shrink-0 items-center gap-1.5">
+        <MetaRow {...sx(atoms.flex_nowrap, atoms.overflow_hidden)}>
+          <span {...sx(atoms.inline_flex, atoms.shrink_0, atoms.items_center, atoms.gap_1dot5)}>
             <LinkFavicon
-              className="mr-0 inline-flex size-[14px] shrink-0 items-center justify-center [&_svg]:inline [&_svg]:h-[14px]! [&_svg]:w-[14px]!"
+              {...sx(atoms.mr_0, atoms.inline_flex, atoms.size__14px, atoms.shrink_0, atoms.items_center, atoms.justify_center, atoms._and_svg_inline, atoms._and_svg_h__14pximportant_, atoms._and_svg_w__14pximportant_)}
               getPlatformFromUrl={getPlatformFromUrl}
               href={data.url}
               platformIconMap={platformIconMap}
             />
             <span
-              className={site ? 'text-neutral-7' : 'font-mono text-neutral-6'}
+              {...sx(site ? atoms.text_neutral_7 : [atoms.font_mono, atoms.text_neutral_6])}
             >
               {primaryLabel}
             </span>
           </span>
           {author && (
-            <span className="min-w-0 truncate text-neutral-6">{author}</span>
+            <span {...sx(atoms.min_w_0, atoms.truncate, atoms.text_neutral_6)}>{author}</span>
           )}
-          {year && <span className="shrink-0 text-neutral-6">{year}</span>}
+          {year && <span {...sx(atoms.shrink_0, atoms.text_neutral_6)}>{year}</span>}
           {readingTime && (
-            <span className="shrink-0 text-neutral-6">{readingTime}</span>
+            <span {...sx(atoms.shrink_0, atoms.text_neutral_6)}>{readingTime}</span>
           )}
         </MetaRow>
       </div>

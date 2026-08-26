@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC, ReactNode } from 'react'
 
 import type { HostEnrichment } from '../../../../host'
@@ -53,34 +55,34 @@ export const CommitCard: FC<Props> = ({ data, className }) => {
   const meta: ReactNode[] = []
   if (showDiff) {
     meta.push(
-      <span className="font-mono" key="diff">
+      <span {...sx(atoms.font_mono)} key="diff">
         {additions != null && (
-          <span className="text-success">+{additions}</span>
+          <span {...sx(atoms.text_success)}>+{additions}</span>
         )}
         {additions != null && deletions != null && ' '}
-        {deletions != null && <span className="text-error">−{deletions}</span>}
+        {deletions != null && <span {...sx(atoms.text_error)}>−{deletions}</span>}
       </span>,
     )
   }
   if (author) {
     meta.push(
-      <span className="inline-flex items-center gap-1.5" key="author">
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1dot5)} key="author">
         {authorAvatar && (
           <img
             aria-hidden
             alt=""
-            className="size-4 shrink-0 rounded-full bg-neutral-2 object-cover"
+            {...sx(atoms.size_4, atoms.shrink_0, atoms.rounded_full, atoms.bg_neutral_2, atoms.object_cover)}
             loading="lazy"
             src={authorAvatar}
           />
         )}
-        <span className="text-neutral-8">{String(author)}</span>
+        <span {...sx(atoms.text_neutral_8)}>{String(author)}</span>
       </span>,
     )
   }
   if (dateLabel) {
     meta.push(
-      <span className="inline-flex items-center gap-1" key="date">
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1)} key="date">
         <ClockIcon size="0.875rem" />
         {dateLabel}
       </span>,
@@ -103,13 +105,13 @@ export const CommitCard: FC<Props> = ({ data, className }) => {
       }
       body={
         description ? (
-          <div className="line-clamp-2 font-mono text-[0.8125rem] leading-relaxed whitespace-pre-wrap text-neutral-7">
+          <div {...sx(atoms.line_clamp_2, atoms.font_mono, atoms.text__0dot8125rem, atoms.leading_relaxed, atoms.whitespace_pre_wrap, atoms.text_neutral_7)}>
             {description}
           </div>
         ) : undefined
       }
       eyebrow={{
-        icon: <GitCommitIcon className="size-3.5" />,
+        icon: <GitCommitIcon {...sx(atoms.size_3dot5)} />,
         kind: 'Commit',
         repo: repoPath,
         pill: shortSha ? <EyebrowPill>{shortSha}</EyebrowPill> : undefined,

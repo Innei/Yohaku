@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC, ReactNode } from 'react'
 
 import type { HostEnrichment } from '../../../../host'
@@ -102,32 +104,32 @@ export const GhItemCard: FC<Props & { kind: keyof typeof ITEM_DEFS }> = ({
   const meta: ReactNode[] = []
   if (cfg.stateLabel) {
     meta.push(
-      <span className={clsxm('font-medium', cfg.stateClassName)} key="state">
+      <span {...sx(atoms.font_medium, cfg.stateClassName)} key="state">
         {cfg.stateLabel}
       </span>,
     )
   }
   if (showDiff) {
     meta.push(
-      <span className="font-mono" key="diff">
+      <span {...sx(atoms.font_mono)} key="diff">
         {additions != null && (
-          <span className="text-success">+{additions}</span>
+          <span {...sx(atoms.text_success)}>+{additions}</span>
         )}
         {additions != null && deletions != null && ' '}
-        {deletions != null && <span className="text-error">−{deletions}</span>}
+        {deletions != null && <span {...sx(atoms.text_error)}>−{deletions}</span>}
       </span>,
     )
   }
   if (author) {
     meta.push(
-      <span className="inline-flex items-center gap-1" key="author">
-        <span className="text-neutral-8">{String(author)}</span>
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1)} key="author">
+        <span {...sx(atoms.text_neutral_8)}>{String(author)}</span>
       </span>,
     )
   }
   if (comments != null && Number(comments) > 0) {
     meta.push(
-      <span className="inline-flex items-center gap-1" key="comments">
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1)} key="comments">
         <CommentIcon size="0.875rem" />
         {String(comments)}
       </span>,
@@ -135,7 +137,7 @@ export const GhItemCard: FC<Props & { kind: keyof typeof ITEM_DEFS }> = ({
   }
   if (replies != null) {
     meta.push(
-      <span className="inline-flex items-center gap-1" key="replies">
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1)} key="replies">
         <CommentIcon size="0.875rem" />
         {String(replies)} replies
       </span>,
@@ -143,7 +145,7 @@ export const GhItemCard: FC<Props & { kind: keyof typeof ITEM_DEFS }> = ({
   }
   if (dateLabel) {
     meta.push(
-      <span className="inline-flex items-center gap-1" key="date">
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1)} key="date">
         <ClockIcon size="0.875rem" />
         {dateLabel}
       </span>,
@@ -161,7 +163,7 @@ export const GhItemCard: FC<Props & { kind: keyof typeof ITEM_DEFS }> = ({
         ) : undefined
       }
       eyebrow={{
-        icon: <cfg.KindIcon className="size-3.5" />,
+        icon: <cfg.KindIcon {...sx(atoms.size_3dot5)} />,
         kind: cfg.caps,
         repo,
         pill:
@@ -173,7 +175,7 @@ export const GhItemCard: FC<Props & { kind: keyof typeof ITEM_DEFS }> = ({
         text: data.title,
         leadingIcon: cfg.stateLabel ? (
           <cfg.StateIcon
-            className={clsxm('mt-0.5 size-4', cfg.stateClassName)}
+            {...sx(atoms.mt_0dot5, atoms.size_4, cfg.stateClassName)}
           />
         ) : undefined,
       }}

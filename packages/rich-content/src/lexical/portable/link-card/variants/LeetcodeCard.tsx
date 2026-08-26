@@ -1,3 +1,5 @@
+import { sx, sxClass } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC } from 'react'
 
 import type { HostEnrichment } from '../../../../host'
@@ -40,44 +42,41 @@ export const LeetcodeCard: FC<Props> = ({ data, className }) => {
       href={data.url}
       rel="noreferrer"
       target="_blank"
-      className={clsxm(
-        // `group relative isolate` are the host requirements for InkWash —
+      {...sxClass("yohaku-link-card not-prose", // `group relative isolate` are the host requirements for InkWash —
         // without them the hover bloom never fires.
-        'yohaku-link-card group relative isolate block w-full max-w-[40rem] cursor-pointer overflow-hidden rounded-xl bg-neutral-1 px-5 py-3 text-neutral-9 no-underline ring-1 ring-border not-prose transition-colors duration-200 dark:bg-neutral-2',
-        className,
-      )}
+        atoms.relative, atoms.isolate, atoms.block, atoms.w_full, atoms.max_w__40rem, atoms.cursor_pointer, atoms.overflow_hidden, atoms.rounded_xl, atoms.bg_neutral_1, atoms.px_5, atoms.py_3, atoms.text_neutral_9, atoms.no_underline, atoms.ring_1, atoms.ring_border, atoms.transition_colors, atoms.duration_200, atoms.dark_bg_neutral_2, className)} data-group=""
     >
       <InkWash />
-      <div className="flex flex-wrap items-center gap-2.5">
+      <div {...sx(atoms.flex, atoms.flex_wrap, atoms.items_center, atoms.gap_2dot5)}>
         {difficulty && <StatePill label={difficulty} tone={tone} />}
         {number != null && (
-          <span className="font-mono text-label-12 text-neutral-6">
+          <span {...sx(atoms.font_mono, atoms.text_label_12, atoms.text_neutral_6)}>
             #{String(number)}
           </span>
         )}
-        <span className="min-w-0 flex-1 truncate text-copy-14 font-medium text-neutral-10">
+        <span {...sx(atoms.min_w_0, atoms.flex_1, atoms.truncate, atoms.text_copy_14, atoms.font_medium, atoms.text_neutral_10)}>
           {data.title}
         </span>
         {acRate != null && (
-          <span className="inline-flex items-center gap-1 text-label-12 text-neutral-6">
-            <span className="opacity-60">AR</span>
-            <span className="font-mono text-neutral-8">{String(acRate)}</span>
+          <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1, atoms.text_label_12, atoms.text_neutral_6)}>
+            <span {...sx(atoms.opacity_60)}>AR</span>
+            <span {...sx(atoms.font_mono, atoms.text_neutral_8)}>{String(acRate)}</span>
           </span>
         )}
         {likes != null && Number(likes) > 0 && (
-          <span className="inline-flex items-center gap-1 text-label-12 text-neutral-6">
-            <span className="text-label-12">▲</span>
-            <span className="font-mono text-neutral-8">
+          <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1, atoms.text_label_12, atoms.text_neutral_6)}>
+            <span {...sx(atoms.text_label_12)}>▲</span>
+            <span {...sx(atoms.font_mono, atoms.text_neutral_8)}>
               {fmtCount(Number(likes))}
             </span>
           </span>
         )}
       </div>
       {tagList.length > 0 && (
-        <div className="mt-2 ml-2 flex flex-wrap gap-1.5">
+        <div {...sx(atoms.mt_2, atoms.ml_2, atoms.flex, atoms.flex_wrap, atoms.gap_1dot5)}>
           {tagList.slice(0, 6).map((tag) => (
             <span
-              className="rounded bg-neutral-2 px-1.5 py-0.5 text-label-12 text-neutral-7 ring-1 ring-border/60"
+              {...sx(atoms.rounded, atoms.bg_neutral_2, atoms.px_1dot5, atoms.py_0dot5, atoms.text_label_12, atoms.text_neutral_7, atoms.ring_1, atoms.ring_border_60)}
               key={tag}
             >
               {tag}

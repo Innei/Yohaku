@@ -1,3 +1,5 @@
+import { sx, sxClass } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC } from 'react'
 
 import type { HostEnrichment } from '../../../../host'
@@ -69,38 +71,35 @@ export const PaperCard: FC<Props> = ({ data, className }) => {
       href={data.url}
       rel="noreferrer"
       target="_blank"
-      className={clsxm(
-        // `group relative isolate` are the host requirements for InkWash —
+      {...sxClass("yohaku-link-card not-prose", // `group relative isolate` are the host requirements for InkWash —
         // without them the hover bloom never fires.
-        'yohaku-link-card group relative isolate block w-full max-w-[38rem] cursor-pointer overflow-hidden rounded-xl bg-neutral-1 px-6 py-4 text-neutral-9 no-underline ring-1 ring-border not-prose transition-colors duration-200 dark:bg-neutral-2',
-        className,
-      )}
+        atoms.relative, atoms.isolate, atoms.block, atoms.w_full, atoms.max_w__38rem, atoms.cursor_pointer, atoms.overflow_hidden, atoms.rounded_xl, atoms.bg_neutral_1, atoms.px_6, atoms.py_4, atoms.text_neutral_9, atoms.no_underline, atoms.ring_1, atoms.ring_border, atoms.transition_colors, atoms.duration_200, atoms.dark_bg_neutral_2, className)} data-group=""
     >
       <InkWash />
-      <div className="mb-2 flex items-center gap-2">
-        <span className="rounded bg-neutral-2 -ml-2 px-2 py-0.5 font-mono text-label-12 text-neutral-8 ring-1 ring-border/60">
+      <div {...sx(atoms.mb_2, atoms.flex, atoms.items_center, atoms.gap_2)}>
+        <span {...sx(atoms.rounded, atoms.bg_neutral_2, atoms._ml_2, atoms.px_2, atoms.py_0dot5, atoms.font_mono, atoms.text_label_12, atoms.text_neutral_8, atoms.ring_1, atoms.ring_border_60)}>
           {idLabel}
         </span>
         {catDate && (
-          <span className="text-[0.7rem] text-neutral-6">{catDate}</span>
+          <span {...sx(atoms.text__0dot7rem, atoms.text_neutral_6)}>{catDate}</span>
         )}
       </div>
-      <div className="text-[1.0625rem] leading-snug font-medium text-neutral-10">
+      <div {...sx(atoms.text__1dot0625rem, atoms.leading_snug, atoms.font_medium, atoms.text_neutral_10)}>
         {data.title}
       </div>
       {authors && (
-        <div className="mt-1.5 text-[0.875rem] leading-relaxed text-neutral-7">
-          <span className="text-neutral-8">{authors.primary}</span>
+        <div {...sx(atoms.mt_1dot5, atoms.text__0dot875rem, atoms.leading_relaxed, atoms.text_neutral_7)}>
+          <span {...sx(atoms.text_neutral_8)}>{authors.primary}</span>
           {authors.rest.map((a) => (
             <span key={a}> · {a}</span>
           ))}
           {authors.more > 0 && (
-            <span className="text-neutral-6"> · {authors.more} more</span>
+            <span {...sx(atoms.text_neutral_6)}> · {authors.more} more</span>
           )}
         </div>
       )}
       {abstract && (
-        <div className="mt-2.5 line-clamp-3 border-t border-border/60 pt-2 font-serif text-[0.875rem] leading-relaxed text-neutral-7 italic">
+        <div {...sx(atoms.mt_2dot5, atoms.line_clamp_3, atoms.border_t, atoms.border_border_60, atoms.pt_2, atoms.font_serif, atoms.text__0dot875rem, atoms.leading_relaxed, atoms.text_neutral_7, atoms.italic)}>
           {abstract}
         </div>
       )}

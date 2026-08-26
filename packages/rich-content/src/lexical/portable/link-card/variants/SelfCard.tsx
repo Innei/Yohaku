@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 
 import type { FC, MouseEvent, ReactNode } from 'react'
 import { useCallback } from 'react'
@@ -90,17 +92,17 @@ export const SelfCard: FC<Props> = ({ data, className, fallback }) => {
 
   return (
     <LinkCardShell
-      className={clsxm('w-full max-w-[36rem]', className)}
+      {...sx(atoms.w_full, atoms.max_w__36rem, className)}
       external={false}
       href={href}
       onClick={handleClick}
     >
-      <div className="min-w-0 flex-1">
-        <div className="line-clamp-2 text-copy-16 leading-6 font-medium text-neutral-10">
+      <div {...sx(atoms.min_w_0, atoms.flex_1)}>
+        <div {...sx(atoms.line_clamp_2, atoms.text_copy_16, atoms.leading_6, atoms.font_medium, atoms.text_neutral_10)}>
           {data.title}
         </div>
         {data.description && (
-          <div className="mt-2 line-clamp-2 text-[0.9375rem] leading-relaxed text-neutral-7">
+          <div {...sx(atoms.mt_2, atoms.line_clamp_2, atoms.text__0dot9375rem, atoms.leading_relaxed, atoms.text_neutral_7)}>
             {data.description}
           </div>
         )}
@@ -108,15 +110,15 @@ export const SelfCard: FC<Props> = ({ data, className, fallback }) => {
       {data.thumbnailImage?.url ? (
         <img
           alt={data.thumbnailImage.alt ?? data.title}
-          className="size-14 shrink-0 rounded-lg bg-neutral-2 object-cover"
+          {...sx(atoms.size_14, atoms.shrink_0, atoms.rounded_lg, atoms.bg_neutral_2, atoms.object_cover)}
           loading="lazy"
           src={data.thumbnailImage.url}
         />
       ) : ownerAvatar ? (
-        <HostStamp className="overflow-hidden p-0">
+        <HostStamp {...sx(atoms.overflow_hidden, atoms.p_0)}>
           <img
             alt={host?.site?.ownerName ?? ''}
-            className="size-full object-cover"
+            {...sx(atoms.size_full, atoms.object_cover)}
             loading="lazy"
             src={ownerAvatar}
           />

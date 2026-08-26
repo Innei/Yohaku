@@ -1,3 +1,5 @@
+import { sx, sxClass } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC, ReactNode } from 'react'
 
 import type { HostEnrichment } from '../../../../host'
@@ -35,29 +37,29 @@ export const UserCard: FC<Props> = ({ data, className }) => {
   const meta: ReactNode[] = []
   if (repos != null) {
     meta.push(
-      <span className="inline-flex items-center gap-1.5" key="repos">
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1dot5)} key="repos">
         <RepoIcon size="0.875rem" />
-        <span className="font-medium text-neutral-9">
+        <span {...sx(atoms.font_medium, atoms.text_neutral_9)}>
           {fmtCountLoose(repos)}
         </span>
-        <span className="text-neutral-6">repos</span>
+        <span {...sx(atoms.text_neutral_6)}>repos</span>
       </span>,
     )
   }
   if (followers != null) {
     meta.push(
-      <span className="inline-flex items-center gap-1.5" key="followers">
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1dot5)} key="followers">
         <PersonIcon size="0.875rem" />
-        <span className="font-medium text-neutral-9">
+        <span {...sx(atoms.font_medium, atoms.text_neutral_9)}>
           {fmtCountLoose(followers)}
         </span>
-        <span className="text-neutral-6">followers</span>
+        <span {...sx(atoms.text_neutral_6)}>followers</span>
       </span>,
     )
   }
   if (location) {
     meta.push(
-      <span className="inline-flex items-center gap-1.5" key="location">
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1dot5)} key="location">
         <LocationIcon size="0.875rem" />
         <span>{String(location)}</span>
       </span>,
@@ -65,9 +67,9 @@ export const UserCard: FC<Props> = ({ data, className }) => {
   }
   if (company) {
     meta.push(
-      <span className="inline-flex items-center gap-1.5" key="company">
-        <i className="i-mingcute-building-1-line text-[0.875rem]" />
-        <span className="text-neutral-6">{String(company)}</span>
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1dot5)} key="company">
+        <i {...sxClass("i-mingcute-building-1-line", atoms.text__0dot875rem)} />
+        <span {...sx(atoms.text_neutral_6)}>{String(company)}</span>
       </span>,
     )
   }
@@ -91,13 +93,13 @@ export const UserCard: FC<Props> = ({ data, className }) => {
       }
       body={
         bio ? (
-          <div className="line-clamp-2 text-[0.9375rem] leading-relaxed text-neutral-7">
+          <div {...sx(atoms.line_clamp_2, atoms.text__0dot9375rem, atoms.leading_relaxed, atoms.text_neutral_7)}>
             {bio}
           </div>
         ) : undefined
       }
       eyebrow={{
-        icon: <PersonIcon className="size-3.5" />,
+        icon: <PersonIcon {...sx(atoms.size_3dot5)} />,
         kind: 'GitHub User',
         pill: handle ? <EyebrowPill>@{String(handle)}</EyebrowPill> : undefined,
       }}

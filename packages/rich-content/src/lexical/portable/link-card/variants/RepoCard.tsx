@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC, ReactNode } from 'react'
 
 import type { HostEnrichment } from '../../../../host'
@@ -40,10 +42,10 @@ export const RepoCard: FC<Props> = ({ data, className }) => {
   const meta: ReactNode[] = []
   if (language) {
     meta.push(
-      <span className="inline-flex items-center gap-1.5" key="lang">
+      <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1dot5)} key="lang">
         <span
           aria-hidden
-          className="inline-block size-2 rounded-full"
+          {...sx(atoms.inline_block, atoms.size_2, atoms.rounded_full)}
           style={langColor ? { backgroundColor: langColor } : undefined}
         />
         {language}
@@ -65,18 +67,18 @@ export const RepoCard: FC<Props> = ({ data, className }) => {
       }
       body={
         data.description ? (
-          <div className="line-clamp-2 text-[0.9375rem] leading-relaxed text-neutral-7">
+          <div {...sx(atoms.line_clamp_2, atoms.text__0dot9375rem, atoms.leading_relaxed, atoms.text_neutral_7)}>
             {data.description}
           </div>
         ) : undefined
       }
       eyebrow={{
-        icon: <RepoIcon className="size-3.5" />,
+        icon: <RepoIcon {...sx(atoms.size_3dot5)} />,
         kind: 'Repository',
         repo: owner,
         pill:
           starCount !== null && starCount > 0 ? (
-            <EyebrowPill className="inline-flex items-center gap-1 border-transparent bg-transparent px-0 text-warning dark:bg-transparent">
+            <EyebrowPill {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1, atoms.border_transparent, atoms.bg_transparent, atoms.px_0, atoms.text_warning, atoms.dark_bg_transparent)}>
               <StarIcon size="0.7rem" />
               {fmtCount(starCount)}
             </EyebrowPill>
