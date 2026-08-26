@@ -1,4 +1,6 @@
 'use client'
+import { sx, sxClass } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 
 import type { CSSProperties, FC } from 'react'
 import { useState } from 'react'
@@ -104,21 +106,21 @@ export const PosterCard: FC<Props> = ({
         href={data.url}
         style={washStyle}
       >
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div {...sx(atoms.flex, atoms.min_w_0, atoms.flex_1, atoms.flex_col)}>
           {topCaps && (
-            <div className="mb-1 text-label-12 font-semibold tracking-widest text-neutral-6 uppercase">
+            <div {...sx(atoms.mb_1, atoms.text_label_12, atoms.font_semibold, atoms.tracking_widest, atoms.text_neutral_6, atoms.uppercase)}>
               {topCaps}
             </div>
           )}
-          <div className="text-copy-14 font-semibold leading-snug text-neutral-10">
+          <div {...sx(atoms.text_copy_14, atoms.font_semibold, atoms.leading_snug, atoms.text_neutral_10)}>
             {data.title}
           </div>
           {desc && (
-            <div className="mt-1 text-copy-14 leading-normal text-neutral-7">
+            <div {...sx(atoms.mt_1, atoms.text_copy_14, atoms.leading_normal, atoms.text_neutral_7)}>
               {desc}
             </div>
           )}
-          <MetaRow className="flex-nowrap overflow-hidden">
+          <MetaRow {...sx(atoms.flex_nowrap, atoms.overflow_hidden)}>
             {renderMeta(data, flags)}
           </MetaRow>
         </div>
@@ -137,28 +139,24 @@ export const PosterCard: FC<Props> = ({
       // to its intrinsic content height and leave whitespace.
       innerClassName="gap-0 self-stretch items-stretch"
       style={{ ...washStyle, height: CARD_HEIGHT }}
-      className={clsxm(
-        '!gap-0 !px-0 !py-0 !items-stretch',
-        hex && 'yohaku-poster-card-wash',
-        className,
-      )}
+      {...sx(atoms.important_gap_0, atoms.important_px_0, atoms.important_py_0, atoms.important_items_stretch, hex && 'yohaku-poster-card-wash', className)}
     >
       <PosterImage aspect={aspect} data={data} kind={kind} />
-      <div className="flex min-w-0 flex-1 flex-col justify-center px-4 py-3">
+      <div {...sx(atoms.flex, atoms.min_w_0, atoms.flex_1, atoms.flex_col, atoms.justify_center, atoms.px_4, atoms.py_3)}>
         {topCaps && (
-          <div className="mb-1 text-label-12 font-semibold tracking-widest text-neutral-6 uppercase">
+          <div {...sx(atoms.mb_1, atoms.text_label_12, atoms.font_semibold, atoms.tracking_widest, atoms.text_neutral_6, atoms.uppercase)}>
             {topCaps}
           </div>
         )}
-        <div className="line-clamp-2 text-copy-14 font-semibold leading-snug text-neutral-10">
+        <div {...sx(atoms.line_clamp_2, atoms.text_copy_14, atoms.font_semibold, atoms.leading_snug, atoms.text_neutral_10)}>
           {data.title}
         </div>
         {desc && (
-          <div className="mt-1 line-clamp-1 text-copy-14 leading-normal text-neutral-7">
+          <div {...sx(atoms.mt_1, atoms.line_clamp_1, atoms.text_copy_14, atoms.leading_normal, atoms.text_neutral_7)}>
             {desc}
           </div>
         )}
-        <MetaRow className="flex-nowrap overflow-hidden">
+        <MetaRow {...sx(atoms.flex_nowrap, atoms.overflow_hidden)}>
           {renderMeta(data, flags)}
         </MetaRow>
       </div>
@@ -196,17 +194,17 @@ function renderMeta(data: HostEnrichment, flags: SubtypeFlags) {
   if (flags.isMovieLike) {
     return [
       ratingAttr ? (
-        <span className="inline-flex shrink-0 items-center gap-1" key="r">
-          <i className="i-mingcute-star-fill text-[0.875em]" />
+        <span {...sx(atoms.inline_flex, atoms.shrink_0, atoms.items_center, atoms.gap_1)} key="r">
+          <i {...sxClass("i-mingcute-star-fill", atoms.text__0dot875em)} />
           {fmtRating(ratingAttr.value)}
         </span>
       ) : null,
       genres ? (
-        <span className="min-w-0 truncate" key="g">
+        <span {...sx(atoms.min_w_0, atoms.truncate)} key="g">
           {genres}
         </span>
       ) : null,
-      <span className="shrink-0 text-neutral-6" key="h">
+      <span {...sx(atoms.shrink_0, atoms.text_neutral_6)} key="h">
         {host}
       </span>,
     ]
@@ -215,11 +213,11 @@ function renderMeta(data: HostEnrichment, flags: SubtypeFlags) {
   if (flags.isMusicSong) {
     return [
       albumName ? (
-        <span className="min-w-0 truncate" key="a">
+        <span {...sx(atoms.min_w_0, atoms.truncate)} key="a">
           《{albumName}》
         </span>
       ) : null,
-      <span className="shrink-0 text-neutral-6" key="h">
+      <span {...sx(atoms.shrink_0, atoms.text_neutral_6)} key="h">
         {host}
       </span>,
       <PlayPill key="p" />,
@@ -228,7 +226,7 @@ function renderMeta(data: HostEnrichment, flags: SubtypeFlags) {
 
   if (flags.isMusicAlbum) {
     return [
-      <span className="shrink-0 text-neutral-6" key="h">
+      <span {...sx(atoms.shrink_0, atoms.text_neutral_6)} key="h">
         {host}
       </span>,
       <PlayPill key="p" />,
@@ -238,19 +236,19 @@ function renderMeta(data: HostEnrichment, flags: SubtypeFlags) {
   if (flags.isBook) {
     return [
       ratingAttr ? (
-        <span className="inline-flex shrink-0 items-center gap-1" key="r">
-          <i className="i-mingcute-star-fill text-[0.875em]" />
+        <span {...sx(atoms.inline_flex, atoms.shrink_0, atoms.items_center, atoms.gap_1)} key="r">
+          <i {...sxClass("i-mingcute-star-fill", atoms.text__0dot875em)} />
           {fmtRating(ratingAttr.value)}
         </span>
       ) : null,
-      <span className="shrink-0 text-neutral-6" key="h">
+      <span {...sx(atoms.shrink_0, atoms.text_neutral_6)} key="h">
         {host}
       </span>,
     ]
   }
 
   return [
-    <span className="shrink-0 text-neutral-6" key="h">
+    <span {...sx(atoms.shrink_0, atoms.text_neutral_6)} key="h">
       {host}
     </span>,
   ]
@@ -259,7 +257,7 @@ function renderMeta(data: HostEnrichment, flags: SubtypeFlags) {
 const PlayPill: FC = () => (
   <span
     aria-hidden
-    className="inline-flex items-center gap-1 rounded-sm bg-neutral-2 px-1.5 py-px text-label-12 text-neutral-7"
+    {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_1, atoms.rounded_sm, atoms.bg_neutral_2, atoms.px_1dot5, atoms.py_px, atoms.text_label_12, atoms.text_neutral_7)}
   >
     <i className="i-mingcute-play-fill" />
   </span>
@@ -277,7 +275,7 @@ const PosterImage: FC<PosterImageProps> = ({ data, aspect, kind }) => {
 
   if (!image?.url) {
     return (
-      <div className="flex shrink-0 items-center justify-center self-stretch pl-4">
+      <div {...sx(atoms.flex, atoms.shrink_0, atoms.items_center, atoms.justify_center, atoms.self_stretch, atoms.pl_4)}>
         <HostStamp />
       </div>
     )
@@ -289,24 +287,24 @@ const PosterImage: FC<PosterImageProps> = ({ data, aspect, kind }) => {
   // the card top-to-bottom.
   return (
     <div
-      className="relative shrink-0 self-stretch overflow-hidden bg-neutral-2"
+      {...sx(atoms.relative, atoms.shrink_0, atoms.self_stretch, atoms.overflow_hidden, atoms.bg_neutral_2)}
       style={{ aspectRatio: aspect, width: COMPACT_POSTER_WIDTH[kind] }}
     >
       {image.thumbhash && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 size-full transition-opacity duration-[250ms]"
+          {...sx(atoms.pointer_events_none, atoms.absolute, atoms.inset_0, atoms.size_full, atoms.transition_opacity, atoms.duration__250ms)}
           style={{ opacity: loaded ? 0 : 1 }}
         >
           <ImagePlaceholder
-            className="size-full object-cover"
+            {...sx(atoms.size_full, atoms.object_cover)}
             thumbhash={image.thumbhash}
           />
         </div>
       )}
       <img
         alt={image.alt ?? data.title}
-        className="size-full object-cover"
+        {...sx(atoms.size_full, atoms.object_cover)}
         height={image.height}
         loading="lazy"
         src={image.url}
@@ -336,24 +334,24 @@ const ExpandedPoster: FC<ExpandedPosterProps> = ({ data, aspect, kind }) => {
   // wrap as long as it needs without resizing the poster.
   return (
     <div
-      className="relative shrink-0 self-start overflow-hidden rounded-lg bg-neutral-2"
+      {...sx(atoms.relative, atoms.shrink_0, atoms.self_start, atoms.overflow_hidden, atoms.rounded_lg, atoms.bg_neutral_2)}
       style={{ width: EXPANDED_POSTER_WIDTH[kind], aspectRatio: aspect }}
     >
       {image.thumbhash && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 size-full transition-opacity duration-[250ms]"
+          {...sx(atoms.pointer_events_none, atoms.absolute, atoms.inset_0, atoms.size_full, atoms.transition_opacity, atoms.duration__250ms)}
           style={{ opacity: loaded ? 0 : 1 }}
         >
           <ImagePlaceholder
-            className="size-full object-cover"
+            {...sx(atoms.size_full, atoms.object_cover)}
             thumbhash={image.thumbhash}
           />
         </div>
       )}
       <img
         alt={image.alt ?? data.title}
-        className="size-full object-cover"
+        {...sx(atoms.size_full, atoms.object_cover)}
         height={image.height}
         loading="lazy"
         src={image.url}
