@@ -213,14 +213,12 @@ function SeatRail({
   const t = useTranslations('desk')
   const elapsed = formatSeatElapsed(elapsedMs)
   const path = seatRailPath(application)
-
-  if (elapsed.kind === 'just') {
-    return (
-      <AppText color={palette.neutral[7]} style={styles.railLabel}>
-        {t('seatedJustNow')}
-      </AppText>
-    )
-  }
+  const clock =
+    elapsed.kind === 'just'
+      ? t('seatedJustNow')
+      : t(elapsed.kind === 'minutes' ? 'seatedMinutes' : 'seatedHours', {
+          count: elapsed.count,
+        })
 
   return (
     <View style={styles.rail}>
@@ -232,9 +230,7 @@ function SeatRail({
         {path ?? t('seated')}
       </AppText>
       <AppText color={palette.neutral[6]} style={styles.railClock}>
-        {t(elapsed.kind === 'minutes' ? 'seatedMinutes' : 'seatedHours', {
-          count: elapsed.count,
-        })}
+        {clock}
       </AppText>
     </View>
   )
@@ -319,15 +315,20 @@ function formatDuration(ms: number): string {
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: CARD_MIN_HEIGHT,
+    height: CARD_MIN_HEIGHT,
     overflow: 'hidden',
   },
   still: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    left: 0,
+    height: CARD_MIN_HEIGHT,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 10,
     paddingVertical: 14,
+    zIndex: 1,
   },
   stillMark: {
     alignItems: 'center',
@@ -338,9 +339,9 @@ const styles = StyleSheet.create({
     width: 44,
   },
   ticket: {
+    height: CARD_MIN_HEIGHT,
     gap: 12,
     justifyContent: 'center',
-    minHeight: CARD_MIN_HEIGHT,
     paddingHorizontal: 14,
     paddingVertical: 14,
   },
