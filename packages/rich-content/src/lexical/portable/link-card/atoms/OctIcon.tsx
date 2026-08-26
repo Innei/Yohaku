@@ -1,3 +1,6 @@
+import { sx, sxClass } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
+import { extras } from '../../../../styles/extras.stylex'
 import type { CSSProperties, FC } from 'react'
 
 import { clsxm } from '../../../../lib/clsxm'
@@ -15,11 +18,7 @@ const make =
       <i
         aria-hidden
         style={style}
-        className={clsxm(
-          'inline-block shrink-0 align-[-0.15em]',
-          iconClass,
-          className,
-        )}
+        {...sx(extras.alignNeg015em, atoms.inline_block, atoms.shrink_0, iconClass, className)}
       />
     )
   }

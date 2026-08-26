@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC } from 'react'
 
 import { clsxm } from '../../../../lib/clsxm'
@@ -28,14 +30,14 @@ interface Props {
 
 export const StatePill: FC<Props> = ({ tone, label, className }) => (
   <span
-    className={clsxm(
-      'inline-flex items-center gap-1 font-medium',
+    {...sx(
+      atoms.inline_flex, atoms.items_center, atoms.gap_1, atoms.font_medium,
       TONE_TEXT[tone],
       className,
     )}
   >
     <span
-      className={clsxm('inline-block size-1.5 rounded-full', TONE_DOT[tone])}
+      {...sx(atoms.inline_block, atoms.size_1dot5, atoms.rounded_full, TONE_DOT[tone])}
     />
     {label}
   </span>

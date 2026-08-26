@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 
 import { ImagePlaceholder } from '../../../../lib/image-placeholder'
 import type { MediaSource } from './media-source'
@@ -19,23 +21,23 @@ export function OgThumbnail({ source, alt }: Props): React.ReactElement {
 
   return (
     <div
-      className="relative w-[8.75rem] shrink-0 self-start overflow-hidden rounded-lg bg-neutral-2"
+      {...sx(atoms.relative, atoms.w__8dot75rem, atoms.shrink_0, atoms.self_start, atoms.overflow_hidden, atoms.rounded_lg, atoms.bg_neutral_2)}
       style={{ aspectRatio: safeRatio }}
     >
       {source.thumbhash && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 size-full"
+          {...sx(atoms.pointer_events_none, atoms.absolute, atoms.inset_0, atoms.size_full)}
         >
           <ImagePlaceholder
-            className="size-full object-cover"
+            {...sx(atoms.size_full, atoms.object_cover)}
             thumbhash={source.thumbhash}
           />
         </div>
       )}
       <img
         alt={alt}
-        className="absolute inset-0 size-full object-cover"
+        {...sx(atoms.absolute, atoms.inset_0, atoms.size_full, atoms.object_cover)}
         loading="lazy"
         src={source.url}
       />

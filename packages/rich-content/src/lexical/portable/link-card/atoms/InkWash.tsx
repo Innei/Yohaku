@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { CSSProperties, FC } from 'react'
 
 // Accent-tinted radial gradient that blooms from the bottom-left of the host
@@ -15,7 +17,7 @@ const inkWashStyle: CSSProperties = {
 export const InkWash: FC = () => (
   <span
     aria-hidden
-    className="pointer-events-none absolute inset-0 -z-10 opacity-0 transition-opacity duration-700 ease-out group-hover:opacity-100"
+    {...sx(atoms.pointer_events_none, atoms.absolute, atoms.inset_0, atoms._z_10, atoms.opacity_0, atoms.transition_opacity, atoms.duration_700, atoms.ease_out, atoms.group_hover_opacity_100)}
     style={inkWashStyle}
   />
 )

@@ -1,3 +1,6 @@
+import { sx, sxClass } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
+import { extras } from '../../../../styles/extras.stylex'
 import type { CSSProperties, FC, ReactNode } from 'react'
 
 import { clsxm } from '../../../../lib/clsxm'
@@ -48,22 +51,22 @@ export const GhCardLayout: FC<Props> = ({
   return (
     <LinkCardShell
       external
-      className={clsxm('w-full max-w-[36rem]', className)}
+      {...sx(atoms.w_full, atoms.max_w__36rem, className)}
       href={href}
       style={borderStyle}
     >
       {tintColor && (
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-0 opacity-[0.06]"
+          {...sx(extras.opacity06, atoms.pointer_events_none, atoms.absolute, atoms.inset_0, atoms.z_0)}
           style={washStyle}
         />
       )}
-      <div className="relative z-[1] min-w-0 flex-1">
-        <div className="flex items-center justify-between gap-3">
-          <div className="inline-flex min-w-0 items-center gap-1.5 text-[0.7rem] font-medium tracking-[0.06em] text-neutral-6 uppercase">
+      <div {...sx(atoms.relative, atoms.z__1, atoms.min_w_0, atoms.flex_1)}>
+        <div {...sx(atoms.flex, atoms.items_center, atoms.justify_between, atoms.gap_3)}>
+          <div {...sx(atoms.inline_flex, atoms.min_w_0, atoms.items_center, atoms.gap_1dot5, atoms.text__0dot7rem, atoms.font_medium, atoms.tracking__0dot06em, atoms.text_neutral_6, atoms.uppercase)}>
             {eyebrow.icon}
-            <span className="truncate">
+            <span {...sx(atoms.truncate)}>
               {eyebrow.kind}
               {repoLabel}
             </span>
@@ -71,19 +74,19 @@ export const GhCardLayout: FC<Props> = ({
           {eyebrow.pill}
         </div>
 
-        <div className="mt-2 flex items-start gap-2">
+        <div {...sx(atoms.mt_2, atoms.flex, atoms.items_start, atoms.gap_2)}>
           {title.leadingIcon}
-          <span className="line-clamp-2 flex-1 text-copy-16 leading-snug font-medium text-neutral-10">
+          <span {...sx(atoms.line_clamp_2, atoms.flex_1, atoms.text_copy_16, atoms.leading_snug, atoms.font_medium, atoms.text_neutral_10)}>
             {title.text}
           </span>
         </div>
 
-        {body && <div className="mt-2">{body}</div>}
+        {body && <div {...sx(atoms.mt_2)}>{body}</div>}
 
         {meta && meta.length > 0 && <MetaRow>{meta}</MetaRow>}
       </div>
 
-      {aside && <div className="relative z-[1] shrink-0">{aside}</div>}
+      {aside && <div {...sx(atoms.relative, atoms.z__1, atoms.shrink_0)}>{aside}</div>}
     </LinkCardShell>
   )
 }

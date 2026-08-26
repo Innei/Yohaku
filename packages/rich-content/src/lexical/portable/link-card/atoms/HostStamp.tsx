@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC, ReactNode } from 'react'
 
 import { clsxm } from '../../../../lib/clsxm'
@@ -14,8 +16,8 @@ interface Props {
 export const HostStamp: FC<Props> = ({ children, className, size = 3.5 }) => (
   <div
     style={{ width: `${size}rem`, height: `${size}rem` }}
-    className={clsxm(
-      'flex shrink-0 items-center justify-center rounded-lg bg-neutral-2 ring-1 ring-border/60 text-neutral-6',
+    {...sx(
+      atoms.flex, atoms.shrink_0, atoms.items_center, atoms.justify_center, atoms.rounded_lg, atoms.bg_neutral_2, atoms.ring_1, atoms.ring_border_60, atoms.text_neutral_6,
       className,
     )}
   >

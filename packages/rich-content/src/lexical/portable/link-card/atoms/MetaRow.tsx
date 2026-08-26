@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC, ReactNode } from 'react'
 import { Children, Fragment } from 'react'
 
@@ -15,15 +17,15 @@ export const MetaRow: FC<Props> = ({ children, className }) => {
   if (!items.length) return null
   return (
     <div
-      className={clsxm(
-        'mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[0.8125rem] text-neutral-7',
+      {...sx(
+        atoms.mt_1, atoms.flex, atoms.flex_wrap, atoms.items_center, atoms.gap_x_1dot5, atoms.gap_y_0dot5, atoms.text__0dot8125rem, atoms.text_neutral_7,
         className,
       )}
     >
       {items.map((node, idx) => (
         <Fragment key={idx}>
           {idx > 0 && (
-            <span className="size-[3px] shrink-0 rounded-full bg-neutral-5" />
+            <span {...sx(atoms.size__3px, atoms.shrink_0, atoms.rounded_full, atoms.bg_neutral_5)} />
           )}
           {node}
         </Fragment>

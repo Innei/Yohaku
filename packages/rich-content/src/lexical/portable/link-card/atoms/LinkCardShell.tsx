@@ -1,3 +1,5 @@
+import { sx } from '../../../../lib/sx'
+import { atoms } from '../../../../styles/atoms.stylex'
 import type { FC, MouseEvent, ReactNode } from 'react'
 
 import { clsxm } from '../../../../lib/clsxm'
@@ -59,9 +61,9 @@ export const LinkCardShell: FC<Props> = ({
     >
       <InkWash />
       <div
-        className={clsxm(
-          'flex w-full',
-          vertical ? 'flex-col items-stretch' : 'items-center gap-5',
+        {...sx(
+          atoms.flex, atoms.w_full,
+          vertical ? [atoms.flex_col, atoms.items_stretch] : [atoms.items_center, atoms.gap_5],
           innerClassName,
         )}
       >
