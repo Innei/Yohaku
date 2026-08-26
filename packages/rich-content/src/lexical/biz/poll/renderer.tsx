@@ -78,7 +78,8 @@ interface PollInteractiveProps {
   adapter: PollDataAdapter
   closeAt?: string
   mode: 'single' | 'multiple'
-  options: PollOption[]n  pollId: string
+  options: PollOption[]
+  pollId: string
   question: string
   showResults?: PollShowResults
 }
