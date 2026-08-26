@@ -33,6 +33,14 @@ public class YohakuModule: Module {
       TabBarDomain.configureCompactNativeTabBar()
     }.runOnQueue(.main)
 
+    AsyncFunction("setRestorableRoute") { (routeURL: String) in
+      NotificationCenter.default.post(
+        name: Notification.Name("YohakuRestorableRouteDidChange"),
+        object: nil,
+        userInfo: ["routeURL": routeURL]
+      )
+    }.runOnQueue(.main)
+
     AsyncFunction("circularImageUri") { (urlString: String) -> [String: Any] in
       let source = try await TabBarDomain.circularImageUri(urlString: urlString)
       return [

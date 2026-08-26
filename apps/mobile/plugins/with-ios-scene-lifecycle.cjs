@@ -25,10 +25,51 @@ const SCENE_WINDOW_BOOTSTRAP = `    // The window is created and React Native is
 
 const SCENE_DELEGATE_SOURCE = `internal import Expo
 import React
+import UIKit
+
+private enum SceneRestoration {
+  static let notification = Notification.Name("YohakuRestorableRouteDidChange")
+  private static let routeURLKey = "routeURL"
+  private static let restorationAttemptedKey = "yohaku.scene.restorationAttempted"
+
+  private static var activityType: String {
+    "\\(Bundle.main.bundleIdentifier ?? "dev.yohaku.app").route-restoration"
+  }
+
+  static func activity(routeURLString: String) -> NSUserActivity? {
+    guard let routeURL = URL(string: routeURLString) else {
+      return nil
+    }
+    let activity = NSUserActivity(activityType: activityType)
+    activity.title = "Restore reading route"
+    activity.userInfo = [routeURLKey: routeURL.absoluteString]
+    activity.targetContentIdentifier = routeURL.absoluteString
+    return activity
+  }
+
+  static func restorationURL(from activity: NSUserActivity?) -> URL? {
+    guard
+      let activity,
+      activity.activityType == activityType,
+      !UserDefaults.standard.bool(forKey: restorationAttemptedKey),
+      let routeURLString = activity.userInfo?[routeURLKey] as? String,
+      let routeURL = URL(string: routeURLString)
+    else {
+      return nil
+    }
+    UserDefaults.standard.set(true, forKey: restorationAttemptedKey)
+    return routeURL
+  }
+
+  static func markSuccessful() {
+    UserDefaults.standard.removeObject(forKey: restorationAttemptedKey)
+  }
+}
 
 @objc(SceneDelegate)
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   var window: UIWindow?
+  private weak var connectedScene: UIScene?
 
   func scene(
     _ scene: UIScene,
@@ -46,15 +87,33 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     let window = UIWindow(windowScene: windowScene)
     self.window = window
     appDelegate.window = window
+    connectedScene = scene
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(restorableRouteDidChange(_:)),
+      name: SceneRestoration.notification,
+      object: nil
+    )
 
+    let incomingURL = connectionOptions.urlContexts.first?.url
     let browsingWebActivity = connectionOptions.userActivities.first {
       $0.activityType == NSUserActivityTypeBrowsingWeb
+    }
+    var restorationURL: URL?
+    if incomingURL == nil && browsingWebActivity == nil {
+      restorationURL = SceneRestoration.restorationURL(
+        from: session.stateRestorationActivity
+      )
+    }
+    let initialURL = incomingURL ?? restorationURL
+    if let restorationURL {
+      Self.route(url: restorationURL)
     }
     factory.startReactNative(
       withModuleName: "main",
       in: window,
       launchOptions: Self.launchOptions(
-        url: connectionOptions.urlContexts.first?.url,
+        url: initialURL,
         userActivity: browsingWebActivity
       )
     )
@@ -65,6 +124,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   func sceneDidDisconnect(_ scene: UIScene) {
     window = nil
+  }
+
+  func stateRestorationActivity(for scene: UIScene) -> NSUserActivity? {
+    scene.userActivity
   }
 
   func sceneDidBecomeActive(_ scene: UIScene) {
@@ -89,6 +152,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
   func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
     Self.route(userActivity: userActivity)
+  }
+
+  @objc private func restorableRouteDidChange(_ notification: Notification) {
+    guard
+      let routeURLString = notification.userInfo?["routeURL"] as? String,
+      let activity = SceneRestoration.activity(routeURLString: routeURLString)
+    else {
+      return
+    }
+    connectedScene?.userActivity = activity
+    SceneRestoration.markSuccessful()
+  }
+
+  deinit {
+    NotificationCenter.default.removeObserver(self)
   }
 }
 
@@ -116,18 +194,27 @@ extension SceneDelegate {
 
   static func route(urlContexts: Set<UIOpenURLContext>) {
     for context in urlContexts {
-      let options = openURLOptions(from: context.options)
-      _ = ExpoAppDelegateSubscriberManager.application(
-        UIApplication.shared,
-        open: context.url,
-        options: options
-      )
-      RCTLinkingManager.application(
-        UIApplication.shared,
-        open: context.url,
-        options: options
+      route(
+        url: context.url,
+        options: openURLOptions(from: context.options)
       )
     }
+  }
+
+  static func route(
+    url: URL,
+    options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+  ) {
+    _ = ExpoAppDelegateSubscriberManager.application(
+      UIApplication.shared,
+      open: url,
+      options: options
+    )
+    RCTLinkingManager.application(
+      UIApplication.shared,
+      open: url,
+      options: options
+    )
   }
 
   static func route(userActivity: NSUserActivity) {
@@ -246,3 +333,4 @@ const withIosSceneLifecycle = (config) => {
 
 module.exports = withIosSceneLifecycle
 module.exports.patchAppDelegate = patchAppDelegate
+module.exports.sceneDelegateSource = SCENE_DELEGATE_SOURCE

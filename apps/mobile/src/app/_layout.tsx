@@ -14,6 +14,7 @@ import { LogBox, StyleSheet, useColorScheme, View } from 'react-native'
 import { refreshSession } from '@/auth/session'
 import { useSession } from '@/auth/session-store'
 import { warmWebviewPool } from '@/components/dom/warm-webview-pool'
+import { RouteRestorationHost } from '@/components/navigation/route-restoration-host'
 import { getStackScreenOptions } from '@/components/navigation/stack-screen-options'
 import { SplashOverlay } from '@/components/splash/splash-overlay'
 import { AppText, Desk, ToastHost } from '@/components/ui'
@@ -21,6 +22,7 @@ import { db } from '@/db'
 import { AppRecoveryScreen } from '@/errors/app-recovery-screen'
 import { FatalErrorHost } from '@/errors/fatal-error-host'
 import { useTranslations } from '@/i18n'
+import { parseTocDetents } from '@/lib/article-toc'
 import { assertVendoredDomWebView } from '@/lib/assert-vendored-dom-webview'
 import { queryClient } from '@/lib/query-client'
 import { useOtaForegroundCheck } from '@/ota/use-ota-foreground-check'
@@ -31,7 +33,6 @@ import { usePushLifecycle } from '@/push/use-push-lifecycle'
 import { MembershipRecoveryHost } from '@/screens/me/membership-recovery-host'
 import { useSocketLifecycle } from '@/socket/use-socket-lifecycle'
 import { useSyncLifecycle } from '@/sync/use-sync-lifecycle'
-import { parseTocDetents } from '@/lib/article-toc'
 import { useAppFonts } from '@/theme/fonts'
 import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
@@ -56,10 +57,7 @@ export const unstable_settings = {
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   return (
-    <AppRecoveryScreen
-      message={error.message}
-      onRetry={() => void retry()}
-    />
+    <AppRecoveryScreen message={error.message} onRetry={() => void retry()} />
   )
 }
 
@@ -218,6 +216,7 @@ export default function RootLayout() {
                 })}
               />
             </Stack>
+            <RouteRestorationHost ready={appPainted} />
             <PushOnboardingHost ready={dataReady && !failed && splashDone} />
             <ToastHost />
           </ThemeProvider>
