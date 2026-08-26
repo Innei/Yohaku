@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../../lib/sx'
+import { atoms } from '../../../styles/atoms.stylex'
 
 import type {
   CandlestickData,
@@ -428,7 +430,7 @@ export function KLineCard(props: Props) {
       />
 
       <div
-        className="mt-4 w-full"
+        {...sx(atoms.mt_4, atoms.w_full)}
         ref={containerRef}
         style={{ height: KLINE_BODY_HEIGHT }}
       />

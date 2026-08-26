@@ -1,4 +1,9 @@
 'use client'
+import { sx, sxClass } from '../../../lib/sx'
+import { atoms } from '../../../styles/atoms.stylex'
+import { extras } from '../../../styles/extras.stylex'
+import { yohaku } from '../../../styles/yohaku.stylex'
+import * as stylex from '@stylexjs/stylex'
 
 import { clsx } from 'clsx'
 import type { CSSProperties, ReactNode } from 'react'
@@ -32,10 +37,7 @@ export function StockFrame({
 }) {
   return (
     <div
-      className={clsx(
-        'text-neutral-9 font-[system-ui] relative my-8 w-full border-y py-4 tabular-nums',
-        className,
-      )}
+      {...sx(extras.fontSystemUi, atoms.text_neutral_9, atoms.relative, atoms.my_8, atoms.w_full, atoms.border_y, atoms.py_4, atoms.tabular_nums, className)}
       style={{
         fontFeatureSettings: '"tnum", "ss01"',
         ...style,
@@ -66,7 +68,7 @@ export function SymbolAvatar({
     return (
       <img
         alt=""
-        className="bg-neutral-2 my-0 flex-shrink-0 rounded-full object-contain p-px"
+        {...sx(atoms.bg_neutral_2, atoms.my_0, atoms.flex_shrink_0, atoms.rounded_full, atoms.object_contain, atoms.p_px)}
         height={size}
         loading="lazy"
         src={url}
@@ -80,7 +82,7 @@ export function SymbolAvatar({
   return (
     <span
       aria-hidden="true"
-      className="bg-neutral-9 text-neutral-1 inline-flex flex-shrink-0 items-center justify-center rounded-full font-semibold"
+      {...sx(atoms.bg_neutral_9, atoms.text_neutral_1, atoms.inline_flex, atoms.flex_shrink_0, atoms.items_center, atoms.justify_center, atoms.rounded_full, atoms.font_semibold)}
       style={{
         width: size,
         height: size,
@@ -100,19 +102,47 @@ const MARKET_STATE_LABEL: Record<MarketState, string> = {
   closed: 'CLOSED',
 }
 
+const marketDot = stylex.create({
+  live: {
+    backgroundColor: {
+      default: '#1F9D55',
+      ':where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *)':
+        '#34D399',
+    },
+  },
+  ext: {
+    backgroundColor: {
+      default: '#D97706',
+      ':where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *)':
+        '#FBBF24',
+    },
+  },
+  closed: {
+    backgroundColor: yohaku.neutral6,
+  },
+})
+
 export function MarketStateDot({ state }: { state: MarketState }) {
   const isLive = state === 'regular'
   const isExt = state === 'pre' || state === 'post'
-  const dotClass = isLive
-    ? 'bg-[#1F9D55] dark:bg-[#34D399]'
+  const tone = isLive
+    ? marketDot.live
     : isExt
-      ? 'bg-[#D97706] dark:bg-[#FBBF24]'
-      : 'bg-neutral-6'
+      ? marketDot.ext
+      : marketDot.closed
   return (
-    <span className="inline-flex items-center">
+    <span {...sx(atoms.inline_flex, atoms.items_center)}>
       <span
         aria-hidden="true"
-        className={`mr-1 inline-block h-1.5 w-1.5 rounded-full align-middle ${dotClass}`}
+        {...sx(
+          atoms.mr_1,
+          atoms.inline_block,
+          atoms.h_1dot5,
+          atoms.w_1dot5,
+          atoms.rounded_full,
+          atoms.align_middle,
+          tone,
+        )}
       />
       <span>{MARKET_STATE_LABEL[state]}</span>
     </span>
@@ -156,14 +186,14 @@ export function StockMasthead({
   }
 
   return (
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
-      <div className="min-w-0">
-        <div className="text-neutral-7 font-mono text-caption-10 flex flex-wrap items-center gap-x-1.5 tracking-[0.14em] uppercase">
+    <header {...sx(atoms.flex, atoms.flex_col, atoms.gap_4, atoms.sm_flex_row, atoms.sm_items_start, atoms.sm_justify_between, atoms.sm_gap_8)}>
+      <div {...sx(atoms.min_w_0)}>
+        <div {...sx(atoms.text_neutral_7, atoms.font_mono, atoms.text_caption_10, atoms.flex, atoms.flex_wrap, atoms.items_center, atoms.gap_x_1dot5, atoms.tracking__0dot14em, atoms.uppercase)}>
           <SymbolAvatar avatarUrl={avatarUrl} symbol={meta.symbol} />
           {metaParts.map((part, i) => (
-            <span className="inline-flex items-center" key={i}>
+            <span {...sx(atoms.inline_flex, atoms.items_center)} key={i}>
               {i > 0 ? (
-                <span aria-hidden="true" className="text-neutral-6 mr-1.5">
+                <span aria-hidden="true" {...sx(atoms.text_neutral_6, atoms.mr_1dot5)}>
                   ·
                 </span>
               ) : null}
@@ -171,20 +201,20 @@ export function StockMasthead({
             </span>
           ))}
         </div>
-        <div className="text-neutral-10 font-mono text-display-36 mt-1.5 leading-none tracking-[-0.015em]">
+        <div {...sx(atoms.text_neutral_10, atoms.font_mono, atoms.text_display_36, atoms.mt_1dot5, atoms.leading_none, atoms.tracking___0dot015em)}>
           <SlotText text={displayPrice} />
         </div>
         <div
-          className="text-label-12 mt-1.5 font-medium"
+          {...sx(atoms.text_label_12, atoms.mt_1dot5, atoms.font_medium)}
           style={{ color: isUp ? upText : downText }}
         >
           <SlotText text={`${arrow} ${deltaAbs} · ${deltaPctAbs}%`} />
         </div>
-        <div className="text-neutral-7 text-copy-13 mt-1 truncate">
+        <div {...sx(atoms.text_neutral_7, atoms.text_copy_13, atoms.mt_1, atoms.truncate)}>
           {displayName}
         </div>
       </div>
-      {stats ? <div className="flex-shrink-0 sm:pt-1">{stats}</div> : null}
+      {stats ? <div {...sx(atoms.flex_shrink_0, atoms.sm_pt_1)}>{stats}</div> : null}
     </header>
   )
 }
@@ -199,20 +229,20 @@ export function StockStatGrid({
   children?: ReactNode
 }) {
   return (
-    <div className="text-neutral-7 font-mono text-label-12 grid grid-cols-2 gap-x-5 gap-y-1 tabular-nums sm:min-w-[220px]">
+    <div {...sx(atoms.text_neutral_7, atoms.font_mono, atoms.text_label_12, atoms.grid, atoms.grid_cols_2, atoms.gap_x_5, atoms.gap_y_1, atoms.tabular_nums, atoms.sm_min_w__220px)}>
       {items.map((it, i) => (
         <span
           key={i}
-          className={clsx(
-            'flex items-baseline justify-between gap-3',
-            it.span === 2 && 'col-span-2',
+          {...sx(
+            atoms.flex, atoms.items_baseline, atoms.justify_between, atoms.gap_3,
+            it.span === 2 && atoms.col_span_2,
           )}
         >
-          <span className="opacity-70">{it.label}</span>
-          <span className="text-neutral-9">{it.value}</span>
+          <span {...sx(atoms.opacity_70)}>{it.label}</span>
+          <span {...sx(atoms.text_neutral_9)}>{it.value}</span>
         </span>
       ))}
-      {children ? <div className="col-span-2 mt-1.5">{children}</div> : null}
+      {children ? <div {...sx(atoms.col_span_2, atoms.mt_1dot5)}>{children}</div> : null}
     </div>
   )
 }
@@ -231,16 +261,16 @@ export function Range52W({
   const pct = Math.min(100, Math.max(0, ((value - low) / (high - low)) * 100))
   return (
     <div>
-      <div className="flex items-center gap-2">
-        <span className="opacity-70">52W</span>
-        <span className="bg-neutral-9/10 relative h-[3px] flex-1 rounded-full">
+      <div {...sx(atoms.flex, atoms.items_center, atoms.gap_2)}>
+        <span {...sx(atoms.opacity_70)}>52W</span>
+        <span {...sx(atoms.bg_neutral_9_10, atoms.relative, atoms.h__3px, atoms.flex_1, atoms.rounded_full)}>
           <span
-            className="bg-neutral-9 absolute -top-[2.5px] size-2 rounded-full transition-[left] duration-200"
+            {...sx(atoms.bg_neutral_9, atoms.absolute, atoms._top__2dot5px, atoms.size_2, atoms.rounded_full, atoms.transition__left, atoms.duration_200)}
             style={{ left: `calc(${pct}% - 4px)` }}
           />
         </span>
       </div>
-      <div className="text-neutral-6 text-caption-10 mt-1 flex justify-between">
+      <div {...sx(atoms.text_neutral_6, atoms.text_caption_10, atoms.mt_1, atoms.flex, atoms.justify_between)}>
         <span>{formatter.format(low)}</span>
         <span>{formatter.format(high)}</span>
       </div>
@@ -256,29 +286,29 @@ export function StockFooter({
   right: ReactNode
 }) {
   return (
-    <footer className="text-neutral-7 font-mono text-label-12 mt-3 flex items-center justify-between gap-4 tabular-nums">
-      <span className="truncate">{left}</span>
-      <span className="flex-shrink-0">{right}</span>
+    <footer {...sx(atoms.text_neutral_7, atoms.font_mono, atoms.text_label_12, atoms.mt_3, atoms.flex, atoms.items_center, atoms.justify_between, atoms.gap_4, atoms.tabular_nums)}>
+      <span {...sx(atoms.truncate)}>{left}</span>
+      <span {...sx(atoms.flex_shrink_0)}>{right}</span>
     </footer>
   )
 }
 
 function SkeletonMasthead({ symbol }: { symbol?: string }) {
   return (
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
-      <div className="min-w-0">
-        <div className="text-neutral-7 font-mono text-caption-10 flex items-center gap-x-1.5 tracking-[0.14em] uppercase">
+    <header {...sx(atoms.flex, atoms.flex_col, atoms.gap_4, atoms.sm_flex_row, atoms.sm_items_start, atoms.sm_justify_between, atoms.sm_gap_8)}>
+      <div {...sx(atoms.min_w_0)}>
+        <div {...sx(atoms.text_neutral_7, atoms.font_mono, atoms.text_caption_10, atoms.flex, atoms.items_center, atoms.gap_x_1dot5, atoms.tracking__0dot14em, atoms.uppercase)}>
           <SymbolAvatar symbol={symbol ?? '?'} />
           <span>{symbol ?? ' '}</span>
         </div>
-        <div className="bg-neutral-3/60 mt-1.5 h-9 w-40 rounded" />
-        <div className="bg-neutral-3/60 mt-1.5 h-[12px] w-24 rounded" />
-        <div className="bg-neutral-3/60 mt-1 h-[13px] w-32 rounded" />
+        <div {...sx(atoms.bg_neutral_3_60, atoms.mt_1dot5, atoms.h_9, atoms.w_40, atoms.rounded)} />
+        <div {...sx(atoms.bg_neutral_3_60, atoms.mt_1dot5, atoms.h__12px, atoms.w_24, atoms.rounded)} />
+        <div {...sx(atoms.bg_neutral_3_60, atoms.mt_1, atoms.h__13px, atoms.w_32, atoms.rounded)} />
       </div>
-      <div className="hidden flex-shrink-0 space-y-1.5 sm:block sm:w-[220px] sm:pt-1">
-        <div className="bg-neutral-3/60 h-[12px] w-full rounded" />
-        <div className="bg-neutral-3/60 h-[12px] w-full rounded" />
-        <div className="bg-neutral-3/60 h-[12px] w-2/3 rounded" />
+      <div {...sx(atoms.hidden, atoms.flex_shrink_0, atoms.space_y_1dot5, atoms.sm_block, atoms.sm_w__220px, atoms.sm_pt_1)}>
+        <div {...sx(atoms.bg_neutral_3_60, atoms.h__12px, atoms.w_full, atoms.rounded)} />
+        <div {...sx(atoms.bg_neutral_3_60, atoms.h__12px, atoms.w_full, atoms.rounded)} />
+        <div {...sx(atoms.bg_neutral_3_60, atoms.h__12px, atoms.w_2_3, atoms.rounded)} />
       </div>
     </header>
   )
@@ -294,11 +324,11 @@ function SkeletonBody({
   return (
     <div
       aria-hidden={message ? undefined : 'true'}
-      className="flex w-full items-center justify-center"
+      {...sx(atoms.flex, atoms.w_full, atoms.items_center, atoms.justify_center)}
       style={{ height }}
     >
       {message ? (
-        <span className="text-neutral-7 text-copy-13">{message}</span>
+        <span {...sx(atoms.text_neutral_7, atoms.text_copy_13)}>{message}</span>
       ) : null}
     </div>
   )
@@ -306,9 +336,9 @@ function SkeletonBody({
 
 function SkeletonFooter() {
   return (
-    <footer className="mt-3 flex items-center justify-between">
-      <span className="bg-neutral-3/60 inline-block h-[12px] w-24 rounded" />
-      <span className="bg-neutral-3/60 inline-block h-[12px] w-20 rounded" />
+    <footer {...sx(atoms.mt_3, atoms.flex, atoms.items_center, atoms.justify_between)}>
+      <span {...sx(atoms.bg_neutral_3_60, atoms.inline_block, atoms.h__12px, atoms.w_24, atoms.rounded)} />
+      <span {...sx(atoms.bg_neutral_3_60, atoms.inline_block, atoms.h__12px, atoms.w_20, atoms.rounded)} />
     </footer>
   )
 }
@@ -356,7 +386,7 @@ export function RetryMessage({
   onRetry: () => void
 }) {
   return (
-    <span className="inline-flex items-center gap-2">
+    <span {...sx(atoms.inline_flex, atoms.items_center, atoms.gap_2)}>
       <span>{label}</span>
       <button className={RETRY_BUTTON_CLASS} type="button" onClick={onRetry}>
         Retry
