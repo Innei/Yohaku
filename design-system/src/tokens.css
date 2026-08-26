@@ -1,13 +1,14 @@
 /*
  * @yohaku/design-system · static tokens
  *
- * Canonical Tailwind v4 @theme blocks for the Yohaku monorepo.
+ * Canonical CSS custom properties for the Yohaku monorepo.
  * Runtime overrides for --surface-paper, --bg-opacity, --color-border, and
  * the dynamic accent (--a) live in apps/web (variables.css, theme.css,
  * AccentColorStyleInjector). This file declares only static contract.
  */
 
-@theme inline {
+:root,
+:host {
   --color-paper: var(--surface-paper);
   --font-sans:
     var(--app-font-sans), var(--app-font-sans-cjk, system-ui, -apple-system, 'PingFang SC',
@@ -32,9 +33,7 @@
     'Noto Serif CJK SC', serif;
   --font-logo-latin: 'EB Garamond', 'GT Sectra', 'Tiempos Headline', Georgia,
     serif;
-}
 
-@theme {
   --color-accent: #c56473;
 
   /* Neutral 色阶 — 素 Pure (3-tier, dark mode inverts to pure gray in apps/web)
@@ -56,12 +55,11 @@
   --color-neutral-10: #141312;
 
   /* Semantic — 和色 (Japanese traditional). Restraint matched to accent. */
-  --color-info: #3d6896;    /* 縹 hanada */
+  --color-info: #3d6896; /* 縛 hanada */
   --color-success: #5e9f7e; /* 若竹 wakatake */
   --color-warning: #a87a3d; /* 朽葉 kuchiba */
-  --color-error: #a64953;   /* 蘇芳 suoh */
+  --color-error: #a64953; /* 蘇芳 suoh */
 
-  /* border-border utility — value is overridden in apps/web variables.css per theme */
   --color-border: rgba(24, 24, 27, 0.1);
 
   --color-muted-1: var(--color-neutral-1);
@@ -76,27 +74,6 @@
   --color-muted-10: var(--color-neutral-10);
 
   --color-themed-bg_opacity: var(--bg-opacity);
-}
-
-@theme {
-  /* Typography scale — Geist-style role+px tokens. Anchored on html { font-size: 14px }
-     in apps/web. Size and line-height are bundled per token (single source of truth);
-     font-weight stays separate (apply font-medium / font-normal independently).
-     CJK forbids synthetic bold — use font-medium (500) at most for headings.
-
-     Roles:
-       caption  10            — eyebrow uppercase + tracking only (use sparingly)
-       label    12            — meta, small label, pagination
-       copy     13 14 15 16   — body family; copy-14 is the base anchor (1rem)
-       title    20 24 28      — section heading → page H1
-       display  36 48         — hero, OG renderer
-       icon     sm md lg      — non-body sizes for <i>/icon elements (no line-height)
-
-     Banned: hardcoded text-[Npx], Tailwind defaults text-xs/sm/base/lg/xl/2xl/3xl/...
-     Enforcement lives in apps/web ESLint + design-system check.ts (phase 3).
-
-     NOTE: `--text-*: initial` (clear tw defaults) is deferred to phase 3 — it
-     interacts badly with the typography plugin's @apply chain in tw v4.2.2. */
 
   --text-caption-10: 10px;
   --text-caption-10--line-height: 1.4;
@@ -129,5 +106,3 @@
   --text-icon-md: 16px;
   --text-icon-lg: 18px;
 }
-
-@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));

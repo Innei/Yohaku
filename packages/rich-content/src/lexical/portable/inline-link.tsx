@@ -1,4 +1,6 @@
 'use client'
+import { sx } from '../../lib/sx'
+import { atoms } from '../../styles/atoms.stylex'
 
 import { LinkFavicon } from '@haklex/rich-editor/static'
 
@@ -15,7 +17,7 @@ export function PortableInlineLink({
   return (
     <a className={className} href={href} rel={rel} target={target}>
       <LinkFavicon
-        className="mr-1 inline-flex shrink-0 [&_svg]:inline [&_svg]:h-[0.8em]!"
+        {...sx(atoms.mr_1, atoms.inline_flex, atoms.shrink_0, atoms._and_svg_inline, atoms._and_svg_h__0dot8emimportant_)}
         getPlatformFromUrl={getPlatformFromUrl}
         href={href}
         platformIconMap={platformIconMap}

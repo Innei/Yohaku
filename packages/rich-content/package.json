@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "build:css": "tailwindcss -i styles/build.css -o dist/rich.css",
+    "build:css": "node ../../scripts/build-rich-css.mjs",
     "check": "pnpm build:css && git diff --exit-code -- dist/rich.css",
     "test": "vitest run"
   },
@@ -32,7 +32,6 @@
     "react-dom": "*"
   },
   "devDependencies": {
-    "@egoist/tailwindcss-icons": "1.9.2",
     "@haklex/rich-compose": "0.37.0",
     "@haklex/rich-editor": "0.37.0",
     "@haklex/rich-ext-chat": "0.37.0",
@@ -42,7 +41,6 @@
     "@iconify-json/mingcute": "1.2.8",
     "@iconify-json/octicon": "1.2.30",
     "@mx-space/editor": "0.3.0",
-    "@tailwindcss/cli": "^4.3.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "happy-dom": "^20.9.0",
@@ -50,7 +48,6 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-tweet": "npm:@innei/react-tweet@3.4.3",
-    "tailwindcss": "^4.3.3",
     "typescript": "6.0.3",
     "vitest": "^4.1.10"
   },
@@ -67,8 +64,9 @@
     "markdown-to-jsx": "npm:@innei/markdown-to-jsx-yet@7.7.7-11",
     "roughjs": "^4.6.6",
     "shiki": "^4.4.2",
+    "@stylexjs/stylex": "0.19.0",
     "slot-text": "^0.3.3",
-    "tailwind-merge": "3.6.0",
+    "tailwind-stylex": "0.1.1",
     "thumbhash": "0.1.1"
   }
 }

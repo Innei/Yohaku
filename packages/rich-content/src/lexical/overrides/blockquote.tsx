@@ -1,4 +1,6 @@
 'use client'
+import { sx, sxClass } from '../../lib/sx'
+import { atoms } from '../../styles/atoms.stylex'
 
 import type { BuiltinNodeRenderer } from '@haklex/rich-compose'
 
@@ -29,7 +31,7 @@ export const LexicalBlockquoteOverride: BuiltinNodeRenderer = (
 
   return (
     <blockquote
-      className="rich-quote-yohaku font-serif my-4"
+      {...sxClass("rich-quote-yohaku", atoms.font_serif, atoms.my_4)}
       data-no-close-quote={hasCloseQuote ? '' : undefined}
       data-no-open-quote={hasOpenQuote ? '' : undefined}
       key={key}
@@ -37,7 +39,7 @@ export const LexicalBlockquoteOverride: BuiltinNodeRenderer = (
       {!hasOpenQuote && (
         <span
           aria-hidden
-          className="rich-quote-yohaku-glyph block opacity-40 text-(--color-accent)"
+          {...sxClass("rich-quote-yohaku-glyph", atoms.block, atoms.opacity_40, atoms.text____color_accent)}
           style={{
             fontFamily: 'Georgia, serif',
             fontSize: '48px',
@@ -48,11 +50,11 @@ export const LexicalBlockquoteOverride: BuiltinNodeRenderer = (
           &ldquo;
         </span>
       )}
-      <div className="text-copy-15 italic pl-7 text-(--color-neutral-9)">
+      <div {...sx(atoms.text_copy_15, atoms.italic, atoms.pl_7, atoms.text____color_neutral_9)}>
         {children}
       </div>
       {attribution && (
-        <footer className="text-label-12 mt-2 not-italic text-right text-(--color-neutral-7)">
+        <footer {...sx(atoms.text_label_12, atoms.mt_2, atoms.not_italic, atoms.text_right, atoms.text____color_neutral_7)}>
           — {attribution}
         </footer>
       )}

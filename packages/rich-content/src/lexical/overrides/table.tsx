@@ -1,3 +1,5 @@
+import { sx, sxClass } from '../../lib/sx'
+import { atoms } from '../../styles/atoms.stylex'
 import type { BuiltinNodeRenderer } from '@haklex/rich-compose'
 
 type TableCellNode = {
@@ -7,10 +9,10 @@ type TableCellNode = {
 
 const TableRenderer: BuiltinNodeRenderer = (_node, key, children) => (
   <div
-    className="rich-table-scroll my-5 w-full min-w-0 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
+    {...sxClass("rich-table-scroll", atoms.my_5, atoms.w_full, atoms.min_w_0, atoms.overflow_x_auto, atoms.overscroll_x_contain, atoms.__webkit_overflow_scrolling_touch)}
     key={key}
   >
-    <table className="w-max min-w-full border-collapse [&_p]:my-1! [&_tr:last-child_td]:border-b-0">
+    <table {...sx(atoms.w_max, atoms.min_w_full, atoms.border_collapse, atoms._and_p_my_1important_, atoms._and_tr_last_child_td_border_b_0)}>
       <tbody>{children}</tbody>
     </table>
   </div>
@@ -26,7 +28,7 @@ const TableCellRenderer: BuiltinNodeRenderer = (node, key, children) => {
   if (headerState) {
     return (
       <th
-        className="whitespace-nowrap border-b border-neutral-3 pr-4 pb-1.5 text-left align-bottom font-sans text-[0.82em] font-medium tracking-wider text-neutral-7"
+        {...sx(atoms.whitespace_nowrap, atoms.border_b, atoms.border_neutral_3, atoms.pr_4, atoms.pb_1dot5, atoms.text_left, atoms.align_bottom, atoms.font_sans, atoms.text__0dot82em, atoms.font_medium, atoms.tracking_wider, atoms.text_neutral_7)}
         colSpan={span}
         key={key}
       >
@@ -36,7 +38,7 @@ const TableCellRenderer: BuiltinNodeRenderer = (node, key, children) => {
   }
   return (
     <td
-      className="whitespace-nowrap border-b border-neutral-3/50 py-1.5 pr-4 align-top text-neutral-9"
+      {...sx(atoms.whitespace_nowrap, atoms.border_b, atoms.border_neutral_3_50, atoms.py_1dot5, atoms.pr_4, atoms.align_top, atoms.text_neutral_9)}
       colSpan={span}
       key={key}
     >
