@@ -736,7 +736,14 @@ export default function RichBody({
         ),
         color: printDocument ? neutral.light[10] : neutral[theme][9],
         ...(printDocument
-          ? { '--app-viewport-height': '1056px' }
+          ? {
+              '--app-viewport-height': '1056px',
+              // Print host is never shown; set type here so UIPrintFormatter
+              // sees 12px even if it snapshots screen styles, not @media print.
+              '--rc-font-size-base': '12px',
+              '--rc-font-size-small': '10px',
+              fontSize: 12,
+            }
           : viewportHeight
             ? { '--app-viewport-height': `${viewportHeight}px` }
             : {}),
@@ -842,13 +849,13 @@ export default function RichBody({
     >
       <style>{`
         ${buildFontFaceCss(fontFaces)}
-        html, body { width: 100%; overflow-x: hidden; background: ${printDocument ? '#fff' : 'transparent'}; margin: 0; }
+        html, body { width: 100%; overflow-x: hidden; background: ${printDocument ? '#fff' : 'transparent'}; margin: 0; ${printDocument ? 'font-size: 12px; -webkit-text-size-adjust: 100%;' : ''} }
         .font-mono, code, kbd, samp { font-family: var(--font-mono); }
         .rich-body-root { width: 100vw; overflow-x: hidden; box-sizing: border-box; background: ${printDocument ? '#fff' : 'transparent'}; }
         ${
           printDocument
             ? `
-        @page { margin: 18mm 16mm 20mm; }
+        @page { margin: 12mm 16mm 12mm; }
         .yohaku-details::details-content,
         .yohaku-details[open]::details-content {
           height: auto !important;
@@ -880,16 +887,16 @@ export default function RichBody({
           .rich-content blockquote { border-left-color: var(--color-accent); }
           .rich-content pre { background: var(--color-neutral-1); }
         }
-        .print-masthead { padding: 8px 20px 24px; }
+        .print-masthead { padding: 0 20px 14px; }
         .print-masthead h1 {
           margin: 0;
           font-family: var(--app-font-serif), var(--font-serif);
-          font-size: 28px;
+          font-size: 22px;
           font-weight: 500;
           line-height: 1.29;
           color: var(--color-neutral-10);
         }
-        .print-masthead-rule { height: 1px; margin: 16px 0 12px; background: var(--color-accent); border: 0; }
+        .print-masthead-rule { height: 1px; margin: 12px 0 8px; background: var(--color-accent); border: 0; }
         .print-masthead-meta, .print-masthead-url {
           margin: 0;
           font-size: 12px;

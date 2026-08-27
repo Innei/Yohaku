@@ -68,7 +68,7 @@ final class DomPrintPageRenderer: UIPrintPageRenderer {
     self.siteName = siteName
     super.init()
     headerHeight = 0
-    footerHeight = 28
+    footerHeight = 20
   }
 
   override func drawFooterForPage(at pageIndex: Int, in footerRect: CGRect) {
@@ -76,7 +76,7 @@ final class DomPrintPageRenderer: UIPrintPageRenderer {
       .font: UIFont.systemFont(ofSize: 10, weight: .regular),
       .foregroundColor: UIColor(white: 0.36, alpha: 1),
     ]
-    let baseline = footerRect.minY + 8
+    let baseline = footerRect.minY + 4
     (siteName as NSString).draw(
       at: CGPoint(x: footerRect.minX, y: baseline),
       withAttributes: attributes
