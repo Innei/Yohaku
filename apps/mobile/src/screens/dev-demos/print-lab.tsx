@@ -42,6 +42,22 @@ export function PrintLab() {
           })
         }
       />
+      <Button
+        label="Export PDF"
+        variant="paper"
+        onPress={() =>
+          print({
+            category: 'Lab',
+            content: CONTENT,
+            createdAt: new Date(2026, 7, 26),
+            exportPdf: true,
+            siteName: owner?.name || tp('site'),
+            title: '打印稿全节点示例',
+            url: WEB_URL,
+            variant: 'article',
+          })
+        }
+      />
       <View style={[styles.stage, { borderColor: palette.neutral[3] }]}>
         <AppText variant="meta">屏幕渲染 · 点打印走假 WebView</AppText>
         <RichBody

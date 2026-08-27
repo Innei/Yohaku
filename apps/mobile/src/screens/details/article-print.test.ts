@@ -4,6 +4,7 @@ import {
   buildPrintMasthead,
   formatPrintDate,
   printBlockFallback,
+  printJobName,
 } from './article-print'
 
 describe('formatPrintDate', () => {
@@ -27,6 +28,14 @@ describe('printBlockFallback', () => {
       '文件：README.md',
     )
     expect(printBlockFallback('video', {}, 'zh')).toBe('视频')
+  })
+})
+
+describe('printJobName', () => {
+  it('uses the article title and strips path characters', () => {
+    expect(printJobName('在余白里', 'Innei')).toBe('在余白里')
+    expect(printJobName('AI: 效率 / 疲弊', 'Innei')).toBe('AI— 效率 — 疲弊')
+    expect(printJobName('   ', 'Innei')).toBe('Innei')
   })
 })
 

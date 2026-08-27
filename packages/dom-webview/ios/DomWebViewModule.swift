@@ -89,9 +89,13 @@ public final class DomWebViewModule: Module {
       Double(DomImageAssetStore.shared.diskBytes())
     }
 
-    AsyncFunction("printTargetWebView") { (siteName: String) -> Bool in
-      await DomPrintDomain.printTarget(siteName: siteName)
+    AsyncFunction("printTargetWebView") { (siteName: String, jobName: String) -> Bool in
+      await DomPrintDomain.printTarget(siteName: siteName, jobName: jobName)
       return true
+    }
+
+    AsyncFunction("exportTargetWebViewToPDF") { (siteName: String, jobName: String) -> String in
+      await DomPrintDomain.exportPDF(siteName: siteName, jobName: jobName) ?? ""
     }
 
     // swiftlint:disable closure_body_length

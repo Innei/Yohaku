@@ -14,16 +14,19 @@ import {
   type PrintMasthead,
   buildPrintMasthead,
   formatPrintDate,
+  printJobName,
 } from './article-print'
 
 const DomWebViewModule = requireNativeModule<{
-  printTargetWebView: (siteName: string) => Promise<void>
+  exportTargetWebViewToPDF: (siteName: string, jobName: string) => Promise<string>
+  printTargetWebView: (siteName: string, jobName: string) => Promise<void>
 }>('ExpoDomWebViewModule')
 
 export interface ArticlePrintJob {
   category: string
   content: string
   createdAt: Date
+  exportPdf?: boolean
   siteName: string
   title: string
   url: string
@@ -59,15 +62,22 @@ function ArticlePrintHost({
   })
 
   const handlePrintReady = useCallback(async () => {
+    const name = printJobName(job.title, job.siteName)
+    const exportPdf = DomWebViewModule.exportTargetWebViewToPDF
     const print = DomWebViewModule.printTargetWebView
-    if (typeof print !== 'function') return false
     try {
-      await print(job.siteName)
+      if (job.exportPdf) {
+        if (typeof exportPdf !== 'function') return false
+        const path = await exportPdf(job.siteName, name)
+        return Boolean(path)
+      }
+      if (typeof print !== 'function') return false
+      await print(job.siteName, name)
     } finally {
       onDone()
     }
     return true
-  }, [job.siteName, onDone])
+  }, [job.exportPdf, job.siteName, job.title, onDone])
 
   return (
     <View pointerEvents="none" style={styles.offscreen}>

@@ -71,6 +71,14 @@ export interface PrintMasthead {
   url: string
 }
 
+export function printJobName(title: string, fallback: string): string {
+  const cleaned = title
+    .replace(/[/\\:]+/g, '—')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return cleaned || fallback.trim() || 'Yohaku'
+}
+
 export function buildPrintMasthead(input: PrintMasthead): PrintMasthead {
   return {
     category: input.category.trim(),

@@ -849,7 +849,7 @@ export default function RichBody({
     >
       <style>{`
         ${buildFontFaceCss(fontFaces)}
-        html, body { width: 100%; overflow-x: hidden; background: ${printDocument ? '#fff' : 'transparent'}; margin: 0; ${printDocument ? 'font-size: 12px; -webkit-text-size-adjust: 100%;' : ''} }
+        html, body { width: 100%; overflow-x: hidden; background: ${printDocument ? '#fff' : 'transparent'}; margin: 0; ${printDocument ? 'font-size: 12px; padding: 0; -webkit-text-size-adjust: 100%;' : ''} }
         .font-mono, code, kbd, samp { font-family: var(--font-mono); }
         .rich-body-root { width: 100vw; overflow-x: hidden; box-sizing: border-box; background: ${printDocument ? '#fff' : 'transparent'}; }
         ${
@@ -887,7 +887,7 @@ export default function RichBody({
           .rich-content blockquote { border-left-color: var(--color-accent); }
           .rich-content pre { background: var(--color-neutral-1); }
         }
-        .print-masthead { padding: 0 20px 14px; }
+        .print-masthead { padding: 0 0 14px !important; }
         .print-masthead h1 {
           margin: 0;
           font-family: var(--app-font-serif), var(--font-serif);
@@ -904,11 +904,11 @@ export default function RichBody({
           color: var(--color-neutral-7);
         }
         .print-masthead-url { margin-top: 4px; word-break: break-all; }
-        .print-block-fallback { font-size: 12px; line-height: 1.5; color: var(--color-neutral-7); margin: 12px 20px; }
+        .print-block-fallback { font-size: 12px; line-height: 1.5; color: var(--color-neutral-7); margin: 12px 0; }
         `
             : ''
         }
-        .rich-content { max-width: 100% !important; box-sizing: border-box; overflow-wrap: break-word; padding-inline: 20px; }
+        .rich-content { max-width: 100% !important; box-sizing: border-box; overflow-wrap: break-word; padding-inline: ${printDocument ? '0 !important' : '20px'}; }
         .rich-content img, .rich-content video, .rich-content iframe { max-width: 100%; }
         .rich-content pre { max-width: 100%; overflow-x: auto; }
         .rich-content .rich-table-scroll,
