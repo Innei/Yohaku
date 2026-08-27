@@ -1,4 +1,5 @@
-import { LegacyScrollEdgeMask } from '@modules/yohaku'
+import { LegacyScrollEdgeMask, VariableBlurEdge } from '@modules/yohaku'
+import { useHeaderHeight } from 'expo-router/react-navigation'
 import type { Ref } from 'react'
 import { useCallback, useRef } from 'react'
 import type {
@@ -17,10 +18,13 @@ import Animated, {
 } from 'react-native-reanimated'
 import { ScrollViewMarker } from 'react-native-screens/experimental'
 
+import { usePalette } from '@/theme/palette'
+
 import {
   PAPER_TAB_BAR_SCROLL_EDGE_BLEED,
   usePaperTabBarInset,
 } from './paper-tab-bar-inset'
+import { topBlurOverlayHeight } from './top-edge-blur'
 
 type ReanimatedScrollHandler = ReturnType<typeof useAnimatedScrollHandler>
 type EdgeEffectScrollViewProps = ScrollViewProps & {
@@ -29,12 +33,12 @@ type EdgeEffectScrollViewProps = ScrollViewProps & {
 }
 
 const SCROLL_EDGE_TRANSITION_DISTANCE = 32
-const LEGACY_TOP_SCROLL_EDGE_HEIGHT = 160
 const iOSMajorVersion = Number.parseInt(String(Platform.Version), 10)
-const usesSystemScrollEdge = Platform.OS === 'ios' && iOSMajorVersion >= 26
 const usesLegacyScrollEdge = Platform.OS === 'ios' && iOSMajorVersion < 26
 const AnimatedLegacyScrollEdgeMask =
   Animated.createAnimatedComponent(LegacyScrollEdgeMask)
+const AnimatedVariableBlurEdge =
+  Animated.createAnimatedComponent(VariableBlurEdge)
 
 function scrollEdgeProgress(distance: number) {
   'worklet'
@@ -61,6 +65,8 @@ export function EdgeEffectScrollView({
   style,
   ...props
 }: EdgeEffectScrollViewProps) {
+  const palette = usePalette()
+  const headerHeight = useHeaderHeight()
   const paperTabBarInset = usePaperTabBarInset()
   const localBottomProgress = useSharedValue(1)
   const contentHeightRef = useRef(0)
@@ -119,8 +125,12 @@ export function EdgeEffectScrollView({
 
   const legacyMaskProps = useAnimatedProps(() => ({
     bottomProgress: localBottomProgress.value,
-    topProgress: headerTitleProgress?.value ?? 0,
+    topProgress: 0,
   }))
+  const topBlurProps = useAnimatedProps(() => ({
+    progress: headerTitleProgress?.value ?? 0,
+  }))
+  const overlayHeight = topBlurOverlayHeight(headerHeight)
   const scrollView = (
     <Animated.ScrollView
       {...props}
@@ -156,9 +166,7 @@ export function EdgeEffectScrollView({
       scrollEdgeEffects={
         headerTitleProgress
           ? {
-              top: usesSystemScrollEdge
-                ? ('automatic' as const)
-                : ('hidden' as const),
+              top: 'hidden' as const,
             }
           : undefined
       }
@@ -167,6 +175,16 @@ export function EdgeEffectScrollView({
     </ScrollViewMarker>
   )
 
+  const topBlur = headerTitleProgress ? (
+    <AnimatedVariableBlurEdge
+      animatedProps={topBlurProps}
+      pointerEvents="none"
+      progress={headerTitleProgress.get()}
+      readabilityColor={palette.surface.desk}
+      style={[styles.topBlur, { height: overlayHeight }]}
+    />
+  ) : null
+
   return (
     <Animated.View style={styles.fill}>
       {usesLegacyScrollEdge ? (
@@ -174,14 +192,12 @@ export function EdgeEffectScrollView({
           animatedProps={legacyMaskProps}
           bottomProgress={1}
           style={styles.fill}
+          topEdgeHeight={0}
           topProgress={0}
           bottomEdgeHeight={
             paperTabBarInset > 0
               ? paperTabBarInset + PAPER_TAB_BAR_SCROLL_EDGE_BLEED
               : 0
-          }
-          topEdgeHeight={
-            headerTitleProgress ? LEGACY_TOP_SCROLL_EDGE_HEIGHT : 0
           }
         >
           {markedScrollView}
@@ -189,6 +205,7 @@ export function EdgeEffectScrollView({
       ) : (
         markedScrollView
       )}
+      {topBlur}
     </Animated.View>
   )
 }
@@ -196,5 +213,12 @@ export function EdgeEffectScrollView({
 const styles = StyleSheet.create({
   fill: {
     flex: 1,
+  },
+  topBlur: {
+    left: 0,
+    pointerEvents: 'none',
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 })

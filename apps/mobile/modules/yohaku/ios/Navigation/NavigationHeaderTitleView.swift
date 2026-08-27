@@ -3,8 +3,7 @@ import ExpoModulesCore
 /// A two-line UIKit title for a React-owned `UINavigationItem.titleView`.
 ///
 /// Colors are supplied by the app theme. The view does not sample or invert
-/// scrolling content. On iOS 26, UIKit owns readability through the title
-/// view's `UIScrollEdgeElementContainerInteraction`.
+/// scrolling content. Readability comes from the screen-owned variable blur.
 final class NavigationHeaderTitleView: ExpoView {
   // iOS 26 `_UINavigationBarTitleTransitionSpec` defaults, reverse-engineered
   // from UIKitCore: fast spring on alpha + blur, slow spring on y, both
@@ -24,7 +23,6 @@ final class NavigationHeaderTitleView: ExpoView {
   private var titleFontSize: CGFloat = 16
   private var titleFontWeight: UIFont.Weight = .semibold
   private var subtitleFontSize: CGFloat = 12
-  private var scrollEdgeInteraction: (any UIInteraction)?
   private var gaussianFilter: NSObject?
 
   private var scrollVelocity: CGFloat = 0
@@ -84,16 +82,6 @@ final class NavigationHeaderTitleView: ExpoView {
         animatedContentView.layer.setValue([filter], forKey: "filters")
       }
     }
-
-    if #available(iOS 26.0, *) {
-      // Add the interaction before UIKit installs the title view in the
-      // navigation bar. Adding it after the first edge-effect snapshot leaves
-      // the system blur inactive even after assigning the correct scroll view.
-      let interaction = UIScrollEdgeElementContainerInteraction()
-      interaction.edge = .top
-      addInteraction(interaction)
-      scrollEdgeInteraction = interaction
-    }
   }
 
   override func layoutSubviews() {
@@ -121,8 +109,6 @@ final class NavigationHeaderTitleView: ExpoView {
       titleLabel.frame = animatedContentView.bounds
       subtitleLabel.frame = .zero
     }
-
-    attachSystemScrollEdgeInteraction()
   }
 
   override func didMoveToWindow() {
@@ -130,7 +116,6 @@ final class NavigationHeaderTitleView: ExpoView {
     if window == nil {
       stopDisplayLink()
     }
-    attachSystemScrollEdgeInteraction()
   }
 
   func setTitle(_ title: String) {
@@ -296,94 +281,6 @@ final class NavigationHeaderTitleView: ExpoView {
       .compactMap { $0 }
       .filter { !$0.isEmpty }
       .joined(separator: ", ")
-  }
-
-  private func attachSystemScrollEdgeInteraction() {
-    guard #available(iOS 26.0, *), window != nil else { return }
-    guard
-      let navigationBar = firstSuperview(of: UINavigationBar.self),
-      let navigationController = findNavigationController(
-        matching: navigationBar,
-        from: window?.rootViewController
-      ),
-      let contentView = navigationController.topViewController?.view,
-      let scrollView = findVerticalScrollView(in: contentView)
-    else { return }
-
-    guard
-      let interaction =
-        scrollEdgeInteraction as? UIScrollEdgeElementContainerInteraction
-    else { return }
-
-    guard interaction.scrollView !== scrollView else { return }
-    // UIKit snapshots the container's descendants when the interaction joins
-    // an on-screen hierarchy. Re-register once after the actual scroll view is
-    // known so the two labels participate in the system edge-effect shape.
-    interaction.scrollView = nil
-    removeInteraction(interaction)
-    addInteraction(interaction)
-    interaction.edge = .top
-    interaction.scrollView = scrollView
-  }
-
-  private func firstSuperview<View: UIView>(of type: View.Type) -> View? {
-    var candidate = superview
-    while let view = candidate {
-      if let match = view as? View { return match }
-      candidate = view.superview
-    }
-    return nil
-  }
-
-  private func findNavigationController(
-    matching navigationBar: UINavigationBar,
-    from controller: UIViewController?
-  ) -> UINavigationController? {
-    guard let controller else { return nil }
-    if
-      let navigationController = controller as? UINavigationController,
-      navigationController.navigationBar === navigationBar
-    {
-      return navigationController
-    }
-    if
-      let presented = controller.presentedViewController,
-      let match = findNavigationController(
-        matching: navigationBar,
-        from: presented
-      )
-    {
-      return match
-    }
-    for child in controller.children {
-      if
-        let match = findNavigationController(
-          matching: navigationBar,
-          from: child
-        )
-      {
-        return match
-      }
-    }
-    return nil
-  }
-
-  private func findVerticalScrollView(in view: UIView) -> UIScrollView? {
-    if
-      let scrollView = view as? UIScrollView,
-      !scrollView.isHidden,
-      scrollView.alpha > 0,
-      scrollView.contentSize.height > scrollView.bounds.height
-        || scrollView.alwaysBounceVertical
-    {
-      return scrollView
-    }
-    for child in view.subviews {
-      if let scrollView = findVerticalScrollView(in: child) {
-        return scrollView
-      }
-    }
-    return nil
   }
 
 }

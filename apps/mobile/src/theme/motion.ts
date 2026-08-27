@@ -14,20 +14,7 @@ export const springs = {
   glide: { duration: 280, dampingRatio: 0.95 } satisfies WithSpringConfig,
 }
 
-/*
- * Mirrors UIKit's large-title → bar-title handoff (reverse-engineered):
- * fade and rise run on separate spring clocks, both compressed by fling
- * speed, and only a hard fling earns visible bounce — the one sanctioned
- * exception to the no-bounce rule above, because it replicates the system.
- */
-export const navTitleTransition = {
-  maxVelocity: 2000,
-  bounceFactor: 0.4,
-  minDurationFactor: 0.5,
-  fadeDuration: 450,
-  riseDuration: 700,
-  riseDelay: 60,
-}
+export { navTitleTransition } from './nav-title-reveal'
 
 export const timings = {
   pressIn: { duration: 90 } satisfies WithTimingConfig,

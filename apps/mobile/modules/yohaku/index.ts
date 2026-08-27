@@ -137,6 +137,14 @@ type LegacyScrollEdgeMaskProps = ViewProps & {
 export const LegacyScrollEdgeMask: ComponentType<LegacyScrollEdgeMaskProps> =
   requireNativeViewManager('Yohaku', 'LegacyScrollEdgeMask')
 
+type VariableBlurEdgeProps = ViewProps & {
+  progress: number
+  readabilityColor: ColorValue
+}
+
+export const VariableBlurEdge: ComponentType<VariableBlurEdgeProps> =
+  requireNativeViewManager('Yohaku', 'VariableBlurEdge')
+
 type NavigationHeaderTitleProps = ViewProps & {
   scrollVelocity: number
   subtitle: string

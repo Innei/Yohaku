@@ -8,9 +8,9 @@ export function getStackScreenOptions(backgroundColor: string) {
     headerTitle: '',
     headerTransparent: true,
     title: '',
-    // Default screens keep UIKit's platform-selected edge treatment. Detail
-    // screens override the top edge for their collapsing title: iOS 26 uses
-    // UIKit's automatic effect, while legacy iOS keeps the edge transparent.
+    // Default screens keep UIKit's platform-selected edge treatment. Screens
+    // with a collapsing title hide the system top edge and draw their own
+    // variable blur, timed with the title fade.
     scrollEdgeEffects: {
       bottom: 'automatic',
       top: 'automatic',

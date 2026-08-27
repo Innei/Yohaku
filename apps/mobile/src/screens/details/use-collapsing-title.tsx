@@ -11,11 +11,9 @@ import {
 } from 'react-native-reanimated'
 
 import { CollapsingHeaderTitle } from '@/components/navigation/collapsing-header-title'
-import {
-  usesPaperNavigationControls,
-  usesSystemNavigationAppearance,
-} from '@/components/navigation/platform'
-import { navTitleTransition } from '@/theme/motion'
+import { usesPaperNavigationControls } from '@/components/navigation/platform'
+import { collapsingTitleScrollEdgeEffects } from '@/components/navigation/top-edge-blur'
+import { navTitleReveal } from '@/theme/nav-title-reveal'
 
 import type { PresenceMark } from './presence-marks'
 
@@ -82,25 +80,21 @@ export function useCollapsingTitle(
         if (shouldShow !== visible) {
           titleVisible.set(shouldShow)
           const target = shouldShow ? 1 : 0
-          const speed = Math.min(
-            Math.abs(velocity.get()) / navTitleTransition.maxVelocity,
-            1,
-          )
-          const factor = 1 - (1 - navTitleTransition.minDurationFactor) * speed
-          const dampingRatio = 1 - speed * navTitleTransition.bounceFactor
+          const reveal = navTitleReveal(velocity.get())
+          const dampingRatio = 1 - reveal.bounce
           progress.set(
             withSpring(target, {
               dampingRatio,
-              duration: factor * navTitleTransition.fadeDuration,
+              duration: reveal.fadeMs,
               reduceMotion: ReduceMotion.System,
             }),
           )
           rise.set(
             withDelay(
-              navTitleTransition.riseDelay,
+              reveal.riseDelayMs,
               withSpring(target, {
                 dampingRatio,
-                duration: factor * navTitleTransition.riseDuration,
+                duration: reveal.riseMs,
                 reduceMotion: ReduceMotion.System,
               }),
               ReduceMotion.System,
@@ -162,12 +156,7 @@ export function useCollapsingTitle(
       // empty value also prevents Expo Router from flashing the route name
       // before the async title is available.
       title: title ?? '',
-      scrollEdgeEffects: {
-        bottom: 'automatic' as const,
-        top: usesSystemNavigationAppearance
-          ? ('automatic' as const)
-          : ('hidden' as const),
-      },
+      scrollEdgeEffects: collapsingTitleScrollEdgeEffects,
     }),
     [
       leadingInset,

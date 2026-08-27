@@ -114,6 +114,18 @@ public class YohakuModule: Module {
       }
     }
 
+    View(VariableBlurEdgeView.self) {
+      ViewName("VariableBlurEdge")
+
+      Prop("progress") { (view: VariableBlurEdgeView, progress: Double) in
+        view.setProgress(progress)
+      }
+
+      Prop("readabilityColor") { (view: VariableBlurEdgeView, color: UIColor?) in
+        view.setReadabilityColor(color)
+      }
+    }
+
     View(LegacyScrollEdgeMaskView.self) {
       ViewName("LegacyScrollEdgeMask")
 
