@@ -26,8 +26,13 @@ import {
   useMembershipPlans,
 } from '@/screens/me/use-membership'
 import { refreshPostBody } from '@/sync/engine'
-import { bodyIsStale, postBodyFromApi, postMetaFromApi } from '@/sync/merge'
-import { postConflictSet } from '@/sync/upsert-sets'
+import {
+  bodyIsStale,
+  calibratePostMeta,
+  postBodyFromApi,
+  postMetaFromApi,
+} from '@/sync/merge'
+import { postBodyConflictSet } from '@/sync/upsert-sets'
 import { usePalette } from '@/theme/palette'
 import { TtsMiniBar } from '@/tts/tts-mini-bar'
 import { useTtsSession } from '@/tts/use-tts-session'
@@ -145,12 +150,15 @@ export function PostDetailScreen({
           await db
             .insert(posts)
             .values({
-              ...postMetaFromApi(detail, locale),
+              ...calibratePostMeta(
+                undefined,
+                postMetaFromApi(detail, locale),
+              ),
               ...postBodyFromApi(detail, enrichments, meta),
             })
             .onConflictDoUpdate({
               target: [posts.id, posts.lang],
-              set: postConflictSet,
+              set: postBodyConflictSet,
             })
         }
       } catch {

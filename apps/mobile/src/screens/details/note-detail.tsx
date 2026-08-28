@@ -21,8 +21,13 @@ import { siteHref } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import { refreshNoteBody } from '@/sync/engine'
-import { bodyIsStale, noteBodyFromApi, noteMetaFromApi } from '@/sync/merge'
-import { noteConflictSet } from '@/sync/upsert-sets'
+import {
+  bodyIsStale,
+  calibrateNoteMeta,
+  noteBodyFromApi,
+  noteMetaFromApi,
+} from '@/sync/merge'
+import { noteBodyConflictSet } from '@/sync/upsert-sets'
 import { usePalette } from '@/theme/palette'
 import { TtsMiniBar } from '@/tts/tts-mini-bar'
 import { useTtsSession } from '@/tts/use-tts-session'
@@ -111,12 +116,15 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
           await db
             .insert(notes)
             .values({
-              ...noteMetaFromApi(detail, locale),
+              ...calibrateNoteMeta(
+                undefined,
+                noteMetaFromApi(detail, locale),
+              ),
               ...noteBodyFromApi(detail, enrichments, meta),
             })
             .onConflictDoUpdate({
               target: [notes.id, notes.lang],
-              set: noteConflictSet,
+              set: noteBodyConflictSet,
             })
         }
       } catch {

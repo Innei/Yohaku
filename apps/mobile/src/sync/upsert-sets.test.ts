@@ -12,6 +12,7 @@ import { pruneBoundary } from './merge'
 import {
   categoryConflictSet,
   noteConflictSet,
+  postBodyConflictSet,
   postConflictSet,
 } from './upsert-sets'
 
@@ -91,6 +92,80 @@ describe('postConflictSet', () => {
     expect(row.text).toBe('完整正文')
     expect(row.content).toBe('{"root":{}}')
     expect(row.bodyVersion).toBe(postMeta.createdAt.getTime())
+  })
+
+  it('keeps cached format and excerpt when the list row leaves them null', async () => {
+    await db.insert(posts).values({
+      ...postMeta,
+      contentFormat: 'lexical',
+      excerpt: '详情摘要',
+    })
+    await db
+      .update(posts)
+      .set({ text: '完整正文', content: '{"root":{}}' })
+      .where(and(eq(posts.id, 'p1'), eq(posts.lang, 'zh')))
+
+    await db
+      .insert(posts)
+      .values({
+        ...postMeta,
+        title: '分类列表标题',
+        excerpt: null,
+        contentFormat: null,
+      })
+      .onConflictDoUpdate({
+        target: [posts.id, posts.lang],
+        set: postConflictSet,
+      })
+
+    const [row] = await db
+      .select()
+      .from(posts)
+      .where(and(eq(posts.id, 'p1'), eq(posts.lang, 'zh')))
+    expect(row.title).toBe('分类列表标题')
+    expect(row.contentFormat).toBe('lexical')
+    expect(row.excerpt).toBe('详情摘要')
+    expect(row.text).toBe('完整正文')
+  })
+
+  it('writes a detail body onto a list-only row', async () => {
+    await db.insert(posts).values(postMeta)
+    await db
+      .insert(posts)
+      .values({
+        ...postMeta,
+        contentFormat: 'lexical',
+        text: '完整正文',
+        content: '{"root":{}}',
+        bodyVersion: postMeta.createdAt.getTime(),
+        articleMeta: {
+          aiGen: [],
+          hasInsights: false,
+          related: [],
+          skills: [],
+          summary: null,
+          translation: {
+            availableTranslations: ['en'],
+            sourceLang: 'zh',
+            state: 'ready',
+            targetLang: 'en',
+          },
+          tts: null,
+          paywall: null,
+        },
+      })
+      .onConflictDoUpdate({
+        target: [posts.id, posts.lang],
+        set: postBodyConflictSet,
+      })
+
+    const [row] = await db
+      .select()
+      .from(posts)
+      .where(and(eq(posts.id, 'p1'), eq(posts.lang, 'zh')))
+    expect(row.content).toBe('{"root":{}}')
+    expect(row.bodyVersion).toBe(postMeta.createdAt.getTime())
+    expect(row.articleMeta?.translation?.state).toBe('ready')
   })
 
   it('keeps one row per language for the same post id', async () => {

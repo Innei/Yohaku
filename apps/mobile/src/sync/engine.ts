@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, notInArray } from 'drizzle-orm'
+import { and, desc, eq, gte, inArray, notInArray } from 'drizzle-orm'
 
 import { apiBaseUrl } from '@/api/base-url'
 import { api } from '@/api/client'
@@ -24,6 +24,8 @@ import { extractImageUrls } from './image-urls'
 import { BODY_PREFETCH_COUNT, pruneStaleBodies } from './keep-set'
 import {
   bodyIsStale,
+  calibrateNoteMeta,
+  calibratePostMeta,
   noteBodyFromApi,
   noteMetaFromApi,
   postBodyFromApi,
@@ -151,9 +153,23 @@ async function syncCategories() {
 
 async function upsertPostMetas(list: ApiPost[], lang: Locale) {
   if (list.length === 0) return
+  const incoming = list.map((post) => postMetaFromApi(post, lang))
+  const existing = await db
+    .select()
+    .from(posts)
+    .where(
+      and(
+        eq(posts.lang, lang),
+        inArray(
+          posts.id,
+          incoming.map((post) => post.id),
+        ),
+      ),
+    )
+  const byId = new Map(existing.map((row) => [row.id, row]))
   await db
     .insert(posts)
-    .values(list.map((post) => postMetaFromApi(post, lang)))
+    .values(incoming.map((meta) => calibratePostMeta(byId.get(meta.id), meta)))
     .onConflictDoUpdate({
       target: [posts.id, posts.lang],
       set: postConflictSet,
@@ -165,12 +181,6 @@ function attachParentCategory(post: ApiPost, category: ApiCategory): ApiPost {
     ...post,
     category: post.category ?? category,
     categoryId: post.categoryId ?? category.id,
-    content: post.content ?? null,
-    contentFormat: post.contentFormat ?? 'markdown',
-    likeCount: post.likeCount ?? 0,
-    readCount: post.readCount ?? 0,
-    tags: post.tags ?? [],
-    text: post.text ?? post.summary ?? null,
   }
 }
 
@@ -251,9 +261,23 @@ async function syncTopics() {
 async function upsertNoteMetas(list: ApiNote[], lang: Locale) {
   if (list.length === 0) return
   await upsertTopics(list.flatMap((note) => (note.topic ? [note.topic] : [])))
+  const incoming = list.map((note) => noteMetaFromApi(note, lang))
+  const existing = await db
+    .select()
+    .from(notes)
+    .where(
+      and(
+        eq(notes.lang, lang),
+        inArray(
+          notes.id,
+          incoming.map((note) => note.id),
+        ),
+      ),
+    )
+  const byId = new Map(existing.map((row) => [row.id, row]))
   await db
     .insert(notes)
-    .values(list.map((note) => noteMetaFromApi(note, lang)))
+    .values(incoming.map((meta) => calibrateNoteMeta(byId.get(meta.id), meta)))
     .onConflictDoUpdate({
       target: [notes.id, notes.lang],
       set: noteConflictSet,
@@ -333,7 +357,7 @@ export async function refreshPostBody(
     await db
       .update(posts)
       .set({
-        ...postMetaFromApi(detail, lang),
+        ...calibratePostMeta(undefined, postMetaFromApi(detail, lang)),
         ...postBodyFromApi(detail, enrichments, meta),
       })
       .where(and(eq(posts.id, row.id), eq(posts.lang, row.lang)))
@@ -354,7 +378,7 @@ export async function refreshNoteBody(
     await db
       .update(notes)
       .set({
-        ...noteMetaFromApi(detail, lang),
+        ...calibrateNoteMeta(undefined, noteMetaFromApi(detail, lang)),
         ...noteBodyFromApi(detail, enrichments, meta),
       })
       .where(and(eq(notes.id, row.id), eq(notes.lang, row.lang)))

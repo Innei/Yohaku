@@ -10,6 +10,7 @@ import type {
   ApiThinking,
   ApiTopic,
 } from '@/api/types'
+import type { NoteRow, PostRow } from '@/db/schema'
 import type { Locale } from '@/i18n/config'
 
 type EnrichmentMap = Record<string, ApiEnrichment> | null
@@ -72,11 +73,11 @@ export function postMetaFromApi(post: ApiPost, lang: Locale) {
     categoryId: post.categoryId ?? post.category?.id ?? null,
     categorySlug: post.category?.slug ?? null,
     categoryName: post.category?.name ?? null,
-    tags: post.tags ?? [],
+    tags: post.tags ?? null,
     // List responses arrive truncated (truncate=160): text is the excerpt
     // source, content is nulled by the server. Never persist them as body.
     excerpt: post.summary ?? post.text ?? null,
-    contentFormat: post.contentFormat ?? 'markdown',
+    contentFormat: post.contentFormat ?? null,
     readCount: post.readCount,
     likeCount: post.likeCount,
     createdAt: new Date(post.createdAt),
@@ -93,7 +94,7 @@ export function postBodyFromApi(
   return {
     text: post.text ?? null,
     content: post.content ?? null,
-    contentFormat: post.contentFormat ?? 'markdown',
+    contentFormat: post.contentFormat ?? null,
     bodyVersion: contentVersion(post),
     enrichments,
     articleMeta: extractArticleMeta(meta, post.summary, post.meta?.aiGen),
@@ -109,8 +110,8 @@ export function noteMetaFromApi(note: ApiNote, lang: Locale) {
     mood: note.mood ?? null,
     weather: note.weather ?? null,
     excerpt: note.summary ?? null,
-    contentFormat: note.contentFormat ?? 'markdown',
-    hasPassword: note.hasPassword ?? false,
+    contentFormat: note.contentFormat ?? null,
+    hasPassword: note.hasPassword ?? null,
     topicId: note.topicId ?? note.topic?.id ?? null,
     readCount: note.readCount,
     likeCount: note.likeCount,
@@ -127,10 +128,85 @@ export function noteBodyFromApi(
   return {
     text: note.text ?? null,
     content: note.content ?? null,
-    contentFormat: note.contentFormat ?? 'markdown',
+    contentFormat: note.contentFormat ?? null,
     bodyVersion: contentVersion(note),
     enrichments,
     articleMeta: extractArticleMeta(meta, note.summary, note.meta?.aiGen),
+  }
+}
+
+type PostMeta = ReturnType<typeof postMetaFromApi>
+type NoteMeta = ReturnType<typeof noteMetaFromApi>
+
+export function calibratePostMeta(
+  existing: PostRow | undefined,
+  incoming: PostMeta,
+) {
+  if (!existing) {
+    return {
+      ...incoming,
+      tags: incoming.tags ?? [],
+      readCount: incoming.readCount ?? 0,
+      likeCount: incoming.likeCount ?? 0,
+      text: null,
+      content: null,
+      bodyVersion: null,
+      enrichments: null,
+      articleMeta: null,
+    }
+  }
+  return {
+    ...existing,
+    ...incoming,
+    categoryId: incoming.categoryId ?? existing.categoryId,
+    categorySlug: incoming.categorySlug ?? existing.categorySlug,
+    categoryName: incoming.categoryName ?? existing.categoryName,
+    tags: incoming.tags ?? existing.tags,
+    excerpt: incoming.excerpt ?? existing.excerpt,
+    contentFormat: incoming.contentFormat ?? existing.contentFormat,
+    readCount: incoming.readCount ?? existing.readCount,
+    likeCount: incoming.likeCount ?? existing.likeCount,
+    text: existing.text,
+    content: existing.content,
+    bodyVersion: existing.bodyVersion,
+    enrichments: existing.enrichments,
+    articleMeta: existing.articleMeta,
+  }
+}
+
+export function calibrateNoteMeta(
+  existing: NoteRow | undefined,
+  incoming: NoteMeta,
+) {
+  if (!existing) {
+    return {
+      ...incoming,
+      hasPassword: incoming.hasPassword ?? false,
+      readCount: incoming.readCount ?? 0,
+      likeCount: incoming.likeCount ?? 0,
+      text: null,
+      content: null,
+      bodyVersion: null,
+      enrichments: null,
+      articleMeta: null,
+    }
+  }
+  return {
+    ...existing,
+    ...incoming,
+    mood: incoming.mood ?? existing.mood,
+    weather: incoming.weather ?? existing.weather,
+    excerpt: incoming.excerpt ?? existing.excerpt,
+    contentFormat: incoming.contentFormat ?? existing.contentFormat,
+    hasPassword: incoming.hasPassword ?? existing.hasPassword,
+    topicId: incoming.topicId ?? existing.topicId,
+    readCount: incoming.readCount ?? existing.readCount,
+    likeCount: incoming.likeCount ?? existing.likeCount,
+    text: existing.text,
+    content: existing.content,
+    bodyVersion: existing.bodyVersion,
+    enrichments: existing.enrichments,
+    articleMeta: existing.articleMeta,
   }
 }
 

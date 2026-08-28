@@ -1,36 +1,54 @@
 import { sql } from 'drizzle-orm'
 
 // List sync must never overwrite locally cached bodies: these sets leave
-// text/content/body_version untouched on conflict. content_format is
-// meta-owned — the list response carries it as a scalar unaffected by
-// truncation, and tap routing needs it before any body fetch.
+// text/content/body_version untouched on conflict. Sparse list fields
+// coalesce so a missing/null incoming value cannot invent a default over
+// a richer cached row.
 export const postConflictSet = {
   slug: sql`excluded.slug`,
   title: sql`excluded.title`,
-  categoryId: sql`excluded.category_id`,
-  categorySlug: sql`excluded.category_slug`,
-  categoryName: sql`excluded.category_name`,
-  tags: sql`excluded.tags`,
-  excerpt: sql`excluded.excerpt`,
-  contentFormat: sql`excluded.content_format`,
+  categoryId: sql`coalesce(excluded.category_id, category_id)`,
+  categorySlug: sql`coalesce(excluded.category_slug, category_slug)`,
+  categoryName: sql`coalesce(excluded.category_name, category_name)`,
+  tags: sql`coalesce(excluded.tags, tags)`,
+  excerpt: sql`coalesce(excluded.excerpt, excerpt)`,
+  contentFormat: sql`coalesce(excluded.content_format, content_format)`,
   readCount: sql`excluded.read_count`,
   likeCount: sql`excluded.like_count`,
   modifiedAt: sql`excluded.modified_at`,
   pinAt: sql`excluded.pin_at`,
 }
 
+export const postBodyConflictSet = {
+  ...postConflictSet,
+  text: sql`excluded.text`,
+  content: sql`excluded.content`,
+  bodyVersion: sql`excluded.body_version`,
+  enrichments: sql`excluded.enrichments`,
+  articleMeta: sql`excluded.article_meta`,
+}
+
 export const noteConflictSet = {
   nid: sql`excluded.nid`,
   title: sql`excluded.title`,
-  mood: sql`excluded.mood`,
-  weather: sql`excluded.weather`,
-  excerpt: sql`excluded.excerpt`,
-  contentFormat: sql`excluded.content_format`,
-  hasPassword: sql`excluded.has_password`,
-  topicId: sql`excluded.topic_id`,
+  mood: sql`coalesce(excluded.mood, mood)`,
+  weather: sql`coalesce(excluded.weather, weather)`,
+  excerpt: sql`coalesce(excluded.excerpt, excerpt)`,
+  contentFormat: sql`coalesce(excluded.content_format, content_format)`,
+  hasPassword: sql`coalesce(excluded.has_password, has_password)`,
+  topicId: sql`coalesce(excluded.topic_id, topic_id)`,
   readCount: sql`excluded.read_count`,
   likeCount: sql`excluded.like_count`,
   modifiedAt: sql`excluded.modified_at`,
+}
+
+export const noteBodyConflictSet = {
+  ...noteConflictSet,
+  text: sql`excluded.text`,
+  content: sql`excluded.content`,
+  bodyVersion: sql`excluded.body_version`,
+  enrichments: sql`excluded.enrichments`,
+  articleMeta: sql`excluded.article_meta`,
 }
 
 export const thinkingConflictSet = {

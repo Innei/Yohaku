@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
 import type { ApiNote, ApiPost } from '@/api/types'
+import type { NoteRow, PostRow } from '@/db/schema'
 
 import {
   bodyIsStale,
+  calibrateNoteMeta,
+  calibratePostMeta,
   contentVersion,
   noteMetaFromApi,
   postBodyFromApi,
@@ -235,11 +238,61 @@ describe('postMetaFromApi', () => {
     expect(row.categoryName).toBe('编程')
   })
 
-  it('carries contentFormat with markdown as the null default', () => {
+  it('leaves a missing contentFormat unset instead of inventing markdown', () => {
     expect(postMetaFromApi(apiPost(), 'zh').contentFormat).toBe('lexical')
     expect(
       postMetaFromApi(apiPost({ contentFormat: null }), 'zh').contentFormat,
-    ).toBe('markdown')
+    ).toBeNull()
+  })
+})
+
+describe('calibratePostMeta', () => {
+  const cached = {
+    ...postMetaFromApi(apiPost(), 'zh'),
+    excerpt: '详情里的译文摘要',
+    contentFormat: 'lexical' as const,
+    text: '完整正文',
+    content: '{"root":{}}',
+    bodyVersion: new Date(created).getTime(),
+    enrichments: null,
+    articleMeta: {
+      aiGen: [],
+      hasInsights: false,
+      related: [],
+      skills: [],
+      summary: null,
+      translation: {
+        availableTranslations: ['en'],
+        sourceLang: 'zh',
+        state: 'ready' as const,
+        targetLang: 'en',
+      },
+      tts: null,
+      paywall: null,
+    },
+  }
+
+  it('keeps cached format, excerpt and body when the list row is sparse', () => {
+    const incoming = postMetaFromApi(
+      apiPost({
+        contentFormat: null,
+        summary: null,
+        text: null,
+        title: '分类里的标题',
+      }),
+      'zh',
+    )
+    const row = calibratePostMeta(cached as PostRow, incoming)
+    expect(row.title).toBe('分类里的标题')
+    expect(row.contentFormat).toBe('lexical')
+    expect(row.excerpt).toBe('详情里的译文摘要')
+    expect(row.content).toBe('{"root":{}}')
+    expect(row.articleMeta?.translation?.state).toBe('ready')
+  })
+
+  it('fills a new row without turning a missing format into markdown', () => {
+    const incoming = postMetaFromApi(apiPost({ contentFormat: null }), 'zh')
+    expect(calibratePostMeta(undefined, incoming).contentFormat).toBeNull()
   })
 })
 
@@ -324,8 +377,8 @@ describe('noteMetaFromApi', () => {
     }
     const row = noteMetaFromApi(note, 'zh')
     expect(row.excerpt).toBe('概要')
-    expect(row.hasPassword).toBe(false)
-    expect(row.contentFormat).toBe('markdown')
+    expect(row.hasPassword).toBeNull()
+    expect(row.contentFormat).toBeNull()
     expect(row.topicId).toBeNull()
     expect('text' in row).toBe(false)
   })
@@ -364,6 +417,49 @@ describe('noteMetaFromApi', () => {
         'zh',
       ).topicId,
     ).toBe('t2')
+  })
+})
+
+describe('calibrateNoteMeta', () => {
+  it('keeps a cached lexical body when the list omits format and excerpt', () => {
+    const incoming = noteMetaFromApi(
+      {
+        id: 'n1',
+        nid: 42,
+        title: '列表标题',
+        summary: null,
+        contentFormat: null,
+        mood: null,
+        weather: null,
+        hasPassword: false,
+        readCount: 4,
+        likeCount: 1,
+        createdAt: created,
+        modifiedAt: null,
+      },
+      'zh',
+    )
+    const row = calibrateNoteMeta(
+      {
+        ...incoming,
+        title: '详情标题',
+        excerpt: '详情摘要',
+        contentFormat: 'lexical',
+        hasPassword: false,
+        text: '正文',
+        content: '{"root":{}}',
+        bodyVersion: new Date(created).getTime(),
+        enrichments: null,
+        articleMeta: null,
+        topicId: 't1',
+      } as NoteRow,
+      incoming,
+    )
+    expect(row.title).toBe('列表标题')
+    expect(row.excerpt).toBe('详情摘要')
+    expect(row.contentFormat).toBe('lexical')
+    expect(row.text).toBe('正文')
+    expect(row.topicId).toBe('t1')
   })
 })
 
