@@ -1,8 +1,7 @@
 diff --git a/build/link/LinkWithPreview.js b/build/link/LinkWithPreview.js
-index c8fb7a1f5b7433002783ce862170783a97fd5ff0..cdca23adf4573ed60f43786970dd6714ef816327 100644
 --- a/build/link/LinkWithPreview.js
 +++ b/build/link/LinkWithPreview.js
-@@ -38,7 +38,9 @@ exports.LinkWithPreview = LinkWithPreview;
+@@ -38,7 +38,9 @@
  const jsx_runtime_1 = require("react/jsx-runtime");
  const react_1 = __importStar(require("react"));
  const react_native_1 = require("react-native");
@@ -12,7 +11,7 @@ index c8fb7a1f5b7433002783ce862170783a97fd5ff0..cdca23adf4573ed60f43786970dd6714
  const BaseExpoRouterLink_1 = require("./BaseExpoRouterLink");
  const InternalLinkPreviewContext_1 = require("./InternalLinkPreviewContext");
  const NativeMenuContext_1 = require("./NativeMenuContext");
-@@ -125,6 +127,24 @@ function LinkWithPreview({ children, ...rest }) {
+@@ -122,6 +124,24 @@
              if (!isPad) {
                  router.navigate(rest.href, { __internal__PreviewKey: nextScreenId });
              }
