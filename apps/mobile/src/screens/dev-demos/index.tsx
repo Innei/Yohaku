@@ -21,7 +21,6 @@ import { usePalette } from '@/theme/palette'
 import { FileNodeLab } from './file-node-lab'
 import { PrintLab } from './print-lab'
 import { SplashReplayControls, useSplashReplay } from './splash-replay'
-import { WebViewPoolLab } from './webview-pool-lab'
 
 function Section({
   title,
@@ -192,10 +191,6 @@ export function DevDemos() {
 
         <Section title="SPLASH">
           <SplashReplayControls onStart={startSplash} />
-        </Section>
-
-        <Section title="WEBVIEW POOL">
-          <WebViewPoolLab />
         </Section>
       </EdgeEffectScrollView>
       {splashOverlay}

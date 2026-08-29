@@ -16,6 +16,7 @@ import {
   View,
 } from 'react-native'
 import Animated, {
+  ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -32,12 +33,6 @@ import { useRichBodyLabels } from '@/components/dom/use-rich-body-labels'
 import { AppText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
 import { subscribeTocJump } from '@/lib/article-toc'
-import type { WatchdogPhase } from '@/lib/body-render-watchdog'
-import {
-  nextWatchdogPhase,
-  SKELETON_DELAY_MS,
-  WATCHDOG_TIMEOUT_MS,
-} from '@/lib/body-render-watchdog'
 import { presentImagePreview } from '@/lib/image-cache'
 import { hrefForExternalUrl } from '@/lib/link-router'
 import { getSiteUrl } from '@/lib/site-url'
@@ -49,18 +44,14 @@ import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 import { useWebviewFontFaces } from '@/theme/webview-fonts'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
-import { useReservedBodyHeight } from './body-slot'
+import { BodyLoadingIndicator, useReservedBodyHeight } from './body-slot'
 import { useArticleSelection } from './use-article-selection'
-
-const SKELETON_LINE_WIDTHS = [92, 100, 96, 60]
-const SKELETON_PARAGRAPHS = [0, 1, 2, 3, 4, 5]
 
 export function ArticleBody({
   autoFollow = false,
   content,
   enrichments,
   highlightBlockId = null,
-  primeKey,
   queriesEnabled = true,
   refId,
   refType,
@@ -72,7 +63,6 @@ export function ArticleBody({
   content: string
   enrichments?: Record<string, ApiEnrichment> | null
   highlightBlockId?: string | null
-  primeKey: string
   queriesEnabled?: boolean
   refId: string
   refType: CommentRefType
@@ -94,16 +84,11 @@ export function ArticleBody({
   const site = owner
     ? { ownerAvatar: owner.avatarUrl, ownerName: owner.name }
     : undefined
-  const bodyRef = useRef<{ reload?: () => void } | null>(null)
-  const phaseRef = useRef<WatchdogPhase>('waiting')
   const anchorOffsetsRef = useRef<Record<string, number>>({})
   const blockRectsRef = useRef<Array<{ height: number; y: number }>>([])
   const bodyTopRef = useRef(0)
-  const [nonce, setNonce] = useState(() => Date.now())
-  const [settled, setSettled] = useState(false)
-  const [heightKnown, setHeightKnown] = useState(false)
-  const [failed, setFailed] = useState(false)
-  const [skeletonVisible, setSkeletonVisible] = useState(false)
+  const revealedRef = useRef(false)
+  const [ready, setReady] = useState(false)
   const [slotTop, setSlotTop] = useState<number | null>(null)
   const [nestedDoc, setNestedDoc] = useState<RichBodyNestedDocExpand | null>(
     null,
@@ -118,9 +103,13 @@ export function ArticleBody({
     selectionSheet,
     threadRoots,
   } = useArticleSelection(refId, queriesEnabled)
-  const opacity = useSharedValue(0)
+  const reveal = useSharedValue(0)
   const labels = useRichBodyLabels()
   const reservedHeight = useReservedBodyHeight(slotTop)
+  const bodyStyle = useAnimatedStyle(() => ({ opacity: reveal.value }))
+  const loadingStyle = useAnimatedStyle(() => ({
+    opacity: 1 - reveal.value,
+  }))
 
   const handleImagePress = async ({
     images,
@@ -145,39 +134,12 @@ export function ArticleBody({
     }
   }
 
-  useEffect(() => {
-    const timer = setTimeout(() => setSkeletonVisible(true), SKELETON_DELAY_MS)
-    return () => clearTimeout(timer)
-  }, [])
-
   useFocusEffect(
     useCallback(() => {
       if (isPreview) return
       return () => navigation.setOptions({ gestureEnabled: true })
     }, [isPreview, navigation]),
   )
-
-  useEffect(() => {
-    if (settled || failed) return
-    const timeout = WATCHDOG_TIMEOUT_MS[phaseRef.current]
-    if (timeout === undefined) return
-    const timer = setTimeout(() => {
-      const next = nextWatchdogPhase(phaseRef.current)
-      if (!next) return
-      phaseRef.current = next.phase
-      if (next.action === 'fail') {
-        setFailed(true)
-        return
-      }
-      if (next.action === 'reload') bodyRef.current?.reload?.()
-      setNonce((n) => n + 1)
-    }, timeout)
-    return () => clearTimeout(timer)
-  }, [nonce, settled, failed])
-
-  useEffect(() => {
-    if (settled) opacity.value = withTiming(1, timings.fade)
-  }, [settled, opacity])
 
   const scrollToBlock = useCallback(
     (blockId: string, offsetRatio: number) => {
@@ -188,7 +150,10 @@ export function ArticleBody({
         animated: true,
         y: Math.max(
           0,
-          rect.y + bodyTopRef.current + rect.height / 2 - windowHeight * offsetRatio,
+          rect.y +
+            bodyTopRef.current +
+            rect.height / 2 -
+            windowHeight * offsetRatio,
         ),
       })
     },
@@ -205,13 +170,10 @@ export function ArticleBody({
     [scrollToBlock],
   )
 
-  const bodyStyle = useAnimatedStyle(() => ({ opacity: opacity.value }))
-
   const handleMessage = (event: { nativeEvent: { data: string } }) => {
     let payload: {
       anchor?: unknown
       data?: unknown
-      length?: number
       locked?: boolean
       selectedText?: unknown
       type?: string
@@ -222,6 +184,18 @@ export function ArticleBody({
       return
     }
     if (handleSelectionMessage(payload)) return
+    if (payload.type === 'yohaku:reader-ready') {
+      if (payload.data !== refId || revealedRef.current) return
+      revealedRef.current = true
+      setReady(true)
+      reveal.set(
+        withTiming(1, {
+          ...timings.fade,
+          reduceMotion: ReduceMotion.System,
+        }),
+      )
+      return
+    }
     if (payload.type === 'yohaku:gesture-lock') {
       if (!isPreview && navigation.isFocused()) {
         navigation.setOptions({ gestureEnabled: payload.locked !== true })
@@ -246,56 +220,26 @@ export function ArticleBody({
       }
       return
     }
-    if (payload.type !== 'yohaku:rendered') return
-    if (payload.length !== content.length) return
-    phaseRef.current = 'settled'
-    setSettled(true)
-  }
-
-  if (failed) {
-    return (
-      <AppText
-        style={styles.failed}
-        variant="secondary"
-        onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
-      >
-        {t('bodyFailedOpenWeb')}
-      </AppText>
-    )
   }
 
   return (
     <View
-      style={heightKnown ? undefined : { minHeight: reservedHeight }}
+      style={[styles.bodySlot, { minHeight: reservedHeight }]}
       onLayout={(e) => {
         const { y } = e.nativeEvent.layout
         bodyTopRef.current = y
         setSlotTop(y)
       }}
     >
-      {settled || !skeletonVisible ? null : (
-        <View pointerEvents="none" style={styles.skeleton}>
-          {SKELETON_PARAGRAPHS.map((paragraph) => (
-            <View key={paragraph} style={styles.skeletonParagraph}>
-              {SKELETON_LINE_WIDTHS.map((width) => (
-                <View
-                  key={width}
-                  style={[
-                    styles.skeletonLine,
-                    { backgroundColor: palette.neutral[3], width: `${width}%` },
-                  ]}
-                />
-              ))}
-            </View>
-          ))}
-        </View>
-      )}
       <Animated.View
-        style={[bodyStyle, styles.bodyBleed]}
-        onLayout={(e) => {
-          if (e.nativeEvent.layout.height > 0) setHeightKnown(true)
-        }}
+        accessibilityElementsHidden={ready}
+        importantForAccessibility={ready ? 'no-hide-descendants' : 'auto'}
+        pointerEvents="none"
+        style={[styles.loading, loadingStyle]}
       >
+        <BodyLoadingIndicator minHeight={reservedHeight} />
+      </Animated.View>
+      <Animated.View style={[styles.bodyBleed, bodyStyle]}>
         <RichBody
           activeCommentAnchor={selectionSheet?.anchor ?? null}
           apiBase={apiBaseUrl()}
@@ -306,10 +250,8 @@ export function ArticleBody({
           highlightBlockId={highlightBlockId}
           labels={labels}
           locale={locale}
-          primeKey={primeKey}
           rangeComments={rangeComments}
-          ref={bodyRef}
-          renderNonce={nonce}
+          readerId={refId}
           serifFontFamily={serifFontFamily}
           site={site}
           theme={palette.theme}
@@ -318,18 +260,13 @@ export function ArticleBody({
           webUrl={webUrl}
           dom={{
             contentInsetAdjustmentBehavior: 'never',
-            // matchContents pins containerStyle to the DOM-reported size, and a
-            // pooled instance reports the width of whatever frame it was parked
-            // at — replayed on adoption, that stale width would stick (the
-            // narrowed viewport re-reports itself). Width is layout's job;
-            // matchContents only needs to drive height.
-            containerStyle: { width: '100%' },
+            containerStyle: { minHeight: reservedHeight, width: '100%' },
             matchContents: true,
-            primeKey,
             scrollEnabled: false,
             selectionBlockTitle,
             selectionCommentTitle,
             selectionMenu: 'copyComment',
+            shared: true,
             siteReferer: getSiteUrl(),
             onMessage: handleMessage,
           }}
@@ -404,6 +341,15 @@ export function ArticleBody({
 }
 
 const styles = StyleSheet.create({
+  bodySlot: {
+    position: 'relative',
+  },
+  loading: {
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+  },
   sheet: {
     flex: 1,
   },
@@ -426,24 +372,5 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: '600',
-  },
-  skeleton: {
-    flex: 1,
-    gap: 22,
-    // Clipped rather than counted to fit: a line cut off at the fold reads as
-    // an article that continues, which is what is actually loading.
-    overflow: 'hidden',
-    paddingVertical: 6,
-  },
-  skeletonParagraph: {
-    gap: 14,
-  },
-  skeletonLine: {
-    borderRadius: 4,
-    height: 15,
-  },
-  failed: {
-    marginTop: 32,
-    textAlign: 'center',
   },
 })

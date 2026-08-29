@@ -5,9 +5,8 @@ Source: `@expo/dom-webview@57.0.1` from the `expo@57.0.11` release line (upstrea
 
 This package used to be installed normally and patched via
 `patches/@expo__dom-webview.patch` (pnpm `patchedDependencies`). It's vendored
-here instead so the patch — an instance pool keeping booted `WKWebView`s alive
-across component unmounts — can grow into a real feature surface instead of
-living as a diff against someone else's source. `pnpm-workspace.yaml` resolves
+here for the app's persistent article renderer and native media/print surfaces.
+`pnpm-workspace.yaml` resolves
 `@expo/dom-webview` to `link:./packages/dom-webview` via `overrides`; `expo`
 itself still declares `@expo/dom-webview` as a regular (non-optional)
 `dependency`, so without that override it would silently fall back to its own
@@ -17,33 +16,17 @@ that catches a resolution regression.
 
 ## Changes vs. upstream 57.0.1
 
-- `ios/DomWebView.swift`: `DomWebViewPool` — unmounted `DomWKWebView` instances
-  are kept alive (up to 2) instead of torn down, and a remount with a matching
-  source URL adopts a warm instance instead of booting a fresh `WKWebView`.
-- `ios/DomWebView.swift`: `prime(url:key:payload:)` — a caller can render content
-  into a pooled instance before the view that will adopt it exists. The pool
-  keeps its own script message handler on pooled instances (expo's belongs to a
-  view that no longer exists) and replays what the primed page reported to the
-  view that adopts it under the same `primeKey`. A `$$native_action` posted by a
-  pooled instance is answered with an error result instead — no view is mounted
-  to run it, and expo's marshalling would otherwise leave the DOM-side promise
-  pending forever.
+- `ios/DomWebView.swift`: `SharedReaderWebView` retains one article
+  `DomWKWebView` and moves it between detail-screen hosts. The `shared` prop is
+  opt-in, so print, nested documents, and other DOM components remain isolated.
+- `ios/DomWebViewModule.swift`: `setReaderContent` sends the newest tapped
+  article to that live document before navigation. There is no pool, backfill,
+  replay log, warm scan, expiry state, or generic injection retry queue.
 - `ios/DomWebView.swift`: `resetupScripts()` re-registers the script message
-  handler only on the first run for a given `WKWebView`, not on every prop
-  update — the remove/add pair leaves the page briefly without a bridge.
-- `src/injection-queue.ts` + `src/DomWebView.tsx`: `injectJavaScript` goes through
-  a retrying FIFO. Upstream fires it once and lets it fall on the floor when the
-  native view is not mounted yet, which is exactly what happens on every mount:
-  expo emits `$$props` from a mount effect while Fabric's mount transaction is
-  still queued on the UI thread, so the call rejects with `ViewNotFound`. Since
-  `$$props` is emitted per change and never replayed, that lost the theme,
-  locale and label payload for the life of the page.
-- `ios/DomWebView.swift`: the same queue exists natively for the second window —
-  the view exists but has no document yet (cold boot, reload). Both are bounded
-  at 8 and drop the oldest.
+  handler only when ownership changes. A reused document asks Expo's SDK 57 DOM
+  wrapper to resend current props through its existing `$$dom_ready` contract.
 - `ios/DomWebViewModule.swift`: `Constants(["vendor": "yohaku"])`, purely for
-  the resolution self-check above; `getDomSourceUrl` / `prime` functions and the
-  `primeKey` view prop for the click-time injection above.
+  the resolution self-check above.
 - `src/DomWebView.types.ts`: `allowingReadAccessToURL` added to
   `UnsupportedWebViewProps`. Expo's wrapper passes it and neither upstream's
   types nor ours declared it; the contract test below is what surfaced it.
@@ -69,7 +52,7 @@ that catches a resolution regression.
   release is therefore mostly formatting noise — normalize both sides before
   reading it.
 - **Upstream's `devDependencies` are dropped** (`expo`, `expo-module-scripts`).
-  They installed a *second* copy of `expo` here (57.0.6, while the app runs
+  They installed a _second_ copy of `expo` here (57.0.6, while the app runs
   57.0.11), and both Node and Metro prefer the nearest copy — so an
   `import … from 'expo'` added to this package would have bundled the older one,
   which the `vendor` self-check cannot catch because it only inspects the native
@@ -86,7 +69,7 @@ that catches a resolution regression.
   it — the peers are not installed here, and installing them would recreate the
   duplicate-copy hazard above.
 - **`build/*.d.ts` is upstream's, frozen at 57.0.1.** Nothing regenerates it, so
-  it no longer describes this fork's public types — it has no `primeKey`.
+  it no longer describes this fork's public types — it has no `shared` prop.
   `package.json`'s `types` still points at it; `main` points at `src/`, which is
   what Metro and this repo actually consume.
 - **`test` runs vitest**, not `expo-module-scripts`' jest preset (the dead

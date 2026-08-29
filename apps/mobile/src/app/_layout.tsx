@@ -13,7 +13,6 @@ import { LogBox, StyleSheet, useColorScheme, View } from 'react-native'
 
 import { refreshSession } from '@/auth/session'
 import { useSession } from '@/auth/session-store'
-import { warmWebviewPool } from '@/components/dom/warm-webview-pool'
 import { RouteRestorationHost } from '@/components/navigation/route-restoration-host'
 import { getStackScreenOptions } from '@/components/navigation/stack-screen-options'
 import { SplashOverlay } from '@/components/splash/splash-overlay'
@@ -83,11 +82,6 @@ export default function RootLayout() {
   useEffect(() => {
     void refreshSession()
     void refreshOwnerSnapshot()
-  }, [])
-
-  useEffect(() => {
-    const timer = setTimeout(warmWebviewPool, 2500)
-    return () => clearTimeout(timer)
   }, [])
 
   useEffect(() => {

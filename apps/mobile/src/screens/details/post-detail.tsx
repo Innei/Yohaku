@@ -40,10 +40,10 @@ import { useTtsSession } from '@/tts/use-tts-session'
 import { ArticleBody } from './article-body'
 import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
-import { useArticlePrint } from './article-print-host'
 import { ArticleNotice } from './article-notice'
+import { useArticlePrint } from './article-print-host'
 import { ArticleTail } from './article-tail'
-import { useReservedBodyHeight } from './body-slot'
+import { BodyLoadingIndicator, useReservedBodyHeight } from './body-slot'
 import { PaywallGate } from './paywall-gate'
 import { shouldUnlockPaywalledContent } from './should-unlock-paywall'
 import { useCollapsingTitle } from './use-collapsing-title'
@@ -371,7 +371,6 @@ export function PostDetailScreen({
                 content={body}
                 enrichments={post?.enrichments ?? null}
                 highlightBlockId={tts.activeBlockId}
-                primeKey={post.id}
                 queriesEnabled={updatesEnabled}
                 refId={post.id}
                 refType="post"
@@ -379,16 +378,18 @@ export function PostDetailScreen({
                     variant="article"
                 webUrl={webUrl}
               />
-            ) : showPaywallGate ? null : (
+            ) : showPaywallGate ? null : failed ? (
               <View style={{ minHeight: reservedBodyHeight }}>
                 <AppText
                   style={styles.placeholder}
                   variant="secondary"
-                  onPress={failed ? () => setAttempt((n) => n + 1) : undefined}
+                  onPress={() => setAttempt((n) => n + 1)}
                 >
-                  {failed ? t('bodyFailed') : t('bodyLoading')}
+                  {t('bodyFailed')}
                 </AppText>
               </View>
+            ) : (
+              <BodyLoadingIndicator minHeight={reservedBodyHeight} />
             )}
             <PaywallGate
               appleIapEnabled={plans?.appleIap?.enabled === true}

@@ -13,7 +13,11 @@ import { usePalette } from '@/theme/palette'
 import { ActivityEntry, ActivityUnavailable } from './activity-entry'
 import { viewLikedItem } from './activity-entry-model'
 import { likedHref } from './activity-href'
-import { ActivityLink, openActivityHref, primeActivityBody } from './activity-link'
+import {
+  ActivityLink,
+  openActivityHref,
+  prepareActivityBody,
+} from './activity-link'
 import { type LikedListItem, resolveLikedItems } from './liked-list-model'
 
 export function LikedListScreen() {
@@ -82,7 +86,7 @@ function LikedRow({
 
   const open = () =>
     openActivityHref(target, router, () => {
-      if (target.webUrl) primeActivityBody(item, target.webUrl)
+      if (target.webUrl) prepareActivityBody(item, target.webUrl)
     })
 
   return (

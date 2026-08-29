@@ -1,7 +1,5 @@
 // Copyright 2015-present 650 Industries. All rights reserved.
 
-import WebKit
-
 private let lockQueue = DispatchQueue(label: "expo.modules.domWebView.RegistryQueue")
 
 internal typealias WebViewId = Int
@@ -15,12 +13,6 @@ internal final class DomWebViewRegistry {
   func get(webViewId: WebViewId) -> DomWebView? {
     return lockQueue.sync {
       return self.registry[webViewId]?.ref
-    }
-  }
-
-  func owner(of webView: WKWebView) -> DomWebView? {
-    return lockQueue.sync {
-      return self.registry.values.first { $0.ref?.webView === webView }?.ref
     }
   }
 

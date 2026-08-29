@@ -35,10 +35,10 @@ import { useTtsSession } from '@/tts/use-tts-session'
 import { ArticleBody } from './article-body'
 import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
-import { useArticlePrint } from './article-print-host'
 import { ArticleNotice } from './article-notice'
+import { useArticlePrint } from './article-print-host'
 import { ArticleTail } from './article-tail'
-import { useReservedBodyHeight } from './body-slot'
+import { BodyLoadingIndicator, useReservedBodyHeight } from './body-slot'
 import { NoteTopicBlock } from './note-topic-block'
 import { useCollapsingTitle } from './use-collapsing-title'
 import { useReadingPresence } from './use-reading-presence'
@@ -282,7 +282,6 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                     content={body}
                     enrichments={note?.enrichments ?? null}
                     highlightBlockId={tts.activeBlockId}
-                    primeKey={note.id}
                     queriesEnabled={updatesEnabled}
                     refId={note.id}
                     refType="note"
@@ -290,18 +289,18 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                     variant="note"
                     webUrl={webUrl}
                   />
-                ) : (
+                ) : failed ? (
                   <View style={{ minHeight: reservedBodyHeight }}>
                     <AppText
                       style={styles.placeholder}
                       variant="secondary"
-                      onPress={
-                        failed ? () => setAttempt((n) => n + 1) : undefined
-                      }
+                      onPress={() => setAttempt((n) => n + 1)}
                     >
-                      {failed ? t('bodyFailed') : t('bodyLoading')}
+                      {t('bodyFailed')}
                     </AppText>
                   </View>
+                ) : (
+                  <BodyLoadingIndicator minHeight={reservedBodyHeight} />
                 )}
                 <NoteTopicBlock topic={topic ?? null} />
                 <ArticleTail

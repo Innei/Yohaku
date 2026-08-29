@@ -7,7 +7,7 @@ import {
 } from 'react'
 import type { GestureResponderEvent } from 'react-native'
 
-import { primeArticleBody } from '@/components/dom/prime-body'
+import { prepareArticleBody } from '@/components/dom/prepare-reader'
 import { useTranslations } from '@/i18n'
 import { copyUrl } from '@/lib/copy-url'
 import { shareUrl } from '@/lib/share'
@@ -22,26 +22,26 @@ type LinkPressEvent =
 export function openActivityHref(
   target: ActivityHref,
   router: { push: (href: Href) => void },
-  prime?: () => void,
+  prepare?: () => void,
 ) {
   if (target.browser && target.webUrl) {
     void WebBrowser.openBrowserAsync(target.webUrl)
     return
   }
-  prime?.()
+  prepare?.()
   router.push(target.href)
 }
 
-export function primeActivityBody(
+export function prepareActivityBody(
   item: LikedListItem | ReadingListItem,
   webUrl: string,
 ) {
   if (item.kind === 'post') {
     if (item.post.contentFormat === 'lexical' && item.post.content) {
-      primeArticleBody({
+      prepareArticleBody({
         content: item.post.content,
         enrichments: item.post.enrichments ?? undefined,
-        key: item.post.id,
+        id: item.post.id,
         variant: 'article',
         webUrl,
       })
@@ -50,10 +50,10 @@ export function primeActivityBody(
   }
   if (item.kind !== 'note') return
   if (item.note.contentFormat === 'lexical' && item.note.content) {
-    primeArticleBody({
+    prepareArticleBody({
       content: item.note.content,
       enrichments: item.note.enrichments ?? undefined,
-      key: item.note.id,
+      id: item.note.id,
       variant: 'note',
       webUrl,
     })

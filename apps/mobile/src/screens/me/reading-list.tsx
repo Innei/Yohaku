@@ -13,11 +13,12 @@ import { usePalette } from '@/theme/palette'
 import { ActivityEntry, ActivityUnavailable } from './activity-entry'
 import { viewReadingItem } from './activity-entry-model'
 import { readingHref } from './activity-href'
-import { ActivityLink, openActivityHref, primeActivityBody } from './activity-link'
 import {
-  type ReadingListItem,
-  resolveReadingItems,
-} from './reading-list-model'
+  ActivityLink,
+  openActivityHref,
+  prepareActivityBody,
+} from './activity-link'
+import { type ReadingListItem, resolveReadingItems } from './reading-list-model'
 
 export function ReadingListScreen() {
   const t = useTranslations('me')
@@ -83,7 +84,7 @@ function ReadingRow({
 
   const open = () =>
     openActivityHref(target, router, () => {
-      if (target.webUrl) primeActivityBody(item, target.webUrl)
+      if (target.webUrl) prepareActivityBody(item, target.webUrl)
     })
 
   return (

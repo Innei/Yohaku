@@ -1,7 +1,7 @@
 import type { Href } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 
-import { primeArticleBody } from '@/components/dom/prime-body'
+import { prepareArticleBody } from '@/components/dom/prepare-reader'
 import type { NoteRow, PostRow } from '@/db/schema'
 import { siteHref } from '@/lib/site-url'
 
@@ -14,10 +14,10 @@ export function openNote(router: Router, note: NoteRow) {
     return
   }
   if (note.contentFormat === 'lexical' && note.content) {
-    primeArticleBody({
+    prepareArticleBody({
       content: note.content,
       enrichments: note.enrichments ?? undefined,
-      key: note.id,
+      id: note.id,
       variant: 'note',
       webUrl,
     })
@@ -33,10 +33,10 @@ export function openPost(router: Router, post: PostRow) {
     return
   }
   if (post.contentFormat === 'lexical' && post.content) {
-    primeArticleBody({
+    prepareArticleBody({
       content: post.content,
       enrichments: post.enrichments ?? undefined,
-      key: post.id,
+      id: post.id,
       variant: 'article',
       webUrl,
     })

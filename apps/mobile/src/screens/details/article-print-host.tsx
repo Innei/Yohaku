@@ -11,10 +11,10 @@ import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 import { useWebviewFontFaces } from '@/theme/webview-fonts'
 
 import {
-  type PrintMasthead,
   buildPrintMasthead,
   formatPrintDate,
   printJobName,
+  type PrintMasthead,
 } from './article-print'
 
 const DomWebViewModule = requireNativeModule<{
@@ -95,7 +95,6 @@ function ArticlePrintHost({
         dom={{
           contentInsetAdjustmentBehavior: 'never',
           matchContents: false,
-          pooled: false,
           printTarget: true,
           scrollEnabled: false,
           siteReferer: getSiteUrl(),

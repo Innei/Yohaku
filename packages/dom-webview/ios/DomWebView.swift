@@ -70,136 +70,110 @@ extension WKWebViewConfiguration {
   }
 }
 
-// A pooled webview keeps rendering while it waits to be adopted, so the pool
-// records what it reports and replays it to the adopting view.
-private final class PooledInstance {
-  static let replayCapacity = 8
-  // A prime is claimed by the mount it was fired for, which is one push
-  // transition away. Anything older was never claimed — expiring it keeps a
-  // prime that lost its screen from parking the instance out of reach forever.
-  static let primeLifetime: TimeInterval = 5
+// One article renderer stays alive and moves between detail-screen hosts. This
+// is deliberately not a pool: the reader has one owner, one document and only
+// the newest content waiting to be delivered.
+final class SharedReaderWebView: NSObject, WKNavigationDelegate {
+  static let shared = SharedReaderWebView()
 
-  let webView: DomWKWebView
-  // Log evidence only, no behavioral use.
-  let origin: String
-  private(set) var primeKey: String?
-  private(set) var replay: [(type: String, body: String)] = []
-  private var primedAt: Date?
+  private weak var owner: DomWebView?
+  private var webView: DomWKWebView?
+  private var sourceURL: URL?
+  // Navigation completion is earlier than the React bridge; only
+  // `$$dom_ready` makes JavaScript injection safe.
+  private var ready = false
+  private var pendingContent: String?
 
-  var acceptsPrime: Bool {
-    guard let primedAt else { return true }
-    return Date().timeIntervalSince(primedAt) > Self.primeLifetime
+  func take(for owner: DomWebView, sourceURL: URL) -> (webView: DomWKWebView, ready: Bool)? {
+    dispatchPrecondition(condition: .onQueue(.main))
+    guard let webView else { return nil }
+    guard Self.urlsMatch(self.sourceURL, sourceURL) else {
+      discard()
+      return nil
+    }
+
+    if let previousOwner = self.owner, previousOwner !== owner {
+      previousOwner.releaseSharedWebView(webView)
+    }
+    self.owner = owner
+    webView.removeFromSuperview()
+    webView.navigationDelegate = owner
+    return (webView, ready)
   }
 
-  init(_ webView: DomWKWebView, origin: String) {
+  func keep(_ webView: DomWKWebView, for owner: DomWebView, sourceURL: URL) {
+    dispatchPrecondition(condition: .onQueue(.main))
+    discard()
     self.webView = webView
-    self.origin = origin
+    self.owner = owner
+    self.sourceURL = sourceURL
+    ready = false
   }
 
-  func claimPrime(key: String) {
-    releasePrime()
-    primeKey = key
-    primedAt = Date()
+  func detach(_ webView: DomWKWebView, from owner: DomWebView) {
+    dispatchPrecondition(condition: .onQueue(.main))
+    guard self.webView === webView, self.owner === owner else { return }
+    self.owner = nil
+    webView.removeFromSuperview()
+    webView.uiDelegate = nil
+    webView.navigationDelegate = self
+    webView.scrollView.delegate = nil
   }
 
-  func record(type: String, body: String) {
-    if let index = replay.firstIndex(where: { $0.type == type }) {
-      replay[index] = (type, body)
-    } else if replay.count < Self.replayCapacity {
-      replay.append((type, body))
+  func detachOrphaned(_ webView: DomWKWebView) {
+    dispatchPrecondition(condition: .onQueue(.main))
+    guard self.webView === webView, owner == nil else { return }
+    webView.removeFromSuperview()
+    webView.uiDelegate = nil
+    webView.navigationDelegate = self
+    webView.scrollView.delegate = nil
+  }
+
+  func matches(_ webView: DomWKWebView, sourceURL: URL) -> Bool {
+    self.webView === webView && Self.urlsMatch(self.sourceURL, sourceURL)
+  }
+
+  func didStartLoading(_ webView: DomWKWebView, sourceURL: URL) {
+    guard self.webView === webView else { return }
+    self.sourceURL = sourceURL
+    ready = false
+  }
+
+  func willReload(_ webView: WKWebView) {
+    guard self.webView === webView else { return }
+    ready = false
+  }
+
+  func didBecomeReady(_ webView: WKWebView) {
+    guard self.webView === webView else { return }
+    ready = true
+    flushContent()
+  }
+
+  func didTerminate(_ webView: WKWebView) {
+    guard self.webView === webView else { return }
+    ready = false
+    if owner == nil {
+      discard()
     }
   }
 
-  func releasePrime() {
-    primeKey = nil
-    primedAt = nil
-    replay = []
-  }
-}
-
-// Yohaku patch: keeps booted webviews alive across component unmounts so a
-// remount with the same source URL adopts a warm instance instead of reloading.
-// New props still land through the `$$props` emission on JS mount, so adopted
-// instances re-render with fresh content without a page load.
-//
-// `take()` also backfills: after an adopt drops the pool below `backfillTarget`,
-// it boots a replacement for the same URL in the background so a second deep
-// navigation (article -> in-body link -> article) still finds a warm instance
-// instead of paying the cold-boot cost the pool exists to avoid.
-//
-// `prime()` pushes a screen's content into a pooled instance at the moment of
-// the tap, so the page renders while the push transition plays instead of
-// waiting for the mount's `$$props`. The pool listens for the result itself —
-// while pooled there is no `DomWebView` to receive it — and replays it to
-// whichever view adopts the instance under the same key.
-final class DomWebViewPool: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
-  struct Adoption {
-    let webView: DomWKWebView
-    let replay: [String]
+  func setContent(_ payload: String) {
+    dispatchPrecondition(condition: .onQueue(.main))
+    pendingContent = payload
+    flushContent()
   }
 
-  static let shared = DomWebViewPool()
-  private static let capacity = 2
-  private static let backfillTarget = 1
-  private static let backfillTimeout: TimeInterval = 10
-  // A native action is a pending call, not a state report, and its marshalled
-  // prop belongs to the screen that unmounted — replaying it after adoption
-  // would run another screen's callback. It is answered instead (see
-  // `rejectNativeAction`), never recorded.
-  private static let nativeActionMessageType = "$$native_action"
-  private static let nativeActionResultMessageType = "$$native_action_result"
-  private static let domEventName = "$$dom_event"
-  private var instances: [PooledInstance] = []
-  // Strong: this is the only reference keeping the in-flight boot alive
-  // before it lands in `instances` — weak here would let ARC free it before
-  // navigation finishes.
-  private var backfillingWebView: DomWKWebView?
-  private var backfillInFlight = false
-  // The document-start scripts a real mount would install (RNW bridge, and
-  // critically Expo's own `injectedJavaScriptObject` that seeds
-  // `$$EXPO_INITIAL_PROPS` for the DOM bundle's inline bootstrap) — a
-  // backfilled instance gets exactly one real navigation and is never
-  // reloaded again, so without these its bootstrap throws, `registerDOMComponent`
-  // bails, and the page never mounts. The `injectedJavaScriptObject` script is
-  // replayed with its `content` field emptied: booting the runtime does not
-  // require booting the article, and the full payload would render, decode,
-  // and fetch a duplicate of whatever the user is currently reading. Handed
-  // over by `DomWebView.resetupScripts()` after every real setup.
-  // Main-thread only, unlike `sourceURL`: both writer and reader already run
-  // there, so no lock is needed.
-  private var bootScriptsURL: URL?
-  private var bootScripts: [WKUserScript] = []
-
-  func noteBootScripts(_ scripts: [WKUserScript], for url: URL) {
-    bootScriptsURL = url
-    bootScripts = scripts
+  func reset() {
+    dispatchPrecondition(condition: .onQueue(.main))
+    pendingContent = nil
+    discard()
   }
 
-  // The DOM component's URL is `getBaseURL()/<babel-generated filePath>`, which
-  // app code cannot reconstruct (the path is an md5 of the source file URL in
-  // release builds); handing back the URL a real mount resolved is the only
-  // honest way for a caller to name the instances it wants primed.
-  // Written on main, read from the JS thread by the synchronous accessor.
-  private var storedSourceURL: URL?
-  private let sourceURLLock = NSLock()
-
-  var sourceURL: URL? {
-    sourceURLLock.lock()
-    defer { sourceURLLock.unlock() }
-    return storedSourceURL
+  func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
+    didTerminate(webView)
   }
 
-  func noteSourceURL(_ url: URL?) {
-    guard let url else { return }
-    sourceURLLock.lock()
-    storedSourceURL = url
-    sourceURLLock.unlock()
-  }
-
-  // A warm boot builds its file URL from `Bundle.main.resourceURL` while a real
-  // mount's comes through `RCTConvert` — same file, but `/private/var` vs `/var`
-  // style differences would read as different URLs and silently strand every
-  // warmed instance, so file URLs also match on standardized paths.
   static func urlsMatch(_ lhs: URL?, _ rhs: URL) -> Bool {
     guard let lhs else { return false }
     if lhs.absoluteURL == rhs.absoluteURL { return true }
@@ -208,349 +182,36 @@ final class DomWebViewPool: NSObject, WKNavigationDelegate, WKScriptMessageHandl
       == rhs.standardizedFileURL.resolvingSymlinksInPath().path
   }
 
-  func take(url: URL?, primeKey: String?) -> Adoption? {
-    guard let url else { return nil }
-    let matchesURL = { (instance: PooledInstance) in
-      Self.urlsMatch(instance.webView.url, url)
-    }
-    let primed = primeKey.flatMap { key in
-      instances.firstIndex { matchesURL($0) && $0.primeKey == key }
-    }
-    guard let index = primed ?? instances.firstIndex(where: matchesURL) else {
-      log.info("[YohakuPool] miss \(url.absoluteString) pooled=\(instances.count)")
-      return nil
-    }
-    let instance = instances.remove(at: index)
-    instance.webView.navigationDelegate = nil
-    if primed == nil, instance.primeKey != nil {
-      // Primed content was made visible again by its own render; without this
-      // the adopting screen shows another article until its props arrive.
-      instance.webView.evaluateJavaScript(Self.resetScript, completionHandler: nil)
-    }
-    let replay = primed == nil ? [] : instance.replay.map(\.body)
-    log.info(
-      "[YohakuPool] adopt origin=\(instance.origin) \(url.absoluteString) pooled=\(instances.count) replay=\(replay.count)"
-    )
-    scheduleBackfill(sourceURL: url)
-    return Adoption(webView: instance.webView, replay: replay)
-  }
-
-  func give(_ webView: DomWKWebView) {
-    guard webView.url != nil, instances.count < Self.capacity else {
-      log.info("[YohakuPool] discard pooled=\(instances.count)")
+  private func flushContent() {
+    guard ready,
+      let webView,
+      let payload = pendingContent,
+      let literal = Self.jsStringLiteral(payload) else {
       return
     }
-    webView.removeFromSuperview()
-    webView.uiDelegate = nil
-    webView.scrollView.delegate = nil
-    webView.selectionMenu = "default"
-    webView.selectionCommentTitle = "评论"
-    webView.selectionBlockTitle = "本段"
-    webView.siteReferer = nil
-    let controller = webView.configuration.userContentController
-    controller.removeAllScriptMessageHandlers()
-    controller.add(WeakScriptMessageHandler(delegate: self), name: DomWebView.POST_MESSAGE_HANDLER_NAME)
-    webView.evaluateJavaScript(Self.resetScript, completionHandler: nil)
-    webView.scrollView.contentOffset = .zero
-    webView.navigationDelegate = self
-    instances.append(PooledInstance(webView, origin: "give"))
-    log.info("[YohakuPool] give pooled=\(instances.count)")
-  }
-
-  // Boots the pool at launch with no React mount having happened yet: the
-  // caller fabricates the boot inputs a real mount would have produced
-  // (initialProps with empty content, the body-size observer, the media
-  // rewrite) and this resolves which exported DOM component is the article
-  // body. A later real mount overwrites the source URL and boot scripts with
-  // its captured, fully-real versions.
-  func warm(
-    candidates: [URL],
-    injectedObjectJson: String,
-    injectedJavaScript: String,
-    injectedJavaScriptBeforeContentLoaded: String
-  ) {
-    guard instances.isEmpty, !backfillInFlight, bootScriptsURL == nil else {
-      log.info("[YohakuPool] warm skipped pooled=\(instances.count)")
-      return
-    }
-    // File reads (the html and the JS bundles it references, potentially MBs)
-    // stay off the main thread; only the WebKit boot hops back.
-    DispatchQueue.global(qos: .utility).async { [weak self] in
-      guard let url = Self.resolveArticleBodyURL(candidates: candidates) else {
-        log.info("[YohakuPool] warm found no article DOM component")
-        return
-      }
-      DispatchQueue.main.async {
-        guard let self else { return }
-        guard self.instances.isEmpty, !self.backfillInFlight, self.bootScriptsURL == nil else {
-          log.info("[YohakuPool] warm lost the race to a real mount")
-          return
-        }
-        var scripts: [WKUserScript] = [
-          WKUserScript(source: DomWebView.postMessageBridgeScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
-        ]
-        // Injection times mirror `DomWebView.setInjectedJS` /
-        // `setInjectedJSBeforeContentLoaded` / `setInjectedJavaScriptObject`.
-        if !injectedJavaScript.isEmpty {
-          scripts.append(WKUserScript(source: injectedJavaScript, injectionTime: .atDocumentEnd, forMainFrameOnly: false))
-        }
-        if !injectedJavaScriptBeforeContentLoaded.isEmpty {
-          scripts.append(WKUserScript(source: injectedJavaScriptBeforeContentLoaded, injectionTime: .atDocumentStart, forMainFrameOnly: false))
-        }
-        scripts.append(WKUserScript(
-          source: DomWebView.injectedObjectJsonBridgeScript(payload: injectedObjectJson),
-          injectionTime: .atDocumentStart,
-          forMainFrameOnly: true
-        ))
-        self.noteBootScripts(scripts, for: url)
-        self.noteSourceURL(url)
-        log.info("[YohakuPool] warm booting \(url.absoluteString)")
-        self.scheduleBackfill(sourceURL: url)
+    webView.evaluateJavaScript("window.__yohakuSetReaderContent?.(\(literal)) === true") { [weak self, weak webView] result, _ in
+      guard let self, let webView, self.webView === webView else { return }
+      if (result as? NSNumber)?.boolValue == true, self.pendingContent == payload {
+        self.pendingContent = nil
       }
     }
   }
 
-  // The article body's page is the one whose JS defines `window.__yohakuPrime`
-  // (already this pool's prime contract) — recognized by grepping each
-  // candidate html's referenced script files for the literal. Works on both
-  // export layouts: embedded `www.bundle` (relative `_expo/static/...` tree)
-  // and an OTA update's flat directory of content-md5 names.
-  private static let primeMarker = Data("__yohakuPrime".utf8)
-
-  private static func resolveArticleBodyURL(candidates: [URL]) -> URL? {
-    var htmls = candidates.filter { $0.pathExtension == "html" }
-    if htmls.isEmpty {
-      guard let dir = Bundle.main.resourceURL?.appendingPathComponent("www.bundle") else { return nil }
-      let listing = (try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil)) ?? []
-      htmls = listing.filter { $0.pathExtension == "html" }
+  private func discard() {
+    if let webView {
+      owner?.releaseSharedWebView(webView)
+      webView.stopLoading()
+      webView.removeFromSuperview()
+      webView.uiDelegate = nil
+      webView.navigationDelegate = nil
+      webView.scrollView.delegate = nil
+      webView.configuration.userContentController.removeAllScriptMessageHandlers()
     }
-    guard let scriptSrc = try? NSRegularExpression(pattern: #"src="([^"]+\.js)""#) else { return nil }
-    for html in htmls {
-      guard let text = try? String(contentsOf: html, encoding: .utf8) else { continue }
-      let dir = html.deletingLastPathComponent()
-      let range = NSRange(text.startIndex..., in: text)
-      let referencesPrime = scriptSrc.matches(in: text, range: range).contains { match in
-        guard let srcRange = Range(match.range(at: 1), in: text) else { return false }
-        var src = String(text[srcRange])
-        if src.hasPrefix("./") { src.removeFirst(2) }
-        let js = dir.appendingPathComponent(src)
-        guard let data = try? Data(contentsOf: js, options: .mappedIfSafe) else { return false }
-        return data.range(of: primeMarker) != nil
-      }
-      if referencesPrime { return html }
-    }
-    return nil
+    owner = nil
+    webView = nil
+    sourceURL = nil
+    ready = false
   }
-
-  func prime(url: URL, key: String, payload: String) {
-    guard let literal = Self.jsStringLiteral(payload) else { return }
-    prime(
-      url: url,
-      key: key,
-      script: "(function(){try{return !!(window.__yohakuPrime&&window.__yohakuPrime(\(literal)))}catch(e){return false}})()",
-      skipping: []
-    )
-  }
-
-  private func prime(url: URL, key: String, script: String, skipping: Set<ObjectIdentifier>) {
-    guard let instance = instances.first(where: {
-      $0.acceptsPrime
-        && Self.urlsMatch($0.webView.url, url)
-        && !skipping.contains(ObjectIdentifier($0.webView))
-    }) else {
-      log.info("[YohakuPool] prime miss key=\(key) pooled=\(instances.count)")
-      return
-    }
-    let id = ObjectIdentifier(instance.webView)
-    instance.claimPrime(key: key)
-    instance.webView.evaluateJavaScript(script) { [weak self, weak instance] result, _ in
-      if (result as? NSNumber)?.boolValue == true {
-        log.info("[YohakuPool] prime hit key=\(key)")
-        return
-      }
-      // A backfilled page loads without expo's `initialProps` script, so its DOM
-      // runtime never mounts and it swallows the injection: release it and move
-      // on rather than spending the prime on a page that cannot render it.
-      instance?.releasePrime()
-      self?.prime(url: url, key: key, script: script, skipping: skipping.union([id]))
-    }
-  }
-
-  func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
-    instances.removeAll { $0.webView === webView }
-    guard let dom = webView as? DomWKWebView, dom === backfillingWebView else {
-      log.info("[YohakuPool] dropped terminated instance pooled=\(instances.count)")
-      return
-    }
-    clearBackfillState()
-    log.info("[YohakuPool] backfill terminated pooled=\(instances.count)")
-  }
-
-  // `backfillInFlight` is only ever flipped true here, on `take()`'s caller
-  // thread, so it can't race a second `take()` into scheduling twice — that
-  // keeps concurrent backfills capped at 1, matching (capacity - target).
-  // The hop through a background queue before returning to main decouples
-  // the boot from `take()`'s call stack; `WKWebView` itself is still only
-  // ever touched on main, since WebKit APIs are main-thread only.
-  private func scheduleBackfill(sourceURL: URL) {
-    guard instances.count < Self.backfillTarget, !backfillInFlight else { return }
-    backfillInFlight = true
-    log.info("[YohakuPool] backfill scheduled \(sourceURL.absoluteString) pooled=\(instances.count)")
-    DispatchQueue.global(qos: .utility).async { [weak self] in
-      DispatchQueue.main.async {
-        self?.bootBackfill(sourceURL: sourceURL)
-      }
-    }
-  }
-
-  private func bootBackfill(sourceURL: URL) {
-    guard instances.count < Self.capacity else {
-      clearBackfillState()
-      log.info("[YohakuPool] backfill skipped pooled=\(instances.count)")
-      return
-    }
-
-    let controller = WKUserContentController()
-    // Registered before load, not after `didFinish` as this used to: once the
-    // bootstrap can actually mount (see `bootScripts` below), the DOM app
-    // fires its own `postMessage` calls within a couple of frames of mount,
-    // and `window.webkit.messageHandlers.<name>` must already exist for the
-    // bridge script's call to find it instead of throwing.
-    controller.add(WeakScriptMessageHandler(delegate: self), name: DomWebView.POST_MESSAGE_HANDLER_NAME)
-    // Scoped to `useExpoModulesBridge == false` real mounts: that flag's own
-    // scripts bake in the *mounting* view's numeric webview id, which would
-    // be permanently wrong for whichever different view later adopts this
-    // instance. Not a concern for any DOM component pooled today (none use
-    // it), but a future one that does would need this reconsidered.
-    if let bootScriptsURL, Self.urlsMatch(bootScriptsURL, sourceURL) {
-      for script in bootScripts {
-        controller.addUserScript(script)
-      }
-    } else {
-      log.info("[YohakuPool] backfill has no bootstrap scripts for \(sourceURL.absoluteString)")
-    }
-
-    let config = WKWebViewConfiguration()
-    DomAssetSchemeHandler.install(on: config)
-    config.enableFileAccessFromFileURLs()
-    config.userContentController = controller
-    config.allowsInlineMediaPlayback = true
-    config.allowsPictureInPictureMediaPlayback = true
-    config.allowsAirPlayForMediaPlayback = true
-    config.mediaTypesRequiringUserActionForPlayback = .all
-
-    let webView = DomWKWebView(frame: .zero, configuration: config)
-    webView.navigationDelegate = self
-    backfillingWebView = webView
-
-    if sourceURL.isFileURL {
-      webView.loadFileURL(sourceURL, allowingReadAccessTo: URL(fileURLWithPath: "/"))
-    } else {
-      webView.load(URLRequest(url: sourceURL))
-    }
-
-    DispatchQueue.main.asyncAfter(deadline: .now() + Self.backfillTimeout) { [weak self, weak webView] in
-      guard let self, let webView, self.backfillingWebView === webView else { return }
-      self.clearBackfillState()
-      log.info("[YohakuPool] backfill timeout pooled=\(self.instances.count)")
-    }
-  }
-
-  func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-    guard let dom = webView as? DomWKWebView, dom === backfillingWebView else { return }
-    clearBackfillState()
-    guard instances.count < Self.capacity else {
-      dom.navigationDelegate = nil
-      log.info("[YohakuPool] backfill discarded pooled=\(instances.count)")
-      return
-    }
-    // Not primed, so `take()`'s own reset-on-adopt branch never fires for this
-    // instance — hide it the same way `give()` does. Hosts may or may not keep
-    // their DOM view transparent until the page reports back, and the pool
-    // cannot see which, so every pooled instance leaves here already hidden.
-    dom.evaluateJavaScript(Self.resetScript, completionHandler: nil)
-    instances.append(PooledInstance(dom, origin: "backfill"))
-    log.info("[YohakuPool] backfill filled pooled=\(instances.count)")
-  }
-
-  func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-    failBackfill(webView, error: error)
-  }
-
-  func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-    failBackfill(webView, error: error)
-  }
-
-  private func failBackfill(_ webView: WKWebView, error: Error) {
-    guard let dom = webView as? DomWKWebView, dom === backfillingWebView else { return }
-    clearBackfillState()
-    log.info("[YohakuPool] backfill failed \(error.localizedDescription) pooled=\(instances.count)")
-  }
-
-  private func clearBackfillState() {
-    backfillingWebView = nil
-    backfillInFlight = false
-  }
-
-  func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-    guard message.name == DomWebView.POST_MESSAGE_HANDLER_NAME,
-      let body = message.body as? String,
-      let webView = message.webView else {
-      return
-    }
-    guard let instance = instances.first(where: { $0.webView === webView }) else {
-      // A message posted just before an adopt is still delivered here, because
-      // the handler swap only reaches the web process afterwards. The instance
-      // is gone from the pool by then, so hand it to the view that took it
-      // rather than dropping the report it was waiting for.
-      DomWebViewRegistry.shared.owner(of: webView)?
-        .userContentController(userContentController, didReceive: message)
-      return
-    }
-    guard let data = body.data(using: .utf8),
-      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-      let type = json["type"] as? String else {
-      return
-    }
-    if type == Self.nativeActionMessageType {
-      rejectNativeAction(instance.webView, message: json)
-      return
-    }
-    instance.record(type: type, body: body)
-  }
-
-  // `expo/src/dom/marshal.tsx` leaves the caller's promise pending until a
-  // result carrying its `uid` comes back, so dropping the call would hang the
-  // DOM side forever. There is no host to run it against while pooled, and
-  // deferring it to whichever view adopts the instance would fire a callback
-  // the adopting screen never asked for — so it is answered with an error and
-  // the caller settles now, whether or not this instance is ever adopted.
-  private func rejectNativeAction(_ webView: DomWKWebView, message: [String: Any]) {
-    guard let data = message["data"] as? [String: Any],
-      let uid = data["uid"] as? String,
-      let actionId = data["actionId"] as? String else {
-      return
-    }
-    let detail: [String: Any] = [
-      "type": Self.nativeActionResultMessageType,
-      "data": [
-        "uid": uid,
-        "actionId": actionId,
-        "error": ["message": "Native action \"\(actionId)\" was called while the DOM component was pooled, with no view mounted to run it."]
-      ]
-    ]
-    guard let encoded = try? JSONSerialization.data(withJSONObject: ["detail": detail]),
-      let literal = String(data: encoded, encoding: .utf8) else {
-      return
-    }
-    log.info("[YohakuPool] rejected pooled native action \(actionId)")
-    webView.evaluateJavaScript(
-      "(function(){try{window.dispatchEvent(new CustomEvent(\"\(Self.domEventName)\",\(literal)))}catch(e){}})();true;",
-      completionHandler: nil
-    )
-  }
-
-  private static let resetScript = "window.__yohakuReset && window.__yohakuReset(); true;"
 
   private static func jsStringLiteral(_ value: String) -> String? {
     guard let data = try? JSONSerialization.data(withJSONObject: [value]),
@@ -560,7 +221,6 @@ final class DomWebViewPool: NSObject, WKNavigationDelegate, WKScriptMessageHandl
     return String(json.dropFirst().dropLast())
   }
 }
-
 internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, RCTAutoInsetsProtocol {
   // Created on first prop sync — `WKWebViewConfiguration` is copied at init,
   // so init-only props need to land before `WKWebView()` is called.
@@ -572,23 +232,9 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
   private var injectedJS: WKUserScript?
   private var injectedJSBeforeContentLoaded: WKUserScript?
   private var injectedObjectJsonScript: WKUserScript?
-  // Kept alongside `injectedObjectJsonScript` so the pool can rebuild a
-  // content-free variant for backfill without re-deriving the raw payload.
-  private var injectedObjectJsonSource: String?
   private var needsResetupScripts = false
   private var ownsMessageHandler = false
-
-  // Expo emits `$$props` from a JS mount effect, which can beat both the
-  // `WKWebView`'s creation (`OnViewDidUpdateProps` -> `setupWebView()`) and, on
-  // a cold instance, its first navigation. Evaluating into either window is a
-  // silent no-op, and since `$$props` is emitted once per change, theme, locale
-  // and labels would then stay wrong for the life of the page. Held here until
-  // there is a document to run them against — which `WKWebView.url` cannot
-  // stand in for, since that is set the moment a navigation *starts* and a
-  // script run against the outgoing document dies when the new one commits.
-  private var hasDocument = false
-  private var pendingInjections: [String] = []
-  private static let pendingInjectionCapacity = 8
+  private var sharedSourceLoaded = false
 
   // MARK: - WKWebViewConfiguration props (init-only)
 
@@ -603,13 +249,9 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     didSet { needsResetupScripts = true }
   }
 
-  // Read once, by `setupWebView()`, to pick the pooled instance this view's
-  // content was primed into; `OnViewDidUpdateProps` guarantees it is set first.
-  var primeKey: String?
-
-  // Insights and other non-article DOM surfaces must set this false so they
-  // never take, give, or overwrite the article pool's source URL / boot scripts.
-  var pooled: Bool = true
+  // Only the main article body opts in. Print, nested documents and other DOM
+  // surfaces keep their own WebView by default.
+  var shared: Bool = false
 
   var printTarget: Bool = false {
     didSet { DomPrintDomain.mark(id: id, enabled: printTarget) }
@@ -745,6 +387,17 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     orderSubviews()
   }
 
+  override func didMoveToWindow() {
+    super.didMoveToWindow()
+    guard shared else { return }
+    if window != nil, webView == nil {
+      reload()
+    } else if window == nil, let webView {
+      SharedReaderWebView.shared.detach(webView, from: self)
+      releaseSharedWebView(webView)
+    }
+  }
+
   override var backgroundColor: UIColor? {
     didSet { applyBackgroundColor() }
   }
@@ -759,11 +412,13 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
 
   deinit {
     DomPrintDomain.mark(id: id, enabled: false)
-    let shouldPool = pooled
-    if let webView {
-      DispatchQueue.main.async {
-        if shouldPool {
-          DomWebViewPool.shared.give(webView)
+    if shared, let webView {
+      if Thread.isMainThread {
+        SharedReaderWebView.shared.detach(webView, from: self)
+      } else {
+        DispatchQueue.main.async { [weak webView] in
+          guard let webView else { return }
+          SharedReaderWebView.shared.detachOrphaned(webView)
         }
       }
     }
@@ -785,18 +440,26 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
 
     if let source,
       let request = RCTConvert.nsurlRequest(source.toDictionary(appContext: appContext)),
-      webView?.url?.absoluteURL != request.url {
+      let requestURL = request.url,
+      let webView,
+      !SharedReaderWebView.urlsMatch(webView.url, requestURL)
+        && !(shared && sharedSourceLoaded
+          && SharedReaderWebView.shared.matches(webView, sourceURL: requestURL)) {
       load(request: request)
     } else if scriptsChanged, webView?.url != nil {
       // User scripts only run at .atDocumentStart; reload to pick up the new ones.
-      hasDocument = false
+      if shared, let webView {
+        SharedReaderWebView.shared.willReload(webView)
+      }
       webView?.reload()
     }
   }
 
   func forceReload() {
     if webView?.url != nil {
-      hasDocument = false
+      if shared, let webView {
+        SharedReaderWebView.shared.willReload(webView)
+      }
       webView?.reload()
       return
     }
@@ -811,7 +474,10 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
   }
 
   private func load(request: URLRequest) {
-    hasDocument = false
+    if shared, let webView, let url = request.url {
+      sharedSourceLoaded = true
+      SharedReaderWebView.shared.didStartLoading(webView, sourceURL: url)
+    }
     if let url = request.url, url.isFileURL {
       // Grant read access to the bundle so DOM components can load sibling assets.
       webView?.loadFileURL(url, allowingReadAccessTo: URL(fileURLWithPath: "/"))
@@ -826,33 +492,7 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
 
   func injectJavaScript(_ script: String) {
     DispatchQueue.main.async { [weak self] in
-      guard let self else { return }
-      guard let webView = self.webView, self.hasDocument else {
-        self.enqueueInjection(script)
-        return
-      }
-      webView.evaluateJavaScript(script)
-    }
-  }
-
-  private func enqueueInjection(_ script: String) {
-    if pendingInjections.count >= Self.pendingInjectionCapacity {
-      pendingInjections.removeFirst()
-      log.info("[YohakuPool] injection queue full, dropped the oldest of \(Self.pendingInjectionCapacity)")
-    }
-    pendingInjections.append(script)
-    log.info("[YohakuPool] injection queued pending=\(pendingInjections.count)")
-  }
-
-  private func flushPendingInjections() {
-    guard !pendingInjections.isEmpty, hasDocument, let webView else {
-      return
-    }
-    let scripts = pendingInjections
-    pendingInjections = []
-    log.info("[YohakuPool] injection flush count=\(scripts.count)")
-    for script in scripts {
-      webView.evaluateJavaScript(script)
+      self?.webView?.evaluateJavaScript(script)
     }
   }
 
@@ -880,14 +520,12 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
 
   func setInjectedJavaScriptObject(_ source: String?) {
     if let source, !source.isEmpty {
-      injectedObjectJsonSource = source
       injectedObjectJsonScript = WKUserScript(
         source: Self.injectedObjectJsonBridgeScript(payload: source),
         injectionTime: .atDocumentStart,
         forMainFrameOnly: true
       )
     } else {
-      injectedObjectJsonSource = nil
       injectedObjectJsonScript = nil
     }
     needsResetupScripts = true
@@ -901,38 +539,6 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     }
     true;
     """
-  }
-
-  // Expo's DOM entry point mounts `React.useState` with `window.$$EXPO_INITIAL_PROPS`
-  // and never touches it again — real content only ever arrives afterwards
-  // through the live `$$props` postMessage channel (see `webview-wrapper.tsx`'s
-  // `emit({ type: '$$props', ... })`). That means a backfilled instance's
-  // *initial* props only need to be shaped correctly, not populated with the
-  // article currently on screen: booting the runtime does not require booting
-  // the article. `payload` is `JSON.stringify({ EXPO_DOM_HOST_OS, initialProps:
-  // { names, props } })` — plain JSON text used as a JS object-literal (no
-  // function values ever appear here; those are marshalled separately into
-  // `names`) — so it round-trips through `JSONSerialization` safely. Falls
-  // back to the untouched payload if the shape ever doesn't match, since a
-  // duplicate render is a smaller problem than a dead page.
-  private static func contentFreeInitialPropsPayload(_ payload: String) -> String {
-    guard let data = payload.data(using: .utf8),
-      var root = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-      var initialProps = root["initialProps"] as? [String: Any],
-      var props = initialProps["props"] as? [String: Any],
-      props["content"] is String else {
-      log.info("[YohakuPool] boot scripts: initialProps shape not recognized, backfill will replay full content")
-      return payload
-    }
-    props["content"] = ""
-    initialProps["props"] = props
-    root["initialProps"] = initialProps
-    guard let neuteredData = try? JSONSerialization.data(withJSONObject: root),
-      let neuteredPayload = String(data: neuteredData, encoding: .utf8) else {
-      log.info("[YohakuPool] boot scripts: failed to re-encode content-free initialProps, backfill will replay full content")
-      return payload
-    }
-    return neuteredPayload
   }
 
   // MARK: - UIScrollViewDelegate implementations
@@ -1072,15 +678,13 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
 
   func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
     log.warn("WebView content process terminated")
+    if shared {
+      SharedReaderWebView.shared.didTerminate(webView)
+    }
     onContentProcessDidTerminate(createBaseEventPayload())
   }
 
-  // A cold instance has a `WKWebView` from `setupWebView()` but no document
-  // until here, so this is the second of the two windows `pendingInjections`
-  // covers; an adopted instance already has one and drains at setup instead.
   func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-    hasDocument = true
-    flushPendingInjections()
     applyScrollEdgeEffects(to: webView.scrollView)
     bindHeaderInteraction()
   }
@@ -1089,6 +693,16 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
 
   func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
     if message.name == Self.POST_MESSAGE_HANDLER_NAME {
+      if shared,
+        message.frameInfo.isMainFrame,
+        let body = message.body as? String,
+        let data = body.data(using: .utf8),
+        let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        json["type"] as? String == "$$dom_ready",
+        let sourceWebView = message.webView
+      {
+        SharedReaderWebView.shared.didBecomeReady(sourceWebView)
+      }
       if message.frameInfo.isMainFrame,
         let sourceWebView = message.webView,
         DomImagePreviewDomain.handle(messageBody: message.body, from: sourceWebView)
@@ -1105,18 +719,24 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
 
   // MARK: - Internals
 
+  func releaseSharedWebView(_ sharedWebView: DomWKWebView) {
+    guard webView === sharedWebView else { return }
+    webView = nil
+    sharedSourceLoaded = false
+    ownsMessageHandler = false
+  }
+
   private func setupWebView() {
-    // Adopted instances already loaded this source URL, so the caller's
-    // url-equality check in `reload()` skips the load for them.
-    var adoption: DomWebViewPool.Adoption?
-    if pooled, let source, let request = RCTConvert.nsurlRequest(source.toDictionary(appContext: appContext)) {
-      DomWebViewPool.shared.noteSourceURL(request.url)
-      adoption = DomWebViewPool.shared.take(url: request.url, primeKey: primeKey)
+    let sharedSourceURL = shared
+      ? source.flatMap { RCTConvert.nsurlRequest($0.toDictionary(appContext: appContext))?.url }
+      : nil
+    let retained = sharedSourceURL.flatMap {
+      SharedReaderWebView.shared.take(for: self, sourceURL: $0)
     }
 
     let webView: DomWKWebView
-    if let adoption {
-      webView = adoption.webView
+    if let retained {
+      webView = retained.webView
       webView.frame = bounds
     } else {
       let config = WKWebViewConfiguration()
@@ -1128,6 +748,9 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
       config.allowsAirPlayForMediaPlayback = allowsAirPlayForMediaPlayback
       config.mediaTypesRequiringUserActionForPlayback = mediaPlaybackRequiresUserAction ? .all : []
       webView = DomWKWebView(frame: bounds, configuration: config)
+      if let sharedSourceURL {
+        SharedReaderWebView.shared.keep(webView, for: self, sourceURL: sharedSourceURL)
+      }
     }
     webView.hidesInputAccessoryView = hideKeyboardAccessoryView
     webView.selectionMenu = selectionMenu
@@ -1154,7 +777,7 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     }
 
     self.webView = webView
-    hasDocument = adoption != nil
+    sharedSourceLoaded = retained != nil
     ownsMessageHandler = false
     insertSubview(webView, at: 0)
 
@@ -1164,18 +787,13 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     bindHeaderInteraction()
     resetupScripts()
     needsResetupScripts = false
-    flushPendingInjections()
 
-    guard let replay = adoption?.replay, !replay.isEmpty else { return }
-    // Emitting inside this prop transaction would fire before the view's
-    // `onMessage` listener is installed and the events would be dropped.
-    DispatchQueue.main.async { [weak self] in
-      guard let self else { return }
-      for body in replay {
-        var payload = self.createBaseEventPayload()
-        payload["data"] = body
-        self.onMessage(payload)
-      }
+    guard retained?.ready == true else { return }
+    // A live document does not navigate when it moves to a new native host.
+    // Ask Expo's wrapper for the current props and re-report its layout.
+    DispatchQueue.main.async { [weak self, weak webView] in
+      guard let self, let webView, self.webView === webView else { return }
+      webView.evaluateJavaScript("window.__yohakuAttachReader?.(); true;")
     }
   }
 
@@ -1192,10 +810,7 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     }
     userContentController.removeAllUserScripts()
 
-    // Every prop update re-runs this, and between the remove and the add the
-    // page has no `webkit.messageHandlers.ReactNativeWebView` — a body report
-    // landing in that window throws and is lost for good. Take the handler over
-    // from the pool once per webview and leave it alone afterwards.
+    // Rebind once when a persistent reader moves to a new native owner.
     if !ownsMessageHandler {
       userContentController.removeAllScriptMessageHandlers()
       userContentController.add(WeakScriptMessageHandler(delegate: self), name: Self.POST_MESSAGE_HANDLER_NAME)
@@ -1213,39 +828,6 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
     }
 
     userContentController.addUserScript(WKUserScript(source: Self.postMessageBridgeScript, injectionTime: .atDocumentStart, forMainFrameOnly: false))
-
-    // Hand this mount's document-start scripts to the pool so a future
-    // backfill for this same URL can replay them before its one real
-    // navigation — see `DomWebViewPool.bootScripts`. Built explicitly rather
-    // than read back off `userContentController.userScripts`, so the
-    // `injectedObjectJsonScript` copy handed to the pool can have its
-    // `content` emptied without touching what this live view actually loads.
-    // Deliberately excludes the `useExpoModulesBridge` scripts below: those
-    // bake in this specific view's webview id and would be wrong for
-    // whichever view later adopts a backfilled instance.
-    if pooled,
-      let source,
-      let request = RCTConvert.nsurlRequest(source.toDictionary(appContext: appContext)),
-      let requestURL = request.url {
-      var pooledScripts: [WKUserScript] = [
-        WKUserScript(source: Self.postMessageBridgeScript, injectionTime: .atDocumentStart, forMainFrameOnly: false)
-      ]
-      if let injectedJS {
-        pooledScripts.append(injectedJS)
-      }
-      if let injectedJSBeforeContentLoaded {
-        pooledScripts.append(injectedJSBeforeContentLoaded)
-      }
-      if let injectedObjectJsonSource {
-        let contentFreeSource = Self.contentFreeInitialPropsPayload(injectedObjectJsonSource)
-        pooledScripts.append(WKUserScript(
-          source: Self.injectedObjectJsonBridgeScript(payload: contentFreeSource),
-          injectionTime: .atDocumentStart,
-          forMainFrameOnly: true
-        ))
-      }
-      DomWebViewPool.shared.noteBootScripts(pooledScripts, for: requestURL)
-    }
 
     if useExpoModulesBridge {
       let addDomWebViewBridgeScript = """

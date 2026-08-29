@@ -12,6 +12,9 @@ public final class DomWebViewModule: Module {
 
     OnDestroy {
       DomWebViewRegistry.shared.reset()
+      DispatchQueue.main.async {
+        SharedReaderWebView.shared.reset()
+      }
     }
 
     AsyncFunction("evalJsForWebViewAsync") { (webViewId: Int, source: String) in
@@ -20,39 +23,9 @@ public final class DomWebViewModule: Module {
       }
     }
 
-    Function("getDomSourceUrl") { () -> String? in
-      DomWebViewPool.shared.sourceURL?.absoluteString
-    }
-
-    // `candidates` carries the current OTA update's local asset paths so a
-    // hot-updated launch warms the updated page, never a stale generation
-    // left in `.expo-internal`; empty means an embedded launch, resolved by
-    // scanning the app bundle's `www.bundle`.
-    AsyncFunction("warmPool") { (
-      candidates: [String],
-      injectedObjectJson: String,
-      injectedJavaScript: String,
-      injectedJavaScriptBeforeContentLoaded: String
-    ) in
-      let urls = candidates.compactMap { value -> URL? in
-        if value.contains("://") { return URL(string: value) }
-        return URL(fileURLWithPath: value)
-      }
-      DomWebViewPool.shared.warm(
-        candidates: urls,
-        injectedObjectJson: injectedObjectJson,
-        injectedJavaScript: injectedJavaScript,
-        injectedJavaScriptBeforeContentLoaded: injectedJavaScriptBeforeContentLoaded
-      )
-    }.runOnQueue(.main)
-
-    // Synchronous so the main-queue work is enqueued from the tap handler
-    // itself: an async hop can land after the screen it primes has already
-    // mounted and adopted an instance, which wastes the injection.
-    Function("prime") { (url: String, key: String, payload: String) in
-      guard let sourceURL = URL(string: url) else { return }
+    Function("setReaderContent") { (payload: String) in
       DispatchQueue.main.async {
-        DomWebViewPool.shared.prime(url: sourceURL, key: key, payload: payload)
+        SharedReaderWebView.shared.setContent(payload)
       }
     }
 
@@ -142,12 +115,8 @@ public final class DomWebViewModule: Module {
         view.selectionBlockTitle = value
       }
 
-      Prop("primeKey") { (view: DomWebView, key: String?) in
-        view.primeKey = key
-      }
-
-      Prop("pooled") { (view: DomWebView, value: Bool) in
-        view.pooled = value
+      Prop("shared") { (view: DomWebView, value: Bool) in
+        view.shared = value
       }
 
       Prop("printTarget") { (view: DomWebView, value: Bool) in

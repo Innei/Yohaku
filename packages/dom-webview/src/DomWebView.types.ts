@@ -29,22 +29,15 @@ export interface DomWebViewProps
    */
   injectedJavaScriptObject?: object
 
-  /**
-   * Claims the pooled instance that the native module's
-   * `prime(url, key, payload)` rendered under this key, and replays what that
-   * instance reported while it was pooled.
-   */
-  primeKey?: string
-
   siteReferer?: string
 
   /**
-   * When false, this view never takes from or returns to the shared pool,
-   * and never overwrites the pool's source URL or boot scripts. Defaults
-   * to true. Insights (and any other non-article DOM surface) must pass
-   * false so they cannot starve or poison the article pool.
+   * Reuses the app's single persistent article renderer. Other DOM surfaces
+   * keep independent WebViews by default.
+   * @platform ios
+   * @default false
    */
-  pooled?: boolean
+  shared?: boolean
 
   /**
    * Marks this WebView as the current AirPrint target. Pair with

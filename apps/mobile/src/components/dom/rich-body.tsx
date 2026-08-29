@@ -35,9 +35,9 @@ import {
 import type { Locale } from '@/i18n/config'
 import type { CommentAnchor } from '@/lib/comment-anchor'
 import {
+  printBlockFallback,
   type PrintBlockKind,
   type PrintMasthead,
-  printBlockFallback,
 } from '@/screens/details/article-print'
 import { WEBVIEW_FONT_FAMILY } from '@/theme/font-faces'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
@@ -45,6 +45,7 @@ import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 import { extractBlockInfos } from './anchor-utils'
 import { MobileCodeBlock } from './code-block'
 import { MobileFileCard } from './file-card'
+import { activePreparedContent } from './reader-content-state'
 import {
   applyActiveCommentHighlight,
   applyBlockWashes,
@@ -86,10 +87,10 @@ export interface RichBodyLabels {
   unrenderable: string
 }
 
-export interface RichBodyPrime {
+export interface ReaderContent {
   content: string
   enrichments?: Record<string, HostEnrichment>
-  key: string
+  id: string
   variant: 'article' | 'note'
   webUrl: string
 }
@@ -100,8 +101,8 @@ interface RichBodyProps {
   blockComments?: BlockComment[]
   content: string
   dom?: import('expo/dom').DOMProps & {
-    pooled?: boolean
     printTarget?: boolean
+    shared?: boolean
   }
   enrichments?: Record<string, HostEnrichment>
   fontFaces?: RichBodyFontFace[]
@@ -113,11 +114,10 @@ interface RichBodyProps {
   onNestedDocExpand?: (payload: RichBodyNestedDocExpand) => Promise<void>
   onPrintReady?: () => Promise<boolean | void>
   onScrollToAnchor: (id: string) => Promise<void>
-  primeKey?: string
   printDocument?: PrintMasthead
   rangeComments?: RangeComment[]
+  readerId?: string
   ref?: import('react').Ref<unknown>
-  renderNonce?: number
   serifFontFamily: string
   site?: { ownerAvatar?: string | null; ownerName?: string | null }
   theme: 'dark' | 'light'
@@ -126,47 +126,45 @@ interface RichBodyProps {
   webUrl: string
 }
 
-let primed: (RichBodyPrime & { seq: number }) | null = null
-let primeSeq = 0
-const primeListeners = new Set<() => void>()
+let preparedContent: ReaderContent | null = null
+const readerListeners = new Set<() => void>()
 
-function notifyPrime() {
-  for (const listener of primeListeners) listener()
+function notifyReader() {
+  for (const listener of readerListeners) listener()
 }
 
-function subscribePrime(listener: () => void) {
-  primeListeners.add(listener)
+function subscribeReader(listener: () => void) {
+  readerListeners.add(listener)
   return () => {
-    primeListeners.delete(listener)
+    readerListeners.delete(listener)
   }
 }
 
-function readPrime() {
-  return primed
+function readPreparedContent() {
+  return preparedContent
 }
 
-// Props are the source of truth once the host has caught up; keeping the primed
-// copy past that would pin the body to whatever was in SQLite at tap time and
-// hide the detail screen's network refresh.
-function dropSupersededPrime(content: string, key: string | undefined) {
-  if (primed === null) return
-  if (primed.content === content && primed.key === key) return
-  primed = null
-  notifyPrime()
+function postBridgeMessage(message: object) {
+  try {
+    ;(
+      window as unknown as {
+        ReactNativeWebView?: { postMessage: (data: string) => void }
+      }
+    ).ReactNativeWebView?.postMessage(JSON.stringify(message))
+  } catch {}
 }
 
-// The pool injects both of these while the webview sits unmounted between
-// screens, so they have to exist from module evaluation — registering them from
-// an effect would miss every instance primed or reset before React commits.
 const domGlobal = window as unknown as {
-  __yohakuPrime?: (json: string) => boolean
+  __yohakuAttachReader?: () => void
   __yohakuRequestBlockComment?: () => void
   __yohakuRequestSelectionComment?: () => void
-  __yohakuReset?: () => void
+  __yohakuSetReaderContent?: (json: string) => boolean
 }
 
 let requestSelectionCommentImpl: (() => void) | null = null
 let requestBlockCommentImpl: (() => void) | null = null
+let reportReaderLayoutImpl: (() => void) | null = null
+let renderedReaderId: string | null = null
 
 function postMissingSelectionHandler(type: string) {
   try {
@@ -187,29 +185,36 @@ domGlobal.__yohakuRequestBlockComment = () => {
   else postMissingSelectionHandler('yohaku:selection-block-invalid')
 }
 
-domGlobal.__yohakuPrime = (json) => {
-  let payload: RichBodyPrime
+domGlobal.__yohakuSetReaderContent = (json) => {
+  let payload: ReaderContent
   try {
-    payload = JSON.parse(json) as RichBodyPrime
+    payload = JSON.parse(json) as ReaderContent
   } catch {
     return false
   }
-  if (primeListeners.size === 0) return false
-  primeSeq += 1
-  primed = { ...payload, seq: primeSeq }
-  notifyPrime()
+  if (
+    !payload ||
+    typeof payload !== 'object' ||
+    typeof payload.content !== 'string' ||
+    typeof payload.id !== 'string' ||
+    (payload.variant !== 'article' && payload.variant !== 'note') ||
+    typeof payload.webUrl !== 'string'
+  ) {
+    return false
+  }
+  preparedContent = payload
+  notifyReader()
   return true
 }
 
-// Dropping the prime is what makes the reset a real reset: the pool hands this
-// instance to a screen that may render before its own props arrive, and a
-// surviving prime would show it the article the previous reader was on. It
-// deliberately does not notify — the subscribers re-run their report effect,
-// which un-hides the body this just hid; the store is re-read by the render the
-// adopting screen's props cause, which is exactly when the drop should land.
-domGlobal.__yohakuReset = () => {
-  document.body.style.visibility = 'hidden'
-  primed = null
+domGlobal.__yohakuAttachReader = () => {
+  postBridgeMessage({ type: '$$dom_ready', data: null })
+  requestAnimationFrame(() => {
+    if (renderedReaderId) {
+      postBridgeMessage({ type: 'yohaku:reader-ready', data: renderedReaderId })
+    }
+    reportReaderLayoutImpl?.()
+  })
 }
 
 const RichContent = createYohakuLexicalRenderer()
@@ -217,8 +222,8 @@ const RichContent = createYohakuLexicalRenderer()
 // Props cross the DOM bridge freshly deserialized on every update, and expo
 // marshals callbacks through a Proxy that mints a new function per property
 // read — so object and function identities churn even when nothing changed.
-// Content arrives twice per open (prime, then `$$props`); comparing these by
-// identity would redo the whole article on the second, identical arrival.
+// Prepared content and the host's later props are often identical; comparing
+// these by identity would redo the whole article on the second arrival.
 function useLatestRef<T>(value: T) {
   const ref = useRef(value)
   useEffect(() => {
@@ -279,10 +284,9 @@ export default function RichBody({
   highlightBlockId = null,
   labels,
   locale,
-  primeKey,
+  readerId,
   blockComments,
   rangeComments,
-  renderNonce = 0,
   serifFontFamily,
   site,
   theme,
@@ -297,18 +301,28 @@ export default function RichBody({
   webUrl,
 }: RichBodyProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const prime = useSyncExternalStore(subscribePrime, readPrime)
+  const prepared = useSyncExternalStore(subscribeReader, readPreparedContent)
+  const activePrepared = activePreparedContent(prepared, readerId, content)
 
   useEffect(() => {
-    dropSupersededPrime(content, primeKey)
-  }, [content, primeKey, variant, webUrl])
+    if (!prepared || activePrepared) return
+    preparedContent = null
+    notifyReader()
+  }, [activePrepared, prepared])
 
-  const bodyContent = prime?.content ?? content
+  const bodyContent = activePrepared?.content ?? content
+  const bodyReaderId = activePrepared?.id ?? readerId
   const bodyEnrichments = useStableEnrichments(
-    prime?.enrichments ?? enrichments,
+    activePrepared?.enrichments ?? enrichments,
   )
-  const bodyVariant = prime?.variant ?? variant
-  const bodyWebUrl = prime?.webUrl ?? webUrl
+  const bodyVariant = activePrepared?.variant ?? variant
+  const bodyWebUrl = activePrepared?.webUrl ?? webUrl
+
+  useEffect(() => {
+    if (!bodyReaderId) return
+    renderedReaderId = bodyReaderId
+    postBridgeMessage({ type: 'yohaku:reader-ready', data: bodyReaderId })
+  }, [bodyContent, bodyReaderId])
 
   const handlersRef = useLatestRef({
     onImagePress,
@@ -345,23 +359,8 @@ export default function RichBody({
   }, [])
 
   useEffect(() => {
-    document.body.style.visibility = ''
-
-    // Looked up per call and guarded: adoption swaps the native message handler
-    // out and back in, and a post landing in that window throws instead of
-    // returning — without the guard one throw would abort the whole sequence.
-    const post = (message: object) => {
-      try {
-        ;(
-          window as unknown as {
-            ReactNativeWebView?: { postMessage: (data: string) => void }
-          }
-        ).ReactNativeWebView?.postMessage(JSON.stringify(message))
-      } catch {}
-    }
-
     const postAnchors = () => {
-      post({
+      postBridgeMessage({
         type: 'yohaku:anchors',
         data: Object.fromEntries(
           [...document.querySelectorAll<HTMLElement>('[id]')].map((el) => [
@@ -372,7 +371,7 @@ export default function RichBody({
       })
       const root = document.querySelector('.rich-content')
       if (!root) return
-      post({
+      postBridgeMessage({
         type: 'yohaku:blocks',
         data: [...root.children].map((node) => {
           const el = node as HTMLElement
@@ -385,16 +384,8 @@ export default function RichBody({
       })
     }
 
-    // An adopted webview re-rendering identical content never fires the
-    // body ResizeObserver, so the fresh mount's matchContents height stays 0.
-    // Re-report the size alongside the rendered signal — two frames later, so
-    // the measurement reflects layout at the adopting container's frame
-    // rather than the pooled instance's stale one.
-    let reported = false
     const report = () => {
-      if (reported) return
-      reported = true
-      post({
+      postBridgeMessage({
         type: '$$match_contents_event',
         data: {
           width: document.body.clientWidth,
@@ -402,18 +393,13 @@ export default function RichBody({
         },
       })
       postAnchors()
-      post({ type: 'yohaku:rendered', length: bodyContent.length })
     }
+    reportReaderLayoutImpl = report
 
-    // A webview waiting in the pool is detached from the view hierarchy, and
-    // WebKit stops servicing rAF there — a click-time prime would render and
-    // then never report. Reading `clientHeight` forces layout on demand, so the
-    // timer path measures the same thing the frame path would.
     let raf2 = 0
     const raf1 = requestAnimationFrame(() => {
       raf2 = requestAnimationFrame(report)
     })
-    const detachedTimer = setTimeout(report, 60)
 
     // Images, mermaid/excalidraw canvases, and every fetchJSON-backed block
     // (poll/stock/afilmory/dynamic) settle after the rAF snapshot above and
@@ -421,21 +407,18 @@ export default function RichBody({
     let resizeTimer: ReturnType<typeof setTimeout> | undefined
     const resizeObserver = new ResizeObserver(() => {
       clearTimeout(resizeTimer)
-      resizeTimer = setTimeout(postAnchors, 200)
+      resizeTimer = setTimeout(report, 200)
     })
     resizeObserver.observe(document.body)
 
     return () => {
       cancelAnimationFrame(raf1)
       cancelAnimationFrame(raf2)
-      clearTimeout(detachedTimer)
       resizeObserver.disconnect()
       clearTimeout(resizeTimer)
+      if (reportReaderLayoutImpl === report) reportReaderLayoutImpl = null
     }
-    // `seq` keeps a prime that repeats the content already on screen from being
-    // a no-op: the pooled body is hidden, so it still needs the re-report to
-    // become visible and to hand the adopting view its height.
-  }, [bodyContent, prime?.seq, renderNonce])
+  }, [bodyContent])
 
   useEffect(() => {
     const apply = () => {
@@ -453,7 +436,7 @@ export default function RichBody({
     apply()
     const timer = window.setTimeout(apply, 80)
     return () => window.clearTimeout(timer)
-  }, [bodyContent, highlightBlockId, renderNonce])
+  }, [bodyContent, highlightBlockId])
 
   const rangeCommentsKey = JSON.stringify(rangeComments ?? null)
   const stableRangeComments = useMemo(
@@ -658,7 +641,11 @@ export default function RichBody({
         fileCard: (props) =>
           printDocument ? (
             <p className="print-block-fallback">
-              {printBlockFallback('file', { name: props.name }, locale as Locale)}
+              {printBlockFallback(
+                'file',
+                { name: props.name },
+                locale as Locale,
+              )}
             </p>
           ) : (
             <MobileFileCard
@@ -675,7 +662,11 @@ export default function RichBody({
         labels: { nestedDocCollapse, nestedDocExpand, nestedDocLabel },
         nestedDocPresentation: canExpandNestedDoc ? 'modal' : 'inline',
         printCaption: (kind, fields) =>
-          printBlockFallback(kind as PrintBlockKind, fields ?? {}, locale as Locale),
+          printBlockFallback(
+            kind as PrintBlockKind,
+            fields ?? {},
+            locale as Locale,
+          ),
         printMode: Boolean(printDocument),
         onImagePress: handlers.onImagePress,
         onLinkPress: handlers.onLinkPress,
@@ -775,9 +766,8 @@ export default function RichBody({
     [bodyWebUrl, handlers, openInBrowser, theme, unrenderable],
   )
 
-  // Content reaches this component twice per open — once through the prime,
-  // once through expo's `$$props` — and the second arrival usually repeats the
-  // first. Holding the rendered subtree in a memo lets React bail out on it
+  // Prepared content is followed by Expo's live props, usually with the same
+  // values. Holding the rendered subtree in a memo lets React bail out on it
   // when every input compares equal by value, so a repeat costs nothing; a real
   // change (network refresh, another article, a theme flip mid-transition)
   // still invalidates a dependency and re-renders.
@@ -798,7 +788,16 @@ export default function RichBody({
         </HostProvider>
       </BodyErrorBoundary>
     ),
-    [bodyContent, bodyVariant, editorState, host, openInWeb, printDocument, theme, vars],
+    [
+      bodyContent,
+      bodyVariant,
+      editorState,
+      host,
+      openInWeb,
+      printDocument,
+      theme,
+      vars,
+    ],
   )
 
   useEffect(() => {
@@ -839,13 +838,13 @@ export default function RichBody({
 
   return (
     <div
+      ref={containerRef}
+      style={vars}
       className={
         theme === 'dark' && !printDocument
           ? 'rich-body-root dark'
           : 'rich-body-root'
       }
-      ref={containerRef}
-      style={vars}
     >
       <style>{`
         ${buildFontFaceCss(fontFaces)}

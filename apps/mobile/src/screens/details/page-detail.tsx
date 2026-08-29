@@ -23,7 +23,7 @@ import { ArticleBody } from './article-body'
 import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
 import { useArticlePrint } from './article-print-host'
-import { useReservedBodyHeight } from './body-slot'
+import { BodyLoadingIndicator, useReservedBodyHeight } from './body-slot'
 import { useCollapsingTitle } from './use-collapsing-title'
 
 export function PageDetailScreen({ slug }: { slug: string }) {
@@ -139,7 +139,6 @@ export function PageDetailScreen({ slug }: { slug: string }) {
                   <ArticleBody
                     content={body}
                     enrichments={enrichments}
-                    primeKey={page.id}
                     refId={page.id}
                     refType="page"
                     scrollRef={scrollRef}
@@ -147,11 +146,7 @@ export function PageDetailScreen({ slug }: { slug: string }) {
                     webUrl={webUrl}
                   />
                 ) : (
-                  <View style={{ minHeight: reservedBodyHeight }}>
-                    <AppText style={styles.placeholder} variant="secondary">
-                      {t('bodyLoading')}
-                    </AppText>
-                  </View>
+                  <BodyLoadingIndicator minHeight={reservedBodyHeight} />
                 )}
                 <CommentSection refId={page.id} refType="page" />
               </>,
