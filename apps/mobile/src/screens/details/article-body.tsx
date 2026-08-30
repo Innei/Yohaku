@@ -24,6 +24,7 @@ import Animated, {
 
 import { apiBaseUrl } from '@/api/base-url'
 import type { ApiEnrichment, CommentRefType } from '@/api/types'
+import { isPreparedReader } from '@/components/dom/prepare-reader'
 import type {
   RichBodyImagePress,
   RichBodyNestedDocExpand,
@@ -44,6 +45,10 @@ import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 import { useWebviewFontFaces } from '@/theme/webview-fonts'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
+import {
+  BODY_LOADING_DELAY_MS,
+  bodyRevealMotion,
+} from './body-reveal'
 import { BodyLoadingIndicator, useReservedBodyHeight } from './body-slot'
 import { useArticleSelection } from './use-article-selection'
 
@@ -87,8 +92,11 @@ export function ArticleBody({
   const anchorOffsetsRef = useRef<Record<string, number>>({})
   const blockRectsRef = useRef<Array<{ height: number; y: number }>>([])
   const bodyTopRef = useRef(0)
-  const revealedRef = useRef(false)
-  const [ready, setReady] = useState(false)
+  const prepared = isPreparedReader(refId)
+  const revealedRef = useRef(prepared)
+  const mountedAtRef = useRef(Date.now())
+  const [ready, setReady] = useState(prepared)
+  const [showLoading, setShowLoading] = useState(false)
   const [slotTop, setSlotTop] = useState<number | null>(null)
   const [nestedDoc, setNestedDoc] = useState<RichBodyNestedDocExpand | null>(
     null,
@@ -103,13 +111,10 @@ export function ArticleBody({
     selectionSheet,
     threadRoots,
   } = useArticleSelection(refId, queriesEnabled)
-  const reveal = useSharedValue(0)
+  const reveal = useSharedValue(prepared ? 1 : 0)
   const labels = useRichBodyLabels()
   const reservedHeight = useReservedBodyHeight(slotTop)
   const bodyStyle = useAnimatedStyle(() => ({ opacity: reveal.value }))
-  const loadingStyle = useAnimatedStyle(() => ({
-    opacity: 1 - reveal.value,
-  }))
 
   const handleImagePress = async ({
     images,
@@ -170,6 +175,12 @@ export function ArticleBody({
     [scrollToBlock],
   )
 
+  useEffect(() => {
+    if (ready) return
+    const timer = setTimeout(() => setShowLoading(true), BODY_LOADING_DELAY_MS)
+    return () => clearTimeout(timer)
+  }, [ready])
+
   const handleMessage = (event: { nativeEvent: { data: string } }) => {
     let payload: {
       anchor?: unknown
@@ -188,12 +199,19 @@ export function ArticleBody({
       if (payload.data !== refId || revealedRef.current) return
       revealedRef.current = true
       setReady(true)
-      reveal.set(
-        withTiming(1, {
-          ...timings.fade,
-          reduceMotion: ReduceMotion.System,
-        }),
-      )
+      setShowLoading(false)
+      if (
+        bodyRevealMotion(Date.now() - mountedAtRef.current) === 'instant'
+      ) {
+        reveal.set(1)
+      } else {
+        reveal.set(
+          withTiming(1, {
+            ...timings.fade,
+            reduceMotion: ReduceMotion.System,
+          }),
+        )
+      }
       return
     }
     if (payload.type === 'yohaku:gesture-lock') {
@@ -231,14 +249,16 @@ export function ArticleBody({
         setSlotTop(y)
       }}
     >
-      <Animated.View
-        accessibilityElementsHidden={ready}
-        importantForAccessibility={ready ? 'no-hide-descendants' : 'auto'}
-        pointerEvents="none"
-        style={[styles.loading, loadingStyle]}
-      >
-        <BodyLoadingIndicator minHeight={reservedHeight} />
-      </Animated.View>
+      {showLoading ? (
+        <View
+          accessibilityElementsHidden={ready}
+          importantForAccessibility={ready ? 'no-hide-descendants' : 'auto'}
+          pointerEvents="none"
+          style={styles.loading}
+        >
+          <BodyLoadingIndicator minHeight={reservedHeight} />
+        </View>
+      ) : null}
       <Animated.View style={[styles.bodyBleed, bodyStyle]}>
         <RichBody
           activeCommentAnchor={selectionSheet?.anchor ?? null}

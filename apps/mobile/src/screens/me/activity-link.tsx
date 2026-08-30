@@ -22,14 +22,19 @@ type LinkPressEvent =
 export function openActivityHref(
   target: ActivityHref,
   router: { push: (href: Href) => void },
-  prepare?: () => void,
+  prepare?: () => void | Promise<unknown>,
 ) {
   if (target.browser && target.webUrl) {
     void WebBrowser.openBrowserAsync(target.webUrl)
     return
   }
-  prepare?.()
-  router.push(target.href)
+  const href = target.href
+  const result = prepare?.()
+  if (result) {
+    void Promise.resolve(result).finally(() => router.push(href))
+    return
+  }
+  router.push(href)
 }
 
 export function prepareActivityBody(
@@ -38,7 +43,7 @@ export function prepareActivityBody(
 ) {
   if (item.kind === 'post') {
     if (item.post.contentFormat === 'lexical' && item.post.content) {
-      prepareArticleBody({
+      return prepareArticleBody({
         content: item.post.content,
         enrichments: item.post.enrichments ?? undefined,
         id: item.post.id,
@@ -50,7 +55,7 @@ export function prepareActivityBody(
   }
   if (item.kind !== 'note') return
   if (item.note.contentFormat === 'lexical' && item.note.content) {
-    prepareArticleBody({
+    return prepareArticleBody({
       content: item.note.content,
       enrichments: item.note.enrichments ?? undefined,
       id: item.note.id,

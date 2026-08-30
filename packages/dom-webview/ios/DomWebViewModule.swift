@@ -23,10 +23,8 @@ public final class DomWebViewModule: Module {
       }
     }
 
-    Function("setReaderContent") { (payload: String) in
-      DispatchQueue.main.async {
-        SharedReaderWebView.shared.setContent(payload)
-      }
+    AsyncFunction("setReaderContent") { (payload: String) -> Bool in
+      await SharedReaderWebView.shared.setContentAndWait(payload)
     }
 
     AsyncFunction("presentImagePreview") { (payload: ImagePreviewPayload) in

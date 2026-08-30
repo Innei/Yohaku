@@ -73,7 +73,7 @@ extension WKWebViewConfiguration {
 // One article renderer stays alive and moves between detail-screen hosts. This
 // is deliberately not a pool: the reader has one owner, one document and only
 // the newest content waiting to be delivered.
-final class SharedReaderWebView: NSObject, WKNavigationDelegate {
+final class SharedReaderWebView: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
   static let shared = SharedReaderWebView()
 
   private weak var owner: DomWebView?
@@ -83,6 +83,17 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate {
   // `$$dom_ready` makes JavaScript injection safe.
   private var ready = false
   private var pendingContent: String?
+  private var renderedReaderId: String?
+  private var waitReaderId: String?
+  private var contentWaiter: CheckedContinuation<Bool, Never>?
+  private var waitTimeout: DispatchWorkItem?
+  private let parkingHost = UIView()
+  private var parkingHandler: WeakScriptMessageHandler?
+
+  var hasInstance: Bool {
+    dispatchPrecondition(condition: .onQueue(.main))
+    return webView != nil
+  }
 
   func take(for owner: DomWebView, sourceURL: URL) -> (webView: DomWKWebView, ready: Bool)? {
     dispatchPrecondition(condition: .onQueue(.main))
@@ -93,10 +104,14 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate {
     }
 
     if let previousOwner = self.owner, previousOwner !== owner {
+      if Self.isForegroundHost(previousOwner), !Self.isForegroundHost(owner) {
+        return nil
+      }
       previousOwner.releaseSharedWebView(webView)
     }
     self.owner = owner
     webView.removeFromSuperview()
+    parkingHost.removeFromSuperview()
     webView.navigationDelegate = owner
     return (webView, ready)
   }
@@ -114,19 +129,13 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate {
     dispatchPrecondition(condition: .onQueue(.main))
     guard self.webView === webView, self.owner === owner else { return }
     self.owner = nil
-    webView.removeFromSuperview()
-    webView.uiDelegate = nil
-    webView.navigationDelegate = self
-    webView.scrollView.delegate = nil
+    park(webView)
   }
 
   func detachOrphaned(_ webView: DomWKWebView) {
     dispatchPrecondition(condition: .onQueue(.main))
     guard self.webView === webView, owner == nil else { return }
-    webView.removeFromSuperview()
-    webView.uiDelegate = nil
-    webView.navigationDelegate = self
-    webView.scrollView.delegate = nil
+    park(webView)
   }
 
   func matches(_ webView: DomWKWebView, sourceURL: URL) -> Bool {
@@ -137,11 +146,13 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate {
     guard self.webView === webView else { return }
     self.sourceURL = sourceURL
     ready = false
+    renderedReaderId = nil
   }
 
   func willReload(_ webView: WKWebView) {
     guard self.webView === webView else { return }
     ready = false
+    renderedReaderId = nil
   }
 
   func didBecomeReady(_ webView: WKWebView) {
@@ -150,9 +161,17 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate {
     flushContent()
   }
 
+  func didRender(_ readerId: String?) {
+    renderedReaderId = readerId
+    if let waitReaderId, waitReaderId == readerId {
+      finishWait(true)
+    }
+  }
+
   func didTerminate(_ webView: WKWebView) {
     guard self.webView === webView else { return }
     ready = false
+    renderedReaderId = nil
     if owner == nil {
       discard()
     }
@@ -161,7 +180,21 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate {
   func setContent(_ payload: String) {
     dispatchPrecondition(condition: .onQueue(.main))
     pendingContent = payload
+    layoutParked()
     flushContent()
+  }
+
+  func setContentAndWait(_ payload: String) async -> Bool {
+    await withCheckedContinuation { continuation in
+      let begin = {
+        self.beginContentWait(payload, continuation: continuation)
+      }
+      if Thread.isMainThread {
+        begin()
+      } else {
+        DispatchQueue.main.async(execute: begin)
+      }
+    }
   }
 
   func reset() {
@@ -174,12 +207,69 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate {
     didTerminate(webView)
   }
 
+  func userContentController(
+    _ userContentController: WKUserContentController,
+    didReceive message: WKScriptMessage
+  ) {
+    guard message.name == DomWebView.POST_MESSAGE_HANDLER_NAME,
+      let body = message.body as? String else {
+      return
+    }
+    Self.dispatchBridgeMessage(body, from: message.webView)
+  }
+
+  static func dispatchBridgeMessage(_ body: String, from webView: WKWebView?) {
+    guard let data = body.data(using: .utf8),
+      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+      let type = json["type"] as? String else {
+      return
+    }
+    if type == "$$dom_ready", let webView {
+      shared.didBecomeReady(webView)
+    }
+    if type == "yohaku:reader-ready" {
+      shared.didRender(json["data"] as? String)
+    }
+  }
+
   static func urlsMatch(_ lhs: URL?, _ rhs: URL) -> Bool {
     guard let lhs else { return false }
     if lhs.absoluteURL == rhs.absoluteURL { return true }
     guard lhs.isFileURL, rhs.isFileURL else { return false }
     return lhs.standardizedFileURL.resolvingSymlinksInPath().path
       == rhs.standardizedFileURL.resolvingSymlinksInPath().path
+  }
+
+  private func beginContentWait(
+    _ payload: String,
+    continuation: CheckedContinuation<Bool, Never>
+  ) {
+    dispatchPrecondition(condition: .onQueue(.main))
+    finishWait(false)
+    pendingContent = payload
+    waitReaderId = Self.readerId(from: payload)
+    contentWaiter = continuation
+    layoutParked()
+    if ready, let waitReaderId, renderedReaderId == waitReaderId {
+      finishWait(true)
+      flushContent()
+      return
+    }
+    flushContent()
+    let timeout = DispatchWorkItem { [weak self] in
+      self?.finishWait(false)
+    }
+    waitTimeout = timeout
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: timeout)
+  }
+
+  private func finishWait(_ value: Bool) {
+    waitTimeout?.cancel()
+    waitTimeout = nil
+    waitReaderId = nil
+    guard let waiter = contentWaiter else { return }
+    contentWaiter = nil
+    waiter.resume(returning: value)
   }
 
   private func flushContent() {
@@ -197,7 +287,40 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate {
     }
   }
 
+  private func park(_ webView: DomWKWebView) {
+    webView.uiDelegate = nil
+    webView.navigationDelegate = self
+    webView.scrollView.delegate = nil
+    webView.scrollView.isScrollEnabled = false
+    bindParkingHandler(webView)
+    layoutParked(webView)
+  }
+
+  private func layoutParked(_ parked: DomWKWebView? = nil) {
+    guard let webView = parked ?? (owner == nil ? webView : nil) else { return }
+    let size = Self.viewportSize()
+    parkingHost.frame = CGRect(x: -size.width, y: 0, width: size.width, height: size.height)
+    parkingHost.isUserInteractionEnabled = false
+    webView.frame = parkingHost.bounds
+    if webView.superview !== parkingHost {
+      parkingHost.addSubview(webView)
+    }
+    if parkingHost.superview == nil, let window = Self.keyWindow() {
+      window.insertSubview(parkingHost, at: 0)
+    }
+    parkingHost.layoutIfNeeded()
+  }
+
+  private func bindParkingHandler(_ webView: DomWKWebView) {
+    let userContentController = webView.configuration.userContentController
+    userContentController.removeAllScriptMessageHandlers()
+    let handler = WeakScriptMessageHandler(delegate: self)
+    parkingHandler = handler
+    userContentController.add(handler, name: DomWebView.POST_MESSAGE_HANDLER_NAME)
+  }
+
   private func discard() {
+    finishWait(false)
     if let webView {
       owner?.releaseSharedWebView(webView)
       webView.stopLoading()
@@ -207,10 +330,39 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate {
       webView.scrollView.delegate = nil
       webView.configuration.userContentController.removeAllScriptMessageHandlers()
     }
+    parkingHost.removeFromSuperview()
+    parkingHandler = nil
     owner = nil
     webView = nil
     sourceURL = nil
     ready = false
+    renderedReaderId = nil
+  }
+
+  private static func readerId(from payload: String) -> String? {
+    guard let data = payload.data(using: .utf8),
+      let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+      return nil
+    }
+    return json["id"] as? String
+  }
+
+  private static func viewportSize() -> CGSize {
+    let window = keyWindow()
+    let size = window?.bounds.size ?? UIScreen.main.bounds.size
+    return CGSize(width: max(size.width, 1), height: max(size.height, 1))
+  }
+
+  private static func isForegroundHost(_ view: DomWebView) -> Bool {
+    guard view.window != nil, view.bounds.width > 1 else { return false }
+    return view.convert(view.bounds, to: nil).minX >= -0.5
+  }
+
+  private static func keyWindow() -> UIWindow? {
+    let windows = UIApplication.shared.connectedScenes
+      .compactMap { $0 as? UIWindowScene }
+      .flatMap(\.windows)
+    return windows.first(where: \.isKeyWindow) ?? windows.first
   }
 
   private static func jsStringLiteral(_ value: String) -> String? {
@@ -693,15 +845,8 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
 
   func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
     if message.name == Self.POST_MESSAGE_HANDLER_NAME {
-      if shared,
-        message.frameInfo.isMainFrame,
-        let body = message.body as? String,
-        let data = body.data(using: .utf8),
-        let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-        json["type"] as? String == "$$dom_ready",
-        let sourceWebView = message.webView
-      {
-        SharedReaderWebView.shared.didBecomeReady(sourceWebView)
+      if shared, message.frameInfo.isMainFrame, let body = message.body as? String {
+        SharedReaderWebView.dispatchBridgeMessage(body, from: message.webView)
       }
       if message.frameInfo.isMainFrame,
         let sourceWebView = message.webView,
@@ -732,6 +877,9 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
       : nil
     let retained = sharedSourceURL.flatMap {
       SharedReaderWebView.shared.take(for: self, sourceURL: $0)
+    }
+    if retained == nil, shared, SharedReaderWebView.shared.hasInstance {
+      return
     }
 
     let webView: DomWKWebView

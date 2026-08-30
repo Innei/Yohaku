@@ -86,7 +86,7 @@ function LikedRow({
 
   const open = () =>
     openActivityHref(target, router, () => {
-      if (target.webUrl) prepareActivityBody(item, target.webUrl)
+      if (target.webUrl) return prepareActivityBody(item, target.webUrl)
     })
 
   return (

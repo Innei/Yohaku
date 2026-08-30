@@ -19,9 +19,10 @@ that catches a resolution regression.
 - `ios/DomWebView.swift`: `SharedReaderWebView` retains one article
   `DomWKWebView` and moves it between detail-screen hosts. The `shared` prop is
   opt-in, so print, nested documents, and other DOM components remain isolated.
-- `ios/DomWebViewModule.swift`: `setReaderContent` sends the newest tapped
-  article to that live document before navigation. There is no pool, backfill,
-  replay log, warm scan, expiry state, or generic injection retry queue.
+- `ios/DomWebViewModule.swift`: `setReaderContent` waits until that article
+  has rendered in the live document (or 1.2s). Detached instances sit in an
+  offscreen, screen-sized parking view so layout is not 0×0. There is no pool,
+  backfill, replay log, or generic injection retry queue.
 - `ios/DomWebView.swift`: `resetupScripts()` re-registers the script message
   handler only when ownership changes. A reused document asks Expo's SDK 57 DOM
   wrapper to resend current props through its existing `$$dom_ready` contract.

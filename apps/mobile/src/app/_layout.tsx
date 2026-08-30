@@ -13,6 +13,7 @@ import { LogBox, StyleSheet, useColorScheme, View } from 'react-native'
 
 import { refreshSession } from '@/auth/session'
 import { useSession } from '@/auth/session-store'
+import { ReaderWarmer } from '@/components/dom/reader-warmer'
 import { RouteRestorationHost } from '@/components/navigation/route-restoration-host'
 import { getStackScreenOptions } from '@/components/navigation/stack-screen-options'
 import { SplashOverlay } from '@/components/splash/splash-overlay'
@@ -115,6 +116,7 @@ export default function RootLayout() {
 
   return (
     <View style={[styles.root, { backgroundColor: palette.surface.desk }]}>
+      <ReaderWarmer />
       {failed ? (
         <Desk style={styles.dbError}>
           <AppText variant="secondary">{t('dbInitFailed')}</AppText>
