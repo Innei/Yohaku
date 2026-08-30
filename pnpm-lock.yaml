@@ -192,8 +192,8 @@ importers:
         specifier: 0.10.1
         version: 0.10.1(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.2.18)(react@19.2.3))(react@19.2.3)
       react-tweet:
-        specifier: npm:@innei/react-tweet@3.4.3
-        version: '@innei/react-tweet@3.4.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)'
+        specifier: npm:@innei/react-tweet@3.4.4
+        version: '@innei/react-tweet@3.4.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)'
       shiki:
         specifier: 4.4.3
         version: 4.4.3
@@ -381,8 +381,8 @@ importers:
         specifier: 19.2.3
         version: 19.2.3(react@19.2.3)
       react-tweet:
-        specifier: npm:@innei/react-tweet@3.4.3
-        version: '@innei/react-tweet@3.4.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)'
+        specifier: npm:@innei/react-tweet@3.4.4
+        version: '@innei/react-tweet@3.4.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)'
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -2257,6 +2257,12 @@ packages:
 
   '@innei/react-tweet@3.4.3':
     resolution: {integrity: sha512-qX+dg+x6KyCBl358LxJPdCKpJtYpBiNFreMDLnyqajSgOA26hmBm7UqdTM7bnaOXeEPTD/rzmQvVikg7rVS3hw==}
+    peerDependencies:
+      react: 19.2.3
+      react-dom: 19.2.3
+
+  '@innei/react-tweet@3.4.4':
+    resolution: {integrity: sha512-JT6+FHB5JBBnFUqduYXn5gEc9UX81d5xDdFcDMUTeKq8Hjt+X0r2Ecpx6SvjvzByVXAv+0N46fKHxuTo4YSneQ==}
     peerDependencies:
       react: 19.2.3
       react-dom: 19.2.3
@@ -9902,6 +9908,14 @@ snapshots:
       react: 19.2.3
 
   '@innei/react-tweet@3.4.3(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      clsx: 2.1.1
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      swr: 2.5.1(react@19.2.3)
+
+  '@innei/react-tweet@3.4.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@swc/helpers': 0.5.23
       clsx: 2.1.1

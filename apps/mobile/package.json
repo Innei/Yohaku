@@ -87,7 +87,7 @@
     "react-native-screens": "~4.26.0",
     "react-native-web": "^0.21.2",
     "react-native-worklets": "0.10.1",
-    "react-tweet": "npm:@innei/react-tweet@3.4.3",
+    "react-tweet": "npm:@innei/react-tweet@3.4.4",
     "shiki": "4.4.3"
   },
   "devDependencies": {
