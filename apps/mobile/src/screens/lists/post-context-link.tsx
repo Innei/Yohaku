@@ -3,13 +3,13 @@ import * as WebBrowser from 'expo-web-browser'
 import { type MouseEvent as ReactMouseEvent, useCallback, useMemo } from 'react'
 import type { GestureResponderEvent } from 'react-native'
 
-import type { PostRow } from '@/db/schema'
 import { useTranslations } from '@/i18n'
 import { copyUrl } from '@/lib/copy-url'
 import { openPost } from '@/lib/open-article'
 import { shareUrl } from '@/lib/share'
 import { siteHref } from '@/lib/site-url'
 
+import type { PostListRow } from './post-list'
 import {
   PostFeaturedSheet,
   PostFeaturedTrigger,
@@ -26,7 +26,7 @@ export function PostContextLink({
   post,
 }: {
   featured?: boolean
-  post: PostRow
+  post: PostListRow
 }) {
   const router = useRouter()
   const t = useTranslations('common')
@@ -67,12 +67,15 @@ export function PostContextLink({
       params: { slug: categorySlug },
     })
   }, [categorySlug, router])
-  const openTag = useCallback((tag: string) => {
-    router.push({
-      pathname: '/posts/tag/[name]',
-      params: { name: tag },
-    })
-  }, [router])
+  const openTag = useCallback(
+    (tag: string) => {
+      router.push({
+        pathname: '/posts/tag/[name]',
+        params: { name: tag },
+      })
+    },
+    [router],
+  )
 
   const hit = (
     <PostRowPressable

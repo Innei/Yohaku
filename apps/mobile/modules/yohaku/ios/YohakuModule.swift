@@ -296,6 +296,43 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuListView.self) {
+      ViewName("YohakuList")
+
+      Events(
+        "onEndReached",
+        "onItemPress",
+        "onLinkPress",
+        "onRefresh",
+        "onScroll",
+        "onVisibleItems"
+      )
+
+      Prop("items") { (view: YohakuListView, items: [YohakuListItemSpec]) in
+        view.setItems(items)
+      }
+
+      Prop("contentInsetTop") { (view: YohakuListView, value: Double) in
+        view.setContentInsetTop(value)
+      }
+
+      Prop("contentInsetBottom") { (view: YohakuListView, value: Double) in
+        view.setContentInsetBottom(value)
+      }
+
+      Prop("refreshing") { (view: YohakuListView, refreshing: Bool) in
+        view.setRefreshing(refreshing)
+      }
+    }
+
+    View(YohakuListCellView.self) {
+      ViewName("YohakuListCell")
+
+      Prop("itemId") { (view: YohakuListCellView, id: String) in
+        view.setItemId(id)
+      }
+    }
+
     View(NativePressView.self) {
       ViewName("NativePress")
 

@@ -229,6 +229,60 @@ type GroupedListViewProps = ViewProps & {
 export const GroupedListView: ComponentType<GroupedListViewProps> =
   requireNativeViewManager('Yohaku', 'GroupedList')
 
+export type YohakuListNativeItem = {
+  categoryName?: string
+  categorySlug?: string
+  date?: string
+  estimatedHeight: number
+  hiddenTagCount?: number
+  id: string
+  tags?: string[]
+  title?: string
+  type: string
+}
+
+export type YohakuListVisibleItem = {
+  id: string
+  type: string
+}
+
+type YohakuListViewProps = ViewProps & {
+  contentInsetBottom?: number
+  contentInsetTop?: number
+  items: YohakuListNativeItem[]
+  onEndReached?: (event: NativeSyntheticEvent<Record<string, never>>) => void
+  onItemPress?: (
+    event: NativeSyntheticEvent<{ id: string; type: string }>,
+  ) => void
+  onLinkPress?: (
+    event: NativeSyntheticEvent<{ kind: string; value: string }>,
+  ) => void
+  onRefresh?: (event: NativeSyntheticEvent<Record<string, never>>) => void
+  onScroll?: (
+    event: NativeSyntheticEvent<{
+      contentInset: { bottom: number; left: number; right: number; top: number }
+      contentOffset: { x: number; y: number }
+      contentSize: { height: number; width: number }
+      layoutMeasurement: { height: number; width: number }
+      zoomScale: number
+    }>,
+  ) => void
+  onVisibleItems?: (
+    event: NativeSyntheticEvent<{ items: YohakuListVisibleItem[] }>,
+  ) => void
+  refreshing?: boolean
+}
+
+export const YohakuListView: ComponentType<YohakuListViewProps> =
+  requireNativeViewManager('Yohaku', 'YohakuList')
+
+type YohakuListCellViewProps = ViewProps & {
+  itemId: string
+}
+
+export const YohakuListCellView: ComponentType<YohakuListCellViewProps> =
+  requireNativeViewManager('Yohaku', 'YohakuListCell')
+
 type NativePressViewProps = ViewProps & {
   disabled: boolean
   haptic: boolean

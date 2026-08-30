@@ -1,16 +1,25 @@
 import { desc } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
+import { YohakuList } from '@/components/list/yohaku-list'
+import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import { AppText } from '@/components/ui'
 import { db } from '@/db'
 import { thinkings } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { formatThinkingClock, thinkingDayLabel } from '@/lib/datetime'
+import { syncAll } from '@/sync/engine'
+import { useSyncStatus } from '@/sync/status'
 import { usePalette } from '@/theme/palette'
 
 import { ListSearchToolbar } from '../search/search-chrome'
+import {
+  flattenThinkingList,
+  THINKING_CHROME_ID,
+  thinkingDayItemId,
+} from './flatten-thinking-list'
 import { ListShell } from './list-shell'
 import { ThinkingActions } from './thinking-actions'
 import { ThinkingBody } from './thinking-body'
@@ -21,58 +30,108 @@ const query = db.select().from(thinkings).orderBy(desc(thinkings.createdAt))
 export function ThinkingListScreen() {
   const { data } = useLiveQuery(query)
   const locale = useLocale()
+  const t = useTranslations('list')
   const tt = useTranslations('tabs')
   const palette = usePalette()
+  const tabBarInset = usePaperTabBarInset()
+  const status = useSyncStatus()
+  const [refreshing, setRefreshing] = useState(false)
   const groups = useMemo(() => groupThinkingsByDay(data ?? []), [data])
+  const itemsById = useMemo(() => {
+    const map = new Map((data ?? []).map((item) => [item.id, item]))
+    return map
+  }, [data])
+  const listItems = useMemo(() => flattenThinkingList({ groups }), [groups])
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      await syncAll({ force: true })
+    } finally {
+      setRefreshing(false)
+    }
+  }, [])
+  const isEmpty = !data?.length
 
   return (
-    <>
+    <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <ListSearchToolbar scope="thinking" />
-      <ListShell
-      isEmpty={!data?.length}
-      title={tt('thinking')}
-      titleVariant="largeTitleSans"
-    >
-      <View>
-        {groups.map((group, groupIndex) => (
-          <View
-            key={group.key}
-            style={groupIndex > 0 ? styles.laterDay : undefined}
-          >
-            <AppText style={styles.dayKicker} variant="eyebrow">
-              {thinkingDayLabel(group.items[0].createdAt, locale)}
-            </AppText>
-            {group.items.map((item, itemIndex) => (
+      {isEmpty ? (
+        <ListShell isEmpty title={tt('thinking')} titleVariant="largeTitleSans" />
+      ) : (
+        <YohakuList
+          contentInsetBottom={tabBarInset}
+          items={listItems}
+          refreshing={refreshing}
+          style={styles.screen}
+          renderItem={(item) => {
+            if (item.id === THINKING_CHROME_ID) {
+              return (
+                <View style={styles.header}>
+                  <AppText variant="largeTitleSans">{tt('thinking')}</AppText>
+                  {status === 'error' ? (
+                    <AppText variant="meta">{t('syncFailed')}</AppText>
+                  ) : null}
+                </View>
+              )
+            }
+            if (item.type === 'day') {
+              const group = groups.find(
+                (entry) => thinkingDayItemId(entry.key) === item.id,
+              )
+              if (!group) return null
+              return (
+                <AppText
+                  style={[
+                    styles.dayKicker,
+                    group !== groups[0] ? styles.laterDay : undefined,
+                  ]}
+                  variant="eyebrow"
+                >
+                  {thinkingDayLabel(group.items[0].createdAt, locale)}
+                </AppText>
+              )
+            }
+            const thinking = itemsById.get(item.id)
+            if (!thinking) return null
+            const group = groups.find((entry) =>
+              entry.items.some((row) => row.id === thinking.id),
+            )
+            const follow = group ? group.items[0]?.id !== thinking.id : false
+            return (
               <View
-                key={item.id}
                 style={[
-                  itemIndex > 0 ? styles.followItem : undefined,
-                  itemIndex > 0
-                    ? { borderTopColor: palette.neutral[3] }
-                    : undefined,
+                  follow ? styles.followItem : undefined,
+                  follow ? { borderTopColor: palette.neutral[3] } : undefined,
                 ]}
               >
-                {item.content ? (
+                {thinking.content ? (
                   <ThinkingBody
-                    content={item.content}
-                    enrichments={item.enrichments}
+                    content={thinking.content}
+                    enrichments={thinking.enrichments}
                   />
                 ) : null}
                 <AppText style={styles.clock} variant="meta">
-                  {formatThinkingClock(item.createdAt, locale)}
+                  {formatThinkingClock(thinking.createdAt, locale)}
                 </AppText>
-                <ThinkingActions item={item} />
+                <ThinkingActions item={thinking} />
               </View>
-            ))}
-          </View>
-        ))}
-      </View>
-    </ListShell>
-    </>
+            )
+          }}
+          onRefresh={onRefresh}
+        />
+      )}
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+  header: {
+    gap: 6,
+    paddingBottom: 8,
+  },
   laterDay: {
     marginTop: 28,
   },

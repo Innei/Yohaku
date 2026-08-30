@@ -1,18 +1,28 @@
 import { Stack, useRouter } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { RefreshControl, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import { ApiError } from '@/api/errors'
-import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
+import { YohakuList } from '@/components/list/yohaku-list'
+import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import { AppText } from '@/components/ui'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { openPost } from '@/lib/open-article'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
+import { articleIdsFromVisible } from '@/screens/lists/flatten-posts-list'
 import { ingestTagByName, syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
+import { useListBodyIngest } from '@/sync/use-list-body-ingest'
 import { usePalette } from '@/theme/palette'
 
+import {
+  flattenTaxonomyList,
+  TAXONOMY_CHIPS_ID,
+  TAXONOMY_CHROME_ID,
+  TAXONOMY_EMPTY_ID,
+  yearFromTaxonomyItemId,
+} from './flatten-taxonomy-list'
 import { TaxonomyChips } from './taxonomy-chips'
 import { TaxonomyBackControl } from './taxonomy-chrome'
 import { crossCategoryCounts, taxonomyYearGroups } from './taxonomy-model'
@@ -26,6 +36,7 @@ export function TagDetailScreen({ name }: { name: string }) {
   const tc = useTranslations('common')
   const tl = useTranslations('list')
   const palette = usePalette()
+  const tabBarInset = usePaperTabBarInset()
   const status = useSyncStatus()
   const {
     failed: snapshotFailed,
@@ -38,6 +49,18 @@ export function TagDetailScreen({ name }: { name: string }) {
     tables: ['posts'],
   })
   const tagPosts = snapshot ?? []
+  const [visibleIds, setVisibleIds] = useState<string[] | undefined>(undefined)
+  useListBodyIngest(
+    tagPosts.map((post) => ({
+      id: post.id,
+      kind: 'post' as const,
+      bodyVersion: post.bodyVersion,
+      contentFormat: post.contentFormat,
+      createdAt: post.createdAt,
+      modifiedAt: post.modifiedAt,
+    })),
+    { visibleIds },
+  )
   const { groupByYear, groups } = useMemo(
     () => taxonomyYearGroups(tagPosts),
     [tagPosts],
@@ -73,8 +96,10 @@ export function TagDetailScreen({ name }: { name: string }) {
     }
   }, [attempt, locale, name, updatesEnabled])
 
-  const { headerTitleProgress, headerOptions, onScroll, onTitleLayout } =
-    useCollapsingTitle(name, '')
+  const { headerOptions, onNativeScroll, onTitleLayout } = useCollapsingTitle(
+    name,
+    '',
+  )
   const [refreshing, setRefreshing] = useState(false)
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -85,95 +110,125 @@ export function TagDetailScreen({ name }: { name: string }) {
     }
   }, [])
 
+  const postsById = useMemo(() => {
+    const map = new Map(tagPosts.map((post) => [post.id, post]))
+    return map
+  }, [tagPosts])
   const isEmpty = tagPosts.length === 0
   const showMissing = missing && isEmpty
   const showRetry = (snapshotFailed || refreshFailed) && isEmpty && !missing
+  const listItems = useMemo(
+    () =>
+      flattenTaxonomyList({
+        featuredId: null,
+        groupByYear,
+        groups,
+        showChips: cross >= 2,
+        showEmpty: isEmpty && !showMissing && !showRetry,
+      }),
+    [cross, groupByYear, groups, isEmpty, showMissing, showRetry],
+  )
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <Stack.Screen options={headerOptions} />
       <TaxonomyBackControl />
-      <EdgeEffectScrollView
-        contentContainerStyle={styles.content}
-        headerTitleProgress={headerTitleProgress}
-        scrollEventThrottle={16}
-        style={styles.screen}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        onScroll={onScroll}
-      >
-        {showRetry ? (
-          <AppText
-            style={styles.center}
-            variant="secondary"
-            onPress={() => {
-              void reloadSnapshot()
-              setAttempt((value) => value + 1)
-            }}
-          >
-            {tc('retry')}
-          </AppText>
-        ) : null}
-        {showMissing ? (
-          <AppText style={styles.center} variant="secondary">
-            {t('tagMissing')}
-          </AppText>
-        ) : null}
-        {!showMissing && !showRetry ? (
-          <View style={styles.hero} onLayout={onTitleLayout}>
-            <View style={styles.titleRow}>
-              <AppText color={palette.accent} variant="largeTitleSans">
-                #
-              </AppText>
-              <AppText variant="largeTitleSans">{name}</AppText>
-            </View>
-            <AppText variant="meta">{subtitle}</AppText>
-          </View>
-        ) : null}
-        {(status === 'error' || refreshFailed) && !isEmpty ? (
-          <AppText variant="meta">{tl('syncFailed')}</AppText>
-        ) : null}
-        {isEmpty && !showMissing && !showRetry ? (
-          <AppText style={styles.center} variant="secondary">
-            {t('tagEmpty')}
-          </AppText>
-        ) : null}
-        {groups.map((group, index) => (
-          <View key={group.year} style={index > 0 ? styles.later : undefined}>
-            <TaxonomyYearHead
-              count={group.items.length}
-              visible={groupByYear}
-              year={group.year}
-            />
-            {group.items.map((post) => (
+      {showRetry ? (
+        <AppText
+          style={styles.center}
+          variant="secondary"
+          onPress={() => {
+            void reloadSnapshot()
+            setAttempt((value) => value + 1)
+          }}
+        >
+          {tc('retry')}
+        </AppText>
+      ) : null}
+      {showMissing ? (
+        <AppText style={styles.center} variant="secondary">
+          {t('tagMissing')}
+        </AppText>
+      ) : null}
+      {!showMissing && !showRetry ? (
+        <YohakuList
+          contentInsetBottom={tabBarInset}
+          items={listItems}
+          refreshing={refreshing}
+          style={styles.screen}
+          renderItem={(item) => {
+            if (item.id === TAXONOMY_CHROME_ID) {
+              return (
+                <View style={styles.hero} onLayout={onTitleLayout}>
+                  <View style={styles.titleRow}>
+                    <AppText color={palette.accent} variant="largeTitleSans">
+                      #
+                    </AppText>
+                    <AppText variant="largeTitleSans">{name}</AppText>
+                  </View>
+                  <AppText variant="meta">{subtitle}</AppText>
+                  {(status === 'error' || refreshFailed) && !isEmpty ? (
+                    <AppText variant="meta">{tl('syncFailed')}</AppText>
+                  ) : null}
+                </View>
+              )
+            }
+            if (item.id === TAXONOMY_EMPTY_ID) {
+              return (
+                <AppText style={styles.center} variant="secondary">
+                  {t('tagEmpty')}
+                </AppText>
+              )
+            }
+            if (item.id === TAXONOMY_CHIPS_ID) {
+              return (
+                <TaxonomyChips
+                  label={t('crossCategoriesLabel')}
+                  items={counts.map((entry) => ({
+                    count: entry.count,
+                    key: entry.slug,
+                    label: entry.name,
+                  }))}
+                  onPress={(slug) =>
+                    router.push({
+                      pathname: '/categories/[slug]',
+                      params: { slug },
+                    })
+                  }
+                />
+              )
+            }
+            if (item.type === 'year') {
+              const year = yearFromTaxonomyItemId(item.id)
+              const group = groups.find((entry) => entry.year === year)
+              if (!group) return null
+              return (
+                <TaxonomyYearHead
+                  count={group.items.length}
+                  later={group !== groups[0]}
+                  visible={groupByYear}
+                  year={group.year}
+                />
+              )
+            }
+            const post = postsById.get(item.id)
+            if (!post) return null
+            return (
               <TaxonomyPostRow
                 showCategorySource
                 includeYear={!groupByYear}
-                key={post.id}
                 post={post}
                 onPress={() => openPost(router, post)}
               />
-            ))}
-          </View>
-        ))}
-        {cross >= 2 ? (
-          <TaxonomyChips
-            label={t('crossCategoriesLabel')}
-            items={counts.map((item) => ({
-              count: item.count,
-              key: item.slug,
-              label: item.name,
-            }))}
-            onPress={(slug) =>
-              router.push({
-                pathname: '/categories/[slug]',
-                params: { slug },
-              })
-            }
-          />
-        ) : null}
-      </EdgeEffectScrollView>
+            )
+          }}
+          onRefresh={onRefresh}
+          onScroll={onNativeScroll}
+          onVisibleItems={(items) =>
+            setVisibleIds(articleIdsFromVisible(items, ['post']))
+          }
+        />
+      ) : null}
     </View>
   )
 }
@@ -182,11 +237,6 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 24,
-  },
   hero: {
     gap: 8,
     marginBottom: 16,
@@ -194,9 +244,6 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-  },
-  later: {
-    marginTop: 18,
   },
   center: {
     marginTop: 32,

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   hasMorePosts,
+  nextPostListLimit,
   nextPostListPage,
   partitionTags,
   pickFeaturedPost,
@@ -81,6 +82,13 @@ describe('nextPostListPage', () => {
 
   it('does not go backwards when fetched page is ahead of the cache', () => {
     expect(nextPostListPage(20, 3)).toBe(4)
+  })
+})
+
+describe('nextPostListLimit', () => {
+  it('reveals one cached page and clamps to the cached row count', () => {
+    expect(nextPostListLimit(20, 184)).toBe(40)
+    expect(nextPostListLimit(180, 184)).toBe(184)
   })
 })
 

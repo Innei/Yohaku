@@ -1,5 +1,10 @@
 import { and, desc, eq, gte, inArray, notInArray } from 'drizzle-orm'
 
+import {
+  ARTICLE_BODY_BATCH_LIMIT,
+  type ArticleBodyLine,
+  type ArticleBodyRequestItem,
+} from '@/api/article-body'
 import { apiBaseUrl } from '@/api/base-url'
 import { api } from '@/api/client'
 import type { ApiCategory, ApiNote, ApiPost, ApiTopic } from '@/api/types'
@@ -26,6 +31,7 @@ import {
   bodyIsStale,
   calibrateNoteMeta,
   calibratePostMeta,
+  listBodyPatchFromLine,
   noteBodyFromApi,
   noteMetaFromApi,
   postBodyFromApi,
@@ -44,7 +50,6 @@ import {
 } from './upsert-sets'
 
 const LIST_PAGE_SIZE = 20
-const BODY_PREFETCH_CONCURRENCY = 4
 const SYNC_THROTTLE_MS = 60_000
 const SYNC_META_KEY = 'all'
 
@@ -308,6 +313,61 @@ export async function ingestNotePage(page: number, lang = getLocale()) {
   return paged
 }
 
+export async function ingestArticleBodies(
+  items: ArticleBodyRequestItem[],
+  lang = getLocale(),
+) {
+  if (items.length === 0) return
+  for (let offset = 0; offset < items.length; offset += ARTICLE_BODY_BATCH_LIMIT) {
+    const chunk = items.slice(offset, offset + ARTICLE_BODY_BATCH_LIMIT)
+    await api.articleBodies(chunk, {
+      lang,
+      onLine: (line) => applyArticleBodyLine(line, lang),
+    })
+  }
+}
+
+async function applyArticleBodyLine(line: ArticleBodyLine, lang: Locale) {
+  const patch = listBodyPatchFromLine(line)
+  if (patch.kind === 'skip') return
+
+  if (line.kind === 'post') {
+    if (patch.kind !== 'body') return
+    await db
+      .update(posts)
+      .set({
+        text: patch.text,
+        content: patch.content,
+        contentFormat: patch.contentFormat,
+        ...(typeof patch.bodyVersion === 'number'
+          ? { bodyVersion: patch.bodyVersion }
+          : {}),
+      })
+      .where(and(eq(posts.id, line.id), eq(posts.lang, lang)))
+    return
+  }
+
+  if (patch.kind === 'password') {
+    await db
+      .update(notes)
+      .set({ hasPassword: true })
+      .where(and(eq(notes.id, line.id), eq(notes.lang, lang)))
+    return
+  }
+
+  await db
+    .update(notes)
+    .set({
+      text: patch.text,
+      content: patch.content,
+      contentFormat: patch.contentFormat,
+      ...(typeof patch.bodyVersion === 'number'
+        ? { bodyVersion: patch.bodyVersion }
+        : {}),
+    })
+    .where(and(eq(notes.id, line.id), eq(notes.lang, lang)))
+}
+
 export async function ingestTopicPage(
   topicId: string,
   page: number,
@@ -402,25 +462,37 @@ async function prefetchBodies() {
       .limit(BODY_PREFETCH_COUNT),
   ])
 
-  const refreshes = [
-    ...recentPosts
-      .filter((row) => bodyIsStale(row) && Boolean(row.categorySlug))
-      .map((row) => () => refreshPostBody(row)),
-    ...recentNotes
-      .filter((row) => bodyIsStale(row) && !row.hasPassword)
-      .map((row) => () => refreshNoteBody(row)),
-  ]
-  let nextRefresh = 0
-  const workers = Array.from(
-    { length: Math.min(BODY_PREFETCH_CONCURRENCY, refreshes.length) },
-    async () => {
-      while (nextRefresh < refreshes.length) {
-        const refresh = refreshes[nextRefresh++]
-        await refresh().catch(() => {})
-      }
-    },
+  const stalePosts = recentPosts.filter(
+    (row) =>
+      bodyIsStale(row) &&
+      Boolean(row.categorySlug) &&
+      row.contentFormat !== 'markdown',
   )
-  await Promise.all(workers)
+  const staleNotes = recentNotes.filter(
+    (row) =>
+      bodyIsStale(row) &&
+      !row.hasPassword &&
+      row.contentFormat !== 'markdown',
+  )
+  await ingestArticleBodies(
+    [
+      ...stalePosts.map((row) => ({
+        id: row.id,
+        kind: 'post' as const,
+        ...(typeof row.bodyVersion === 'number'
+          ? { bodyVersion: row.bodyVersion }
+          : {}),
+      })),
+      ...staleNotes.map((row) => ({
+        id: row.id,
+        kind: 'note' as const,
+        ...(typeof row.bodyVersion === 'number'
+          ? { bodyVersion: row.bodyVersion }
+          : {}),
+      })),
+    ],
+    lang,
+  ).catch(() => {})
 
   const [freshPosts, freshNotes] = await Promise.all([
     db

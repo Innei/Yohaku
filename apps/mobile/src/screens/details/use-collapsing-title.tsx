@@ -1,6 +1,10 @@
 import { useHeaderHeight } from 'expo-router/react-navigation'
 import { useCallback, useMemo, useRef } from 'react'
-import type { LayoutChangeEvent } from 'react-native'
+import type {
+  LayoutChangeEvent,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+} from 'react-native'
 import {
   ReduceMotion,
   runOnJS,
@@ -121,6 +125,74 @@ export function useCollapsingTitle(
     [alwaysVisible, headerHeight, reportMetrics, trackMetrics],
   )
 
+  const applyScrollMetrics = useCallback(
+    (event: NativeScrollEvent) => {
+      if (!alwaysVisible) {
+        const y = event.contentOffset.y
+        const now = performance.now()
+        if (lastTime.get() > 0) {
+          const dt = Math.max(now - lastTime.get(), 1000 / 240)
+          const instant = ((y - lastY.get()) / dt) * 1000
+          velocity.set(velocity.get() * 0.6 + instant * 0.4)
+        }
+        lastY.set(y)
+        lastTime.set(now)
+        const crossing = titleBottom.get() - headerHeight
+        const visible = titleVisible.get()
+        const shouldShow = visible
+          ? y > crossing - HIDE_HYSTERESIS
+          : y > crossing
+        if (shouldShow !== visible) {
+          titleVisible.set(shouldShow)
+          const target = shouldShow ? 1 : 0
+          const reveal = navTitleReveal(velocity.get())
+          const dampingRatio = 1 - reveal.bounce
+          progress.set(
+            withSpring(target, {
+              dampingRatio,
+              duration: reveal.fadeMs,
+              reduceMotion: ReduceMotion.System,
+            }),
+          )
+          rise.set(
+            withDelay(
+              reveal.riseDelayMs,
+              withSpring(target, {
+                dampingRatio,
+                duration: reveal.riseMs,
+                reduceMotion: ReduceMotion.System,
+              }),
+              ReduceMotion.System,
+            ),
+          )
+        }
+      }
+      const contentHeight = event.contentSize.height
+      if (contentHeight > 0) {
+        const y = event.contentOffset.y
+        const delta = Math.min(y, event.layoutMeasurement.height)
+        readPercent.set(
+          Math.min(Math.max(0, ((y + delta) / contentHeight) * 100), 100),
+        )
+      }
+      if (trackMetrics) {
+        reportMetrics(
+          event.contentOffset.y,
+          event.contentSize.height,
+          event.layoutMeasurement.height,
+        )
+      }
+    },
+    [alwaysVisible, headerHeight, reportMetrics, trackMetrics],
+  )
+
+  const onNativeScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      applyScrollMetrics(event.nativeEvent)
+    },
+    [applyScrollMetrics],
+  )
+
   const onTitleLayout = (event: LayoutChangeEvent) => {
     const { height, y } = event.nativeEvent.layout
     titleBottom.set(y + height)
@@ -177,6 +249,7 @@ export function useCollapsingTitle(
   return {
     headerTitleProgress: progress,
     headerOptions,
+    onNativeScroll,
     onScroll,
     onTitleLayout,
   }

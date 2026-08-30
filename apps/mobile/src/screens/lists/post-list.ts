@@ -1,4 +1,31 @@
+import type { PostRow } from '@/db/schema'
+
 export const postListPageSize = 20
+
+export type PostListRow = Pick<
+  PostRow,
+  | 'bodyVersion'
+  | 'categoryName'
+  | 'categorySlug'
+  | 'contentFormat'
+  | 'createdAt'
+  | 'id'
+  | 'likeCount'
+  | 'modifiedAt'
+  | 'pinAt'
+  | 'readCount'
+  | 'slug'
+  | 'tags'
+  | 'title'
+>
+
+export function nextPostListLimit(
+  currentLimit: number,
+  cachedCount: number,
+  pageSize = postListPageSize,
+): number {
+  return Math.min(currentLimit + pageSize, cachedCount)
+}
 
 export function nextPostListPage(
   loadedCount: number,

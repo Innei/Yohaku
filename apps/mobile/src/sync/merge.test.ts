@@ -8,6 +8,9 @@ import {
   calibrateNoteMeta,
   calibratePostMeta,
   contentVersion,
+  decorationIsStale,
+  listBodyPatchFromLine,
+  needsListBody,
   noteMetaFromApi,
   postBodyFromApi,
   postMetaFromApi,
@@ -77,26 +80,29 @@ describe('bodyIsStale', () => {
         createdAt: created,
         modifiedAt: modified,
         bodyVersion: new Date(modified).getTime(),
-        articleMeta: {
-          aiGen: [],
-          hasInsights: false,
-          related: [],
-          skills: [],
-          summary: null,
-          translation: null,
-          tts: null,
-          paywall: null,
-        },
       }),
     ).toBe(false)
   })
 
-  it('keeps a mixed partial translation retryable at the current body version', () => {
+  it('stays fresh when notice meta is still missing', () => {
     expect(
       bodyIsStale({
         createdAt: created,
         modifiedAt: modified,
         bodyVersion: new Date(modified).getTime(),
+      }),
+    ).toBe(false)
+  })
+})
+
+describe('decorationIsStale', () => {
+  it('is stale when a cached body carries no notice meta yet', () => {
+    expect(decorationIsStale({ articleMeta: null })).toBe(true)
+  })
+
+  it('keeps a mixed partial translation retryable', () => {
+    expect(
+      decorationIsStale({
         articleMeta: {
           aiGen: [],
           hasInsights: false,
@@ -117,10 +123,7 @@ describe('bodyIsStale', () => {
 
   it('revalidates a legacy translated body once its state is unknown', () => {
     expect(
-      bodyIsStale({
-        createdAt: created,
-        modifiedAt: modified,
-        bodyVersion: new Date(modified).getTime(),
+      decorationIsStale({
         articleMeta: {
           aiGen: [],
           hasInsights: false,
@@ -141,10 +144,7 @@ describe('bodyIsStale', () => {
 
   it('is stale when cached notice meta predates the skills field', () => {
     expect(
-      bodyIsStale({
-        createdAt: created,
-        modifiedAt: modified,
-        bodyVersion: new Date(modified).getTime(),
+      decorationIsStale({
         articleMeta: { related: [], summary: null, translation: null },
       }),
     ).toBe(true)
@@ -152,10 +152,7 @@ describe('bodyIsStale', () => {
 
   it('is stale when cached notice meta predates insights and aiGen', () => {
     expect(
-      bodyIsStale({
-        createdAt: created,
-        modifiedAt: modified,
-        bodyVersion: new Date(modified).getTime(),
+      decorationIsStale({
         articleMeta: {
           related: [],
           skills: [],
@@ -165,19 +162,84 @@ describe('bodyIsStale', () => {
       }),
     ).toBe(true)
   })
+})
 
-  it('is stale when a cached body carries no notice meta yet', () => {
-    // Migration 0003 backfills article_meta as NULL on rows whose body is
-    // already fresh; without this they would never refetch and the notice
-    // card would stay invisible for every pre-upgrade article.
+describe('listBodyPatchFromLine', () => {
+  it('skips missing and unchanged lines', () => {
     expect(
-      bodyIsStale({
+      listBodyPatchFromLine({ id: 'p1', kind: 'post', missing: true }),
+    ).toEqual({ kind: 'skip' })
+    expect(
+      listBodyPatchFromLine({ id: 'p1', kind: 'post', unchanged: true }),
+    ).toEqual({ kind: 'skip' })
+  })
+
+  it('marks a password note without writing a body', () => {
+    expect(
+      listBodyPatchFromLine({ id: 'n1', kind: 'note', hasPassword: true }),
+    ).toEqual({ kind: 'password' })
+  })
+
+  it('persists a complete lexical body with a version stamp', () => {
+    expect(
+      listBodyPatchFromLine({
+        id: 'p1',
+        kind: 'post',
+        content: '{"root":{}}',
+        contentFormat: 'lexical',
         createdAt: created,
         modifiedAt: modified,
-        bodyVersion: new Date(modified).getTime(),
-        articleMeta: null,
+        text: 'hello',
+      }),
+    ).toEqual({
+      kind: 'body',
+      bodyVersion: new Date(modified).getTime(),
+      content: '{"root":{}}',
+      contentFormat: 'lexical',
+      text: 'hello',
+    })
+  })
+
+  it('skips markdown and password notes for list ingest', () => {
+    expect(
+      needsListBody({
+        bodyVersion: null,
+        contentFormat: 'markdown',
+        createdAt: created,
+        modifiedAt: null,
+      }),
+    ).toBe(false)
+    expect(
+      needsListBody({
+        bodyVersion: null,
+        createdAt: created,
+        hasPassword: true,
+        modifiedAt: null,
+      }),
+    ).toBe(false)
+    expect(
+      needsListBody({
+        bodyVersion: null,
+        contentFormat: 'lexical',
+        createdAt: created,
+        modifiedAt: null,
       }),
     ).toBe(true)
+  })
+
+  it('keeps a paywall teaser unversioned so detail can refetch', () => {
+    expect(
+      listBodyPatchFromLine({
+        id: 'p1',
+        kind: 'post',
+        content: '{"root":{}}',
+        contentFormat: 'lexical',
+        createdAt: created,
+        locked: true,
+        modifiedAt: modified,
+        text: 'teaser',
+      }),
+    ).toMatchObject({ kind: 'body', bodyVersion: null, text: 'teaser' })
   })
 })
 
@@ -339,10 +401,10 @@ describe('postBodyFromApi', () => {
     expect(
       bodyIsStale({
         ...post,
-        articleMeta: partial.articleMeta,
         bodyVersion: partial.bodyVersion,
       }),
-    ).toBe(true)
+    ).toBe(false)
+    expect(decorationIsStale({ articleMeta: partial.articleMeta })).toBe(true)
 
     const ready = postBodyFromApi(
       { ...post, text: 'English heading\n\nThis paragraph is now English.' },
@@ -352,10 +414,10 @@ describe('postBodyFromApi', () => {
     expect(
       bodyIsStale({
         ...post,
-        articleMeta: ready.articleMeta,
         bodyVersion: ready.bodyVersion,
       }),
     ).toBe(false)
+    expect(decorationIsStale({ articleMeta: ready.articleMeta })).toBe(false)
   })
 })
 

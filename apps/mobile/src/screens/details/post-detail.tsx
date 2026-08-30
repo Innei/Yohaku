@@ -29,6 +29,7 @@ import { refreshPostBody } from '@/sync/engine'
 import {
   bodyIsStale,
   calibratePostMeta,
+  decorationIsStale,
   postBodyFromApi,
   postMetaFromApi,
 } from '@/sync/merge'
@@ -137,7 +138,10 @@ export function PostDetailScreen({
     let cancelled = false
     const load = async () => {
       if (post?.contentFormat === 'markdown') return
-      if (post && !bodyIsStale(post)) return
+      if (post && !bodyIsStale(post)) {
+        if (decorationIsStale(post)) void refreshPostBody(post)
+        return
+      }
       try {
         if (post) {
           await refreshPostBody(post)

@@ -29,10 +29,10 @@ after`
   it('restores the scene route only when no incoming link takes priority', () => {
     expect(sceneDelegateSource).toContain('session.stateRestorationActivity')
     expect(sceneDelegateSource).toContain(
-      'incomingURL == nil && browsingWebActivity == nil',
+      'incomingURL == nil && notificationURL == nil && browsingWebActivity == nil',
     )
     expect(sceneDelegateSource).toContain(
-      'let initialURL = incomingURL ?? restorationURL',
+      'let initialURL = incomingURL ?? notificationURL ?? restorationURL',
     )
   })
 
@@ -46,6 +46,19 @@ after`
 
     expect(routeRestoration).toBeGreaterThan(-1)
     expect(routeRestoration).toBeLessThan(startReactNative)
+  })
+
+  it('opens a cold-start notification target as the initial Expo route', () => {
+    const startReactNative = sceneDelegateSource.indexOf(
+      'factory.startReactNative(',
+    )
+    const routeNotification = sceneDelegateSource.indexOf(
+      'if let notificationURL {',
+    )
+
+    expect(routeNotification).toBeGreaterThan(startReactNative)
+    expect(sceneDelegateSource).toContain('userInfo["target_path"]')
+    expect(sceneDelegateSource).toContain('$0 == Bundle.main.bundleIdentifier')
   })
 
   it('archives committed routes in the scene session', () => {

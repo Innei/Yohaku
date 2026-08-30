@@ -6,6 +6,7 @@ import { getLocale } from '@/i18n/locale-store'
 import type { CommentAnchor } from '@/lib/comment-anchor'
 import { readerCommentBody } from '@/lib/comment-anchor'
 
+import type { ArticleBodyLine, ArticleBodyRequestItem } from './article-body'
 import { apiBaseUrl } from './base-url'
 import { camelize } from './camelize'
 import { camelizeEnrichments } from './enrichments'
@@ -15,6 +16,7 @@ import type {
   MembershipPlansResult,
   MembershipStatusResult,
 } from './membership'
+import { parseNdjsonText, readNdjsonStream } from './ndjson'
 import { readPresenceMap } from './presence-map'
 import { parseThinkingList } from './thinking'
 import type {
@@ -45,6 +47,7 @@ import type {
 export { ApiError }
 
 const REQUEST_TIMEOUT_MS = 15_000
+const ARTICLE_BODY_TIMEOUT_MS = 45_000
 
 type QueryParams = Record<string, string | number | boolean | undefined>
 
@@ -179,7 +182,73 @@ async function requestPaged<T>(
   }
 }
 
+async function streamArticleBodies(
+  items: ArticleBodyRequestItem[],
+  options?: {
+    lang?: string
+    onLine?: (line: ArticleBodyLine) => void | Promise<void>
+    signal?: AbortSignal
+  },
+): Promise<ArticleBodyLine[]> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), ARTICLE_BODY_TIMEOUT_MS)
+  const onAbort = () => controller.abort()
+  options?.signal?.addEventListener('abort', onAbort)
+  try {
+    const cookie = getSessionCookie()
+    const res = await fetch(
+      `${apiBaseUrl()}/articles/bodies${buildQuery({
+        lang: options?.lang ?? getLocale(),
+      })}`,
+      {
+        method: 'POST',
+        headers: {
+          accept: 'application/x-ndjson, application/json',
+          'accept-language': '',
+          'content-type': 'application/json',
+          'user-agent': 'Yohaku-Mobile/1.0 (iOS)',
+          ...(cookie ? { cookie } : null),
+        },
+        body: JSON.stringify({ items }),
+        signal: controller.signal,
+      },
+    )
+    if (!res.ok) {
+      if (res.status === 401) setSession(null)
+      const detail = await res.text().catch(() => '')
+      throw new ApiError(
+        res.status,
+        `HTTP ${res.status} /articles/bodies ${detail.slice(0, 200)}`,
+        extractServerMessage(detail),
+      )
+    }
+
+    const lines: ArticleBodyLine[] = []
+    const emit = async (raw: unknown) => {
+      const line = camelize<ArticleBodyLine>(raw)
+      await options?.onLine?.(line)
+      lines.push(line)
+    }
+
+    if (res.body) {
+      for await (const raw of readNdjsonStream(res.body)) {
+        await emit(raw)
+      }
+      return lines
+    }
+
+    for (const raw of parseNdjsonText(await res.text())) {
+      await emit(raw)
+    }
+    return lines
+  } finally {
+    options?.signal?.removeEventListener('abort', onAbort)
+    clearTimeout(timer)
+  }
+}
+
 export const api = {
+  articleBodies: streamArticleBodies,
   postList: (page: number, size: number, lang = getLocale()) =>
     requestPaged<ApiPost>('/posts', { page, size, truncate: 160, lang }),
   postDetail: (categorySlug: string, slug: string, lang = getLocale()) =>

@@ -1,15 +1,21 @@
 import { desc, eq } from 'drizzle-orm'
 import { Stack, useRouter } from 'expo-router'
 import { useCallback, useMemo, useState } from 'react'
-import { RefreshControl, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
-import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
+import { YohakuList } from '@/components/list/yohaku-list'
+import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import { AppText, NativePressable } from '@/components/ui'
 import { db } from '@/db'
 import { notes, topics } from '@/db/schema'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
+import {
+  flattenIndexList,
+  INDEX_EMPTY_ID,
+  INDEX_STATUS_ID,
+} from '@/screens/lists/flatten-index-list'
 import { syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
 import { usePalette } from '@/theme/palette'
@@ -23,6 +29,7 @@ export function TopicIndexScreen() {
   const t = useTranslations('topic')
   const tl = useTranslations('list')
   const palette = usePalette()
+  const tabBarInset = usePaperTabBarInset()
   const status = useSyncStatus()
   const { snapshot } = useDatabaseSnapshot({
     identity: `topic-index:${locale}`,
@@ -47,7 +54,7 @@ export function TopicIndexScreen() {
     }
     return map
   }, [snapshot])
-  const { headerTitleProgress, headerOptions, onScroll } = useCollapsingTitle(
+  const { headerOptions, onNativeScroll } = useCollapsingTitle(
     t('indexTitle'),
     '',
     undefined,
@@ -68,64 +75,77 @@ export function TopicIndexScreen() {
     }
   }, [])
   const isEmpty = items.length === 0
+  const listItems = useMemo(
+    () =>
+      flattenIndexList({
+        rowIds: items.map((topic) => topic.id),
+        showEmpty: isEmpty,
+        showStatus: status === 'error' && !isEmpty,
+      }),
+    [isEmpty, items, status],
+  )
+  const topicsById = useMemo(() => {
+    const map = new Map(items.map((topic) => [topic.id, topic]))
+    return map
+  }, [items])
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <Stack.Screen options={headerOptions} />
       <TopicBackControl />
-      <EdgeEffectScrollView
-        contentContainerStyle={styles.content}
-        headerTitleProgress={headerTitleProgress}
-        scrollEventThrottle={16}
+      <YohakuList
+        contentInsetBottom={tabBarInset}
+        items={listItems}
+        refreshing={refreshing}
         style={styles.screen}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        onScroll={onScroll}
-      >
-        {status === 'error' && !isEmpty ? (
-          <AppText variant="meta">{tl('syncFailed')}</AppText>
-        ) : null}
-        {isEmpty ? (
-          <AppText style={styles.empty} variant="secondary">
-            {status === 'syncing' ? tl('syncing') : t('empty')}
-          </AppText>
-        ) : (
-          items.map((topic, index) => {
-            const count = counts.get(topic.id) ?? 0
+        renderItem={(item) => {
+          if (item.id === INDEX_STATUS_ID) {
+            return <AppText variant="meta">{tl('syncFailed')}</AppText>
+          }
+          if (item.id === INDEX_EMPTY_ID) {
             return (
-              <NativePressable
-                key={topic.id}
-                style={[
-                  styles.item,
-                  index > 0
-                    ? {
-                        borderTopColor: palette.neutral[3],
-                        borderTopWidth: StyleSheet.hairlineWidth,
-                      }
-                    : null,
-                ]}
-                onPress={() =>
-                  router.push({
-                    pathname: '/series/[slug]',
-                    params: { slug: topic.slug, topicId: topic.id },
-                  })
-                }
-              >
-                <TopicNameRow size="md" topic={topic} />
-                {topic.introduce ? (
-                  <AppText color={palette.neutral[7]} variant="secondary">
-                    {topic.introduce}
-                  </AppText>
-                ) : null}
-                {count > 0 ? (
-                  <AppText variant="meta">{t('noteCount', { count })}</AppText>
-                ) : null}
-              </NativePressable>
+              <AppText style={styles.empty} variant="secondary">
+                {status === 'syncing' ? tl('syncing') : t('empty')}
+              </AppText>
             )
-          })
-        )}
-      </EdgeEffectScrollView>
+          }
+          const topic = topicsById.get(item.id)
+          if (!topic) return null
+          const count = counts.get(topic.id) ?? 0
+          const index = items.findIndex((entry) => entry.id === topic.id)
+          return (
+            <NativePressable
+              style={[
+                styles.item,
+                index > 0
+                  ? {
+                      borderTopColor: palette.neutral[3],
+                      borderTopWidth: StyleSheet.hairlineWidth,
+                    }
+                  : null,
+              ]}
+              onPress={() =>
+                router.push({
+                  pathname: '/series/[slug]',
+                  params: { slug: topic.slug, topicId: topic.id },
+                })
+              }
+            >
+              <TopicNameRow size="md" topic={topic} />
+              {topic.introduce ? (
+                <AppText color={palette.neutral[7]} variant="secondary">
+                  {topic.introduce}
+                </AppText>
+              ) : null}
+              {count > 0 ? (
+                <AppText variant="meta">{t('noteCount', { count })}</AppText>
+              ) : null}
+            </NativePressable>
+          )
+        }}
+        onRefresh={onRefresh}
+        onScroll={onNativeScroll}
+      />
     </View>
   )
 }
@@ -133,11 +153,6 @@ export function TopicIndexScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 24,
   },
   item: {
     gap: 6,

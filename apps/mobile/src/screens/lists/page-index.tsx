@@ -1,14 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 import { Stack, useRouter } from 'expo-router'
-import { RefreshControl, StyleSheet, View } from 'react-native'
+import { useMemo } from 'react'
+import { StyleSheet, View } from 'react-native'
 
 import { api } from '@/api/client'
-import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
+import { YohakuList } from '@/components/list/yohaku-list'
+import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import { AppText, NativePressable } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { TopicBackControl } from '@/screens/topics/topic-chrome'
 import { usePalette } from '@/theme/palette'
+
+import { flattenIndexList, INDEX_EMPTY_ID } from './flatten-index-list'
 
 export function PageIndexScreen() {
   const router = useRouter()
@@ -16,14 +20,15 @@ export function PageIndexScreen() {
   const t = useTranslations('me')
   const tl = useTranslations('list')
   const palette = usePalette()
+  const tabBarInset = usePaperTabBarInset()
 
   const query = useQuery({
     queryFn: () => api.pageList(locale),
     queryKey: ['pages', locale],
     staleTime: 10 * 60_000,
   })
-  const items = query.data?.data ?? []
-  const { headerTitleProgress, headerOptions, onScroll } = useCollapsingTitle(
+  const pages = query.data?.data ?? []
+  const { headerOptions, onNativeScroll } = useCollapsingTitle(
     t('pages'),
     '',
     undefined,
@@ -34,32 +39,42 @@ export function PageIndexScreen() {
       titleFontWeight: 'bold',
     },
   )
+  const listItems = useMemo(
+    () =>
+      flattenIndexList({
+        rowIds: pages.map((page) => page.id),
+        showEmpty: pages.length === 0,
+        showStatus: false,
+      }),
+    [pages],
+  )
+  const pagesById = useMemo(() => {
+    const map = new Map(pages.map((page) => [page.id, page]))
+    return map
+  }, [pages])
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <Stack.Screen options={headerOptions} />
       <TopicBackControl />
-      <EdgeEffectScrollView
-        contentContainerStyle={styles.content}
-        headerTitleProgress={headerTitleProgress}
-        scrollEventThrottle={16}
+      <YohakuList
+        contentInsetBottom={tabBarInset}
+        items={listItems}
+        refreshing={query.isRefetching}
         style={styles.screen}
-        refreshControl={
-          <RefreshControl
-            refreshing={query.isRefetching}
-            onRefresh={() => void query.refetch()}
-          />
-        }
-        onScroll={onScroll}
-      >
-        {items.length === 0 ? (
-          <AppText style={styles.empty} variant="secondary">
-            {query.isPending ? tl('syncing') : tl('empty')}
-          </AppText>
-        ) : (
-          items.map((page, index) => (
+        renderItem={(item) => {
+          if (item.id === INDEX_EMPTY_ID) {
+            return (
+              <AppText style={styles.empty} variant="secondary">
+                {query.isPending ? tl('syncing') : tl('empty')}
+              </AppText>
+            )
+          }
+          const page = pagesById.get(item.id)
+          if (!page) return null
+          const index = pages.findIndex((entry) => entry.id === page.id)
+          return (
             <NativePressable
-              key={page.id}
               style={[
                 styles.item,
                 index > 0
@@ -83,9 +98,11 @@ export function PageIndexScreen() {
                 </AppText>
               ) : null}
             </NativePressable>
-          ))
-        )}
-      </EdgeEffectScrollView>
+          )
+        }}
+        onRefresh={() => void query.refetch()}
+        onScroll={onNativeScroll}
+      />
     </View>
   )
 }
@@ -93,11 +110,6 @@ export function PageIndexScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 24,
   },
   item: {
     gap: 6,

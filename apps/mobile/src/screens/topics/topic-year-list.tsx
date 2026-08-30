@@ -26,11 +26,25 @@ export function TopicYearGroups({
   ))
 }
 
-function TopicYearHead({ count, year }: { count: number; year: number }) {
+export function TopicYearHead({
+  count,
+  later,
+  year,
+}: {
+  count: number
+  later?: boolean
+  year: number
+}) {
   const palette = usePalette()
   const serifFont = useNativeSerifFontStyle()
   return (
-    <View style={[styles.yearHead, { borderBottomColor: palette.neutral[3] }]}>
+    <View
+      style={[
+        styles.yearHead,
+        { borderBottomColor: palette.neutral[3] },
+        later ? styles.later : undefined,
+      ]}
+    >
       <View>
         <AppText
           color={palette.semantic.warning}
@@ -50,7 +64,7 @@ function TopicYearHead({ count, year }: { count: number; year: number }) {
   )
 }
 
-function TopicNoteRow({ note }: { note: NoteRow }) {
+export function TopicNoteRow({ note }: { note: NoteRow }) {
   const router = useRouter()
   const palette = usePalette()
   return (

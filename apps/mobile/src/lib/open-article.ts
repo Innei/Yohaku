@@ -7,6 +7,12 @@ import { siteHref } from '@/lib/site-url'
 
 type Router = { push: (href: Href) => void }
 
+type OpenPostRow = Pick<
+  PostRow,
+  'categorySlug' | 'contentFormat' | 'id' | 'slug'
+> &
+  Partial<Pick<PostRow, 'content' | 'enrichments'>>
+
 function openAfterPrepare(
   router: Router,
   href: Href,
@@ -44,7 +50,7 @@ export function openNote(router: Router, note: NoteRow) {
   router.push(href)
 }
 
-export function openPost(router: Router, post: PostRow) {
+export function openPost(router: Router, post: OpenPostRow) {
   if (!post.categorySlug) return
   const webUrl = siteHref(`/posts/${post.categorySlug}/${post.slug}`)
   if (post.contentFormat === 'markdown') {

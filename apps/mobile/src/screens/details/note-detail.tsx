@@ -24,6 +24,7 @@ import { refreshNoteBody } from '@/sync/engine'
 import {
   bodyIsStale,
   calibrateNoteMeta,
+  decorationIsStale,
   noteBodyFromApi,
   noteMetaFromApi,
 } from '@/sync/merge'
@@ -103,7 +104,10 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
     let cancelled = false
     const load = async () => {
       if (note?.hasPassword || note?.contentFormat === 'markdown') return
-      if (note && !bodyIsStale(note)) return
+      if (note && !bodyIsStale(note)) {
+        if (decorationIsStale(note)) void refreshNoteBody(note)
+        return
+      }
       try {
         if (note) {
           await refreshNoteBody(note)

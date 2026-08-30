@@ -26,6 +26,7 @@ const SCENE_WINDOW_BOOTSTRAP = `    // The window is created and React Native is
 const SCENE_DELEGATE_SOURCE = `internal import Expo
 import React
 import UIKit
+import UserNotifications
 
 private enum SceneRestoration {
   static let notification = Notification.Name("YohakuRestorableRouteDidChange")
@@ -99,13 +100,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     let browsingWebActivity = connectionOptions.userActivities.first {
       $0.activityType == NSUserActivityTypeBrowsingWeb
     }
+    let notificationURL = Self.notificationURL(
+      from: connectionOptions.notificationResponse
+    )
     var restorationURL: URL?
-    if incomingURL == nil && browsingWebActivity == nil {
+    if incomingURL == nil && notificationURL == nil && browsingWebActivity == nil {
       restorationURL = SceneRestoration.restorationURL(
         from: session.stateRestorationActivity
       )
     }
-    let initialURL = incomingURL ?? restorationURL
+    let initialURL = incomingURL ?? notificationURL ?? restorationURL
     if let restorationURL {
       Self.route(url: restorationURL)
     }
@@ -120,6 +124,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     Self.route(urlContexts: connectionOptions.urlContexts)
     connectionOptions.userActivities.forEach { Self.route(userActivity: $0) }
+    if let notificationURL {
+      Self.route(url: notificationURL)
+    }
   }
 
   func sceneDidDisconnect(_ scene: UIScene) {
@@ -228,6 +235,27 @@ extension SceneDelegate {
       continue: userActivity,
       restorationHandler: { _ in }
     )
+  }
+
+  static func notificationURL(from response: UNNotificationResponse?) -> URL? {
+    let urlTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes")
+      as? [[String: Any]] ?? []
+    let schemes = urlTypes.flatMap({
+      $0["CFBundleURLSchemes"] as? [String] ?? []
+    })
+    guard
+      let targetPath = response?.notification.request.content.userInfo["target_path"] as? String,
+      targetPath.hasPrefix("/"),
+      !targetPath.hasPrefix("//"),
+      let scheme = schemes.first(where: { $0 == Bundle.main.bundleIdentifier })
+        ?? schemes.first
+    else {
+      return nil
+    }
+    var components = URLComponents()
+    components.scheme = scheme
+    components.path = targetPath
+    return components.url
   }
 
   private static func openURLOptions(

@@ -13,10 +13,12 @@ import { formatTaxonomyDate, visibleTaxonomyTags } from './taxonomy-model'
 
 export function TaxonomyYearHead({
   count,
+  later,
   visible,
   year,
 }: {
   count: number
+  later?: boolean
   visible: boolean
   year: number
 }) {
@@ -25,7 +27,13 @@ export function TaxonomyYearHead({
   const serifFont = useNativeSerifFontStyle()
   if (!visible) return null
   return (
-    <View style={[styles.yearHead, { borderBottomColor: palette.neutral[3] }]}>
+    <View
+      style={[
+        styles.yearHead,
+        { borderBottomColor: palette.neutral[3] },
+        later ? styles.later : undefined,
+      ]}
+    >
       <View>
         <AppText
           color={palette.semantic.warning}
@@ -139,6 +147,9 @@ const styles = StyleSheet.create({
   yearCount: {
     letterSpacing: 1.8,
     textTransform: 'uppercase',
+  },
+  later: {
+    marginTop: 18,
   },
   item: {
     paddingTop: 11,

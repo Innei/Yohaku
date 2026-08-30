@@ -1,46 +1,44 @@
-import { type as typeScale } from '@yohaku/design-system/tokens'
 import { desc, eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack, useRouter } from 'expo-router'
-import { SymbolView } from 'expo-symbols'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import {
-  ActivityIndicator,
-  RefreshControl,
-  StyleSheet,
-  View,
-} from 'react-native'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
 
-import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
+import { YohakuList } from '@/components/list/yohaku-list'
+import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
-import { AppText, NativePressable } from '@/components/ui'
+import { AppText } from '@/components/ui'
 import { db } from '@/db'
-import type { NoteRow } from '@/db/schema'
 import { notes, topics } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
-import { formatNoteListDate } from '@/lib/datetime'
 import { openNote } from '@/lib/open-article'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { ingestNotePage, syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
+import { useListBodyIngest } from '@/sync/use-list-body-ingest'
 import { usePalette } from '@/theme/palette'
-import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { ListSearchToolbar } from '../search/search-chrome'
-import { TopicChip } from '../topics/topic-chip'
 import { topicById } from '../topics/topic-list'
+import { articleIdsFromVisible } from './flatten-posts-list'
+import {
+  flattenNotesList,
+  NOTE_LIST_FOOTER_ID,
+  NOTE_LIST_RULE_ID,
+  yearFromNoteItemId,
+} from './flatten-notes-list'
 import { NoteLatest } from './note-latest'
+import {
+  NotesOlderRule,
+  NoteTimelineRow,
+  NoteYearHead,
+} from './note-timeline-rows'
 import {
   groupNotesByYear,
   hasMoreNotes,
-  letterCountLabel,
   nextNoteListPage,
   splitLatestNote,
 } from './note-timeline'
-
-function moodLine(note: NoteRow): string {
-  return [note.weather, note.mood].filter(Boolean).join(' · ')
-}
 
 const topicsQuery = db.select().from(topics)
 
@@ -88,7 +86,7 @@ export function NotesListScreen() {
   const t = useTranslations('list')
   const tt = useTranslations('tabs')
   const palette = usePalette()
-  const serifFont = useNativeSerifFontStyle()
+  const tabBarInset = usePaperTabBarInset()
   const status = useSyncStatus()
   const [refreshing, setRefreshing] = useState(false)
   const query = useMemo(
@@ -102,18 +100,27 @@ export function NotesListScreen() {
   )
   const { data } = useLiveQuery(query, [locale])
   const { data: topicRows } = useLiveQuery(topicsQuery)
-  const notesInLocale = data ?? []
+  const notesInLocale = useMemo(() => data ?? [], [data])
   const topicRowsInDb = topicRows ?? []
-  const { latest, older } = useMemo(() => splitLatestNote(data ?? []), [data])
+  const { latest, older } = useMemo(
+    () => splitLatestNote(notesInLocale),
+    [notesInLocale],
+  )
   const groups = useMemo(() => groupNotesByYear(older), [older])
-  const { headerTitleProgress, headerOptions, onScroll, onTitleLayout } =
-    useCollapsingTitle(tt('notes'), '', undefined, undefined, {
+  const [visibleIds, setVisibleIds] = useState<string[] | undefined>()
+  const { headerOptions, onNativeScroll } = useCollapsingTitle(
+    tt('notes'),
+    '',
+    undefined,
+    undefined,
+    {
       alwaysVisible: true,
       leadingInset: 20,
       reserveBackClearance: false,
       titleFontSize: 18,
       titleFontWeight: 'bold',
-    })
+    },
+  )
   const [paging, setPaging] = useState({
     fetchedPage: 0,
     locale,
@@ -125,8 +132,33 @@ export function NotesListScreen() {
   const loadingMoreRef = useRef(false)
   const localeRef = useRef(locale)
   localeRef.current = locale
-  const viewportHeightRef = useRef(0)
-  const contentHeightRef = useRef(0)
+
+  useListBodyIngest(
+    notesInLocale.map((note) => ({
+      id: note.id,
+      kind: 'note' as const,
+      bodyVersion: note.bodyVersion,
+      contentFormat: note.contentFormat,
+      createdAt: note.createdAt,
+      hasPassword: note.hasPassword,
+      modifiedAt: note.modifiedAt,
+    })),
+    { visibleIds },
+  )
+
+  const listItems = useMemo(
+    () =>
+      flattenNotesList({
+        groups,
+        latestId: latest?.id ?? null,
+        loadingMore,
+      }),
+    [groups, latest?.id, loadingMore],
+  )
+  const notesById = useMemo(
+    () => new Map(notesInLocale.map((note) => [note.id, note])),
+    [notesInLocale],
+  )
 
   const onEndReached = useCallback(() => {
     const loaded = notesInLocale.length
@@ -160,186 +192,73 @@ export function NotesListScreen() {
   }, [])
 
   const isEmpty = notesInLocale.length === 0
-  const maybeLoadMore = useCallback(
-    (distance: number) => {
-      if (isEmpty) return
-      if (contentHeightRef.current <= 0 || viewportHeightRef.current <= 0) {
-        return
-      }
-      if (distance > 240) return
-      onEndReached()
-    },
-    [isEmpty, onEndReached],
-  )
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <Stack.Screen options={headerOptions} />
       <NotesTrailingToolbar />
-      <EdgeEffectScrollView
-        alwaysBounceVertical
-        contentContainerStyle={styles.content}
-        headerTitleProgress={headerTitleProgress}
-        scrollEventThrottle={16}
-        style={styles.screen}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        onScroll={onScroll}
-        onContentSizeChange={(_, height) => {
-          contentHeightRef.current = height
-          maybeLoadMore(height - viewportHeightRef.current)
-        }}
-        onLayout={(event) => {
-          viewportHeightRef.current = event.nativeEvent.layout.height
-          maybeLoadMore(contentHeightRef.current - viewportHeightRef.current)
-        }}
-        onMomentumScrollEnd={(event) => {
-          const { contentOffset, contentSize, layoutMeasurement } =
-            event.nativeEvent
-          maybeLoadMore(
-            contentSize.height - layoutMeasurement.height - contentOffset.y,
-          )
-        }}
-      >
-        {status === 'error' && !isEmpty ? (
-          <AppText variant="meta">{t('syncFailed')}</AppText>
-        ) : null}
-        {isEmpty ? (
-          <AppText style={styles.empty} variant="secondary">
-            {status === 'syncing' ? t('syncing') : t('empty')}
-          </AppText>
-        ) : null}
-        {latest ? (
-          <NoteLatest
-            note={latest}
-            topic={topicById(topicRowsInDb, latest.topicId)}
-            onOpen={() => openNote(router, latest)}
-            onTitleLayout={onTitleLayout}
-          />
-        ) : null}
-        {groups.length > 0 ? (
-          <View>
-            <View style={styles.rule}>
-              <View
-                style={[
-                  styles.ruleLine,
-                  { backgroundColor: palette.neutral[3] },
-                ]}
+      {status === 'error' && !isEmpty ? (
+        <AppText style={styles.syncFailed} variant="meta">
+          {t('syncFailed')}
+        </AppText>
+      ) : null}
+      {isEmpty ? (
+        <AppText style={styles.empty} variant="secondary">
+          {status === 'syncing' ? t('syncing') : t('empty')}
+        </AppText>
+      ) : (
+        <YohakuList
+          contentInsetBottom={tabBarInset}
+          items={listItems}
+          refreshing={refreshing}
+          style={styles.screen}
+          renderItem={(item) => {
+            if (item.id === NOTE_LIST_RULE_ID) return <NotesOlderRule />
+            if (item.id === NOTE_LIST_FOOTER_ID) {
+              return (
+                <ActivityIndicator
+                  color={palette.neutral[5]}
+                  style={styles.more}
+                />
+              )
+            }
+            if (item.type === 'latest' && latest) {
+              return (
+                <NoteLatest
+                  note={latest}
+                  topic={topicById(topicRowsInDb, latest.topicId)}
+                  onOpen={() => openNote(router, latest)}
+                />
+              )
+            }
+            if (item.type === 'year') {
+              const year = yearFromNoteItemId(item.id)
+              const group = groups.find((entry) => entry.year === year)
+              return group ? (
+                <NoteYearHead
+                  count={group.notes.length}
+                  later={group !== groups[0]}
+                  year={group.year}
+                />
+              ) : null
+            }
+            const note = notesById.get(item.id)
+            return note ? (
+              <NoteTimelineRow
+                note={note}
+                topic={topicById(topicRowsInDb, note.topicId)}
+                onOpen={() => openNote(router, note)}
               />
-              <AppText
-                color={palette.neutral[6]}
-                style={styles.ruleLabel}
-                variant="eyebrow"
-              >
-                {t('olderNotes')}
-              </AppText>
-              <View
-                style={[
-                  styles.ruleLine,
-                  { backgroundColor: palette.neutral[3] },
-                ]}
-              />
-            </View>
-            {groups.map((group, groupIndex) => (
-              <View
-                key={group.year}
-                style={groupIndex > 0 ? styles.laterYear : undefined}
-              >
-                <View
-                  style={[
-                    styles.yearHead,
-                    { borderBottomColor: palette.neutral[3] },
-                  ]}
-                >
-                  <View>
-                    <AppText
-                      color={palette.semantic.warning}
-                      style={[styles.anno, serifFont]}
-                      variant="eyebrow"
-                    >
-                      Anno
-                    </AppText>
-                    <AppText style={styles.yearNum} variant="largeTitle">
-                      {group.year}
-                    </AppText>
-                  </View>
-                  <AppText style={styles.yearCount} variant="eyebrow">
-                    {letterCountLabel(group.notes.length)}
-                  </AppText>
-                </View>
-                <View>
-                  <View
-                    pointerEvents="none"
-                    style={[
-                      styles.spine,
-                      { backgroundColor: palette.neutral[3] },
-                    ]}
-                  />
-                  {group.notes.map((note) => {
-                    const mood = moodLine(note)
-                    const topic = topicById(topicRowsInDb, note.topicId)
-                    return (
-                      <View key={note.id} style={styles.entry}>
-                        <NativePressable
-                          style={styles.press}
-                          onPress={() => openNote(router, note)}
-                        >
-                          <View style={styles.dateRow}>
-                            <View
-                              pointerEvents="none"
-                              style={[
-                                styles.dot,
-                                {
-                                  backgroundColor: palette.surface.desk,
-                                  borderColor: palette.neutral[4],
-                                },
-                              ]}
-                            />
-                            <AppText style={styles.stackDate} variant="eyebrow">
-                              {formatNoteListDate(note.createdAt, locale)}
-                            </AppText>
-                          </View>
-                          <AppText variant="letterTitle">{note.title}</AppText>
-                          {mood ? (
-                            <AppText
-                              color={palette.neutral[7]}
-                              style={styles.mood}
-                              variant="meta"
-                            >
-                              {mood}
-                            </AppText>
-                          ) : null}
-                          <View style={styles.letterMeta}>
-                            {note.hasPassword ? (
-                              <SymbolView
-                                name="lock.fill"
-                                size={10}
-                                tintColor={palette.semantic.warning}
-                              />
-                            ) : null}
-                            <AppText
-                              color={palette.semantic.warning}
-                              style={styles.letterNo}
-                              variant="eyebrow"
-                            >
-                              {`Letter №${note.nid}`}
-                            </AppText>
-                          </View>
-                        </NativePressable>
-                        {topic ? <TopicChip topic={topic} /> : null}
-                      </View>
-                    )
-                  })}
-                </View>
-              </View>
-            ))}
-          </View>
-        ) : null}
-        {loadingMore ? (
-          <ActivityIndicator color={palette.neutral[5]} style={styles.more} />
-        ) : null}
-      </EdgeEffectScrollView>
+            ) : null
+          }}
+          onEndReached={onEndReached}
+          onRefresh={onRefresh}
+          onScroll={onNativeScroll}
+          onVisibleItems={(items) =>
+            setVisibleIds(articleIdsFromVisible(items, ['latest', 'note']))
+          }
+        />
+      )}
     </View>
   )
 }
@@ -348,102 +267,15 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  content: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 24,
-    gap: 16,
-  },
   empty: {
     marginTop: 48,
     textAlign: 'center',
   },
-  rule: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 16,
-    marginBottom: 28,
-  },
-  ruleLine: {
-    flex: 1,
-    height: StyleSheet.hairlineWidth,
-  },
-  ruleLabel: {
-    letterSpacing: 1.8,
-    textTransform: 'uppercase',
-  },
-  laterYear: {
-    marginTop: 40,
-  },
-  yearHead: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    gap: 16,
-    paddingBottom: 10,
-    marginBottom: 18,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  anno: {
-    letterSpacing: 2.8,
-  },
-  yearNum: {
-    marginTop: 2,
-    fontSize: typeScale.display36.size,
-    lineHeight: typeScale.display36.lineHeight,
-    letterSpacing: -0.6,
-  },
-  yearCount: {
-    letterSpacing: 1.8,
-    textTransform: 'uppercase',
-  },
-  spine: {
-    position: 'absolute',
-    left: 7,
-    top: 8,
-    bottom: 8,
-    width: StyleSheet.hairlineWidth,
-  },
-  entry: {
-    position: 'relative',
-    paddingLeft: 22,
-    paddingBottom: 20,
-  },
-  press: {
-    overflow: 'visible',
-  },
-  dateRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 10,
-    marginLeft: -18,
-    marginBottom: 4,
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    flexShrink: 0,
-    borderRadius: 4,
-    borderWidth: 1.5,
-  },
-  stackDate: {
-    letterSpacing: 1.6,
-  },
-  mood: {
-    marginTop: 6,
-  },
-  letterMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 8,
-  },
-  letterNo: {
-    letterSpacing: 2.2,
-  },
   more: {
     marginTop: 16,
+  },
+  syncFailed: {
+    marginHorizontal: 20,
+    marginTop: 8,
   },
 })

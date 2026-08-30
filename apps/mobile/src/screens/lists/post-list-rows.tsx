@@ -1,5 +1,5 @@
 import { SymbolView } from 'expo-symbols'
-import { type ReactNode, Fragment } from 'react'
+import { Fragment, type ReactNode } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import {
@@ -7,7 +7,6 @@ import {
   NativePressable,
   type NativePressableProps,
 } from '@/components/ui'
-import type { PostRow } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { formatRelativeTime } from '@/lib/datetime'
 import { usePalette } from '@/theme/palette'
@@ -18,6 +17,7 @@ import {
   ListEntryMeta,
   ListEntryTitle,
 } from './list-entry'
+import type { PostListRow } from './post-list'
 import { partitionTags } from './post-list'
 
 export function PostMetaLine({
@@ -30,7 +30,7 @@ export function PostMetaLine({
   hiddenCount?: number
   onCategoryPress?: () => void
   onTagPress?: (tag: string) => void
-  post: PostRow
+  post: PostListRow
   tags: string[]
 }) {
   const locale = useLocale()
@@ -91,7 +91,7 @@ export function PostMetaLine({
   )
 }
 
-function PostCounts({ post }: { post: PostRow }) {
+function PostCounts({ post }: { post: PostListRow }) {
   const palette = usePalette()
   if (post.readCount <= 0 && post.likeCount <= 0) return null
   return (
@@ -118,7 +118,7 @@ function PostCounts({ post }: { post: PostRow }) {
   )
 }
 
-export function PostFeaturedTrigger({ post }: { post: PostRow }) {
+export function PostFeaturedTrigger({ post }: { post: PostListRow }) {
   const t = useTranslations('list')
   const palette = usePalette()
 
@@ -132,7 +132,7 @@ export function PostFeaturedTrigger({ post }: { post: PostRow }) {
   )
 }
 
-export function PostIndexTrigger({ post }: { post: PostRow }) {
+export function PostIndexTrigger({ post }: { post: PostListRow }) {
   return <ListEntryTitle>{post.title}</ListEntryTitle>
 }
 
@@ -144,7 +144,7 @@ export function PostFeaturedSheet({
 }: {
   onCategoryPress?: () => void
   onTagPress?: (tag: string) => void
-  post: PostRow
+  post: PostListRow
   trigger: ReactNode
 }) {
   const palette = usePalette()
@@ -161,10 +161,10 @@ export function PostFeaturedSheet({
     >
       {trigger}
       <PostMetaLine
-        onCategoryPress={onCategoryPress}
-        onTagPress={onTagPress}
         post={post}
         tags={post.tags}
+        onCategoryPress={onCategoryPress}
+        onTagPress={onTagPress}
       />
       <PostCounts post={post} />
     </View>
@@ -179,7 +179,7 @@ export function PostIndexItem({
 }: {
   onCategoryPress?: () => void
   onTagPress?: (tag: string) => void
-  post: PostRow
+  post: PostListRow
   trigger: ReactNode
 }) {
   const { hiddenCount, visible } = partitionTags(post.tags)
@@ -188,10 +188,10 @@ export function PostIndexItem({
     <ListEntry titleSlot={trigger}>
       <PostMetaLine
         hiddenCount={hiddenCount}
-        onCategoryPress={onCategoryPress}
-        onTagPress={onTagPress}
         post={post}
         tags={visible}
+        onCategoryPress={onCategoryPress}
+        onTagPress={onTagPress}
       />
     </ListEntry>
   )

@@ -1,3 +1,5 @@
+import type { ArticleBodyLine } from '@/api/article-body'
+import { isArticleBodyPayload } from '@/api/article-body'
 import {
   extractArticleMeta,
   noticeMetaNeedsBackfill,
@@ -51,17 +53,52 @@ export function pruneBoundary(
   return Math.min(...unpinned.map((item) => toMs(item.createdAt)))
 }
 
-export function bodyIsStale(
-  row: Versioned & { articleMeta?: unknown; bodyVersion: number | null },
-) {
+export function bodyIsStale(row: Versioned & { bodyVersion: number | null }) {
   if (row.bodyVersion === null) return true
-  // A null articleMeta means the detail has never been fetched under the
-  // notice-card schema — rows carried in by migration 0003 have a fresh body
-  // but no meta, and without this they would never refetch to backfill it.
-  if (row.articleMeta === null) return true
+  return row.bodyVersion < contentVersion(row)
+}
+
+export function needsListBody(row: {
+  bodyVersion: number | null
+  contentFormat?: string | null
+  createdAt: Date | string
+  hasPassword?: boolean | null
+  modifiedAt: Date | string | null
+}) {
+  if (row.contentFormat === 'markdown') return false
+  if (row.hasPassword) return false
+  return bodyIsStale(row)
+}
+
+export function decorationIsStale(row: { articleMeta?: unknown }) {
+  if (row.articleMeta === null || row.articleMeta === undefined) return true
   if (noticeMetaNeedsBackfill(row.articleMeta)) return true
   if (translatedBodyNeedsRefresh(row.articleMeta)) return true
-  return row.bodyVersion < contentVersion(row)
+  return false
+}
+
+export type ListBodyPatch =
+  | { kind: 'skip' }
+  | { kind: 'password' }
+  | {
+      kind: 'body'
+      bodyVersion: number | null
+      content: string
+      contentFormat: string
+      text: string
+    }
+
+export function listBodyPatchFromLine(line: ArticleBodyLine): ListBodyPatch {
+  if ('missing' in line || 'unchanged' in line) return { kind: 'skip' }
+  if ('hasPassword' in line) return { kind: 'password' }
+  if (!isArticleBodyPayload(line) || !line.content) return { kind: 'skip' }
+  return {
+    kind: 'body',
+    bodyVersion: line.locked ? null : contentVersion(line),
+    content: line.content,
+    contentFormat: line.contentFormat,
+    text: line.text,
+  }
 }
 
 export function postMetaFromApi(post: ApiPost, lang: Locale) {
