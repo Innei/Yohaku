@@ -10,4 +10,11 @@ describe('activePreparedContent', () => {
     expect(activePreparedContent(prepared, 'b', 'article B')).toBeNull()
     expect(activePreparedContent(null, 'b', 'article B')).toBeNull()
   })
+
+  it('keeps a reset payload on the current article and drops it for the next one', () => {
+    const reset = { content: '', id: 'a' }
+
+    expect(activePreparedContent(reset, 'a', 'article A')).toBe(reset)
+    expect(activePreparedContent(reset, 'b', 'article B')).toBeNull()
+  })
 })

@@ -158,6 +158,7 @@ const domGlobal = window as unknown as {
   __yohakuAttachReader?: () => void
   __yohakuRequestBlockComment?: () => void
   __yohakuRequestSelectionComment?: () => void
+  __yohakuResetReader?: () => boolean
   __yohakuSetReaderContent?: (json: string) => boolean
 }
 
@@ -165,6 +166,7 @@ let requestSelectionCommentImpl: (() => void) | null = null
 let requestBlockCommentImpl: (() => void) | null = null
 let reportReaderLayoutImpl: (() => void) | null = null
 let renderedReaderId: string | null = null
+let liveReaderId: string | undefined
 
 function postMissingSelectionHandler(type: string) {
   try {
@@ -207,7 +209,23 @@ domGlobal.__yohakuSetReaderContent = (json) => {
   return true
 }
 
+domGlobal.__yohakuResetReader = () => {
+  preparedContent = {
+    content: '',
+    id: liveReaderId ?? renderedReaderId ?? '',
+    variant: 'article',
+    webUrl: '',
+  }
+  renderedReaderId = null
+  notifyReader()
+  return true
+}
+
 domGlobal.__yohakuAttachReader = () => {
+  if (preparedContent?.content === '') {
+    preparedContent = null
+    notifyReader()
+  }
   postBridgeMessage({ type: '$$dom_ready', data: null })
   requestAnimationFrame(() => {
     if (renderedReaderId) {
@@ -301,6 +319,7 @@ export default function RichBody({
   webUrl,
 }: RichBodyProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  liveReaderId = readerId
   const prepared = useSyncExternalStore(subscribeReader, readPreparedContent)
   const activePrepared = activePreparedContent(prepared, readerId, content)
 
@@ -319,7 +338,7 @@ export default function RichBody({
   const bodyWebUrl = activePrepared?.webUrl ?? webUrl
 
   useEffect(() => {
-    if (!bodyReaderId) return
+    if (!bodyReaderId || bodyContent.trim() === '') return
     renderedReaderId = bodyReaderId
     postBridgeMessage({ type: 'yohaku:reader-ready', data: bodyReaderId })
   }, [bodyContent, bodyReaderId])

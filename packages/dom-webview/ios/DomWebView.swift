@@ -203,6 +203,14 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate, WKScriptMessage
     discard()
   }
 
+  func resetReader() {
+    dispatchPrecondition(condition: .onQueue(.main))
+    pendingContent = nil
+    renderedReaderId = nil
+    finishWait(false)
+    webView?.evaluateJavaScript("window.__yohakuResetReader?.(); true;")
+  }
+
   func webViewWebContentProcessDidTerminate(_ webView: WKWebView) {
     didTerminate(webView)
   }
@@ -293,6 +301,7 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate, WKScriptMessage
     webView.scrollView.delegate = nil
     webView.scrollView.isScrollEnabled = false
     bindParkingHandler(webView)
+    resetReader()
     layoutParked(webView)
   }
 
@@ -373,6 +382,35 @@ final class SharedReaderWebView: NSObject, WKNavigationDelegate, WKScriptMessage
     return String(json.dropFirst().dropLast())
   }
 }
+private final class ReaderAppearanceHook: UIViewController {
+  weak var host: DomWebView?
+
+  override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    guard parent?.isMovingFromParent == true || parent?.isBeingDismissed == true else {
+      return
+    }
+    host?.resetSharedReaderIfOwned()
+  }
+
+  func attach(to viewController: UIViewController) {
+    guard parent !== viewController else { return }
+    detach()
+    view.frame = .zero
+    view.isUserInteractionEnabled = false
+    viewController.addChild(self)
+    viewController.view.insertSubview(view, at: 0)
+    didMove(toParent: viewController)
+  }
+
+  func detach() {
+    guard parent != nil else { return }
+    willMove(toParent: nil)
+    view.removeFromSuperview()
+    removeFromParent()
+  }
+}
+
 internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, WKNavigationDelegate, WKScriptMessageHandler, RCTAutoInsetsProtocol {
   // Created on first prop sync — `WKWebViewConfiguration` is copied at init,
   // so init-only props need to land before `WKWebView()` is called.
@@ -387,6 +425,7 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
   private var needsResetupScripts = false
   private var ownsMessageHandler = false
   private var sharedSourceLoaded = false
+  private lazy var appearanceHook = ReaderAppearanceHook()
 
   // MARK: - WKWebViewConfiguration props (init-only)
 
@@ -542,6 +581,7 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
   override func didMoveToWindow() {
     super.didMoveToWindow()
     guard shared else { return }
+    syncAppearanceHook()
     if window != nil, webView == nil {
       reload()
     } else if window == nil, let webView {
@@ -863,6 +903,28 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
   }
 
   // MARK: - Internals
+
+  fileprivate func resetSharedReaderIfOwned() {
+    SharedReaderWebView.shared.resetReader()
+  }
+
+  private func syncAppearanceHook() {
+    appearanceHook.host = self
+    guard window != nil, let viewController = Self.nearestViewController(from: self) else {
+      appearanceHook.detach()
+      return
+    }
+    appearanceHook.attach(to: viewController)
+  }
+
+  private static func nearestViewController(from view: UIView) -> UIViewController? {
+    var responder: UIResponder? = view
+    while let current = responder {
+      if let viewController = current as? UIViewController { return viewController }
+      responder = current.next
+    }
+    return nil
+  }
 
   func releaseSharedWebView(_ sharedWebView: DomWKWebView) {
     guard webView === sharedWebView else { return }

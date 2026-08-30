@@ -27,6 +27,10 @@ public final class DomWebViewModule: Module {
       await SharedReaderWebView.shared.setContentAndWait(payload)
     }
 
+    AsyncFunction("resetReader") {
+      SharedReaderWebView.shared.resetReader()
+    }.runOnQueue(.main)
+
     AsyncFunction("presentImagePreview") { (payload: ImagePreviewPayload) in
       DomImagePreviewDomain.present(
         urls: payload.urls,
