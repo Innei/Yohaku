@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { DeskMedia } from './live-desk'
 import {
   buildMediaByline,
+  holdMediaPlayhead,
   parseDeskSnapshot,
   projectMediaPositionMs,
 } from './live-desk'
@@ -92,6 +93,7 @@ describe('parseDeskSnapshot', () => {
         playbackState: 'playing',
         playbackUrl: null,
         playerDisplayName: 'Apple Music',
+        positionMs: 60_000,
         title: 'One Last Kiss',
       },
       visible: true,
@@ -156,6 +158,49 @@ describe('projectMediaPositionMs', () => {
     expect(projectMediaPositionMs({ ...base, positionMs: null }, NOW)).toBe(
       null,
     )
+  })
+})
+
+describe('holdMediaPlayhead', () => {
+  const track: DeskMedia = {
+    album: '凉风有信',
+    anchorAt: '2026-08-30T09:55:00.000Z',
+    artist: '三妹',
+    artworkUrl: null,
+    durationMs: 202_000,
+    playbackState: 'playing',
+    playbackUrl: null,
+    playerDisplayName: 'QQ 音乐',
+    positionMs: 384,
+    rate: 1,
+    title: '凉风有信',
+  }
+
+  it('keeps the local playhead when a poll rebases a near-zero position', () => {
+    const later = Date.parse('2026-08-30T09:55:14.000Z')
+    const rebased: DeskMedia = {
+      ...track,
+      anchorAt: '2026-08-30T09:55:14.000Z',
+      positionMs: 384,
+    }
+
+    const held = holdMediaPlayhead(track, rebased, later)
+    expect(projectMediaPositionMs(held, later)).toBe(14_384)
+  })
+
+  it('accepts a real seek away from zero', () => {
+    const later = Date.parse('2026-08-30T09:55:14.000Z')
+    const seeked: DeskMedia = {
+      ...track,
+      anchorAt: '2026-08-30T09:55:14.000Z',
+      positionMs: 90_000,
+    }
+
+    expect(holdMediaPlayhead(track, seeked, later)).toEqual(seeked)
+  })
+
+  it('starts from the first sample', () => {
+    expect(holdMediaPlayhead(null, track, NOW)).toEqual(track)
   })
 })
 

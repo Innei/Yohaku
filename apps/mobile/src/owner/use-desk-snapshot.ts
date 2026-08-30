@@ -1,13 +1,13 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useFocusEffect } from 'expo-router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { api } from '@/api/client'
 import { subscribeGatewayConnect } from '@/socket/client'
 
 import { liveDeskQueryKey } from './companion-presence'
-import type { DeskSnapshot } from './live-desk'
-import { parseDeskSnapshot } from './live-desk'
+import type { DeskMedia, DeskSnapshot } from './live-desk'
+import { holdMediaPlayhead, parseDeskSnapshot } from './live-desk'
 
 export function useDeskSnapshot(enabled = true): DeskSnapshot {
   const queryClient = useQueryClient()
@@ -48,8 +48,16 @@ export function useDeskSnapshot(enabled = true): DeskSnapshot {
     return () => clearTimeout(timer)
   }, [data])
 
-  return useMemo(
-    () => parseDeskSnapshot(data?.state, now),
-    [data, now],
-  )
+  const playheadRef = useRef<DeskMedia | null>(null)
+
+  return useMemo(() => {
+    const snapshot = parseDeskSnapshot(data?.state, now)
+    if (!snapshot.visible || !snapshot.media) {
+      playheadRef.current = null
+      return snapshot
+    }
+    const held = holdMediaPlayhead(playheadRef.current, snapshot.media, Date.now())
+    playheadRef.current = held
+    return { ...snapshot, media: held }
+  }, [data, now])
 }

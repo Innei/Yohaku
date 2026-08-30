@@ -140,6 +140,43 @@ export function projectMediaPositionMs(
   )
 }
 
+const STALE_ZERO_MS = 5_000
+const REGRESSION_MS = 2_000
+
+function sameTrack(left: DeskMedia, right: DeskMedia): boolean {
+  return (
+    left.title === right.title &&
+    left.artist === right.artist &&
+    left.playerDisplayName === right.playerDisplayName &&
+    left.durationMs === right.durationMs
+  )
+}
+
+// QQ Music often re-reports ~0.4s and the server rebases anchorAt on every
+// poll. Keep the local playhead unless the incoming position looks like a
+// real seek. ponytail: seek-to-start is treated as stale; add a session
+// fingerprint if that starts mattering.
+export function holdMediaPlayhead(
+  previous: DeskMedia | null,
+  incoming: DeskMedia,
+  now: number,
+): DeskMedia {
+  if (!previous || !sameTrack(previous, incoming)) return incoming
+
+  const incomingPos = projectMediaPositionMs(incoming, now)
+  const previousPos = projectMediaPositionMs(previous, now)
+  if (incomingPos === null || previousPos === null) return incoming
+  if (incomingPos + REGRESSION_MS >= previousPos || incomingPos >= STALE_ZERO_MS) {
+    return incoming
+  }
+
+  return {
+    ...incoming,
+    anchorAt: new Date(now).toISOString(),
+    positionMs: previousPos,
+  }
+}
+
 export function buildMediaByline(
   media: Pick<DeskMedia, 'album' | 'artist' | 'title'>,
 ): string | null {

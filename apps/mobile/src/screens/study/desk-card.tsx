@@ -165,7 +165,7 @@ export function DeskCard() {
                 {shown.kicker}
               </AppText>
             </View>
-            <AppText numberOfLines={1} variant="entryTitleSans">
+            <AppText numberOfLines={1} style={styles.title} variant="entryTitleSans">
               {shown.title}
             </AppText>
             {shown.byline ? (
@@ -347,12 +347,13 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'stretch',
     gap: 12,
   },
   cover: {
-    width: 56,
-    height: 56,
+    aspectRatio: 1,
+    minWidth: 56,
+    minHeight: 56,
     borderRadius: 10,
     borderCurve: 'continuous',
     alignItems: 'center',
@@ -361,8 +362,13 @@ const styles = StyleSheet.create({
   },
   copy: {
     flex: 1,
-    gap: 3,
+    gap: 1,
+    justifyContent: 'center',
     minWidth: 0,
+  },
+  title: {
+    fontSize: 16,
+    lineHeight: 20,
   },
   kicker: {
     flexDirection: 'row',
