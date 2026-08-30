@@ -35,7 +35,7 @@ import {
 } from './taxonomy-model'
 import { TaxonomyPinned } from './taxonomy-pinned'
 import { readCategoryPosts } from './taxonomy-query'
-import { TaxonomyPostRow, TaxonomyYearHead } from './taxonomy-year-list'
+import { TaxonomyYearHead } from './taxonomy-year-list'
 
 export function CategoryDetailScreen({ slug }: { slug: string }) {
   const router = useRouter()
@@ -141,10 +141,21 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
         featuredId: featured?.id ?? null,
         groupByYear,
         groups,
+        locale,
         showChips: tags.length > 0,
+        showCategorySource: false,
         showEmpty: isEmpty && !showMissing && !showRetry,
       }),
-    [featured, groupByYear, groups, isEmpty, showMissing, showRetry, tags.length],
+    [
+      featured,
+      groupByYear,
+      groups,
+      isEmpty,
+      locale,
+      showMissing,
+      showRetry,
+      tags.length,
+    ],
   )
 
   return (
@@ -224,6 +235,7 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
                 />
               )
             }
+            if (item.type === 'post') return null
             const post = postsById.get(item.id)
             if (!post) return null
             if (item.type === 'featured') {
@@ -235,17 +247,22 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
                 />
               )
             }
-            return (
-              <TaxonomyPostRow
-                includeYear={!groupByYear}
-                post={post}
-                showCategorySource={false}
-                onPress={() => openPost(router, post)}
-              />
-            )
+            return null
           }}
           onRefresh={onRefresh}
           onScroll={onNativeScroll}
+          onItemPress={({ id }) => {
+            const post = postsById.get(id)
+            if (post) openPost(router, post)
+          }}
+          onLinkPress={(kind, value) => {
+            if (kind === 'tag') {
+              router.push({
+                pathname: '/posts/tag/[name]',
+                params: { name: value },
+              })
+            }
+          }}
           onVisibleItems={(items) =>
             setVisibleIds(articleIdsFromVisible(items, ['featured', 'post']))
           }

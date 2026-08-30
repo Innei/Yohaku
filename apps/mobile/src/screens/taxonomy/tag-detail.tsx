@@ -27,7 +27,7 @@ import { TaxonomyChips } from './taxonomy-chips'
 import { TaxonomyBackControl } from './taxonomy-chrome'
 import { crossCategoryCounts, taxonomyYearGroups } from './taxonomy-model'
 import { readTagPosts } from './taxonomy-query'
-import { TaxonomyPostRow, TaxonomyYearHead } from './taxonomy-year-list'
+import { TaxonomyYearHead } from './taxonomy-year-list'
 
 export function TagDetailScreen({ name }: { name: string }) {
   const router = useRouter()
@@ -123,10 +123,12 @@ export function TagDetailScreen({ name }: { name: string }) {
         featuredId: null,
         groupByYear,
         groups,
+        locale,
         showChips: cross >= 2,
+        showCategorySource: true,
         showEmpty: isEmpty && !showMissing && !showRetry,
       }),
-    [cross, groupByYear, groups, isEmpty, showMissing, showRetry],
+    [cross, groupByYear, groups, isEmpty, locale, showMissing, showRetry],
   )
 
   return (
@@ -211,19 +213,23 @@ export function TagDetailScreen({ name }: { name: string }) {
                 />
               )
             }
-            const post = postsById.get(item.id)
-            if (!post) return null
-            return (
-              <TaxonomyPostRow
-                showCategorySource
-                includeYear={!groupByYear}
-                post={post}
-                onPress={() => openPost(router, post)}
-              />
-            )
+            if (item.type === 'post') return null
+            return null
           }}
           onRefresh={onRefresh}
           onScroll={onNativeScroll}
+          onItemPress={({ id }) => {
+            const post = postsById.get(id)
+            if (post) openPost(router, post)
+          }}
+          onLinkPress={(kind, value) => {
+            if (kind === 'category') {
+              router.push({
+                pathname: '/categories/[slug]',
+                params: { slug: value },
+              })
+            }
+          }}
           onVisibleItems={(items) =>
             setVisibleIds(articleIdsFromVisible(items, ['post']))
           }

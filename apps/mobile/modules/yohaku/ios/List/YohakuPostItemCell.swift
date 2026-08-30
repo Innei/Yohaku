@@ -140,20 +140,21 @@ final class YohakuPostItemCell: UICollectionViewCell, UITextViewDelegate {
     let separator = base.merging([.foregroundColor: neutral4]) { _, new in new }
     let result = NSMutableAttributedString(string: item.date, attributes: base)
 
-    if !item.categoryName.isEmpty {
+    let hasCategory = !item.categoryName.isEmpty
+    if hasCategory {
       result.append(NSAttributedString(string: "   ·   ", attributes: separator))
       result.append(link(item.categoryName, kind: "category", value: item.categorySlug, attributes: base))
-      if !item.tags.isEmpty {
-        result.append(NSAttributedString(string: "   /   ", attributes: separator))
-        for (index, tag) in item.tags.enumerated() {
-          if index > 0 {
-            result.append(NSAttributedString(string: "   ,   ", attributes: separator))
-          }
-          result.append(link(tag, kind: "tag", value: tag, attributes: base))
+    }
+    if !item.tags.isEmpty {
+      result.append(NSAttributedString(string: hasCategory ? "   /   " : "   ", attributes: separator))
+      for (index, tag) in item.tags.enumerated() {
+        if index > 0 {
+          result.append(NSAttributedString(string: "   ,   ", attributes: separator))
         }
-        if item.hiddenTagCount > 0 {
-          result.append(NSAttributedString(string: "   +\(item.hiddenTagCount)", attributes: base))
-        }
+        result.append(link(hasCategory ? tag : "#\(tag)", kind: "tag", value: tag, attributes: base))
+      }
+      if item.hiddenTagCount > 0 {
+        result.append(NSAttributedString(string: "   +\(item.hiddenTagCount)", attributes: base))
       }
     }
     return result
