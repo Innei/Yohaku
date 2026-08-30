@@ -51,6 +51,11 @@ export const zh = {
     postsTotal: '共 {count} 篇',
     olderNotes: '更早的手记',
     readFullNote: '阅读全文',
+    thinkingVerbWatched: '观看了',
+    thinkingVerbRead: '读了',
+    thinkingVerbListened: '听了',
+    thinkingVerbStudied: '读了',
+    thinkingVerbLinked: '链接到',
   },
   topic: {
     indexTitle: '专栏',

@@ -51,6 +51,11 @@ export const ko = {
     postsTotal: '모두 {count}편',
     olderNotes: '더 먼 수첩',
     readFullNote: '전문 읽기',
+    thinkingVerbWatched: '봤어요',
+    thinkingVerbRead: '읽었어요',
+    thinkingVerbListened: '들었어요',
+    thinkingVerbStudied: '읽었어요',
+    thinkingVerbLinked: '링크',
   },
   topic: {
     indexTitle: '이야기',

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { thinkingBlocks } from './thinking-markdown'
+import type { ApiEnrichment } from '@/api/types'
+
+import { soleCardVerbKey, thinkingBlocks } from './thinking-markdown'
 
 const url = 'https://www.themoviedb.org/tv/281495'
 const enrichment = {
@@ -38,5 +40,55 @@ describe('thinkingBlocks', () => {
     expect(thinkingBlocks(url, null)).toEqual([
       { type: 'markdown', markdown: url },
     ])
+  })
+})
+
+function mediaEnrichment(
+  url: string,
+  category: string,
+  subtype?: string,
+): ApiEnrichment {
+  return { url, title: 'T', category, subtype } as ApiEnrichment
+}
+
+const movie = 'https://themoviedb.org/movie/1'
+
+function verbFor(content: string, map: Record<string, ApiEnrichment>) {
+  return soleCardVerbKey(thinkingBlocks(content, map))
+}
+
+describe('soleCardVerbKey', () => {
+  it('picks the verb when the whole entry is one enriched link', () => {
+    expect(verbFor(movie, { [movie]: mediaEnrichment(movie, 'media', 'movie') })).toBe(
+      'thinkingVerbWatched',
+    )
+  })
+
+  it('falls back to the generic verb for unknown categories', () => {
+    expect(verbFor(movie, { [movie]: mediaEnrichment(movie, 'article') })).toBe(
+      'thinkingVerbLinked',
+    )
+  })
+
+  it('stays silent when the entry also has prose', () => {
+    expect(
+      verbFor(`看完了\n${movie}`, {
+        [movie]: mediaEnrichment(movie, 'media', 'movie'),
+      }),
+    ).toBeNull()
+  })
+
+  it('stays silent for multiple cards', () => {
+    const book = 'https://books.example/1'
+    expect(
+      verbFor(`${movie}\n${book}`, {
+        [movie]: mediaEnrichment(movie, 'media', 'movie'),
+        [book]: mediaEnrichment(book, 'book'),
+      }),
+    ).toBeNull()
+  })
+
+  it('stays silent when the link has no enrichment', () => {
+    expect(verbFor(movie, {})).toBeNull()
   })
 })

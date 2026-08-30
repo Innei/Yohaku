@@ -51,6 +51,11 @@ export const en = {
     postsTotal: '{count} posts',
     olderNotes: 'Older notes',
     readFullNote: 'Read full note',
+    thinkingVerbWatched: 'Watched',
+    thinkingVerbRead: 'Read',
+    thinkingVerbListened: 'Listened to',
+    thinkingVerbStudied: 'Studied',
+    thinkingVerbLinked: 'Linked to',
   },
   topic: {
     indexTitle: 'Series',

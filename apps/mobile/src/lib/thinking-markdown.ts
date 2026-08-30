@@ -36,3 +36,33 @@ export function thinkingBlocks(
   flush()
   return blocks
 }
+
+export type ThinkingVerbKey =
+  | 'thinkingVerbWatched'
+  | 'thinkingVerbRead'
+  | 'thinkingVerbListened'
+  | 'thinkingVerbStudied'
+  | 'thinkingVerbLinked'
+
+function verbKeyFor(enrichment: ApiEnrichment): ThinkingVerbKey {
+  const category = enrichment.category ?? ''
+  const subtype = enrichment.subtype ?? ''
+  if (category === 'media') {
+    if (subtype === 'movie' || subtype === 'tv') return 'thinkingVerbWatched'
+    if (subtype === 'book') return 'thinkingVerbRead'
+    if (subtype === 'music' || subtype === 'album' || subtype === 'song')
+      return 'thinkingVerbListened'
+  }
+  if (category === 'book') return 'thinkingVerbRead'
+  if (category === 'music') return 'thinkingVerbListened'
+  if (category === 'academic') return 'thinkingVerbStudied'
+  return 'thinkingVerbLinked'
+}
+
+export function soleCardVerbKey(
+  blocks: ThinkingBlock[],
+): ThinkingVerbKey | null {
+  if (blocks.length !== 1) return null
+  const [block] = blocks
+  return block.type === 'card' ? verbKeyFor(block.enrichment) : null
+}

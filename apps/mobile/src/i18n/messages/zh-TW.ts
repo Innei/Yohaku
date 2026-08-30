@@ -51,6 +51,11 @@ export const zhTW = {
     postsTotal: '共 {count} 篇',
     olderNotes: '更早的手記',
     readFullNote: '閱讀全文',
+    thinkingVerbWatched: '看了',
+    thinkingVerbRead: '讀了',
+    thinkingVerbListened: '聽了',
+    thinkingVerbStudied: '讀了',
+    thinkingVerbLinked: '連結到',
   },
   topic: {
     indexTitle: '專欄',

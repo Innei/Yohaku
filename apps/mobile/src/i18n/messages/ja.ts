@@ -51,6 +51,11 @@ export const ja = {
     postsTotal: '全 {count} 件',
     olderNotes: '以前の手記',
     readFullNote: '手記を読む',
+    thinkingVerbWatched: '観ました',
+    thinkingVerbRead: '読みました',
+    thinkingVerbListened: '聴きました',
+    thinkingVerbStudied: '読みました',
+    thinkingVerbLinked: 'リンク',
   },
   topic: {
     indexTitle: 'コラム',
