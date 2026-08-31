@@ -15,6 +15,9 @@ const mobileHost: HostCapabilities = {
   apiBase: 'https://example.com/api',
   fetchJSON: async () => ({}) as never,
   labels: {
+    codeCopied: '已复制',
+    codeCopy: '复制',
+    codeExpand: '展开 · {count} 行',
     nestedDocCollapse: '收起',
     nestedDocExpand: '展开',
     nestedDocLabel: '嵌套文档',
@@ -193,4 +196,39 @@ describe('poll adapter wiring (I-1)', () => {
     expect(mountEl.textContent).toContain('25%')
     expect(mountEl.textContent).toContain('4')
   })
+})
+
+it('code-snippet 走本地渲染器而非上游', () => {
+  const state = sanitizeEditorState(
+    {
+      root: {
+        children: [
+          {
+            files: [
+              {
+                code: 'const a = 1',
+                filename: 'renderer.ts',
+                language: 'typescript',
+              },
+            ],
+            type: 'code-snippet',
+            version: 1,
+          },
+        ],
+        direction: null,
+        format: '',
+        indent: 0,
+        type: 'root',
+        version: 1,
+      },
+    } as never,
+    REGISTERED_NODE_TYPES,
+  )
+  const html = renderToStaticMarkup(
+    <HostProvider host={mobileHost}>
+      <RichContent theme="light" value={state} variant="article" />
+    </HostProvider>,
+  )
+  expect(html).toContain('yohaku-code__tab')
+  expect(html).not.toContain('rcs-container')
 })

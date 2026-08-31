@@ -76,6 +76,7 @@ import { LexicalListItemOverride } from './overrides/list-item'
 import { lexicalTableOverrides } from './overrides/table'
 import { yohakuFileModule } from './file-module'
 import { yohakuChatModule } from './portable/chat-module'
+import { YohakuCodeSnippet } from './portable/code-snippet'
 import { staticExcalidrawModule } from './portable/excalidraw'
 import { LexicalImageOverride } from './portable/image'
 import { Mermaid } from './portable/mermaid'
@@ -181,6 +182,13 @@ const lexicalCodeBlockModule: RichRendererModule = {
   name: 'code-block',
   renderers: { CodeBlock: CodeBlockOverride },
 }
+// Drops the upstream module's `lazyRenderers` entry: keeping it alongside a
+// local `renderers` override leaves the block empty on the SSR pass.
+const lexicalCodeSnippetModule: RichRendererModule = {
+  name: codeSnippetModule.name,
+  nodes: codeSnippetModule.nodes,
+  renderers: { CodeSnippet: YohakuCodeSnippet },
+}
 const lexicalLinkCardModule: RichRendererModule = {
   name: 'link-card',
   renderers: { LinkCard: LinkCardOverride },
@@ -213,7 +221,7 @@ const modules: RichRendererModule[] = [
   configuredNestedDocModule,
   staticExcalidrawModule,
   yohakuChatModule,
-  codeSnippetModule,
+  lexicalCodeSnippetModule,
   configuredGalleryModule,
   lexicalAlertModule,
   lexicalBannerModule,

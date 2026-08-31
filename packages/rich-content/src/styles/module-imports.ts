@@ -3,8 +3,8 @@
 // rich-compose is the single CSS contract surface (since @haklex/* 0.9.0):
 // foundation gives prose body + theme tokens + variants; per-module subpaths
 // cover the renderers we actually use. Modules whose default renderer is
-// replaced by a local override (code-block, link-card, poll, quote, table)
-// skip the upstream CSS entirely. Alert / banner / nested-doc keep haklex's
+// replaced by a local override (code-block, code-snippet, link-card, poll,
+// quote, table) skip the upstream CSS entirely. Alert / banner / nested-doc keep haklex's
 // wrapper DOM but are styled by yohaku-block-styles.css below — the upstream
 // alert.css / banner.css / nested-doc.css are intentionally not imported.
 //
@@ -13,7 +13,6 @@
 
 import '@haklex/rich-compose/style/foundation.css'
 import '@haklex/rich-compose/style/chat.css'
-import '@haklex/rich-compose/style/code-snippet.css'
 import '@haklex/rich-compose/style/dynamic.css'
 import '@haklex/rich-compose/style/embed.css'
 import '@haklex/rich-compose/style/file.css'
