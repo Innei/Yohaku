@@ -8,6 +8,9 @@ export function useRichBodyLabels(): RichBodyLabels {
   const locale = useLocale()
   return useMemo(
     () => ({
+      codeCopied: translate(locale, 'detail', 'codeCopied'),
+      codeCopy: translate(locale, 'detail', 'codeCopy'),
+      codeExpand: translate(locale, 'detail', 'codeExpand'),
       fileDownloadFull: translate(locale, 'detail', 'fileDownloadFull'),
       filePreviewDownload: translate(locale, 'detail', 'filePreviewDownload'),
       filePreviewTruncated: translate(locale, 'detail', 'filePreviewTruncated', {

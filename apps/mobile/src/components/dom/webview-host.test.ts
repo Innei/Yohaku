@@ -8,6 +8,9 @@ import { createWebviewHost, postNativeFilePreview } from './webview-host'
 const deps = {
   apiBase: 'https://mx.example.com/api/v3',
   labels: {
+    codeCopied: '已复制',
+    codeCopy: '复制',
+    codeExpand: '展开 · {count} 行',
     nestedDocCollapse: '收起',
     nestedDocExpand: '展开',
     nestedDocLabel: '嵌套文档',

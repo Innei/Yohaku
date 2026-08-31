@@ -139,6 +139,9 @@ export interface HostCapabilities {
   // container level (mobile WebView) leave this unset.
   interceptSelfLink?(path: string): boolean
   labels: {
+    codeCopied: string
+    codeCopy: string
+    codeExpand: string
     nestedDocCollapse: string
     nestedDocExpand: string
     nestedDocLabel: string

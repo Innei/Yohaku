@@ -76,6 +76,9 @@ export interface RichBodyFontFace {
 // The DOM sandbox has no access to native modules, so the locale store cannot
 // be imported here — every string and the locale itself arrive as props.
 export interface RichBodyLabels {
+  codeCopied: string
+  codeCopy: string
+  codeExpand: string
   fileDownloadFull: string
   filePreviewDownload: string
   filePreviewTruncated: string
@@ -637,6 +640,9 @@ export default function RichBody({
   // and would invalidate this memo — and with it the whole renderer subtree —
   // on every render.
   const {
+    codeCopied,
+    codeCopy,
+    codeExpand,
     fileDownloadFull,
     filePreviewDownload,
     filePreviewTruncated,
@@ -680,7 +686,14 @@ export default function RichBody({
             />
           ),
         locale,
-        labels: { nestedDocCollapse, nestedDocExpand, nestedDocLabel },
+        labels: {
+          codeCopied,
+          codeCopy,
+          codeExpand,
+          nestedDocCollapse,
+          nestedDocExpand,
+          nestedDocLabel,
+        },
         nestedDocPresentation: canExpandNestedDoc ? 'modal' : 'inline',
         printCaption: (kind, fields) =>
           printBlockFallback(
