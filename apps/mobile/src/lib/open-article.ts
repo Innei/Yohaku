@@ -3,9 +3,13 @@ import * as WebBrowser from 'expo-web-browser'
 
 import { prepareArticleBody } from '@/components/dom/prepare-reader'
 import type { NoteRow, PostRow } from '@/db/schema'
+import { primeDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { siteHref } from '@/lib/site-url'
 
-type Router = { push: (href: Href) => void }
+type Router = {
+  prefetch: (href: Href) => void
+  push: (href: Href) => void
+}
 
 type OpenPostRow = Pick<
   PostRow,
@@ -22,7 +26,12 @@ function openAfterPrepare(
     router.push(href)
     return
   }
+  router.prefetch(href)
   void prepare().finally(() => router.push(href))
+}
+
+function isFullPostRow(post: OpenPostRow): post is OpenPostRow & PostRow {
+  return 'lang' in post
 }
 
 export function openNote(router: Router, note: NoteRow) {
@@ -36,6 +45,10 @@ export function openNote(router: Router, note: NoteRow) {
     params: { nid: String(note.nid) },
   } as const
   if (note.contentFormat === 'lexical' && note.content) {
+    primeDatabaseSnapshot(`note:${note.lang}:${note.nid}`, {
+      note,
+      topic: null,
+    })
     openAfterPrepare(router, href, () =>
       prepareArticleBody({
         content: note.content!,
@@ -62,6 +75,12 @@ export function openPost(router: Router, post: OpenPostRow) {
     params: { category: post.categorySlug, postId: post.id, slug: post.slug },
   } as const
   if (post.contentFormat === 'lexical' && post.content) {
+    if (isFullPostRow(post)) {
+      primeDatabaseSnapshot(
+        `post:${post.lang}:${post.id}:${post.categorySlug}:${post.slug}`,
+        post,
+      )
+    }
     openAfterPrepare(router, href, () =>
       prepareArticleBody({
         content: post.content!,

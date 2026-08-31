@@ -14,6 +14,19 @@ interface SnapshotResult<T> {
   value: T
 }
 
+// ponytail: one pending snapshot matches the single shared reader; use a keyed
+// cache only if article routes ever preload concurrently.
+let primedSnapshot: SnapshotResult<unknown> | null = null
+
+export function primeDatabaseSnapshot<T>(identity: string, value: T) {
+  primedSnapshot = { identity, value }
+}
+
+function readPrimedSnapshot<T>(identity: string): SnapshotResult<T> | null {
+  if (primedSnapshot?.identity !== identity) return null
+  return primedSnapshot as SnapshotResult<T>
+}
+
 /**
  * Reads related SQLite state as one snapshot and publishes one React update.
  * Database writes are reconciled only after the native presentation finishes,
@@ -25,7 +38,9 @@ export function useDatabaseSnapshot<T>({
   tables,
 }: DatabaseSnapshotOptions<T>) {
   const updatesEnabled = useRouteTransitionSettled(identity)
-  const [result, setResult] = useState<SnapshotResult<T> | null>(null)
+  const [result, setResult] = useState<SnapshotResult<T> | null>(() =>
+    readPrimedSnapshot(identity),
+  )
   const [failedIdentity, setFailedIdentity] = useState<string | null>(null)
   const revisionRef = useRef(0)
   const readRef = useRef(read)
@@ -37,6 +52,7 @@ export function useDatabaseSnapshot<T>({
     try {
       const value = await readRef.current()
       if (revision !== revisionRef.current) return
+      if (primedSnapshot?.identity === identity) primedSnapshot = null
       setResult({ identity, value })
       setFailedIdentity(null)
     } catch {
