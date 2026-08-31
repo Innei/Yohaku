@@ -253,7 +253,6 @@ export function PostsListScreen() {
               />
             )
           }
-          if (item.type === 'post') return null
           const post = postsById.get(item.id)
           return post ? (
             <PostContextLink featured={item.type === 'featured'} post={post} />

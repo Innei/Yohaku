@@ -7,7 +7,7 @@ final class YohakuListCellView: ExpoView {
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
-    clipsToBounds = true
+    clipsToBounds = false
     backgroundColor = .clear
   }
 

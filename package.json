@@ -15,10 +15,5 @@
     "test": "pnpm --filter @yohaku/design-system test",
     "demo:pdf": "pnpm --filter @yohaku/design-system demo:pdf",
     "mobile": "pnpm --filter @yohaku/mobile start"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "expo-router@57.0.11": "patches/expo-router@57.0.11.patch"
-    }
   }
 }

@@ -8,8 +8,8 @@ final class YohakuListHostCell: UICollectionViewCell {
     super.init(frame: frame)
     backgroundColor = .clear
     contentView.backgroundColor = .clear
-    contentView.clipsToBounds = true
-    clipsToBounds = true
+    contentView.clipsToBounds = false
+    clipsToBounds = false
   }
 
   @available(*, unavailable)
@@ -74,10 +74,6 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     view.delaysContentTouches = false
     view.allowsSelection = false
     view.contentInsetAdjustmentBehavior = .automatic
-    view.register(
-      YohakuPostItemCell.self,
-      forCellWithReuseIdentifier: YohakuPostItemCell.reuseIdentifier
-    )
     view.dataSource = self
     view.delegate = self
     return view
@@ -120,7 +116,7 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
 
   func setItems(_ next: [YohakuListItemSpec]) {
     items = next
-    for item in next where item.type != "post" {
+    for item in next {
       let reuseID = reuseIdentifier(for: item.id)
       if registeredReuseIDs.insert(reuseID).inserted {
         collectionView.register(
@@ -281,20 +277,6 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     cellForItemAt indexPath: IndexPath
   ) -> UICollectionViewCell {
     let item = items[indexPath.item]
-    if item.type == "post" {
-      let cell = collectionView.dequeueReusableCell(
-        withReuseIdentifier: YohakuPostItemCell.reuseIdentifier,
-        for: indexPath
-      ) as! YohakuPostItemCell
-      cell.configure(item)
-      cell.onPress = { [weak self] in
-        self?.onItemPress(["id": item.id, "type": item.type])
-      }
-      cell.onLink = { [weak self] kind, value in
-        self?.onLinkPress(["kind": kind, "value": value])
-      }
-      return cell
-    }
     let cell = collectionView.dequeueReusableCell(
       withReuseIdentifier: reuseIdentifier(for: item.id),
       for: indexPath
@@ -335,15 +317,6 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     sizeForItemAt indexPath: IndexPath
   ) -> CGSize {
     let item = items[indexPath.item]
-    if item.type == "post" {
-      return CGSize(
-        width: max(0, collectionView.bounds.width - 40),
-        height: YohakuPostItemCell.height(
-          for: item,
-          width: max(0, collectionView.bounds.width - 40)
-        )
-      )
-    }
     return CGSize(
       width: max(0, collectionView.bounds.width - 40),
       height: measuredHeights[item.id] ?? CGFloat(item.estimatedHeight)

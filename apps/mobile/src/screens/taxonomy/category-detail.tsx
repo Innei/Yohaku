@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from '@/i18n'
 import { openPost } from '@/lib/open-article'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { articleIdsFromVisible } from '@/screens/lists/flatten-posts-list'
+import { PostContextLink } from '@/screens/lists/post-context-link'
 import { pickFeaturedPost } from '@/screens/lists/post-list'
 import { ingestCategoryBySlug, syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
@@ -235,9 +236,9 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
                 />
               )
             }
-            if (item.type === 'post') return null
             const post = postsById.get(item.id)
             if (!post) return null
+            if (item.type === 'post') return <PostContextLink post={post} />
             if (item.type === 'featured') {
               return (
                 <TaxonomyPinned

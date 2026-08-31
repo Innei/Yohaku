@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from '@/i18n'
 import { openPost } from '@/lib/open-article'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { articleIdsFromVisible } from '@/screens/lists/flatten-posts-list'
+import { PostContextLink } from '@/screens/lists/post-context-link'
 import { ingestTagByName, syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
 import { useListBodyIngest } from '@/sync/use-list-body-ingest'
@@ -213,7 +214,10 @@ export function TagDetailScreen({ name }: { name: string }) {
                 />
               )
             }
-            if (item.type === 'post') return null
+            if (item.type === 'post') {
+              const post = postsById.get(item.id)
+              return post ? <PostContextLink post={post} /> : null
+            }
             return null
           }}
           onRefresh={onRefresh}

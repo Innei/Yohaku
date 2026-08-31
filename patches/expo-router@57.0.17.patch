@@ -36,3 +36,14 @@ diff --git a/build/link/LinkWithPreview.js b/build/link/LinkWithPreview.js
          }, style: { display: 'contents' }, disableForceFlatten: true, children: (0, jsx_runtime_1.jsx)(NativeMenuContext_1.NativeMenuContext, { value: true, children: (0, jsx_runtime_1.jsxs)(InternalLinkPreviewContext_1.InternalLinkPreviewContext, { value: {
                      isVisible: isCurrentPreviewOpen,
                      href: rest.hrefForPreviewNavigation,
+diff --git a/ios/LinkPreview/LinkPreviewNativeView.swift b/ios/LinkPreview/LinkPreviewNativeView.swift
+--- a/ios/LinkPreview/LinkPreviewNativeView.swift
++++ b/ios/LinkPreview/LinkPreviewNativeView.swift
+@@ -105,6 +105,7 @@ class NativeLinkPreviewView: RouterViewWithLogger, UIContextMenuInteractionDeleg
+           }
+         }
+         super.unmountChildComponentView(child, index: index)
++        self.directChild = nil
+       } else {
+         logger?.warn(
+           "[expo-router] No link child found to unmount. This is most likely a bug in expo-router."
