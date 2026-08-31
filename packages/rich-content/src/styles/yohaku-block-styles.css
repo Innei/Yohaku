@@ -399,33 +399,167 @@
 }
 
 
-/* ─── code block · 素 ───────────────────────────────────────────────
-   DOM owned by CodeBlockOverride's plain <pre><code> fallback path — the
-   route taken whenever a host supplies no slots.CodeBlock (e.g. mobile,
-   which has no Shiki dependency to spare). */
+/* ─── code block · 一条线 ──────────────────────────────────────────
+   DOM owned by CodeShell: 全块只有左缘一条 1px 中性线，头行放身份，
+   尾行只在 tabs 占满头行或代码折叠时出现。 */
 
-.rich-code-block {
-  box-sizing: border-box;
-  margin: 1rem 0;
-  padding: 14px 16px;
-  max-width: 100%;
-  overflow-x: auto;
-  background: var(--color-neutral-2);
-  border: 1px solid var(--color-neutral-4);
-  border-radius: 0;
+.yohaku-code {
+  position: relative;
+  margin: 20px 0;
+  border-left: 1px solid var(--color-neutral-4);
 }
 
-.rich-code-block code {
+.yohaku-code--collapsed .yohaku-code__body {
+  max-height: calc(var(--app-viewport-height, 100vh) * 0.5);
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, #000 60%, transparent);
+}
+
+.yohaku-code__head,
+.yohaku-code__foot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-left: 18px;
+  font-family: var(--font-sans, system-ui);
+  font-size: var(--text-label-12, 12px);
+  line-height: var(--text-label-12--line-height, 1.5);
+  color: var(--color-neutral-7);
+}
+
+.yohaku-code__head {
+  margin-bottom: 9px;
+}
+
+.yohaku-code__foot {
+  margin-top: 10px;
+}
+
+.yohaku-code__name,
+.yohaku-code__foot-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.yohaku-code__icon {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.yohaku-code__dot {
+  flex: 0 0 5px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-neutral-5);
+}
+
+.yohaku-code__copy,
+.yohaku-code__expand {
+  flex: 0 0 auto;
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: var(--color-neutral-5);
+}
+
+.yohaku-code__copy {
+  margin-left: auto;
+}
+
+.yohaku-code__expand {
+  color: var(--color-neutral-7);
+}
+
+.yohaku-code__tabs {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.yohaku-code__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.yohaku-code__tab {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: var(--color-neutral-5);
+  white-space: nowrap;
+}
+
+.yohaku-code__tab .yohaku-code__icon,
+.yohaku-code__tab .yohaku-code__dot {
+  opacity: 0.4;
+}
+
+.yohaku-code__tab--active {
+  color: var(--color-neutral-9);
+  font-weight: 500;
+}
+
+.yohaku-code__tab--active .yohaku-code__icon,
+.yohaku-code__tab--active .yohaku-code__dot {
+  opacity: 1;
+}
+
+.yohaku-code__scroll {
+  max-width: 100%;
+  padding-left: 18px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.yohaku-code__scroll pre {
+  margin: 0;
+  padding: 0;
+  background: transparent !important;
+}
+
+.yohaku-code__scroll code {
   display: block;
   width: max-content;
   min-width: 100%;
-  tab-size: 2;
-  white-space: pre;
+  padding: 0;
+  background: transparent !important;
+  color: var(--color-neutral-9);
   font-family: var(--font-mono, monospace);
   font-size: var(--text-copy-13, 13px);
   line-height: var(--text-copy-13--line-height, 1.54);
-  color: var(--color-neutral-9);
+  tab-size: 2;
+  white-space: pre;
 }
+
+.yohaku-code .shiki,
+.yohaku-code .shiki span {
+  background-color: transparent !important;
+}
+
+.dark .yohaku-code .shiki,
+.dark .yohaku-code .shiki span {
+  color: var(--shiki-dark) !important;
+}
+
+
+/* ─── code fold · github file embed ─────────────────────────────────
+   DOM owned by CodeFold, which wraps whole embedded files rather than
+   code blocks — unrelated to .yohaku-code's own folding. */
 
 .yohaku-code-fold {
   position: relative;
@@ -438,8 +572,7 @@
   mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
 
-.yohaku-code-fold--collapsed .yohaku-code-fold__body .m-code-block,
-.yohaku-code-fold--collapsed .yohaku-code-fold__body .yohaku-code-block {
+.yohaku-code-fold--collapsed .yohaku-code-fold__body .yohaku-code {
   margin-bottom: 0;
 }
 
@@ -457,102 +590,7 @@
   border: none;
   background: transparent;
   color: var(--color-neutral-7);
-  font-size: 12px;
-}
-
-.yohaku-code-block {
-  position: relative;
-  margin: 1rem 0;
-}
-
-.yohaku-code-block--collapsed .yohaku-code-block__body {
-  max-height: calc(var(--app-viewport-height, 100vh) * 0.5);
-  overflow: hidden;
-  mask-image: linear-gradient(to bottom, #000 55%, transparent);
-}
-
-.yohaku-code-block__expand {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 8px;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding: 0;
-  border: none;
-  background: transparent;
-  color: var(--color-neutral-7);
-  font-size: var(--text-caption-12, 12px);
-  cursor: pointer;
-}
-
-.yohaku-code-block__expand:hover {
-  color: var(--color-neutral-9);
-}
-
-.yohaku-code-block .rich-code-block {
-  margin: 0;
-}
-
-.yohaku-code-block__shiki pre {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 14px 16px;
-  max-width: 100%;
-  overflow-x: auto;
-  border: 1px solid var(--color-neutral-4);
-}
-
-.yohaku-code-block__shiki code {
-  display: block;
-  width: max-content;
-  min-width: 100%;
-  tab-size: 2;
-  white-space: pre;
-  font-family: var(--font-mono, monospace);
-  font-size: var(--text-copy-13, 13px);
-  line-height: var(--text-copy-13--line-height, 1.54);
-}
-
-.dark .yohaku-code-block__shiki pre,
-.dark .yohaku-code-block__shiki pre span {
-  color: var(--shiki-dark) !important;
-  background-color: var(--shiki-dark-bg) !important;
-}
-
-.yohaku-code-block__copy {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid var(--color-neutral-4);
-  border-radius: 6px;
-  background: var(--color-neutral-1);
-  color: var(--color-neutral-7);
-  font-size: 14px;
-  opacity: 0;
-  transition: opacity 0.2s;
-  cursor: pointer;
-}
-
-.yohaku-code-block:hover .yohaku-code-block__copy,
-.yohaku-code-block__copy:focus-visible {
-  opacity: 1;
-}
-
-@media (hover: none) {
-  .yohaku-code-block__copy {
-    opacity: 1;
-  }
+  font-size: var(--text-label-12, 12px);
 }
 
 /* ─── mark ink ──────────────────────────────────────────────────────────────── */
@@ -617,10 +655,9 @@
     content-visibility: visible !important;
   }
 
-  .m-code-block,
-  .yohaku-code-block,
+  .yohaku-code,
+  .yohaku-code__scroll,
   .yohaku-code-fold,
-  .rich-code-block,
   .rich-table-scroll,
   pre {
     overflow: visible !important;
@@ -629,8 +666,7 @@
     -webkit-mask-image: none !important;
   }
 
-  .m-code-block--collapsed .m-code-block__body,
-  .yohaku-code-block--collapsed .yohaku-code-block__body,
+  .yohaku-code--collapsed .yohaku-code__body,
   .yohaku-code-fold--collapsed .yohaku-code-fold__body {
     max-height: none !important;
     overflow: visible !important;
