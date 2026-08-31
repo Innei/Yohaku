@@ -1,7 +1,7 @@
 import { assertFetchJSONContract } from '@yohaku/rich-content/host-contract'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { MobileCodeBlock } from './code-block'
+import { PortableCodeBlock } from '@yohaku/rich-content/src/lexical/portable/code-block.tsx'
 import { MobileFileCard } from './file-card'
 import { createWebviewHost, postNativeFilePreview } from './webview-host'
 
@@ -42,17 +42,17 @@ describe('createWebviewHost', () => {
   })
 
   it('omits FileCard unless the caller passes one', () => {
-    const { slots } = createWebviewHost({ ...deps, codeBlock: MobileCodeBlock })
+    const { slots } = createWebviewHost({ ...deps, codeBlock: PortableCodeBlock })
     expect(slots?.FileCard).toBeUndefined()
   })
 
   it('supplies only the chrome slots it was given', () => {
     const { slots } = createWebviewHost({
       ...deps,
-      codeBlock: MobileCodeBlock,
+      codeBlock: PortableCodeBlock,
       fileCard: MobileFileCard,
     })
-    expect(slots?.CodeBlock).toBe(MobileCodeBlock)
+    expect(slots?.CodeBlock).toBe(PortableCodeBlock)
     expect(slots?.FileCard).toBe(MobileFileCard)
     expect(slots?.BlockLinkCard).toBeUndefined()
     expect(slots?.InlineLink).toBeUndefined()

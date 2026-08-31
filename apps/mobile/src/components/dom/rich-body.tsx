@@ -4,7 +4,6 @@ import '@yohaku/rich-content/module-imports'
 import '@yohaku/rich-content/block-styles.css'
 import '@yohaku/rich-content/rich.css'
 import 'katex/dist/katex.min.css'
-import './code-block.css'
 
 import { accent, neutral } from '@yohaku/design-system/tokens'
 import {
@@ -43,7 +42,7 @@ import { WEBVIEW_FONT_FAMILY } from '@/theme/font-faces'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
 import { extractBlockInfos } from './anchor-utils'
-import { MobileCodeBlock } from './code-block'
+import { PortableCodeBlock } from '@yohaku/rich-content/src/lexical/portable/code-block.tsx'
 import { MobileFileCard } from './file-card'
 import { activePreparedContent } from './reader-content-state'
 import {
@@ -663,7 +662,7 @@ export default function RichBody({
     () =>
       createWebviewHost({
         apiBase,
-        codeBlock: MobileCodeBlock,
+        codeBlock: PortableCodeBlock,
         enrichments: bodyEnrichments,
         fileCard: (props) =>
           printDocument ? (
@@ -907,15 +906,14 @@ export default function RichBody({
           opacity: 1 !important;
           content-visibility: visible !important;
         }
-        .m-code-block, .yohaku-code-block, .yohaku-code-fold,
+        .yohaku-code, .yohaku-code__scroll, .yohaku-code-fold,
         .rich-code-block, .rich-table-scroll, pre {
           overflow: visible !important;
           max-height: none !important;
           mask-image: none !important;
           -webkit-mask-image: none !important;
         }
-        .m-code-block--collapsed .m-code-block__body,
-        .yohaku-code-block--collapsed .yohaku-code-block__body,
+        .yohaku-code--collapsed .yohaku-code__body,
         .yohaku-code-fold--collapsed .yohaku-code-fold__body {
           max-height: none !important;
           overflow: visible !important;
