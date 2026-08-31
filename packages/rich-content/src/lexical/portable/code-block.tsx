@@ -2,29 +2,7 @@
 
 import { useEffect, useState } from 'react'
 
-import { shouldCollapseCode } from './code-collapse'
-import { useExpandHeight } from './tween-height'
-
-function copyText(text: string): void {
-  if (navigator.clipboard?.writeText) {
-    void navigator.clipboard.writeText(text).catch(() => legacyCopy(text))
-    return
-  }
-  legacyCopy(text)
-}
-
-// WKWebView pages loaded from file:// are not a secure context, so
-// navigator.clipboard is unavailable there — fall back to execCommand.
-function legacyCopy(text: string): void {
-  const textarea = document.createElement('textarea')
-  textarea.value = text
-  textarea.style.position = 'fixed'
-  textarea.style.opacity = '0'
-  document.body.append(textarea)
-  textarea.select()
-  document.execCommand('copy')
-  textarea.remove()
-}
+import { CodeShell } from './code-shell'
 
 function useShikiHtml(code: string, language?: string): string | null {
   const [html, setHtml] = useState<string | null>(null)
@@ -62,66 +40,16 @@ export function PortableCodeBlock({
   language?: string
 }) {
   const html = useShikiHtml(code, language)
-  const [copied, setCopied] = useState(false)
-  const long = fold && shouldCollapseCode(code)
-  const [expandedFor, setExpandedFor] = useState<string | null>(null)
-  const collapsed = long && expandedFor !== code
-  const { capture, ref } = useExpandHeight(collapsed)
-
-  useEffect(() => {
-    if (!copied) return
-    const timer = setTimeout(() => setCopied(false), 1500)
-    return () => clearTimeout(timer)
-  }, [copied])
 
   return (
-    <div
-      className={
-        long && collapsed
-          ? 'yohaku-code-block yohaku-code-block--collapsed'
-          : 'yohaku-code-block'
-      }
-    >
-      <button
-        aria-label="Copy code"
-        className="yohaku-code-block__copy"
-        type="button"
-        onClick={() => {
-          copyText(code)
-          setCopied(true)
-        }}
-      >
-        <i
-          className={
-            copied ? 'i-mingcute-check-line' : 'i-mingcute-copy-2-line'
-          }
-        />
-      </button>
-      <div className="yohaku-code-block__body" ref={ref}>
-        {html ? (
-          <div
-            className="yohaku-code-block__shiki"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        ) : (
-          <pre className="rich-code-block">
-            <code>{code}</code>
-          </pre>
-        )}
-      </div>
-      {long && collapsed ? (
-        <button
-          className="yohaku-code-block__expand"
-          type="button"
-          onClick={() => {
-            capture()
-            setExpandedFor(code)
-          }}
-        >
-          <i className="i-mingcute-arrow-to-down-line" />
-          <span>展开</span>
-        </button>
-      ) : null}
-    </div>
+    <CodeShell code={code} fold={fold} language={language}>
+      {html ? (
+        <div dangerouslySetInnerHTML={{ __html: html }} />
+      ) : (
+        <pre>
+          <code>{code}</code>
+        </pre>
+      )}
+    </CodeShell>
   )
 }

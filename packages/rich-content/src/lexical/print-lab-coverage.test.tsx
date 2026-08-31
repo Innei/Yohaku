@@ -15,6 +15,9 @@ const host: HostCapabilities = {
   apiBase: 'https://example.com/api',
   fetchJSON: async () => ({}) as never,
   labels: {
+    codeCopied: '已复制',
+    codeCopy: '复制',
+    codeExpand: '展开 · {count} 行',
     nestedDocCollapse: '收起',
     nestedDocExpand: '展开',
     nestedDocLabel: '嵌套文档',
@@ -83,5 +86,5 @@ it('print mode opens every fold and keeps code on the page', () => {
   expect(html).toContain('const x = 1')
   expect(html).toContain('fn main() {}')
   expect(html).toContain('echo hi')
-  expect(html).not.toContain('yohaku-code-block--collapsed')
+  expect(html).not.toContain('yohaku-code--collapsed')
 })

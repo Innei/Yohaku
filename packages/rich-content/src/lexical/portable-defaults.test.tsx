@@ -34,6 +34,9 @@ const baseHost: HostCapabilities = {
   apiBase: 'https://example.com/api',
   fetchJSON: async () => ({}) as never,
   labels: {
+    codeCopied: '已复制',
+    codeCopy: '复制',
+    codeExpand: '展开 · {count} 行',
     nestedDocCollapse: '收起',
     nestedDocExpand: '展开',
     nestedDocLabel: '嵌套文档',
@@ -261,7 +264,7 @@ it('renders a slot-provided CodeBlock instead of the portable one', () => {
   }
   const html = renderStatic([codeNode], host)
   expect(html).toContain('data-code-slot')
-  expect(html).not.toContain('yohaku-code-block')
+  expect(html).not.toContain('yohaku-code__scroll')
 })
 
 let mountEl: HTMLDivElement
@@ -300,7 +303,7 @@ it('collapses a long code block behind an expand control', () => {
       version: 1,
     },
   ])
-  expect(html).toContain('yohaku-code-block--collapsed')
+  expect(html).toContain('yohaku-code--collapsed')
   expect(html).toContain('展开')
 })
 
@@ -317,13 +320,13 @@ it('prints a long code block fully expanded', () => {
     { ...baseHost, printMode: true },
   )
   expect(html).toContain('line 23')
-  expect(html).not.toContain('yohaku-code-block--collapsed')
+  expect(html).not.toContain('yohaku-code--collapsed')
   expect(html).not.toContain('展开')
 })
 
 it('highlights code through shiki once the async bundle resolves', async () => {
   await renderClient([codeNode], baseHost)
-  const shikiEl = mountEl.querySelector('.yohaku-code-block__shiki')
+  const shikiEl = mountEl.querySelector('.yohaku-code__scroll > div')
   expect(shikiEl).not.toBeNull()
   expect(shikiEl?.innerHTML).toContain('data-shiki-mock')
 })

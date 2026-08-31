@@ -49,6 +49,7 @@ export function CodeLanguageMark({ language }: { language?: string }) {
 function CopyButton({ code }: { code: string }) {
   const { labels } = useHost()
   const [copied, setCopied] = useState(false)
+  const { codeCopied = 'Copied', codeCopy = 'Copy' } = labels ?? {}
 
   useEffect(() => {
     if (!copied) return
@@ -65,7 +66,7 @@ function CopyButton({ code }: { code: string }) {
         setCopied(true)
       }}
     >
-      {copied ? labels.codeCopied : labels.codeCopy}
+      {copied ? codeCopied : codeCopy}
     </button>
   )
 }
@@ -86,15 +87,17 @@ export function CodeShell({
   language?: string
 }) {
   const { labels } = useHost()
+  const { codeExpand = 'Expand · {count}' } = labels ?? {}
   const { label } = resolveCodeLanguage(language)
-  const long = fold && shouldCollapseCode(code)
+  const source = code ?? ''
+  const long = fold && shouldCollapseCode(source)
   const [expandedFor, setExpandedFor] = useState<string | null>(null)
-  const collapsed = long && expandedFor !== code
+  const collapsed = long && expandedFor !== source
   const { capture, ref } = useExpandHeight(collapsed)
   const hasFooter = footerName !== undefined || collapsed
-  const expandLabel = labels.codeExpand.replace(
+  const expandLabel = codeExpand.replace(
     '{count}',
-    String(code.split('\n').length),
+    String(source.split('\n').length),
   )
 
   return (
@@ -111,7 +114,7 @@ export function CodeShell({
               {label}
             </span>
           )}
-          {hasFooter ? null : <CopyButton code={code} />}
+          {hasFooter ? null : <CopyButton code={source} />}
         </div>
         <div className="yohaku-code__scroll">{children}</div>
       </div>
@@ -126,13 +129,13 @@ export function CodeShell({
               type="button"
               onClick={() => {
                 capture()
-                setExpandedFor(code)
+                setExpandedFor(source)
               }}
             >
               {expandLabel}
             </button>
           ) : null}
-          <CopyButton code={code} />
+          <CopyButton code={source} />
         </div>
       ) : null}
     </div>

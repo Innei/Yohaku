@@ -557,6 +557,33 @@
 }
 
 
+/* ─── built-in code node · 素 ───────────────────────────────────────
+   Lexical's own CodeNode, not the code-block decorator — plain <pre>
+   with no shell around it. */
+
+.rich-code-block {
+  box-sizing: border-box;
+  margin: 1rem 0;
+  padding: 14px 16px;
+  max-width: 100%;
+  overflow-x: auto;
+  background: var(--color-neutral-2);
+  border: 1px solid var(--color-neutral-4);
+  border-radius: 0;
+}
+
+.rich-code-block code {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+  tab-size: 2;
+  white-space: pre;
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-copy-13, 13px);
+  line-height: var(--text-copy-13--line-height, 1.54);
+  color: var(--color-neutral-9);
+}
+
 /* ─── code fold · github file embed ─────────────────────────────────
    DOM owned by CodeFold, which wraps whole embedded files rather than
    code blocks — unrelated to .yohaku-code's own folding. */
@@ -658,6 +685,7 @@
   .yohaku-code,
   .yohaku-code__scroll,
   .yohaku-code-fold,
+  .rich-code-block,
   .rich-table-scroll,
   pre {
     overflow: visible !important;
