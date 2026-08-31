@@ -409,9 +409,17 @@
   border-left: 1px solid var(--color-neutral-4);
 }
 
+/* Collapsed: the rule has to die with the code instead of running past the
+   fade into the footer, so it moves onto the masked body and fades with it. */
+.yohaku-code--collapsed {
+  border-left-color: transparent;
+}
+
 .yohaku-code--collapsed .yohaku-code__body {
   max-height: calc(var(--app-viewport-height, 100vh) * 0.5);
+  margin-left: -1px;
   overflow: hidden;
+  border-left: 1px solid var(--color-neutral-4);
   mask-image: linear-gradient(to bottom, #000 60%, transparent);
 }
 
@@ -453,11 +461,23 @@
 }
 
 .yohaku-code__dot {
-  flex: 0 0 5px;
+  position: relative;
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  color: var(--color-neutral-5);
+}
+
+.yohaku-code__dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--color-neutral-5);
+  background: currentColor;
+  translate: -50% -50%;
 }
 
 .yohaku-code__copy,

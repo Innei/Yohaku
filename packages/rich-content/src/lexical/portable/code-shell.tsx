@@ -41,7 +41,7 @@ export function CodeLanguageMark({ language }: { language?: string }) {
     <span
       aria-hidden
       className="yohaku-code__dot"
-      style={color ? { background: color } : undefined}
+      style={color ? { color } : undefined}
     />
   )
 }
