@@ -1,9 +1,10 @@
 import type { NeutralStep, TypeRole } from '@yohaku/design-system/tokens'
 import { type as typeScale } from '@yohaku/design-system/tokens'
 import type { TextProps } from 'react-native'
-import { Text } from 'react-native'
+import { StyleSheet, Text, useWindowDimensions } from 'react-native'
 
 import type { FontStyle } from '@/theme/font-faces'
+import { clampFontScale } from '@/theme/font-scale'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
@@ -59,19 +60,28 @@ export function AppText({
   const serifFont = useNativeSerifFontStyle()
   const spec = roles[variant]
   const scale = typeScale[spec.scale]
+  const fontScale = clampFontScale(useWindowDimensions().fontScale)
+  const override = StyleSheet.flatten(style)
+  const fontSize =
+    (typeof override?.fontSize === 'number' ? override.fontSize : scale.size) *
+    fontScale
+  const lineHeight =
+    (typeof override?.lineHeight === 'number'
+      ? override.lineHeight
+      : scale.lineHeight) * fontScale
 
   return (
     <Text
+      allowFontScaling={false}
       style={[
         {
           ...spec.font,
           ...(serifRoles.has(variant) ? serifFont : null),
-          fontSize: scale.size,
-          lineHeight: scale.lineHeight,
           color: color ?? palette.neutral[spec.step],
           letterSpacing: spec.letterSpacing,
         },
-        style,
+        override,
+        { fontSize, lineHeight },
       ]}
       {...rest}
     />

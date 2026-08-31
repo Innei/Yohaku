@@ -106,6 +106,7 @@ interface RichBodyProps {
   }
   enrichments?: Record<string, HostEnrichment>
   fontFaces?: RichBodyFontFace[]
+  fontScale?: number
   highlightBlockId?: string | null
   labels: RichBodyLabels
   locale: string
@@ -299,6 +300,7 @@ export default function RichBody({
   content,
   enrichments,
   fontFaces,
+  fontScale = 1,
   highlightBlockId = null,
   labels,
   locale,
@@ -754,11 +756,22 @@ export default function RichBody({
               '--rc-font-size-small': '10px',
               fontSize: 12,
             }
-          : viewportHeight
-            ? { '--app-viewport-height': `${viewportHeight}px` }
-            : {}),
+          : {
+              '--rc-font-size-base': `${16 * fontScale}px`,
+              '--rc-font-size-small': `${14 * fontScale}px`,
+              ...(viewportHeight
+                ? { '--app-viewport-height': `${viewportHeight}px` }
+                : {}),
+            }),
       }) as CSSProperties,
-    [bodyVariant, printDocument, serifFontFamily, theme, viewportHeight],
+    [
+      bodyVariant,
+      fontScale,
+      printDocument,
+      serifFontFamily,
+      theme,
+      viewportHeight,
+    ],
   )
 
   const openInWeb = useMemo(
@@ -867,7 +880,7 @@ export default function RichBody({
     >
       <style>{`
         ${buildFontFaceCss(fontFaces)}
-        html, body { width: 100%; overflow-x: hidden; background: ${printDocument ? '#fff' : 'transparent'}; margin: 0; ${printDocument ? 'font-size: 12px; padding: 0; -webkit-text-size-adjust: 100%;' : ''} }
+        html, body { width: 100%; overflow-x: hidden; background: ${printDocument ? '#fff' : 'transparent'}; margin: 0; -webkit-text-size-adjust: 100%; ${printDocument ? 'font-size: 12px; padding: 0;' : ''} }
         .font-mono, code, kbd, samp { font-family: var(--font-mono); }
         .rich-body-root { width: 100vw; overflow-x: hidden; box-sizing: border-box; background: ${printDocument ? '#fff' : 'transparent'}; }
         ${

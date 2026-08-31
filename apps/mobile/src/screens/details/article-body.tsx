@@ -40,6 +40,7 @@ import { getSiteUrl } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
 import { SelectionCommentSheet } from '@/screens/comments/selection-comment-sheet'
 import { timings } from '@/theme/motion'
+import { clampFontScale } from '@/theme/font-scale'
 import { usePalette } from '@/theme/palette'
 import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 import { useWebviewFontFaces } from '@/theme/webview-fonts'
@@ -79,7 +80,9 @@ export function ArticleBody({
   const t = useTranslations('detail')
   const tc = useTranslations('common')
   const palette = usePalette()
-  const { height: windowHeight } = useWindowDimensions()
+  const { fontScale: systemFontScale, height: windowHeight } =
+    useWindowDimensions()
+  const fontScale = clampFontScale(systemFontScale)
   const isPreview = useIsPreview()
   const router = useRouter()
   const navigation = useNavigation()
@@ -267,6 +270,7 @@ export function ArticleBody({
           content={content}
           enrichments={enrichments ?? undefined}
           fontFaces={fontFaces}
+          fontScale={fontScale}
           highlightBlockId={highlightBlockId}
           labels={labels}
           locale={locale}
@@ -327,6 +331,7 @@ export function ArticleBody({
                 content={JSON.stringify(nestedDoc.contentState)}
                 enrichments={enrichments ?? undefined}
                 fontFaces={fontFaces}
+                fontScale={fontScale}
                 labels={labels}
                 locale={locale}
                 serifFontFamily={serifFontFamily}

@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
   },
   hero: {
     gap: 8,
-    marginBottom: 16,
+    marginBottom: 28,
   },
   center: {
     marginTop: 32,

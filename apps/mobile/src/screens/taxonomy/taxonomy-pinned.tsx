@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingTop: 14,
     paddingBottom: 12,
-    marginBottom: 8,
+    marginBottom: 24,
   },
   pin: {
     letterSpacing: 1,

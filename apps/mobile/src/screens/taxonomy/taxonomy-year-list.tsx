@@ -7,7 +7,6 @@ import type { PostRow } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
-import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { formatTaxonomyDate, visibleTaxonomyTags } from './taxonomy-model'
 
@@ -24,7 +23,6 @@ export function TaxonomyYearHead({
 }) {
   const t = useTranslations('taxonomy')
   const palette = usePalette()
-  const serifFont = useNativeSerifFontStyle()
   if (!visible) return null
   return (
     <View
@@ -37,12 +35,12 @@ export function TaxonomyYearHead({
       <View>
         <AppText
           color={palette.semantic.warning}
-          style={[styles.anno, serifFont]}
+          style={styles.anno}
           variant="eyebrow"
         >
           Anno
         </AppText>
-        <AppText style={styles.yearNum} variant="largeTitle">
+        <AppText style={styles.yearNum} variant="largeTitleSans">
           {year}
         </AppText>
       </View>
@@ -130,9 +128,7 @@ const styles = StyleSheet.create({
     alignItems: 'baseline',
     justifyContent: 'space-between',
     gap: 16,
-    paddingBottom: 10,
-    marginTop: 8,
-    marginBottom: 4,
+    paddingBottom: 4,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   anno: {
@@ -149,10 +145,10 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   later: {
-    marginTop: 18,
+    marginTop: 32,
   },
   item: {
-    paddingTop: 11,
+    paddingTop: 8,
     paddingBottom: 10,
   },
   title: {

@@ -1,6 +1,20 @@
 import CoreText
 import UIKit
 
+enum FontScale {
+  static let min: CGFloat = 14 / 17
+  static let max: CGFloat = 23 / 17
+
+  static var factor: CGFloat {
+    let raw = UIFont.preferredFont(forTextStyle: .body).pointSize / 17
+    return Swift.min(max, Swift.max(min, raw))
+  }
+
+  static func size(_ pt: CGFloat) -> CGFloat {
+    pt * factor
+  }
+}
+
 enum SystemFontDomain {
   static func ensureInstalled(postScriptName: String) async -> Bool {
     if isInstalled(postScriptName: postScriptName) {

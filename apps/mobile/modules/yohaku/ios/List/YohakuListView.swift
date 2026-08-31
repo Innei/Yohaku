@@ -87,6 +87,12 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     super.init(appContext: appContext)
     addSubview(collectionView)
     applyInsets()
+    registerForTraitChanges([UITraitPreferredContentSizeCategory.self]) {
+      (self: YohakuListView, _) in
+      self.measuredHeights.removeAll()
+      self.collectionView.collectionViewLayout.invalidateLayout()
+      self.collectionView.reloadData()
+    }
   }
 
   override func layoutSubviews() {

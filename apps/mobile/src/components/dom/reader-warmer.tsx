@@ -4,6 +4,7 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native'
 import { apiBaseUrl } from '@/api/base-url'
 import { useLocale } from '@/i18n'
 import { getSiteUrl } from '@/lib/site-url'
+import { clampFontScale } from '@/theme/font-scale'
 import { usePalette } from '@/theme/palette'
 import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 import { useWebviewFontFaces } from '@/theme/webview-fonts'
@@ -15,7 +16,8 @@ const WARM_READER_ID = '__yohaku_warm__'
 
 export function ReaderWarmer() {
   const [live, setLive] = useState(true)
-  const { height, width } = useWindowDimensions()
+  const { fontScale: systemFontScale, height, width } = useWindowDimensions()
+  const fontScale = clampFontScale(systemFontScale)
   const locale = useLocale()
   const palette = usePalette()
   const labels = useRichBodyLabels()
@@ -38,6 +40,7 @@ export function ReaderWarmer() {
         apiBase={apiBaseUrl()}
         content=""
         fontFaces={fontFaces}
+        fontScale={fontScale}
         labels={labels}
         locale={locale}
         readerId={WARM_READER_ID}
