@@ -50,6 +50,8 @@ export const ja = {
     pinned: 'ピン留め',
     postsTotal: '全 {count} 件',
     olderNotes: '以前の手記',
+    fabricCompactHint: '年の索引。左にドラッグすると各手記の日付が開きます。',
+    fabricExpandedHint: '日付の索引。右にドラッグすると年表示に戻ります。',
     readFullNote: '手記を読む',
     thinkingVerbWatched: '観ました',
     thinkingVerbRead: '読みました',

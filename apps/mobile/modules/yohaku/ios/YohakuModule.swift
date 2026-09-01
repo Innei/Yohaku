@@ -323,6 +323,42 @@ public class YohakuModule: Module {
       Prop("refreshing") { (view: YohakuListView, refreshing: Bool) in
         view.setRefreshing(refreshing)
       }
+
+      Prop("fabricEnabled") { (view: YohakuListView, enabled: Bool) in
+        view.setFabricEnabled(enabled)
+      }
+
+      Prop("fabricMarks") { (view: YohakuListView, marks: [YohakuListFabricMarkSpec]) in
+        view.setFabricMarks(marks)
+      }
+
+      Prop("fabricPinnedItemId") { (view: YohakuListView, id: String) in
+        view.setFabricPinnedItemId(id)
+      }
+
+      Prop("fabricAccentColor") { (view: YohakuListView, color: UIColor?) in
+        view.setFabricAccentColor(color)
+      }
+
+      Prop("fabricTickColor") { (view: YohakuListView, color: UIColor?) in
+        view.setFabricTickColor(color)
+      }
+
+      Prop("fabricLabelColor") { (view: YohakuListView, color: UIColor?) in
+        view.setFabricLabelColor(color)
+      }
+
+      Prop("fabricDeskColor") { (view: YohakuListView, color: UIColor?) in
+        view.setFabricDeskColor(color)
+      }
+
+      Prop("fabricCompactHint") { (view: YohakuListView, value: String) in
+        view.setFabricCompactHint(value)
+      }
+
+      Prop("fabricExpandedHint") { (view: YohakuListView, value: String) in
+        view.setFabricExpandedHint(value)
+      }
     }
 
     View(YohakuListCellView.self) {

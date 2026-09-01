@@ -50,6 +50,8 @@ export const en = {
     pinned: 'Pinned',
     postsTotal: '{count} posts',
     olderNotes: 'Older notes',
+    fabricCompactHint: 'Year index. Drag left to show each note’s date.',
+    fabricExpandedHint: 'Date index. Drag right to collapse to years.',
     readFullNote: 'Read full note',
     thinkingVerbWatched: 'Watched',
     thinkingVerbRead: 'Read',

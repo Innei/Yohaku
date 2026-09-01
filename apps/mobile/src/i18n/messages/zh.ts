@@ -50,6 +50,8 @@ export const zh = {
     pinned: '置顶',
     postsTotal: '共 {count} 篇',
     olderNotes: '更早的手记',
+    fabricCompactHint: '年份索引。向左拖动可展开到每封手记的日期。',
+    fabricExpandedHint: '日期索引。向右拖动可收起为年份。',
     readFullNote: '阅读全文',
     thinkingVerbWatched: '观看了',
     thinkingVerbRead: '读了',

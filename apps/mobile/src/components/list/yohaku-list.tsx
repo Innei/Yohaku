@@ -1,10 +1,12 @@
 import type {
+  YohakuListFabricMark,
   YohakuListNativeItem,
   YohakuListVisibleItem,
 } from '@modules/yohaku'
 import { YohakuListCellView, YohakuListView } from '@modules/yohaku'
 import type { ReactNode } from 'react'
 import type {
+  ColorValue,
   NativeScrollEvent,
   NativeSyntheticEvent,
   StyleProp,
@@ -13,10 +15,20 @@ import type {
 import { StyleSheet } from 'react-native'
 
 export type YohakuListItem = YohakuListNativeItem
+export type { YohakuListFabricMark }
 
 export function YohakuList({
   contentInsetBottom = 0,
   contentInsetTop = 8,
+  fabricAccentColor,
+  fabricCompactHint,
+  fabricDeskColor,
+  fabricEnabled = false,
+  fabricExpandedHint,
+  fabricLabelColor,
+  fabricMarks,
+  fabricPinnedItemId,
+  fabricTickColor,
   items,
   refreshing = false,
   renderItem,
@@ -30,6 +42,15 @@ export function YohakuList({
 }: {
   contentInsetBottom?: number
   contentInsetTop?: number
+  fabricAccentColor?: ColorValue
+  fabricCompactHint?: string
+  fabricDeskColor?: ColorValue
+  fabricEnabled?: boolean
+  fabricExpandedHint?: string
+  fabricLabelColor?: ColorValue
+  fabricMarks?: YohakuListFabricMark[]
+  fabricPinnedItemId?: string
+  fabricTickColor?: ColorValue
   items: YohakuListItem[]
   onEndReached?: () => void
   onItemPress?: (item: { id: string; type: string }) => void
@@ -45,6 +66,15 @@ export function YohakuList({
     <YohakuListView
       contentInsetBottom={contentInsetBottom}
       contentInsetTop={contentInsetTop}
+      fabricAccentColor={fabricAccentColor}
+      fabricCompactHint={fabricCompactHint}
+      fabricDeskColor={fabricDeskColor}
+      fabricEnabled={fabricEnabled}
+      fabricExpandedHint={fabricExpandedHint}
+      fabricLabelColor={fabricLabelColor}
+      fabricMarks={fabricMarks}
+      fabricPinnedItemId={fabricPinnedItemId}
+      fabricTickColor={fabricTickColor}
       items={items}
       refreshing={refreshing}
       style={style}
