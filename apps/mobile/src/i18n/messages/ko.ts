@@ -50,6 +50,8 @@ export const ko = {
     pinned: '고정',
     postsTotal: '모두 {count}편',
     olderNotes: '더 먼 수첩',
+    fabricCompactHint: '연도 색인. 왼쪽으로 밀면 각 수첩의 날짜가 펼쳐집니다.',
+    fabricExpandedHint: '날짜 색인. 오른쪽으로 밀면 연도로 접힙니다.',
     readFullNote: '전문 읽기',
     thinkingVerbWatched: '봤어요',
     thinkingVerbRead: '읽었어요',

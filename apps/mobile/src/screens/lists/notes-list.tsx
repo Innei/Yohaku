@@ -27,6 +27,10 @@ import {
   NOTE_LIST_RULE_ID,
   yearFromNoteItemId,
 } from './flatten-notes-list'
+import {
+  buildFabricRailMarks,
+  formatFabricRailDate,
+} from './note-fabric-density'
 import { NoteLatest } from './note-latest'
 import {
   NotesOlderRule,
@@ -159,6 +163,14 @@ export function NotesListScreen() {
     () => new Map(notesInLocale.map((note) => [note.id, note])),
     [notesInLocale],
   )
+  const fabricMarks = useMemo(
+    () =>
+      buildFabricRailMarks({
+        formatNoteLabel: (date) => formatFabricRailDate(date, locale),
+        groups,
+      }),
+    [groups, locale],
+  )
 
   const onEndReached = useCallback(() => {
     const loaded = notesInLocale.length
@@ -209,6 +221,15 @@ export function NotesListScreen() {
       ) : (
         <YohakuList
           contentInsetBottom={tabBarInset}
+          fabricAccentColor={palette.semantic.warning}
+          fabricCompactHint={t('fabricCompactHint')}
+          fabricDeskColor={palette.surface.desk}
+          fabricEnabled={fabricMarks.length > 0}
+          fabricExpandedHint={t('fabricExpandedHint')}
+          fabricLabelColor={palette.neutral[6]}
+          fabricMarks={fabricMarks}
+          fabricPinnedItemId={latest?.id}
+          fabricTickColor={palette.neutral[4]}
           items={listItems}
           refreshing={refreshing}
           style={styles.screen}

@@ -246,9 +246,29 @@ export type YohakuListVisibleItem = {
   type: string
 }
 
+export type YohakuListFabricMark = {
+  compactT: number
+  expandedT: number
+  id: string
+  itemId: string
+  kind: 'note' | 'year'
+  label: string
+  parentItemId: string
+  year: number
+}
+
 type YohakuListViewProps = ViewProps & {
   contentInsetBottom?: number
   contentInsetTop?: number
+  fabricAccentColor?: ColorValue
+  fabricCompactHint?: string
+  fabricDeskColor?: ColorValue
+  fabricEnabled?: boolean
+  fabricExpandedHint?: string
+  fabricLabelColor?: ColorValue
+  fabricMarks?: YohakuListFabricMark[]
+  fabricPinnedItemId?: string
+  fabricTickColor?: ColorValue
   items: YohakuListNativeItem[]
   onEndReached?: (event: NativeSyntheticEvent<Record<string, never>>) => void
   onItemPress?: (
