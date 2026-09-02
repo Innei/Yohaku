@@ -37,6 +37,10 @@ export const en = {
     password: 'Password',
     backToSocial: 'Back to social sign-in',
     emailFailed: 'Email or password is incorrect',
+    termsAgreement:
+      'I agree to the Terms of Use, including zero tolerance for objectionable content and abusive users.',
+    termsOfUse: 'Terms of Use',
+    privacyPolicy: 'Privacy Policy',
     anonymous: 'Anonymous',
     owner: 'Owner',
   },
@@ -168,6 +172,11 @@ export const en = {
     reportConfirm: 'Report this comment?',
     reportDone: 'Report received',
     reportFailed: 'Couldn’t send the report. Try again shortly.',
+    blockUser: 'Block User',
+    blockUserConfirm:
+      'Report this comment and block {name}? Their comments will disappear immediately.',
+    blockUserDone: 'User blocked and report sent',
+    blockUserFailed: 'Couldn’t block this user. Try again shortly.',
     moreActions: 'More actions',
     copyText: 'Copy text',
     edit: 'Edit',

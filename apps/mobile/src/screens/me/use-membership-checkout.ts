@@ -7,6 +7,7 @@ import type { MembershipAppleIap } from '@/api/membership'
 import { useSession } from '@/auth/session-store'
 import { showToast } from '@/components/ui/toast-store'
 import { useTranslations } from '@/i18n'
+import { getPrivacyUrl, siteHref } from '@/lib/site-url'
 
 import { confirmAndFinishAppleTransaction } from './confirm-apple'
 import {
@@ -22,7 +23,9 @@ function productIdsOf(appleIap: MembershipAppleIap | undefined): string[] {
 async function finishMembershipTransaction(
   signedTransactionInfo: string,
 ): Promise<void> {
-  await YohakuMembershipNative.finishMembershipTransaction(signedTransactionInfo)
+  await YohakuMembershipNative.finishMembershipTransaction(
+    signedTransactionInfo,
+  )
 }
 
 export function useMembershipCheckout(): {
@@ -52,6 +55,8 @@ export function useMembershipCheckout(): {
       const result = await YohakuMembershipNative.presentSubscriptionStore({
         appAccountToken: appleAccount.accountToken,
         productIds,
+        privacyUrl: getPrivacyUrl(),
+        termsUrl: siteHref('/terms'),
       })
       if (result.status === 'cancelled') return 'cancelled'
       const confirmation = await confirmAndFinishAppleTransaction(
@@ -63,7 +68,9 @@ export function useMembershipCheckout(): {
         showToast(t('testPurchaseSuccess'))
         return 'confirmed'
       }
-      await queryClient.invalidateQueries({ queryKey: ['membership', 'status'] })
+      await queryClient.invalidateQueries({
+        queryKey: ['membership', 'status'],
+      })
       return 'confirmed'
     } catch (error) {
       showToast(

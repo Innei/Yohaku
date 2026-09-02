@@ -1,5 +1,6 @@
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
+import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 
@@ -7,6 +8,7 @@ import { useLogin } from '@/auth/use-login'
 import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
 import { AppText, Button, SinkPressable, WellInput } from '@/components/ui'
 import { useTranslations } from '@/i18n'
+import { getPrivacyUrl, siteHref } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 
 import { ProviderButton } from './provider-button'
@@ -28,19 +30,24 @@ export function LoginSheet() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState(false)
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
 
   const social = providers?.filter((p) => hasProviderIcon(p))
   const locked = busy !== null
+  const termsUrl = siteHref('/terms')
+  const privacyUrl = getPrivacyUrl()
 
   useEffect(() => {
     if (social?.length === 0) setMode('email')
   }, [social?.length])
 
   const onSocial = async (provider: string) => {
+    if (!acceptedTerms) return
     if (await signInSocial(provider)) router.back()
   }
 
   const onEmail = async () => {
+    if (!acceptedTerms) return
     setEmailError(false)
     if (await signInEmail(email.trim(), password)) {
       router.back()
@@ -74,8 +81,9 @@ export function LoginSheet() {
                     key={provider}
                     provider={provider}
                     dimmed={
-                      busy !== null &&
-                      !(busy.kind === 'social' && busy.provider === provider)
+                      !acceptedTerms ||
+                      (busy !== null &&
+                        !(busy.kind === 'social' && busy.provider === provider))
                     }
                     onPress={() => void onSocial(provider)}
                   />
@@ -127,7 +135,10 @@ export function LoginSheet() {
               label={t('signIn')}
               style={styles.submit}
               disabled={
-                locked || email.trim().length === 0 || password.length === 0
+                locked ||
+                !acceptedTerms ||
+                email.trim().length === 0 ||
+                password.length === 0
               }
               onPress={() => void onEmail()}
             />
@@ -150,6 +161,59 @@ export function LoginSheet() {
             </SinkPressable>
           </View>
         )}
+
+        <View style={styles.agreement}>
+          <SinkPressable
+            accessibilityLabel={t('termsAgreement')}
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: acceptedTerms }}
+            disabled={locked}
+            style={[
+              styles.checkbox,
+              {
+                backgroundColor: acceptedTerms
+                  ? palette.neutral[10]
+                  : 'transparent',
+                borderColor: acceptedTerms
+                  ? palette.neutral[10]
+                  : palette.neutral[5],
+              },
+            ]}
+            onPress={() => setAcceptedTerms((current) => !current)}
+          >
+            <AppText color={palette.neutral[1]} variant="meta">
+              {acceptedTerms ? '✓' : ''}
+            </AppText>
+          </SinkPressable>
+          <View style={styles.agreementCopy}>
+            <SinkPressable
+              disabled={locked}
+              onPress={() => setAcceptedTerms((current) => !current)}
+            >
+              <AppText color={palette.neutral[7]} variant="meta">
+                {t('termsAgreement')}
+              </AppText>
+            </SinkPressable>
+            <View style={styles.policyLinks}>
+              <SinkPressable
+                onPress={() => void WebBrowser.openBrowserAsync(termsUrl)}
+              >
+                <AppText color={palette.accent} variant="meta">
+                  {t('termsOfUse')}
+                </AppText>
+              </SinkPressable>
+              {privacyUrl ? (
+                <SinkPressable
+                  onPress={() => void WebBrowser.openBrowserAsync(privacyUrl)}
+                >
+                  <AppText color={palette.accent} variant="meta">
+                    {t('privacyPolicy')}
+                  </AppText>
+                </SinkPressable>
+              ) : null}
+            </View>
+          </View>
+        </View>
       </View>
     </View>
   )
@@ -187,6 +251,27 @@ const styles = StyleSheet.create({
   },
   form: {
     gap: 12,
+  },
+  agreement: {
+    alignItems: 'flex-start',
+    flexDirection: 'row',
+    gap: 10,
+  },
+  agreementCopy: {
+    flex: 1,
+    gap: 6,
+  },
+  checkbox: {
+    alignItems: 'center',
+    borderRadius: 6,
+    borderWidth: 1,
+    height: 22,
+    justifyContent: 'center',
+    width: 22,
+  },
+  policyLinks: {
+    flexDirection: 'row',
+    gap: 16,
   },
   submit: {
     alignSelf: 'stretch',

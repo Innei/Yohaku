@@ -37,6 +37,10 @@ export const ja = {
     password: 'パスワード',
     backToSocial: 'ソーシャルログインに戻る',
     emailFailed: 'メールアドレスまたはパスワードが正しくありません',
+    termsAgreement:
+      '不適切なコンテンツや迷惑行為を一切容認しない方針を含む利用規約に同意します。',
+    termsOfUse: '利用規約',
+    privacyPolicy: 'プライバシーポリシー',
     anonymous: '名無し',
     owner: '管理人',
   },
@@ -168,6 +172,12 @@ export const ja = {
     reportConfirm: 'このコメントを通報しますか？',
     reportDone: '通報を受け付けました',
     reportFailed: '通報に失敗しました。しばらくしてから再試行してください',
+    blockUser: 'ユーザーをブロック',
+    blockUserConfirm:
+      'このコメントを通報して {name} をブロックしますか？このユーザーのコメントはすぐに非表示になります。',
+    blockUserDone: 'ユーザーをブロックし、通報しました',
+    blockUserFailed:
+      'ブロックできませんでした。しばらくしてから再試行してください',
     moreActions: 'その他の操作',
     copyText: 'テキストをコピー',
     edit: '編集',

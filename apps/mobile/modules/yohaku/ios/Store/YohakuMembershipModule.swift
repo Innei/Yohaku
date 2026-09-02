@@ -35,10 +35,17 @@ public class YohakuMembershipModule: Module {
 
     Events("onMembershipTransaction")
 
-    AsyncFunction("presentSubscriptionStore") { (appAccountToken: String, productIds: [String]) -> [String: String] in
+    AsyncFunction("presentSubscriptionStore") { (
+      appAccountToken: String,
+      productIds: [String],
+      termsUrl: String,
+      privacyUrl: String
+    ) -> [String: String] in
       let result = try await MembershipStore.present(
         productIds: productIds,
-        appAccountToken: try MembershipStore.accountToken(from: appAccountToken)
+        appAccountToken: try MembershipStore.accountToken(from: appAccountToken),
+        termsUrl: termsUrl,
+        privacyUrl: privacyUrl
       )
       return [
         "status": result.status,

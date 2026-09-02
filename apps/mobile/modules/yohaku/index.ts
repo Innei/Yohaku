@@ -71,6 +71,11 @@ type MembershipAccountPayload = {
   productIds: string[]
 }
 
+type MembershipStorePayload = MembershipAccountPayload & {
+  privacyUrl: string
+  termsUrl: string
+}
+
 interface YohakuMembershipNativeModule {
   addListener<K extends keyof MembershipEvents>(
     eventName: K,
@@ -84,6 +89,8 @@ interface YohakuMembershipNativeModule {
   presentSubscriptionStore(
     appAccountToken: string,
     productIds: string[],
+    termsUrl: string,
+    privacyUrl: string,
   ): Promise<
     | { signedTransactionInfo: string; status: 'purchased' | 'restored' }
     | { status: 'cancelled' }
@@ -107,10 +114,12 @@ export const YohakuMembershipNative = {
     ),
   finishMembershipTransaction:
     membership.finishMembershipTransaction.bind(membership),
-  presentSubscriptionStore: (payload: MembershipAccountPayload) =>
+  presentSubscriptionStore: (payload: MembershipStorePayload) =>
     membership.presentSubscriptionStore(
       payload.appAccountToken,
       payload.productIds,
+      payload.termsUrl,
+      payload.privacyUrl,
     ),
   showManageSubscriptions: membership.showManageSubscriptions.bind(membership),
   unfinishedMembershipTransactionJws: (payload: MembershipAccountPayload) =>

@@ -4,11 +4,6 @@
   <dict>
     <key>NSExtension</key>
     <dict>
-      <key>NSExtensionAttributes</key>
-      <dict>
-        <key>NSExtensionActivationRule</key>
-        <string>TRUEPREDICATE</string>
-      </dict>
       <key>NSExtensionPrincipalClass</key>
       <string>$(PRODUCT_MODULE_NAME).NotificationService</string>
       <key>NSExtensionPointIdentifier</key>

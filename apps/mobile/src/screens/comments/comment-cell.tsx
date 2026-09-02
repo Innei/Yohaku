@@ -20,6 +20,7 @@ import { formatRelativeTime } from '@/lib/datetime'
 import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
+import { blockReaderLocally, useReaderBlocked } from './blocked-readers'
 import { useOptionalCommentCompose } from './comment-compose-provider'
 
 export function CommentCell({
@@ -50,6 +51,7 @@ export function CommentCell({
   const name = commentDisplayName(comment)
   const avatarSize = isReply ? 24 : 32
   const isOwn = session !== null && comment.reader?.id === session.id
+  const isBlocked = useReaderBlocked(comment.reader?.id)
 
   const report = () => {
     Alert.alert(t('report'), t('reportConfirm'), [
@@ -71,6 +73,27 @@ export function CommentCell({
     ])
   }
 
+  const reportAndBlock = () => {
+    Alert.alert(t('blockUser'), t('blockUserConfirm', { name }), [
+      { style: 'cancel', text: tc('cancel') },
+      {
+        style: 'destructive',
+        text: t('blockUser'),
+        onPress: () => {
+          void api
+            .reportAndBlockComment(comment.id)
+            .then(({ blockedReaderId }) => {
+              blockReaderLocally(blockedReaderId)
+              Alert.alert(t('blockUser'), t('blockUserDone'))
+            })
+            .catch(() => {
+              Alert.alert(t('blockUser'), t('blockUserFailed'))
+            })
+        },
+      },
+    ])
+  }
+
   const menuActions: MenuAction[] = [
     { id: 'copy', image: 'doc.on.doc', title: t('copyText') },
   ]
@@ -85,13 +108,24 @@ export function CommentCell({
       attributes: { destructive: true },
     })
   }
+  if (session !== null && comment.reader !== null && !isOwn) {
+    menuActions.push({
+      id: 'block',
+      image: 'person.crop.circle.badge.xmark',
+      title: t('blockUser'),
+      attributes: { destructive: true },
+    })
+  }
 
   const onMenuAction = (event: string) => {
     if (event === 'copy') void Clipboard.setStringAsync(comment.text)
     else if (event === 'edit')
       compose?.edit(comment, rowRef.current ?? undefined)
     else if (event === 'report') report()
+    else if (event === 'block') reportAndBlock()
   }
+
+  if (isBlocked) return null
 
   return (
     <View collapsable={false} ref={rowRef}>

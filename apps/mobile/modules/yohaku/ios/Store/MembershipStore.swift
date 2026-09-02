@@ -28,6 +28,7 @@ enum MembershipStore {
     case noWindowScene
     case productsUnavailable
     case invalidAppAccountToken
+    case invalidPolicyUrl
 
     var errorDescription: String? {
       switch self {
@@ -39,6 +40,8 @@ enum MembershipStore {
         return "StoreKit could not load subscription products"
       case .invalidAppAccountToken:
         return "A valid StoreKit app account token is required"
+      case .invalidPolicyUrl:
+        return "Valid HTTPS terms and privacy URLs are required"
       }
     }
   }
@@ -50,10 +53,23 @@ enum MembershipStore {
     return token
   }
 
+  private static func policyUrl(from value: String) throws -> URL {
+    guard
+      let url = URL(string: value),
+      url.scheme == "https",
+      url.host != nil
+    else {
+      throw StoreError.invalidPolicyUrl
+    }
+    return url
+  }
+
   @MainActor
   static func present(
     productIds: [String],
-    appAccountToken: UUID
+    appAccountToken: UUID,
+    termsUrl: String,
+    privacyUrl: String
   ) async throws -> MembershipCheckoutResult {
     let ids = productIds.filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     guard !ids.isEmpty else { throw StoreError.missingProductIds }
@@ -61,7 +77,9 @@ enum MembershipStore {
     guard !products.isEmpty else { throw StoreError.productsUnavailable }
     return try await Presenter(
       productIds: Set(ids),
-      appAccountToken: appAccountToken
+      appAccountToken: appAccountToken,
+      termsUrl: try policyUrl(from: termsUrl),
+      privacyUrl: try policyUrl(from: privacyUrl)
     ).present()
   }
 
@@ -141,11 +159,20 @@ enum MembershipStore {
     private var host: UIHostingController<MembershipSubscriptionSheet>?
     private let appAccountToken: UUID
     private let productIds: Set<String>
+    private let termsUrl: URL
+    private let privacyUrl: URL
     private var updatesTask: Task<Void, Never>?
 
-    init(productIds: Set<String>, appAccountToken: UUID) {
+    init(
+      productIds: Set<String>,
+      appAccountToken: UUID,
+      termsUrl: URL,
+      privacyUrl: URL
+    ) {
       self.appAccountToken = appAccountToken
       self.productIds = productIds
+      self.termsUrl = termsUrl
+      self.privacyUrl = privacyUrl
     }
 
     func present() async throws -> MembershipCheckoutResult {
@@ -154,6 +181,8 @@ enum MembershipStore {
         let sheet = MembershipSubscriptionSheet(
           appAccountToken: appAccountToken,
           productIDs: Array(productIds),
+          termsUrl: termsUrl,
+          privacyUrl: privacyUrl,
           onPurchase: { [weak self] result in
             self?.handlePurchase(result)
           }
@@ -232,11 +261,21 @@ enum MembershipStore {
 private struct MembershipSubscriptionSheet: View {
   let appAccountToken: UUID
   let productIDs: [String]
+  let termsUrl: URL
+  let privacyUrl: URL
   let onPurchase: (Product.PurchaseResult) -> Void
 
   var body: some View {
     SubscriptionStoreView(productIDs: productIDs)
       .storeButton(.visible, for: .restorePurchases)
+      .subscriptionStorePolicyDestination(
+        url: termsUrl,
+        for: .termsOfService
+      )
+      .subscriptionStorePolicyDestination(
+        url: privacyUrl,
+        for: .privacyPolicy
+      )
       .inAppPurchaseOptions { _ in
         [.appAccountToken(appAccountToken)]
       }

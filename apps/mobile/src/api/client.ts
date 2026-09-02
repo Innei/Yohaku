@@ -277,18 +277,12 @@ export const api = {
       `/notes/${year}/${month}/${day}/${encodeURIComponent(slug)}`,
       lang,
     ),
-  archiveTimeline: (
-    scope: 'notes' | 'posts',
-    lang = getLocale(),
-  ) =>
-    request<{ notes?: ApiNote[]; posts?: ApiPost[] }>(
-      '/aggregate/timeline',
-      {
-        lang,
-        sort: -1,
-        type: scope === 'posts' ? 0 : 1,
-      },
-    ),
+  archiveTimeline: (scope: 'notes' | 'posts', lang = getLocale()) =>
+    request<{ notes?: ApiNote[]; posts?: ApiPost[] }>('/aggregate/timeline', {
+      lang,
+      sort: -1,
+      type: scope === 'posts' ? 0 : 1,
+    }),
   thinkingList: async (size: number) =>
     parseThinkingList(await fetchRawJson('/recently', { size })),
   categoryList: () =>
@@ -389,6 +383,12 @@ export const api = {
     request<unknown>(`/comments/${encodeURIComponent(id)}/report`, undefined, {
       method: 'POST',
     }),
+  reportAndBlockComment: (id: string) =>
+    request<{ blockedReaderId: string; ok: true }>(
+      `/comments/${encodeURIComponent(id)}/report-and-block`,
+      undefined,
+      { method: 'POST' },
+    ),
   insights: (articleId: string) =>
     request<{ content: string | null }>(
       `/ai/insights/article/${encodeURIComponent(articleId)}`,

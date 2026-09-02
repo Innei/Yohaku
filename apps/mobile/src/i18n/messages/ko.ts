@@ -37,6 +37,10 @@ export const ko = {
     password: '비밀번호',
     backToSocial: '소셜 로그인으로 돌아가기',
     emailFailed: '이메일 또는 비밀번호가 올바르지 않습니다',
+    termsAgreement:
+      '불쾌감을 주는 콘텐츠와 악의적인 사용자를 용납하지 않는 정책을 포함한 이용 약관에 동의합니다.',
+    termsOfUse: '이용 약관',
+    privacyPolicy: '개인정보 처리방침',
     anonymous: '이름 없음',
     owner: '주인',
   },
@@ -168,6 +172,11 @@ export const ko = {
     reportConfirm: '이 댓글을 신고할까요?',
     reportDone: '신고를 받았습니다',
     reportFailed: '신고에 실패했습니다. 잠시 후 다시 시도해 주세요',
+    blockUser: '사용자 차단',
+    blockUserConfirm:
+      '이 댓글을 신고하고 {name}님을 차단할까요? 이 사용자의 댓글은 즉시 사라집니다.',
+    blockUserDone: '사용자를 차단하고 신고했습니다',
+    blockUserFailed: '사용자를 차단하지 못했습니다. 잠시 후 다시 시도해 주세요',
     moreActions: '더 보기',
     copyText: '텍스트 복사',
     edit: '수정',
