@@ -247,9 +247,10 @@ export function calibrateNoteMeta(
   }
 }
 
-export function topicFromApi(topic: ApiTopic) {
+export function topicFromApi(topic: ApiTopic, lang: Locale) {
   return {
     id: topic.id,
+    lang,
     name: topic.name,
     slug: topic.slug,
     description: topic.description ?? '',

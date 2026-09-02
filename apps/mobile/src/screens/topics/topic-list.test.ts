@@ -9,6 +9,7 @@ import {
 describe('topicById', () => {
   const topic = {
     id: 't1',
+    lang: 'zh',
     name: '北海道',
     slug: 'hokkaido',
     description: '',

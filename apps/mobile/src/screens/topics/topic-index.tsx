@@ -35,7 +35,11 @@ export function TopicIndexScreen() {
     identity: `topic-index:${locale}`,
     read: async () => {
       const [items, noteRows] = await Promise.all([
-        db.select().from(topics).orderBy(desc(topics.createdAt)),
+        db
+          .select()
+          .from(topics)
+          .where(eq(topics.lang, locale))
+          .orderBy(desc(topics.createdAt)),
         db
           .select({ topicId: notes.topicId })
           .from(notes)

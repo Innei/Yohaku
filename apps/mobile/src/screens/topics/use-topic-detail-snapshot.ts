@@ -31,7 +31,11 @@ async function readTopicDetailSnapshot({
 }: TopicDetailSnapshotOptions): Promise<TopicDetailSnapshot> {
   if (topicId) {
     const [topicRows, noteRows] = await Promise.all([
-      db.select().from(topics).where(eq(topics.id, topicId)).limit(1),
+      db
+        .select()
+        .from(topics)
+        .where(and(eq(topics.id, topicId), eq(topics.lang, locale)))
+        .limit(1),
       readNotes(topicId, locale),
     ])
     const topic = topicRows[0]
@@ -43,7 +47,7 @@ async function readTopicDetailSnapshot({
   const topicRows = await db
     .select()
     .from(topics)
-    .where(eq(topics.slug, slug))
+    .where(and(eq(topics.slug, slug), eq(topics.lang, locale)))
     .limit(1)
   const topic = topicRows[0]
   return {

@@ -66,7 +66,10 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
       const rows = await db
         .select({ note: notes, topic: topics })
         .from(notes)
-        .leftJoin(topics, eq(notes.topicId, topics.id))
+        .leftJoin(
+          topics,
+          and(eq(notes.topicId, topics.id), eq(topics.lang, locale)),
+        )
         .where(and(eq(notes.nid, nid), eq(notes.lang, locale)))
         .limit(1)
       return rows[0]

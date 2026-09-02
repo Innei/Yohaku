@@ -100,15 +100,20 @@ export const thinkings = sqliteTable('thinkings', {
   > | null>(),
 })
 
-export const topics = sqliteTable('topics', {
-  id: text('id').primaryKey(),
-  name: text('name').notNull(),
-  slug: text('slug').notNull(),
-  description: text('description').notNull().default(''),
-  introduce: text('introduce'),
-  icon: text('icon'),
-  createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
-})
+export const topics = sqliteTable(
+  'topics',
+  {
+    id: text('id').notNull(),
+    lang: text('lang').notNull(),
+    name: text('name').notNull(),
+    slug: text('slug').notNull(),
+    description: text('description').notNull().default(''),
+    introduce: text('introduce'),
+    icon: text('icon'),
+    createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.id, table.lang] })],
+)
 
 export const categories = sqliteTable(
   'categories',

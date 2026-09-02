@@ -535,7 +535,8 @@ describe('topicFromApi', () => {
       introduce: null,
       icon: 'https://example.com/i.png',
       createdAt: created,
-    })
+    }, 'zh')
+    expect(row.lang).toBe('zh')
     expect(row.createdAt).toEqual(new Date(created))
     expect(row.icon).toBe('https://example.com/i.png')
     expect(row.introduce).toBeNull()

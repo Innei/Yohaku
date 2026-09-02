@@ -70,6 +70,11 @@ function runBodyRefresh(key: string, operation: () => Promise<void>) {
 }
 
 export function syncAll(options: { force?: boolean } = {}): Promise<void> {
+  if (inflight && options.force) {
+    // A forced sync (language switch) must not collapse into a run that was
+    // started under the previous locale.
+    return inflight.catch(() => {}).then(() => syncAll(options))
+  }
   inflight ??= run(options).finally(() => {
     inflight = null
   })
@@ -243,29 +248,39 @@ export async function ingestPostPage(page: number, lang = getLocale()) {
   return paged
 }
 
-async function upsertTopics(list: ApiTopic[]) {
+async function upsertTopics(list: ApiTopic[], lang: Locale) {
   if (list.length === 0) return
-  await db.insert(topics).values(list.map(topicFromApi)).onConflictDoUpdate({
-    target: topics.id,
-    set: topicConflictSet,
-  })
+  await db
+    .insert(topics)
+    .values(list.map((topic) => topicFromApi(topic, lang)))
+    .onConflictDoUpdate({
+      target: [topics.id, topics.lang],
+      set: topicConflictSet,
+    })
 }
 
 async function syncTopics() {
+  const lang = getLocale()
   const list = await api.topicList()
   if (!Array.isArray(list) || list.length === 0) return
-  await upsertTopics(list)
+  await upsertTopics(list, lang)
   await db.delete(topics).where(
-    notInArray(
-      topics.id,
-      list.map((item) => item.id),
+    and(
+      eq(topics.lang, lang),
+      notInArray(
+        topics.id,
+        list.map((item) => item.id),
+      ),
     ),
   )
 }
 
 async function upsertNoteMetas(list: ApiNote[], lang: Locale) {
   if (list.length === 0) return
-  await upsertTopics(list.flatMap((note) => (note.topic ? [note.topic] : [])))
+  await upsertTopics(
+    list.flatMap((note) => (note.topic ? [note.topic] : [])),
+    lang,
+  )
   const incoming = list.map((note) => noteMetaFromApi(note, lang))
   const existing = await db
     .select()
@@ -378,15 +393,15 @@ export async function ingestTopicPage(
   return paged
 }
 
-export async function refreshTopicById(topicId: string) {
+export async function refreshTopicById(topicId: string, lang = getLocale()) {
   const topic = await api.topicById(topicId)
-  await upsertTopics([topic])
+  await upsertTopics([topic], lang)
   return topic
 }
 
-export async function refreshTopicBySlug(slug: string) {
+export async function refreshTopicBySlug(slug: string, lang = getLocale()) {
   const topic = await api.topicBySlug(slug)
-  await upsertTopics([topic])
+  await upsertTopics([topic], lang)
   return topic
 }
 

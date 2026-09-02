@@ -5,8 +5,8 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 
 import { YohakuList } from '@/components/list/yohaku-list'
-import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
+import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import { AppText } from '@/components/ui'
 import { db } from '@/db'
 import { notes, topics } from '@/db/schema'
@@ -20,27 +20,25 @@ import { usePalette } from '@/theme/palette'
 
 import { ListSearchToolbar } from '../search/search-chrome'
 import { topicById } from '../topics/topic-list'
-import { articleIdsFromVisible } from './flatten-posts-list'
 import {
   flattenNotesList,
   NOTE_LIST_FOOTER_ID,
   NOTE_LIST_RULE_ID,
   yearFromNoteItemId,
 } from './flatten-notes-list'
+import { articleIdsFromVisible } from './flatten-posts-list'
 import { NoteLatest } from './note-latest'
-import {
-  NotesOlderRule,
-  NoteTimelineRow,
-  NoteYearHead,
-} from './note-timeline-rows'
 import {
   groupNotesByYear,
   hasMoreNotes,
   nextNoteListPage,
   splitLatestNote,
 } from './note-timeline'
-
-const topicsQuery = db.select().from(topics)
+import {
+  NotesOlderRule,
+  NoteTimelineRow,
+  NoteYearHead,
+} from './note-timeline-rows'
 
 function NotesTrailingToolbar() {
   const router = useRouter()
@@ -99,7 +97,11 @@ export function NotesListScreen() {
     [locale],
   )
   const { data } = useLiveQuery(query, [locale])
-  const { data: topicRows } = useLiveQuery(topicsQuery)
+  const topicsQuery = useMemo(
+    () => db.select().from(topics).where(eq(topics.lang, locale)),
+    [locale],
+  )
+  const { data: topicRows } = useLiveQuery(topicsQuery, [locale])
   const notesInLocale = useMemo(() => data ?? [], [data])
   const topicRowsInDb = topicRows ?? []
   const { latest, older } = useMemo(
