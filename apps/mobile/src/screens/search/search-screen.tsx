@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ActivityIndicator,
@@ -19,6 +18,7 @@ import { AppText } from '@/components/ui'
 import { db } from '@/db'
 import { notes, posts, thinkings } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
+import { openExternalUrl } from '@/lib/open-external'
 import { secretStore } from '@/lib/secret-store'
 import { siteHref } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
@@ -229,7 +229,7 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
       if (scope === 'notes') {
         if (typeof hit.nid !== 'number') return
         if (hit.hasPassword) {
-          void WebBrowser.openBrowserAsync(siteHref(`/notes/${hit.nid}`))
+          void openExternalUrl(siteHref(`/notes/${hit.nid}`))
           return
         }
         router.push({
@@ -379,14 +379,14 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
         value={keyword}
         onApplyRecent={applyRecent}
         onChangeText={setKeyword}
-        onClear={() => {
-          setKeyword('')
-          setDebounced('')
-        }}
         onClearRecents={wipeRecents}
         onHeight={setDockHeight}
         onRemoveRecent={removeRecent}
         onSubmit={() => Keyboard.dismiss()}
+        onClear={() => {
+          setKeyword('')
+          setDebounced('')
+        }}
       />
     </View>
   )

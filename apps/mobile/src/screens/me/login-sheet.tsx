@@ -1,6 +1,5 @@
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 
@@ -8,6 +7,7 @@ import { useLogin } from '@/auth/use-login'
 import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
 import { AppText, Button, SinkPressable, WellInput } from '@/components/ui'
 import { useTranslations } from '@/i18n'
+import { openExternalUrl } from '@/lib/open-external'
 import { getPrivacyUrl, siteHref } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 
@@ -196,7 +196,7 @@ export function LoginSheet() {
             </SinkPressable>
             <View style={styles.policyLinks}>
               <SinkPressable
-                onPress={() => void WebBrowser.openBrowserAsync(termsUrl)}
+                onPress={() => void openExternalUrl(termsUrl)}
               >
                 <AppText color={palette.accent} variant="meta">
                   {t('termsOfUse')}
@@ -204,7 +204,7 @@ export function LoginSheet() {
               </SinkPressable>
               {privacyUrl ? (
                 <SinkPressable
-                  onPress={() => void WebBrowser.openBrowserAsync(privacyUrl)}
+                  onPress={() => void openExternalUrl(privacyUrl)}
                 >
                   <AppText color={palette.accent} variant="meta">
                     {t('privacyPolicy')}

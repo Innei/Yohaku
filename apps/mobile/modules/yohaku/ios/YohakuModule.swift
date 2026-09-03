@@ -29,6 +29,18 @@ public class YohakuModule: Module {
       }
     }
 
+    AsyncFunction("presentSafari") { (url: String) in
+      try await BrowserPresenter.presentSafari(url)
+    }
+
+    AsyncFunction("openAuthSession") { (url: String, scheme: String) -> [String: Any] in
+      try await BrowserPresenter.authSession(url, scheme: scheme)
+    }
+
+    AsyncFunction("dismissAuthSession") {
+      await BrowserPresenter.dismissAuthSession()
+    }
+
     AsyncFunction("configureCompactNativeTabBar") {
       TabBarDomain.configureCompactNativeTabBar()
     }.runOnQueue(.main)

@@ -1,10 +1,10 @@
-import * as WebBrowser from 'expo-web-browser'
 import { StyleSheet, View } from 'react-native'
 
 import { apiBaseUrl } from '@/api/base-url'
 import RichBody from '@/components/dom/rich-body'
 import { useRichBodyLabels } from '@/components/dom/use-rich-body-labels'
 import { useLocale } from '@/i18n'
+import { openExternalUrl } from '@/lib/open-external'
 import { usePalette } from '@/theme/palette'
 import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 
@@ -101,7 +101,7 @@ export function FileNodeLab() {
         onImagePress={async () => {}}
         onScrollToAnchor={async () => {}}
         onLinkPress={async (url) => {
-          await WebBrowser.openBrowserAsync(url)
+          await openExternalUrl(url)
         }}
       />
     </View>

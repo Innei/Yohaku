@@ -61,6 +61,9 @@ const BARREL_SHIMS = {
   // untouched: the shim itself loads shiki/engine/oniguruma and shiki/wasm.
   shiki: './shims/shiki-bundle-full.ts',
   'shiki/bundle/full': './shims/shiki-bundle-full.ts',
+  // @better-auth/expo hard-imports expo-web-browser for social sign-in with
+  // no override hook; the shim serves the auth session from YohakuKit instead.
+  'expo-web-browser': './shims/expo-web-browser.ts',
 }
 
 // Metro fails to resolve @base-ui/react's `#prehydration/*` subpath imports

@@ -33,6 +33,7 @@ interface YohakuNativeModule {
   }>
   configureCompactNativeTabBar(): Promise<void>
   databaseBytes(): number
+  dismissAuthSession(): Promise<void>
   downloadSystemFont(postScriptName: string): Promise<boolean>
   liquidGlassAvailable: boolean
   loadTts(payload: {
@@ -41,9 +42,14 @@ interface YohakuNativeModule {
     title: string
     url: string
   }): Promise<void>
+  openAuthSession(
+    url: string,
+    scheme: string,
+  ): Promise<{ type: 'cancel' } | { type: 'success'; url: string }>
   pauseTts(): Promise<void>
   playTts(): Promise<void>
   preloadTts(url: string): Promise<void>
+  presentSafari(url: string): Promise<void>
   renderMermaid(payload: {
     bg: string
     fg: string

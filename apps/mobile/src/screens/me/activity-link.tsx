@@ -1,5 +1,4 @@
 import { type Href, Link } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import {
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
@@ -10,6 +9,7 @@ import type { GestureResponderEvent } from 'react-native'
 import { prepareArticleBody } from '@/components/dom/prepare-reader'
 import { useTranslations } from '@/i18n'
 import { copyUrl } from '@/lib/copy-url'
+import { openExternalUrl } from '@/lib/open-external'
 import { shareUrl } from '@/lib/share'
 
 import type { ActivityHref } from './activity-href'
@@ -25,7 +25,7 @@ export function openActivityHref(
   prepare?: () => void | Promise<unknown>,
 ) {
   if (target.browser && target.webUrl) {
-    void WebBrowser.openBrowserAsync(target.webUrl)
+    void openExternalUrl(target.webUrl)
     return
   }
   const href = target.href
@@ -101,7 +101,7 @@ export function ActivityLink({
           </Link.MenuAction>
           <Link.MenuAction
             icon="safari"
-            onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
+            onPress={() => void openExternalUrl(webUrl)}
           >
             {t('openInBrowser')}
           </Link.MenuAction>

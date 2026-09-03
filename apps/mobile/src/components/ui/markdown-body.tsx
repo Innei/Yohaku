@@ -1,11 +1,11 @@
 import { type as typeScale } from '@yohaku/design-system/tokens'
 import { useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useMemo } from 'react'
 import type { MarkdownStyle } from 'react-native-enriched-markdown'
 import { EnrichedMarkdownText } from 'react-native-enriched-markdown'
 
 import { hrefForExternalUrl } from '@/lib/link-router'
+import { openExternalUrl } from '@/lib/open-external'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
@@ -116,7 +116,7 @@ export function MarkdownBody({
     if (internal) {
       router.push(internal)
     } else {
-      await WebBrowser.openBrowserAsync(url)
+      await openExternalUrl(url)
     }
   }
 

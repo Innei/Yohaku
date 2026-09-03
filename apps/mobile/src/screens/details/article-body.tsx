@@ -4,7 +4,6 @@ import {
   useNavigation,
   useRouter,
 } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import type { RefObject } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ScrollView as ScrollViewType } from 'react-native'
@@ -36,11 +35,12 @@ import { useLocale, useTranslations } from '@/i18n'
 import { subscribeTocJump } from '@/lib/article-toc'
 import { presentImagePreview } from '@/lib/image-cache'
 import { hrefForExternalUrl } from '@/lib/link-router'
+import { openExternalUrl } from '@/lib/open-external'
 import { getSiteUrl } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
 import { SelectionCommentSheet } from '@/screens/comments/selection-comment-sheet'
-import { timings } from '@/theme/motion'
 import { clampFontScale } from '@/theme/font-scale'
+import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
 import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 import { useWebviewFontFaces } from '@/theme/webview-fonts'
@@ -138,7 +138,7 @@ export function ArticleBody({
     if (href) {
       router.push(href)
     } else {
-      await WebBrowser.openBrowserAsync(url)
+      await openExternalUrl(url)
     }
   }
 

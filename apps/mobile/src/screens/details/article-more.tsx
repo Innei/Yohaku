@@ -1,11 +1,11 @@
 import { Stack, useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useMemo } from 'react'
 
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
 import { usesPaperNavigationControls } from '@/components/navigation/platform'
 import { useTranslations } from '@/i18n'
 import { copyUrl } from '@/lib/copy-url'
+import { openExternalUrl } from '@/lib/open-external'
 import { shareUrl } from '@/lib/share'
 
 import {
@@ -102,7 +102,7 @@ export function ArticleMore({
           break
         }
         case 'open-in-browser': {
-          void WebBrowser.openBrowserAsync(url)
+          void openExternalUrl(url)
           break
         }
       }
@@ -141,13 +141,13 @@ export function ArticleMore({
       <Stack.Toolbar.Menu accessibilityLabel={t('more')} icon="ellipsis">
         {menuGroups.map((group) => (
           <Stack.Toolbar.Menu
-            key={group[0]?.category ?? group[0]?.id}
             inline
+            key={group[0]?.category ?? group[0]?.id}
           >
             {group.map((item) => (
               <Stack.Toolbar.MenuAction
-                key={item.id}
                 icon={item.icon}
+                key={item.id}
                 onPress={() => handlePaperMenuAction(item.id)}
               >
                 {item.title}

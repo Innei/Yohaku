@@ -1,6 +1,5 @@
 import { useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
-import * as WebBrowser from 'expo-web-browser'
 import { useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import Animated, {
@@ -16,6 +15,7 @@ import { insightsTapAction } from '@/api/membership'
 import { useSession } from '@/auth/session-store'
 import { AppText, NOTICE_ICON_COL, SinkPressable } from '@/components/ui'
 import { useTranslations } from '@/i18n'
+import { openExternalUrl } from '@/lib/open-external'
 import { useMembershipPlans } from '@/screens/me/use-membership'
 import { useMembershipCheckout } from '@/screens/me/use-membership-checkout'
 import { timings } from '@/theme/motion'
@@ -41,9 +41,9 @@ export interface ArticleAiListen {
   available: boolean
   current: number
   elapsed: number
+  onToggle: () => void
   status: TtsStatus
   total: number
-  onToggle: () => void
 }
 
 function ListenLead({
@@ -59,11 +59,11 @@ function ListenLead({
   const loading = listen.status === 'loading'
   return (
     <SinkPressable
+      haptic={false}
+      style={styles.head}
       accessibilityLabel={
         loading ? t('loading') : playing ? t('pause') : t('play')
       }
-      haptic={false}
-      style={styles.head}
       onPress={listen.onToggle}
     >
       <View style={styles.icon}>
@@ -281,7 +281,7 @@ export function ArticleAiFold({
                 return
               }
               if (action === 'web') {
-                if (webUrl) void WebBrowser.openBrowserAsync(webUrl)
+                if (webUrl) void openExternalUrl(webUrl)
                 return
               }
               if (action === 'open') {

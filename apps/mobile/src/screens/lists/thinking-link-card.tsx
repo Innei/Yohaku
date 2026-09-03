@@ -1,11 +1,11 @@
 import { radius } from '@yohaku/design-system/tokens'
 import { useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { StyleSheet, View } from 'react-native'
 
 import type { ApiEnrichment } from '@/api/types'
 import { AppText, NativePressable, RemoteImage } from '@/components/ui'
 import { hrefForExternalUrl } from '@/lib/link-router'
+import { openExternalUrl } from '@/lib/open-external'
 import { usePalette } from '@/theme/palette'
 import { shadow } from '@/theme/surfaces'
 
@@ -27,7 +27,7 @@ export function ThinkingLinkCard({
       router.push(internal)
       return
     }
-    await WebBrowser.openBrowserAsync(enrichment.url)
+    await openExternalUrl(enrichment.url)
   }
 
   return (

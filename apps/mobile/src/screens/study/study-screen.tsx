@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query'
 import { Image } from 'expo-image'
 import * as Linking from 'expo-linking'
 import { useFocusEffect, useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useCallback, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
@@ -14,6 +13,7 @@ import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll
 import type { GroupedListRow } from '@/components/ui'
 import { AppText, GroupedList, SinkPressable, SlotText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
+import { openExternalUrl } from '@/lib/open-external'
 import { getPrivacyUrl } from '@/lib/site-url'
 import { displaySite } from '@/owner/snapshot'
 import { openSocialLink, socialLinks } from '@/owner/social-links'
@@ -158,7 +158,7 @@ export function StudyScreen() {
             label: t('blog'),
             value: owner.siteHost,
             chevron: true,
-            onPress: () => void WebBrowser.openBrowserAsync(owner.webUrl),
+            onPress: () => void openExternalUrl(owner.webUrl),
           } satisfies GroupedListRow,
         ]
       : []),
@@ -168,7 +168,7 @@ export function StudyScreen() {
             id: 'privacy',
             label: t('privacy'),
             chevron: true,
-            onPress: () => void WebBrowser.openBrowserAsync(privacyUrl),
+            onPress: () => void openExternalUrl(privacyUrl),
           } satisfies GroupedListRow,
         ]
       : []),

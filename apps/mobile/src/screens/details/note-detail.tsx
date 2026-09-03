@@ -1,6 +1,5 @@
 import { and, eq } from 'drizzle-orm'
 import { Stack, useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
 import { Dimensions, StyleSheet, View } from 'react-native'
@@ -17,6 +16,7 @@ import { recordReading } from '@/interactions/reading'
 import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
+import { openExternalUrl } from '@/lib/open-external'
 import { siteHref } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
@@ -147,7 +147,7 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
   }, [noteId, bodyVersion, nid, locale, attempt, updatesEnabled])
 
   useEffect(() => {
-    if (updatesEnabled && openOnWeb) void WebBrowser.openBrowserAsync(webUrl)
+    if (updatesEnabled && openOnWeb) void openExternalUrl(webUrl)
   }, [openOnWeb, updatesEnabled, webUrl])
 
   const body =
@@ -268,7 +268,7 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                     <AppText
                       style={styles.lockedHint}
                       variant="secondary"
-                      onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
+                      onPress={() => void openExternalUrl(webUrl)}
                     >
                       {t('passwordHint')}
                     </AppText>
@@ -278,7 +278,7 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
                     <AppText
                       style={styles.placeholder}
                       variant="secondary"
-                      onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
+                      onPress={() => void openExternalUrl(webUrl)}
                     >
                       {tc('openInBrowser')}
                     </AppText>

@@ -1,6 +1,5 @@
 import { and, eq } from 'drizzle-orm'
 import { Stack, useIsPreview, useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
 import { Dimensions, StyleSheet, View } from 'react-native'
@@ -18,6 +17,7 @@ import { recordReading } from '@/interactions/reading'
 import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
+import { openExternalUrl } from '@/lib/open-external'
 import { siteHref } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
@@ -179,7 +179,7 @@ export function PostDetailScreen({
 
   useEffect(() => {
     if (updatesEnabled && !isPreview && isMarkdown) {
-      void WebBrowser.openBrowserAsync(webUrl)
+      void openExternalUrl(webUrl)
     }
   }, [isMarkdown, isPreview, updatesEnabled, webUrl])
 
@@ -364,7 +364,7 @@ export function PostDetailScreen({
                 <AppText
                   style={styles.placeholder}
                   variant="secondary"
-                  onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
+                  onPress={() => void openExternalUrl(webUrl)}
                 >
                   {tc('openInBrowser')}
                 </AppText>

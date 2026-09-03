@@ -1,9 +1,9 @@
 import type { Href } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 
 import { prepareArticleBody } from '@/components/dom/prepare-reader'
 import type { NoteRow, PostRow } from '@/db/schema'
 import { primeDatabaseSnapshot } from '@/db/use-database-snapshot'
+import { openExternalUrl } from '@/lib/open-external'
 import { siteHref } from '@/lib/site-url'
 
 type Router = {
@@ -37,7 +37,7 @@ function isFullPostRow(post: OpenPostRow): post is OpenPostRow & PostRow {
 export function openNote(router: Router, note: NoteRow) {
   const webUrl = siteHref(`/notes/${note.nid}`)
   if (note.hasPassword || note.contentFormat === 'markdown') {
-    void WebBrowser.openBrowserAsync(webUrl)
+    void openExternalUrl(webUrl)
     return
   }
   const href = {
@@ -67,7 +67,7 @@ export function openPost(router: Router, post: OpenPostRow) {
   if (!post.categorySlug) return
   const webUrl = siteHref(`/posts/${post.categorySlug}/${post.slug}`)
   if (post.contentFormat === 'markdown') {
-    void WebBrowser.openBrowserAsync(webUrl)
+    void openExternalUrl(webUrl)
     return
   }
   const href = {

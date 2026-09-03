@@ -1,11 +1,11 @@
 import { Link, useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { type MouseEvent as ReactMouseEvent, useCallback, useMemo } from 'react'
 import type { GestureResponderEvent } from 'react-native'
 
 import { useTranslations } from '@/i18n'
 import { copyUrl } from '@/lib/copy-url'
 import { openPost } from '@/lib/open-article'
+import { openExternalUrl } from '@/lib/open-external'
 import { shareUrl } from '@/lib/share'
 import { siteHref } from '@/lib/site-url'
 
@@ -107,7 +107,7 @@ export function PostContextLink({
           </Link.MenuAction>
           <Link.MenuAction
             icon="safari"
-            onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
+            onPress={() => void openExternalUrl(webUrl)}
           >
             {t('openInBrowser')}
           </Link.MenuAction>

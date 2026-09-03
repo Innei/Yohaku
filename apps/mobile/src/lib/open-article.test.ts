@@ -9,7 +9,7 @@ const { prepareArticleBody, primeDatabaseSnapshot } = vi.hoisted(() => ({
   primeDatabaseSnapshot: vi.fn(),
 }))
 
-vi.mock('expo-web-browser', () => ({ openBrowserAsync: vi.fn() }))
+vi.mock('@/lib/open-external', () => ({ openExternalUrl: vi.fn() }))
 vi.mock('@/components/dom/prepare-reader', () => ({ prepareArticleBody }))
 vi.mock('@/db/use-database-snapshot', () => ({ primeDatabaseSnapshot }))
 vi.mock('@/lib/site-url', () => ({

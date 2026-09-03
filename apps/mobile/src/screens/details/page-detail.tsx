@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { Stack, useRouter } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
 import type { ScrollView } from 'react-native'
@@ -13,6 +12,7 @@ import { useLocale, useTranslations } from '@/i18n'
 import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
+import { openExternalUrl } from '@/lib/open-external'
 import { siteHref } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
@@ -54,7 +54,7 @@ export function PageDetailScreen({ slug }: { slug: string }) {
   const headings = useMemo(() => extractHeadings(body ?? ''), [body])
 
   useEffect(() => {
-    if (isMarkdown) void WebBrowser.openBrowserAsync(webUrl)
+    if (isMarkdown) void openExternalUrl(webUrl)
   }, [isMarkdown, webUrl])
 
   const { headerTitleProgress, headerOptions, onScroll, onTitleLayout } =
@@ -130,7 +130,7 @@ export function PageDetailScreen({ slug }: { slug: string }) {
                     <AppText
                       style={styles.placeholder}
                       variant="secondary"
-                      onPress={() => void WebBrowser.openBrowserAsync(webUrl)}
+                      onPress={() => void openExternalUrl(webUrl)}
                     >
                       {tc('openInBrowser')}
                     </AppText>
