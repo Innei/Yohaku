@@ -16,6 +16,7 @@ import {
   nestedDocExpandHolder,
   REGISTERED_NODE_TYPES,
 } from '@yohaku/rich-content/lexical'
+import { PortableCodeBlock } from '@yohaku/rich-content/src/lexical/portable/code-block.tsx'
 import { sanitizeEditorState } from '@yohaku/rich-content/src/lexical/sanitize.ts'
 import {
   baseFontVarStyle,
@@ -42,7 +43,6 @@ import { WEBVIEW_FONT_FAMILY } from '@/theme/font-faces'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
 import { extractBlockInfos } from './anchor-utils'
-import { PortableCodeBlock } from '@yohaku/rich-content/src/lexical/portable/code-block.tsx'
 import { MobileFileCard } from './file-card'
 import { activePreparedContent } from './reader-content-state'
 import {
@@ -372,6 +372,12 @@ export default function RichBody({
       nestedDocExpandHolder.current = null
     }
   }, [onNestedDocExpand])
+
+  // Link cards and other Tailwind-sized blocks use rem, which resolves
+  // against <html>, not the --rc-font-size-* vars on the article container.
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${printDocument ? 12 : 16 * fontScale}px`
+  }, [fontScale, printDocument])
 
   useEffect(() => {
     if (document.querySelector('meta[name="viewport"]')) return
