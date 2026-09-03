@@ -265,6 +265,9 @@ type YohakuListViewProps = ViewProps & {
   contentInsetBottom?: number
   contentInsetTop?: number
   items: YohakuListNativeItem[]
+  stretchCoverHeight?: number
+  stretchCoverPlaceholderUri?: string | null
+  stretchCoverUri?: string | null
   onEndReached?: (event: NativeSyntheticEvent<Record<string, never>>) => void
   onItemPress?: (
     event: NativeSyntheticEvent<{ id: string; type: string }>,
@@ -275,6 +278,12 @@ type YohakuListViewProps = ViewProps & {
   onRefresh?: (event: NativeSyntheticEvent<Record<string, never>>) => void
   onScroll?: (
     event: NativeSyntheticEvent<{
+      adjustedContentInset: {
+        bottom: number
+        left: number
+        right: number
+        top: number
+      }
       contentInset: { bottom: number; left: number; right: number; top: number }
       contentOffset: { x: number; y: number }
       contentSize: { height: number; width: number }
@@ -290,6 +299,16 @@ type YohakuListViewProps = ViewProps & {
 
 export const YohakuListView: ComponentType<YohakuListViewProps> =
   requireNativeViewManager('Yohaku', 'YohakuList')
+
+type YohakuStretchCoverHostProps = ViewProps & {
+  stretchCoverAnchorY?: number
+  stretchCoverHeight?: number
+  stretchCoverPlaceholderUri?: string | null
+  stretchCoverUri?: string | null
+}
+
+export const YohakuStretchCoverHost: ComponentType<YohakuStretchCoverHostProps> =
+  requireNativeViewManager('Yohaku', 'YohakuStretchCoverHost')
 
 type YohakuListCellViewProps = ViewProps & {
   itemId: string

@@ -213,6 +213,7 @@ export function EdgeEffectScrollView({
 const styles = StyleSheet.create({
   fill: {
     flex: 1,
+    backgroundColor: 'transparent',
   },
   topBlur: {
     left: 0,

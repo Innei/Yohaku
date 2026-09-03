@@ -230,6 +230,46 @@ describe('noteConflictSet', () => {
     expect(row.topicId).toBeNull()
   })
 
+  it('keeps a cached cover thumbhash when a later list omits it', async () => {
+    await db.insert(notes).values({
+      ...noteMeta,
+      coverUrl: 'https://cdn.example/cover.jpg',
+      coverThumbhash: '1QcSHQRnh493V4dIh4eXh1h4kJUI',
+    })
+    await db
+      .insert(notes)
+      .values({
+        ...noteMeta,
+        coverUrl: 'https://cdn.example/cover.jpg',
+        coverThumbhash: null,
+      })
+      .onConflictDoUpdate({
+        target: [notes.id, notes.lang],
+        set: noteConflictSet,
+      })
+    const [row] = await db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.id, 'n1'), eq(notes.lang, 'zh')))
+    expect(row.coverThumbhash).toBe('1QcSHQRnh493V4dIh4eXh1h4kJUI')
+  })
+
+  it('overwrites coverUrl from a later list sync', async () => {
+    await db.insert(notes).values(noteMeta)
+    await db
+      .insert(notes)
+      .values({ ...noteMeta, coverUrl: 'https://cdn.example/cover.jpg' })
+      .onConflictDoUpdate({
+        target: [notes.id, notes.lang],
+        set: noteConflictSet,
+      })
+    const [row] = await db
+      .select()
+      .from(notes)
+      .where(and(eq(notes.id, 'n1'), eq(notes.lang, 'zh')))
+    expect(row.coverUrl).toBe('https://cdn.example/cover.jpg')
+  })
+
   it('writes topicId from a later list sync', async () => {
     await db.insert(notes).values(noteMeta)
     await db

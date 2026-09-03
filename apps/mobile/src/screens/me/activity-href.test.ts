@@ -53,6 +53,8 @@ function note(overrides: Partial<NoteRow> = {}): NoteRow {
     bodyVersion: null,
     enrichments: null,
     articleMeta: null,
+    coverUrl: null,
+    coverThumbhash: null,
     ...overrides,
   }
 }
@@ -73,21 +75,21 @@ function thinking(): ThinkingRow {
 
 describe('likedHref', () => {
   it('points a post at the native detail route and the public url', () => {
-    expect(likedHref({ kind: 'post', likedAt: createdAt, post: post() })).toEqual(
-      {
-        browser: false,
-        href: {
-          pathname: '/posts/[category]/[slug]',
-          params: {
-            category: 'blog',
-            postId: 'p1',
-            slug: 'new-machine',
-          },
+    expect(
+      likedHref({ kind: 'post', likedAt: createdAt, post: post() }),
+    ).toEqual({
+      browser: false,
+      href: {
+        pathname: '/posts/[category]/[slug]',
+        params: {
+          category: 'blog',
+          postId: 'p1',
+          slug: 'new-machine',
         },
-        title: '关于这台新电脑',
-        webUrl: expect.stringMatching(/\/posts\/blog\/new-machine$/),
       },
-    )
+      title: '关于这台新电脑',
+      webUrl: expect.stringMatching(/\/posts\/blog\/new-machine$/),
+    })
   })
 
   it('opens markdown posts in the browser', () => {
@@ -111,14 +113,14 @@ describe('likedHref', () => {
   })
 
   it('points a note at /notes/[nid]', () => {
-    expect(likedHref({ kind: 'note', likedAt: createdAt, note: note() })).toEqual(
-      {
-        browser: false,
-        href: { pathname: '/notes/[nid]', params: { nid: '12' } },
-        title: '春分前後',
-        webUrl: expect.stringMatching(/\/notes\/12$/),
-      },
-    )
+    expect(
+      likedHref({ kind: 'note', likedAt: createdAt, note: note() }),
+    ).toEqual({
+      browser: false,
+      href: { pathname: '/notes/[nid]', params: { nid: '12' } },
+      title: '春分前後',
+      webUrl: expect.stringMatching(/\/notes\/12$/),
+    })
   })
 
   it('opens password notes in the browser', () => {
@@ -153,7 +155,9 @@ describe('readingHref', () => {
   it('reuses the post href', () => {
     expect(
       readingHref({ kind: 'post', openedAt: createdAt, post: post() })?.href,
-    ).toEqual(likedHref({ kind: 'post', likedAt: createdAt, post: post() })?.href)
+    ).toEqual(
+      likedHref({ kind: 'post', likedAt: createdAt, post: post() })?.href,
+    )
   })
 })
 

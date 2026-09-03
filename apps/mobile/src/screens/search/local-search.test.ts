@@ -10,7 +10,9 @@ import {
   searchThinkings,
 } from './local-search'
 
-function post(overrides: Partial<PostRow> & Pick<PostRow, 'id' | 'title'>): PostRow {
+function post(
+  overrides: Partial<PostRow> & Pick<PostRow, 'id' | 'title'>,
+): PostRow {
   return {
     lang: 'zh',
     slug: 'slug',
@@ -54,6 +56,8 @@ function note(
     bodyVersion: null,
     enrichments: null,
     articleMeta: null,
+    coverUrl: null,
+    coverThumbhash: null,
     ...overrides,
   }
 }
@@ -160,8 +164,7 @@ describe('searchPosts', () => {
   })
 
   it('clips snippet around the first excerpt or body hit', () => {
-    const long =
-      '前'.repeat(40) + 'React 出现在中间' + '后'.repeat(40)
+    const long = '前'.repeat(40) + 'React 出现在中间' + '后'.repeat(40)
     const [hit] = searchPosts(
       [post({ id: 's', title: '无', excerpt: long })],
       'React',

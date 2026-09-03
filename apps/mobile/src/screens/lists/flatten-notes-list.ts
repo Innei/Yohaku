@@ -3,7 +3,7 @@ export const NOTE_LIST_FOOTER_ID = '__footer'
 
 export const noteListEstimatedHeight = {
   footer: 48,
-  latest: 420,
+  latest: 640,
   note: 120,
   rule: 56,
   year: 88,

@@ -20,6 +20,9 @@ export function YohakuList({
   items,
   refreshing = false,
   renderItem,
+  stretchCoverHeight,
+  stretchCoverPlaceholderUri,
+  stretchCoverUri,
   style,
   onEndReached,
   onItemPress,
@@ -31,6 +34,9 @@ export function YohakuList({
   contentInsetBottom?: number
   contentInsetTop?: number
   items: YohakuListItem[]
+  stretchCoverHeight?: number
+  stretchCoverPlaceholderUri?: string | null
+  stretchCoverUri?: string | null
   onEndReached?: () => void
   onItemPress?: (item: { id: string; type: string }) => void
   onLinkPress?: (kind: string, value: string) => void
@@ -47,15 +53,18 @@ export function YohakuList({
       contentInsetTop={contentInsetTop}
       items={items}
       refreshing={refreshing}
+      stretchCoverHeight={stretchCoverHeight}
+      stretchCoverPlaceholderUri={stretchCoverPlaceholderUri}
+      stretchCoverUri={stretchCoverUri}
       style={style}
       onEndReached={() => onEndReached?.()}
       onItemPress={(event) => onItemPress?.(event.nativeEvent)}
-      onLinkPress={(event) =>
-        onLinkPress?.(event.nativeEvent.kind, event.nativeEvent.value)
-      }
       onRefresh={() => onRefresh?.()}
       onScroll={onScroll}
       onVisibleItems={(event) => onVisibleItems?.(event.nativeEvent.items)}
+      onLinkPress={(event) =>
+        onLinkPress?.(event.nativeEvent.kind, event.nativeEvent.value)
+      }
     >
       {items.map((item) => {
         const child = renderItem(item)

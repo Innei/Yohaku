@@ -308,6 +308,26 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuStretchCoverHostView.self) {
+      ViewName("YohakuStretchCoverHost")
+
+      Prop("stretchCoverAnchorY") { (view: YohakuStretchCoverHostView, value: Double) in
+        view.setStretchCoverAnchorY(value)
+      }
+
+      Prop("stretchCoverHeight") { (view: YohakuStretchCoverHostView, value: Double) in
+        view.setStretchCoverHeight(value)
+      }
+
+      Prop("stretchCoverPlaceholderUri") { (view: YohakuStretchCoverHostView, value: String?) in
+        view.setStretchCoverPlaceholderUri(value)
+      }
+
+      Prop("stretchCoverUri") { (view: YohakuStretchCoverHostView, value: String?) in
+        view.setStretchCoverUri(value)
+      }
+    }
+
     View(YohakuListView.self) {
       ViewName("YohakuList")
 
@@ -334,6 +354,18 @@ public class YohakuModule: Module {
 
       Prop("refreshing") { (view: YohakuListView, refreshing: Bool) in
         view.setRefreshing(refreshing)
+      }
+
+      Prop("stretchCoverHeight") { (view: YohakuListView, value: Double) in
+        view.setStretchCoverHeight(value)
+      }
+
+      Prop("stretchCoverPlaceholderUri") { (view: YohakuListView, value: String?) in
+        view.setStretchCoverPlaceholderUri(value)
+      }
+
+      Prop("stretchCoverUri") { (view: YohakuListView, value: String?) in
+        view.setStretchCoverUri(value)
       }
     }
 

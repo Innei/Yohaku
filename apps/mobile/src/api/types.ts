@@ -74,8 +74,9 @@ export interface ApiNote {
   createdAt: string
   hasPassword: boolean | null
   id: string
+  images?: { src?: string | null; thumbhash?: string | null }[] | null
   likeCount: number
-  meta?: { aiGen?: unknown } | null
+  meta?: { aiGen?: unknown; cover?: string | null } | null
   modifiedAt: string | null
   mood: string | null
   nid: number

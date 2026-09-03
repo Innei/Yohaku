@@ -52,6 +52,10 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
   private var registeredReuseIDs = Set<String>()
   private var contentInsetTop: CGFloat = 0
   private var contentInsetBottom: CGFloat = 0
+  private var stretchCoverHeight: CGFloat = 248
+  private var stretchCoverUri: String?
+  private var lastSectionInsetTop: CGFloat?
+  private let stretchCover = YohakuListStretchCoverView()
   private var lastVisibleSignature = ""
   private var lastEndReachedCount = 0
   private var refreshControl: UIRefreshControl?
@@ -63,6 +67,7 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     layout.minimumInteritemSpacing = 0
     let view = UICollectionView(frame: .zero, collectionViewLayout: layout)
     view.backgroundColor = .clear
+    view.isOpaque = false
     view.alwaysBounceVertical = true
     view.delaysContentTouches = false
     view.allowsSelection = false
@@ -74,6 +79,7 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
+    addSubview(stretchCover)
     addSubview(collectionView)
     applyInsets()
     registerForTraitChanges([UITraitPreferredContentSizeCategory.self]) {
@@ -87,6 +93,12 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
   override func layoutSubviews() {
     super.layoutSubviews()
     collectionView.frame = bounds
+    let sectionInsetTop = resolvedSectionInsetTop
+    if sectionInsetTop != lastSectionInsetTop {
+      lastSectionInsetTop = sectionInsetTop
+      collectionView.collectionViewLayout.invalidateLayout()
+    }
+    updateStretchCover()
     emitVisibleItems()
   }
 
@@ -130,6 +142,33 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
   func setContentInsetTop(_ value: Double) {
     contentInsetTop = CGFloat(value)
     collectionView.collectionViewLayout.invalidateLayout()
+    updateStretchCover()
+  }
+
+  func setStretchCoverPlaceholderUri(_ value: String?) {
+    stretchCover.setPlaceholder(value)
+    updateStretchCover()
+  }
+
+  func setStretchCoverUri(_ value: String?) {
+    let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    let uri = trimmed.isEmpty ? nil : trimmed
+    guard uri != stretchCoverUri else {
+      updateStretchCover()
+      return
+    }
+    stretchCoverUri = uri
+    stretchCover.setUri(uri)
+    lastSectionInsetTop = nil
+    collectionView.collectionViewLayout.invalidateLayout()
+    updateStretchCover()
+  }
+
+  func setStretchCoverHeight(_ value: Double) {
+    if value > 0 {
+      stretchCoverHeight = CGFloat(value)
+    }
+    updateStretchCover()
   }
 
   func setContentInsetBottom(_ value: Double) {
@@ -192,6 +231,25 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     collectionView.verticalScrollIndicatorInsets.bottom = contentInsetBottom
   }
 
+  private func updateStretchCover() {
+    guard stretchCoverUri != nil else {
+      stretchCover.isHidden = true
+      return
+    }
+    let laid = YohakuStretchCoverLayout.frame(
+      cellY: resolvedSectionInsetTop - collectionView.contentOffset.y,
+      heroHeight: stretchCoverHeight,
+      width: bounds.width
+    )
+    stretchCover.isHidden = false
+    stretchCover.frame = laid.frame
+    stretchCover.setBlurOpacity(laid.blur)
+  }
+
+  private var resolvedSectionInsetTop: CGFloat {
+    stretchCoverUri == nil ? contentInsetTop : -collectionView.adjustedContentInset.top
+  }
+
   private func reuseIdentifier(for id: String) -> String {
     "YohakuListHostCell.\(id)"
   }
@@ -214,6 +272,12 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
       "layoutMeasurement": [
         "width": collectionView.bounds.width,
         "height": collectionView.bounds.height,
+      ],
+      "adjustedContentInset": [
+        "top": collectionView.adjustedContentInset.top,
+        "left": collectionView.adjustedContentInset.left,
+        "bottom": collectionView.adjustedContentInset.bottom,
+        "right": collectionView.adjustedContentInset.right,
       ],
       "contentInset": [
         "top": collectionView.contentInset.top,
@@ -292,6 +356,7 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
   }
 
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    updateStretchCover()
     emitScroll()
     emitVisibleItems()
     maybeEndReached()
@@ -321,6 +386,6 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     layout collectionViewLayout: UICollectionViewLayout,
     insetForSectionAt section: Int
   ) -> UIEdgeInsets {
-    UIEdgeInsets(top: contentInsetTop, left: 20, bottom: 24, right: 20)
+    UIEdgeInsets(top: resolvedSectionInsetTop, left: 20, bottom: 24, right: 20)
   }
 }

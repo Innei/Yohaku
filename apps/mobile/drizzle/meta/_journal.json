@@ -57,6 +57,20 @@
       "when": 1788342756314,
       "tag": "0007_topic_lang",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1788454702128,
+      "tag": "0008_note_cover",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1788500000000,
+      "tag": "0009_note_cover_thumbhash",
+      "breakpoints": true
     }
   ]
 }

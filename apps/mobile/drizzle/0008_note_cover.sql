@@ -1,0 +1,1 @@
+ALTER TABLE `notes` ADD `cover_url` text;

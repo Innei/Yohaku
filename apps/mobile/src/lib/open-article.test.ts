@@ -52,6 +52,8 @@ describe('openNote', () => {
       title: '首帧',
       topicId: null,
       weather: null,
+      coverUrl: null,
+      coverThumbhash: null,
     } satisfies NoteRow
 
     openNote(router, note)

@@ -1,3 +1,4 @@
+import { neutral, surface } from '@yohaku/design-system/tokens'
 import { SymbolView } from 'expo-symbols'
 import { useEffect, useMemo, useState } from 'react'
 import type { LayoutChangeEvent } from 'react-native'
@@ -14,9 +15,22 @@ import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { TopicChip } from '../topics/topic-chip'
+import {
+  NOTE_LATEST_HERO_HEIGHT,
+  noteCoverUrl,
+  noteShowsCoverHero,
+} from './note-cover'
 import { NotePreview } from './note-preview'
 import { parseNotePreview } from './note-preview-model'
 import { noteShowsInlineBody } from './note-timeline'
+
+function heroWash(hex: string) {
+  const r = Number.parseInt(hex.slice(1, 3), 16)
+  const g = Number.parseInt(hex.slice(3, 5), 16)
+  const b = Number.parseInt(hex.slice(5, 7), 16)
+  const stop = (alpha: number) => `rgba(${r},${g},${b},${alpha})`
+  return `linear-gradient(180deg, ${stop(0.08)} 0%, ${stop(0.28)} 46%, ${stop(0.78)} 100%)`
+}
 
 function deskFadeWash(hex: string) {
   const r = Number.parseInt(hex.slice(1, 3), 16)
@@ -56,6 +70,8 @@ export function NoteLatest({
     Math.round(windowHeight * previewViewportRatio),
   )
   const inline = noteShowsInlineBody(note)
+  const coverUrl = noteCoverUrl(note)
+  const showHero = noteShowsCoverHero(note)
   const noteId = note.id
   const preview = useMemo(
     () => parseNotePreview(note.content ?? ''),
@@ -85,21 +101,45 @@ export function NoteLatest({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [noteId, bodyVersion, note.hasPassword, note.contentFormat, attempt])
 
+  const metaParts = [
+    note.weather,
+    note.mood,
+    formatNoteListDate(note.createdAt, locale),
+  ]
+
   return (
     <View style={styles.root}>
       <View>
-        <NativePressable onPress={onOpen}>
-          <View style={styles.heading} onLayout={onTitleLayout}>
-            <ArticleMetaLine
-              parts={[
-                note.weather,
-                note.mood,
-                formatNoteListDate(note.createdAt, locale),
-              ]}
-            />
-            <AppText variant="largeTitle">{note.title}</AppText>
-          </View>
-        </NativePressable>
+        {showHero && coverUrl ? (
+          <NativePressable onPress={onOpen}>
+            <View style={styles.hero} onLayout={onTitleLayout}>
+              <View
+                pointerEvents="none"
+                style={[
+                  styles.heroWash,
+                  {
+                    experimental_backgroundImage: heroWash(neutral.light[10]),
+                  },
+                ]}
+              />
+              <View style={styles.heroCopy}>
+                <AppText color={surface.light.paper} variant="meta">
+                  {metaParts.filter(Boolean).join(' · ')}
+                </AppText>
+                <AppText color={surface.light.paper} variant="largeTitle">
+                  {note.title}
+                </AppText>
+              </View>
+            </View>
+          </NativePressable>
+        ) : (
+          <NativePressable onPress={onOpen}>
+            <View style={styles.heading} onLayout={onTitleLayout}>
+              <ArticleMetaLine parts={metaParts} />
+              <AppText variant="largeTitle">{note.title}</AppText>
+            </View>
+          </NativePressable>
+        )}
         {topic ? <TopicChip topic={topic} /> : null}
         <NativePressable onPress={onOpen}>
           {inline ? (
@@ -192,6 +232,25 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   heading: {
+    gap: 8,
+  },
+  hero: {
+    height: NOTE_LATEST_HERO_HEIGHT,
+    marginHorizontal: -20,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+  },
+  heroWash: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  },
+  heroCopy: {
+    paddingHorizontal: 20,
+    paddingBottom: 18,
+    paddingTop: 40,
     gap: 8,
   },
   preview: {

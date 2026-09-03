@@ -64,6 +64,8 @@ export const notes = sqliteTable(
       .notNull()
       .default(false),
     topicId: text('topic_id'),
+    coverUrl: text('cover_url'),
+    coverThumbhash: text('cover_thumbhash'),
     readCount: integer('read_count').notNull().default(0),
     likeCount: integer('like_count').notNull().default(0),
     createdAt: integer('created_at', { mode: 'timestamp_ms' }).notNull(),

@@ -14,6 +14,8 @@ import type {
 } from '@/api/types'
 import type { NoteRow, PostRow } from '@/db/schema'
 import type { Locale } from '@/i18n/config'
+import { isRecord } from '@/lib/is-record'
+import { noteCoverThumbhash } from '@/screens/lists/note-cover'
 
 type EnrichmentMap = Record<string, ApiEnrichment> | null
 
@@ -138,7 +140,16 @@ export function postBodyFromApi(
   }
 }
 
+export function coverUrlFromMeta(meta: unknown): string | null {
+  if (!isRecord(meta)) return null
+  const cover = meta.cover
+  if (typeof cover !== 'string') return null
+  const url = cover.trim()
+  return url.length > 0 ? url : null
+}
+
 export function noteMetaFromApi(note: ApiNote, lang: Locale) {
+  const coverUrl = coverUrlFromMeta(note.meta)
   return {
     id: note.id,
     lang,
@@ -150,6 +161,8 @@ export function noteMetaFromApi(note: ApiNote, lang: Locale) {
     contentFormat: note.contentFormat ?? null,
     hasPassword: note.hasPassword ?? null,
     topicId: note.topicId ?? note.topic?.id ?? null,
+    coverUrl,
+    coverThumbhash: noteCoverThumbhash(coverUrl, note.images),
     readCount: note.readCount,
     likeCount: note.likeCount,
     createdAt: new Date(note.createdAt),

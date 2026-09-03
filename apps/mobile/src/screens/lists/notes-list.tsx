@@ -27,6 +27,11 @@ import {
   yearFromNoteItemId,
 } from './flatten-notes-list'
 import { articleIdsFromVisible } from './flatten-posts-list'
+import {
+  NOTE_LATEST_HERO_HEIGHT,
+  noteCoverPlaceholderUri,
+  noteCoverUrl,
+} from './note-cover'
 import { NoteLatest } from './note-latest'
 import {
   groupNotesByYear,
@@ -194,6 +199,8 @@ export function NotesListScreen() {
   }, [])
 
   const isEmpty = notesInLocale.length === 0
+  const coverUri = latest ? noteCoverUrl(latest) : null
+  const coverPlaceholderUri = noteCoverPlaceholderUri(latest?.coverThumbhash)
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
@@ -213,6 +220,9 @@ export function NotesListScreen() {
           contentInsetBottom={tabBarInset}
           items={listItems}
           refreshing={refreshing}
+          stretchCoverHeight={NOTE_LATEST_HERO_HEIGHT}
+          stretchCoverPlaceholderUri={coverPlaceholderUri}
+          stretchCoverUri={coverUri}
           style={styles.screen}
           renderItem={(item) => {
             if (item.id === NOTE_LIST_RULE_ID) return <NotesOlderRule />
@@ -249,7 +259,6 @@ export function NotesListScreen() {
               <NoteTimelineRow
                 note={note}
                 topic={topicById(topicRowsInDb, note.topicId)}
-                onOpen={() => openNote(router, note)}
               />
             ) : null
           }}

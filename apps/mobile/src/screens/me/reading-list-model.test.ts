@@ -52,6 +52,8 @@ function note(id: string): NoteRow {
     bodyVersion: null,
     enrichments: null,
     articleMeta: null,
+    coverUrl: null,
+    coverThumbhash: null,
   }
 }
 

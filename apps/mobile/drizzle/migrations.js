@@ -8,6 +8,8 @@ import m0004 from './0004_sudden_the_captain.sql'
 import m0005 from './0005_purple_dark_phoenix.sql'
 import m0006 from './0006_note_topics.sql'
 import m0007 from './0007_topic_lang.sql'
+import m0008 from './0008_note_cover.sql'
+import m0009 from './0009_note_cover_thumbhash.sql'
 import journal from './meta/_journal.json'
 
 export default {
@@ -21,5 +23,7 @@ export default {
     m0005,
     m0006,
     m0007,
+    m0008,
+    m0009,
   },
 }

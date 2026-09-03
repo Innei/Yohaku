@@ -37,6 +37,8 @@ export const noteConflictSet = {
   contentFormat: sql`coalesce(excluded.content_format, content_format)`,
   hasPassword: sql`coalesce(excluded.has_password, has_password)`,
   topicId: sql`coalesce(excluded.topic_id, topic_id)`,
+  coverUrl: sql`excluded.cover_url`,
+  coverThumbhash: sql`coalesce(excluded.cover_thumbhash, cover_thumbhash)`,
   readCount: sql`excluded.read_count`,
   likeCount: sql`excluded.like_count`,
   modifiedAt: sql`excluded.modified_at`,

@@ -442,7 +442,78 @@ describe('noteMetaFromApi', () => {
     expect(row.hasPassword).toBeNull()
     expect(row.contentFormat).toBeNull()
     expect(row.topicId).toBeNull()
+    expect(row.coverUrl).toBeNull()
     expect('text' in row).toBe(false)
+  })
+
+  it('persists meta.cover when the list includes it', () => {
+    const row = noteMetaFromApi(
+      {
+        id: 'n1',
+        nid: 42,
+        title: '手记',
+        contentFormat: 'lexical',
+        mood: null,
+        weather: null,
+        hasPassword: false,
+        readCount: 1,
+        likeCount: 0,
+        createdAt: created,
+        modifiedAt: null,
+        meta: { cover: 'https://cdn.example/cover.jpg' },
+      },
+      'zh',
+    )
+    expect(row.coverUrl).toBe('https://cdn.example/cover.jpg')
+    expect(row.coverThumbhash).toBeNull()
+  })
+
+  it('persists the cover thumbhash from the matching image record', () => {
+    const row = noteMetaFromApi(
+      {
+        id: 'n1',
+        nid: 42,
+        title: '手记',
+        contentFormat: 'lexical',
+        mood: null,
+        weather: null,
+        hasPassword: false,
+        readCount: 1,
+        likeCount: 0,
+        createdAt: created,
+        modifiedAt: null,
+        meta: { cover: 'https://cdn.example/cover.jpg' },
+        images: [
+          {
+            src: 'https://cdn.example/cover.jpg',
+            thumbhash: '1QcSHQRnh493V4dIh4eXh1h4kJUI',
+          },
+        ],
+      },
+      'zh',
+    )
+    expect(row.coverThumbhash).toBe('1QcSHQRnh493V4dIh4eXh1h4kJUI')
+  })
+
+  it('treats a blank cover as missing', () => {
+    const row = noteMetaFromApi(
+      {
+        id: 'n1',
+        nid: 42,
+        title: '手记',
+        contentFormat: 'lexical',
+        mood: null,
+        weather: null,
+        hasPassword: false,
+        readCount: 1,
+        likeCount: 0,
+        createdAt: created,
+        modifiedAt: null,
+        meta: { cover: '   ' },
+      },
+      'zh',
+    )
+    expect(row.coverUrl).toBeNull()
   })
 
   it('prefers topicId and falls back to the embedded topic', () => {
@@ -527,15 +598,18 @@ describe('calibrateNoteMeta', () => {
 
 describe('topicFromApi', () => {
   it('maps dates and empty introduce', () => {
-    const row = topicFromApi({
-      id: 't1',
-      name: '北海道',
-      slug: 'hokkaido',
-      description: 'desc',
-      introduce: null,
-      icon: 'https://example.com/i.png',
-      createdAt: created,
-    }, 'zh')
+    const row = topicFromApi(
+      {
+        id: 't1',
+        name: '北海道',
+        slug: 'hokkaido',
+        description: 'desc',
+        introduce: null,
+        icon: 'https://example.com/i.png',
+        createdAt: created,
+      },
+      'zh',
+    )
     expect(row.lang).toBe('zh')
     expect(row.createdAt).toEqual(new Date(created))
     expect(row.icon).toBe('https://example.com/i.png')

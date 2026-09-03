@@ -2,7 +2,7 @@ import { type as typeScale } from '@yohaku/design-system/tokens'
 import { SymbolView } from 'expo-symbols'
 import { StyleSheet, View } from 'react-native'
 
-import { AppText, NativePressable } from '@/components/ui'
+import { AppText } from '@/components/ui'
 import type { NoteRow, TopicRow } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { formatNoteListDate } from '@/lib/datetime'
@@ -10,6 +10,7 @@ import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { TopicChip } from '../topics/topic-chip'
+import { NoteContextLink } from './note-context-link'
 import { letterCountLabel } from './note-timeline'
 
 export function moodLine(note: NoteRow): string {
@@ -21,7 +22,9 @@ export function NotesOlderRule() {
   const palette = usePalette()
   return (
     <View style={styles.rule}>
-      <View style={[styles.ruleLine, { backgroundColor: palette.neutral[3] }]} />
+      <View
+        style={[styles.ruleLine, { backgroundColor: palette.neutral[3] }]}
+      />
       <AppText
         color={palette.neutral[6]}
         style={styles.ruleLabel}
@@ -29,7 +32,9 @@ export function NotesOlderRule() {
       >
         {t('olderNotes')}
       </AppText>
-      <View style={[styles.ruleLine, { backgroundColor: palette.neutral[3] }]} />
+      <View
+        style={[styles.ruleLine, { backgroundColor: palette.neutral[3] }]}
+      />
     </View>
   )
 }
@@ -47,7 +52,9 @@ export function NoteYearHead({
   const serifFont = useNativeSerifFontStyle()
   return (
     <View style={later ? styles.laterYear : undefined}>
-      <View style={[styles.yearHead, { borderBottomColor: palette.neutral[3] }]}>
+      <View
+        style={[styles.yearHead, { borderBottomColor: palette.neutral[3] }]}
+      >
         <View>
           <AppText
             color={palette.semantic.warning}
@@ -71,10 +78,8 @@ export function NoteYearHead({
 export function NoteTimelineRow({
   note,
   topic,
-  onOpen,
 }: {
   note: NoteRow
-  onOpen: () => void
   topic: TopicRow | null
 }) {
   const locale = useLocale()
@@ -86,45 +91,50 @@ export function NoteTimelineRow({
         pointerEvents="none"
         style={[styles.spine, { backgroundColor: palette.neutral[3] }]}
       />
-      <NativePressable style={styles.press} onPress={onOpen}>
-        <View style={styles.dateRow}>
-          <View
-            pointerEvents="none"
-            style={[
-              styles.dot,
-              {
-                backgroundColor: palette.surface.desk,
-                borderColor: palette.neutral[4],
-              },
-            ]}
-          />
+      <View
+        pointerEvents="none"
+        style={[
+          styles.dot,
+          styles.dotAnchor,
+          {
+            backgroundColor: palette.surface.desk,
+            borderColor: palette.neutral[4],
+          },
+        ]}
+      />
+      <NoteContextLink note={note}>
+        <View style={styles.press}>
           <AppText style={styles.stackDate} variant="eyebrow">
             {formatNoteListDate(note.createdAt, locale)}
           </AppText>
-        </View>
-        <AppText variant="letterTitle">{note.title}</AppText>
-        {mood ? (
-          <AppText color={palette.neutral[7]} style={styles.mood} variant="meta">
-            {mood}
-          </AppText>
-        ) : null}
-        <View style={styles.letterMeta}>
-          {note.hasPassword ? (
-            <SymbolView
-              name="lock.fill"
-              size={10}
-              tintColor={palette.semantic.warning}
-            />
+          <AppText variant="letterTitle">{note.title}</AppText>
+          {mood ? (
+            <AppText
+              color={palette.neutral[7]}
+              style={styles.mood}
+              variant="meta"
+            >
+              {mood}
+            </AppText>
           ) : null}
-          <AppText
-            color={palette.semantic.warning}
-            style={styles.letterNo}
-            variant="eyebrow"
-          >
-            {`Letter №${note.nid}`}
-          </AppText>
+          <View style={styles.letterMeta}>
+            {note.hasPassword ? (
+              <SymbolView
+                name="lock.fill"
+                size={10}
+                tintColor={palette.semantic.warning}
+              />
+            ) : null}
+            <AppText
+              color={palette.semantic.warning}
+              style={styles.letterNo}
+              variant="eyebrow"
+            >
+              {`Letter №${note.nid}`}
+            </AppText>
+          </View>
         </View>
-      </NativePressable>
+      </NoteContextLink>
       {topic ? <TopicChip topic={topic} /> : null}
     </View>
   )
@@ -186,13 +196,6 @@ const styles = StyleSheet.create({
   press: {
     overflow: 'visible',
   },
-  dateRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    gap: 10,
-    marginLeft: -18,
-    marginBottom: 4,
-  },
   dot: {
     width: 8,
     height: 8,
@@ -200,8 +203,14 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 1.5,
   },
+  dotAnchor: {
+    position: 'absolute',
+    left: 4,
+    top: 3,
+  },
   stackDate: {
     letterSpacing: 1.6,
+    marginBottom: 4,
   },
   mood: {
     marginTop: 6,

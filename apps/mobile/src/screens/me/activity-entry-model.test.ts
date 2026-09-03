@@ -61,6 +61,8 @@ function note(overrides: Partial<NoteRow> = {}): NoteRow {
     bodyVersion: null,
     enrichments: null,
     articleMeta: null,
+    coverUrl: null,
+    coverThumbhash: null,
     ...overrides,
   }
 }
@@ -105,7 +107,10 @@ describe('viewLikedItem', () => {
 
   it('uses thinking content as the title', () => {
     expect(
-      viewLikedItem({ kind: 'thinking', likedAt, thinking: thinking() }, labels),
+      viewLikedItem(
+        { kind: 'thinking', likedAt, thinking: thinking() },
+        labels,
+      ),
     ).toEqual({
       kind: 'entry',
       title: '把桌面再收一收就好了。',
@@ -134,7 +139,10 @@ describe('viewReadingItem', () => {
   })
 
   it('marks notes with the note label', () => {
-    const view = viewReadingItem({ kind: 'note', openedAt, note: note() }, labels)
+    const view = viewReadingItem(
+      { kind: 'note', openedAt, note: note() },
+      labels,
+    )
     expect(view).toMatchObject({ kind: 'entry', accent: '手记' })
   })
 })
