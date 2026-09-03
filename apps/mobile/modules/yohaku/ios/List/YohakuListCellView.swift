@@ -11,6 +11,18 @@ final class YohakuListCellView: ExpoView {
     backgroundColor = .clear
   }
 
+  // Fabric positions this view via center/bounds at its Yoga origin inside
+  // the list column, but it lives reparented inside a collection cell, so
+  // the origin is pinned to zero and only Yoga's size is kept.
+  override var center: CGPoint {
+    get { super.center }
+    set { super.center = CGPoint(x: bounds.width / 2, y: bounds.height / 2) }
+  }
+
+  override var bounds: CGRect {
+    didSet { super.center = CGPoint(x: bounds.width / 2, y: bounds.height / 2) }
+  }
+
   func setItemId(_ id: String) {
     guard itemId != id else { return }
     itemId = id

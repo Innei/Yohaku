@@ -1,3 +1,4 @@
+import { SymbolView } from 'expo-symbols'
 import { useEffect, useMemo, useState } from 'react'
 import type { LayoutChangeEvent } from 'react-native'
 import { StyleSheet, useWindowDimensions, View } from 'react-native'
@@ -166,13 +167,20 @@ export function NoteLatest({
           {`Yohaku · Letter №${note.nid}`}
         </AppText>
         <NativePressable onPress={onOpen}>
-          <AppText
-            color={palette.semantic.warning}
-            style={[styles.readFull, serifFont]}
-            variant="meta"
-          >
-            {`${t('readFullNote')} →`}
-          </AppText>
+          <View style={styles.readFull}>
+            <AppText
+              color={palette.semantic.warning}
+              style={[styles.readFullText, serifFont]}
+              variant="meta"
+            >
+              {t('readFullNote')}
+            </AppText>
+            <SymbolView
+              name="arrow.right"
+              size={11}
+              tintColor={palette.semantic.warning}
+            />
+          </View>
         </NativePressable>
       </View>
     </View>
@@ -214,6 +222,11 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   readFull: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  readFullText: {
     letterSpacing: 0.4,
   },
 })

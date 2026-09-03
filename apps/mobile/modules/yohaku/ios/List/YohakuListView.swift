@@ -27,19 +27,12 @@ final class YohakuListHostCell: UICollectionViewCell {
       host.removeFromSuperview()
       contentView.addSubview(host)
     }
-    host.frame = contentView.bounds
-    host.autoresizingMask = [.flexibleWidth, .flexibleHeight]
   }
 
   func detachIfHosting(_ host: YohakuListCellView) {
     guard hosted === host else { return }
     host.removeFromSuperview()
     hosted = nil
-  }
-
-  override func layoutSubviews() {
-    super.layoutSubviews()
-    hosted?.frame = contentView.bounds
   }
 
 }
