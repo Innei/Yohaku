@@ -40,6 +40,7 @@ export function SearchChrome() {
 }
 
 export function ListSearchToolbar({
+  systemAdaptiveTint = false,
   trailingPaper,
   trailingSystem,
   scope,
@@ -47,6 +48,7 @@ export function ListSearchToolbar({
   trailingPaper?: ReactNode
   trailingSystem?: ReactNode
   scope: SearchScope
+  systemAdaptiveTint?: boolean
 }) {
   const router = useRouter()
   const t = useTranslations('search')
@@ -74,7 +76,7 @@ export function ListSearchToolbar({
       <Stack.Toolbar.Button
         accessibilityLabel={t('entry')}
         icon="magnifyingglass"
-        tintColor={palette.neutral[9]}
+        tintColor={systemAdaptiveTint ? undefined : palette.neutral[9]}
         onPress={open}
       />
       {trailingSystem}

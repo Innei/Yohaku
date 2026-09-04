@@ -12,6 +12,13 @@ final class VariableBlurEdgeView: ExpoView {
   private var blurFilter: NSObject?
   private var progress: CGFloat = 0
   private var lastMaskSize = CGSize.zero
+  private var navigationForegroundColor: UIColor?
+  private weak var managedNavigationBar: UINavigationBar?
+  private weak var managedTitleView: NavigationHeaderTitleView?
+  private var managedBarButtonItems: [(item: UIBarButtonItem, tint: UIColor?)] = []
+  private var originalNavigationTintColor: UIColor?
+  private var originalStatusBarStyle: UIStatusBarStyle?
+  private var navigationContrastActive = false
   private let usesLayerMaskSource = {
     if #available(iOS 26.0, *) { return true }
     return false
@@ -77,6 +84,15 @@ final class VariableBlurEdgeView: ExpoView {
     refreshMaskIfNeeded()
   }
 
+  override func didMoveToWindow() {
+    super.didMoveToWindow()
+    if window == nil {
+      clearNavigationContrast()
+    } else {
+      updateNavigationContrast()
+    }
+  }
+
   func setProgress(_ value: Double) {
     let next = min(1, max(0, CGFloat(value)))
     guard next != progress else { return }
@@ -86,6 +102,11 @@ final class VariableBlurEdgeView: ExpoView {
 
   func setReadabilityColor(_ color: UIColor?) {
     readabilityView.backgroundColor = color ?? .systemBackground
+  }
+
+  func setNavigationForegroundColor(_ color: UIColor?) {
+    navigationForegroundColor = color
+    updateNavigationContrast()
   }
 
   private func applyProgress() {
@@ -99,6 +120,104 @@ final class VariableBlurEdgeView: ExpoView {
     readabilityView.alpha = hidden
       ? 0
       : progress * SystemEdgeBlur.readabilityTintAlpha
+    updateNavigationContrast()
+  }
+
+  private func updateNavigationContrast() {
+    guard let foregroundColor = navigationForegroundColor else {
+      clearNavigationContrast()
+      return
+    }
+    let shouldApply = navigationContrastActive
+      ? progress >= SystemEdgeBlur.navigationContrastOffProgress
+      : progress >= SystemEdgeBlur.navigationContrastOnProgress
+    guard shouldApply, let navigationBar = findNavigationBar() else {
+      clearNavigationContrast()
+      return
+    }
+
+    if managedNavigationBar !== navigationBar {
+      clearNavigationContrast()
+      managedNavigationBar = navigationBar
+      originalNavigationTintColor = navigationBar.tintColor
+    }
+    navigationContrastActive = true
+    navigationBar.tintColor = foregroundColor
+    if managedBarButtonItems.isEmpty, let item = navigationBar.topItem {
+      managedBarButtonItems = barButtonItems(in: item).map { ($0, $0.tintColor) }
+    }
+    for entry in managedBarButtonItems {
+      entry.item.tintColor = foregroundColor
+    }
+    if originalStatusBarStyle == nil {
+      originalStatusBarStyle = UIApplication.shared.statusBarStyle
+    }
+    UIApplication.shared.statusBarStyle = traitCollection.userInterfaceStyle == .dark
+      ? .lightContent
+      : .darkContent
+
+    let titleView = findTitleView(in: navigationBar)
+    if managedTitleView !== titleView {
+      managedTitleView?.setNavigationForegroundColor(nil)
+      managedTitleView = titleView
+    }
+    titleView?.setNavigationForegroundColor(foregroundColor)
+  }
+
+  private func clearNavigationContrast() {
+    managedTitleView?.setNavigationForegroundColor(nil)
+    managedTitleView = nil
+    for entry in managedBarButtonItems {
+      entry.item.tintColor = entry.tint
+    }
+    managedBarButtonItems = []
+    if let navigationBar = managedNavigationBar {
+      navigationBar.tintColor = originalNavigationTintColor
+    }
+    if let statusBarStyle = originalStatusBarStyle {
+      UIApplication.shared.statusBarStyle = statusBarStyle
+    }
+    managedNavigationBar = nil
+    originalNavigationTintColor = nil
+    originalStatusBarStyle = nil
+    navigationContrastActive = false
+  }
+
+  private func findNavigationBar() -> UINavigationBar? {
+    var responder: UIResponder? = self
+    while let current = responder {
+      if let controller = current as? UIViewController,
+        let navigationBar = controller.navigationController?.navigationBar
+      {
+        return navigationBar
+      }
+      responder = current.next
+    }
+    return nil
+  }
+
+  private func findTitleView(in view: UIView) -> NavigationHeaderTitleView? {
+    if let titleView = view as? NavigationHeaderTitleView { return titleView }
+    for subview in view.subviews {
+      if let titleView = findTitleView(in: subview) { return titleView }
+    }
+    return nil
+  }
+
+  private func barButtonItems(in item: UINavigationItem) -> [UIBarButtonItem] {
+    var items = (item.leftBarButtonItems ?? []) + (item.rightBarButtonItems ?? [])
+    if #available(iOS 16.0, *) {
+      let groups = item.leadingItemGroups + item.centerItemGroups
+        + item.trailingItemGroups + [item.pinnedTrailingGroup].compactMap { $0 }
+      for group in groups {
+        items += group.barButtonItems
+        if let representativeItem = group.representativeItem {
+          items.append(representativeItem)
+        }
+      }
+    }
+    var seen = Set<ObjectIdentifier>()
+    return items.filter { seen.insert(ObjectIdentifier($0)).inserted }
   }
 
   private func refreshMaskIfNeeded() {
@@ -126,6 +245,8 @@ private enum SystemEdgeBlur {
   static let blurBottomInset: CGFloat = 14
   static let gradientHeight: CGFloat = edgeSize - 4
   static let readabilityTintAlpha: CGFloat = 0.75
+  static let navigationContrastOnProgress: CGFloat = 0.68
+  static let navigationContrastOffProgress: CGFloat = 0.62
 
   // Telegram's measured top-edge curve. The values are deliberately not
   // replaced with a linear or Gaussian approximation: the long opaque shoulder

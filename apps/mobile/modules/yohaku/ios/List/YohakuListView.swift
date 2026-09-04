@@ -61,6 +61,7 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
   private var lastVisibleSignature = ""
   private var lastEndReachedCount = 0
   private var refreshControl: UIRefreshControl?
+  private let refreshIndicator = UIActivityIndicatorView(style: .medium)
 
   private lazy var collectionView: UICollectionView = {
     let layout = UICollectionViewFlowLayout()
@@ -84,6 +85,9 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     noteHeroSlot.isUserInteractionEnabled = false
     addSubview(noteHeroSlot)
     addSubview(collectionView)
+    refreshIndicator.hidesWhenStopped = true
+    refreshIndicator.isUserInteractionEnabled = false
+    addSubview(refreshIndicator)
     applyInsets()
     registerForTraitChanges([UITraitPreferredContentSizeCategory.self]) {
       (self: YohakuListView, _) in
@@ -97,11 +101,11 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     super.layoutSubviews()
     noteHeroSlot.frame = bounds
     collectionView.frame = bounds
-    let sectionInsetTop = resolvedSectionInsetTop
-    if sectionInsetTop != lastSectionInsetTop {
-      lastSectionInsetTop = sectionInsetTop
-      collectionView.collectionViewLayout.invalidateLayout()
-    }
+    refreshIndicator.center = CGPoint(
+      x: bounds.midX,
+      y: collectionView.adjustedContentInset.top + 24
+    )
+    syncSectionInsetTop()
     updateNoteHero()
     emitVisibleItems()
   }
@@ -221,6 +225,15 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
       collectionView.refreshControl = control
       refreshControl = control
     }
+    if normalizedCoverUri != nil {
+      if refreshing {
+        refreshIndicator.startAnimating()
+      } else {
+        refreshIndicator.stopAnimating()
+      }
+      refreshControl?.endRefreshing()
+      return
+    }
     if refreshing {
       refreshControl?.beginRefreshing()
     } else {
@@ -269,6 +282,13 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     collectionView.verticalScrollIndicatorInsets.bottom = contentInsetBottom
   }
 
+  private func syncSectionInsetTop() {
+    let sectionInsetTop = resolvedSectionInsetTop
+    guard sectionInsetTop != lastSectionInsetTop else { return }
+    lastSectionInsetTop = sectionInsetTop
+    collectionView.collectionViewLayout.invalidateLayout()
+  }
+
   private func updateNoteHero() {
     let laid = YohakuNoteHeroLayout.frame(
       cellY: resolvedSectionInsetTop - collectionView.contentOffset.y,
@@ -302,6 +322,10 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
 
   @objc
   private func handleRefresh() {
+    if normalizedCoverUri != nil {
+      refreshIndicator.startAnimating()
+      refreshControl?.endRefreshing()
+    }
     onRefresh()
   }
 
@@ -407,6 +431,11 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     emitScroll()
     emitVisibleItems()
     maybeEndReached()
+  }
+
+  func scrollViewDidChangeAdjustedContentInset(_ scrollView: UIScrollView) {
+    syncSectionInsetTop()
+    updateNoteHero()
   }
 
   func collectionView(

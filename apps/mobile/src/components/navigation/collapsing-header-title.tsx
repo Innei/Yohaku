@@ -46,6 +46,7 @@ export function CollapsingHeaderTitle({
   rise,
   scrollVelocity,
   subtitle,
+  systemAdaptiveTitleColor = false,
   title,
   titleFontSize = TITLE_SIZE,
   titleFontWeight = 'semibold',
@@ -59,6 +60,7 @@ export function CollapsingHeaderTitle({
   rise?: SharedValue<number>
   scrollVelocity?: SharedValue<number>
   subtitle: string
+  systemAdaptiveTitleColor?: boolean
   title: string
   titleFontSize?: number
   titleFontWeight?: 'bold' | 'heavy' | 'medium' | 'semibold'
@@ -97,7 +99,7 @@ export function CollapsingHeaderTitle({
         subtitleFontSize={SUBTITLE_SIZE}
         testID="header-title-reveal"
         title={title}
-        titleColor={palette.neutral[10]}
+        titleColor={systemAdaptiveTitleColor ? undefined : palette.neutral[10]}
         titleFontSize={titleFontSize}
         titleFontWeight={titleFontWeight}
         titleVisible={0}

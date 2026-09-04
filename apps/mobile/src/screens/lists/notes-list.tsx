@@ -4,7 +4,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack, useNavigation, useRouter } from 'expo-router'
 import { useHeaderHeight } from 'expo-router/react-navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { ActivityIndicator, StatusBar, StyleSheet, View } from 'react-native'
 import Animated, {
   useAnimatedProps,
   useSharedValue,
@@ -14,6 +14,7 @@ import { YohakuList } from '@/components/list/yohaku-list'
 import { scrollEdgeProgress } from '@/components/navigation/edge-effect-scroll-view'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
 import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
+import { usesPaperNavigationControls } from '@/components/navigation/platform'
 import { topBlurOverlayHeight } from '@/components/navigation/top-edge-blur'
 import { AppText } from '@/components/ui'
 import { db } from '@/db'
@@ -67,11 +68,11 @@ function NotesTrailingToolbar() {
   const router = useRouter()
   const t = useTranslations('topic')
   const tc = useTranslations('common')
-  const palette = usePalette()
   const openSeries = () => router.push('/series')
 
   return (
     <ListSearchToolbar
+      systemAdaptiveTint
       scope="notes"
       trailingPaper={
         <PaperNavigationControl
@@ -90,7 +91,6 @@ function NotesTrailingToolbar() {
         <Stack.Toolbar.Menu
           accessibilityLabel={tc('more')}
           icon="ellipsis"
-          tintColor={palette.neutral[9]}
         >
           <Stack.Toolbar.MenuAction icon="square.stack" onPress={openSeries}>
             {t('indexTitle')}
@@ -148,6 +148,7 @@ export function NotesListScreen() {
       alwaysVisible: true,
       leadingInset: 20,
       reserveBackClearance: false,
+      systemAdaptiveTitleColor: !usesPaperNavigationControls,
       titleFontSize: 18,
       titleFontWeight: 'bold',
     },
@@ -264,6 +265,7 @@ export function NotesListScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <Stack.Screen options={headerOptions} />
+      {!usesPaperNavigationControls ? <StatusBar barStyle="default" /> : null}
       <NotesTrailingToolbar />
       {isEmpty ? (
         <AppText style={styles.empty} variant="secondary">
@@ -343,6 +345,7 @@ export function NotesListScreen() {
       {!isEmpty ? (
         <AnimatedVariableBlurEdge
           animatedProps={topBlurProps}
+          navigationForegroundColor={palette.neutral[10]}
           pointerEvents="none"
           progress={topBlurProgress.get()}
           readabilityColor={palette.surface.desk}

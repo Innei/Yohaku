@@ -24,6 +24,8 @@ final class NavigationHeaderTitleView: ExpoView {
   private var titleFontWeight: UIFont.Weight = .semibold
   private var subtitleFontSize: CGFloat = 12
   private var gaussianFilter: NSObject?
+  private var usesSystemAdaptiveTitleColor = false
+  private var navigationForegroundColor: UIColor?
 
   private var scrollVelocity: CGFloat = 0
   private var hasVisibleState = false
@@ -225,7 +227,15 @@ final class NavigationHeaderTitleView: ExpoView {
   }
 
   func setTitleColor(_ color: UIColor?) {
-    titleLabel.textColor = color ?? .label
+    usesSystemAdaptiveTitleColor = color == nil
+    titleLabel.textColor = navigationForegroundColor ?? color ?? .label
+  }
+
+  func setNavigationForegroundColor(_ color: UIColor?) {
+    navigationForegroundColor = color
+    if usesSystemAdaptiveTitleColor {
+      titleLabel.textColor = color ?? .label
+    }
   }
 
   func setSubtitleColor(_ color: UIColor?) {

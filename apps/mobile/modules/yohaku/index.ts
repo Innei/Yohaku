@@ -154,6 +154,7 @@ export const LegacyScrollEdgeMask: ComponentType<LegacyScrollEdgeMaskProps> =
   requireNativeViewManager('Yohaku', 'LegacyScrollEdgeMask')
 
 type VariableBlurEdgeProps = ViewProps & {
+  navigationForegroundColor?: ColorValue
   progress: number
   readabilityColor: ColorValue
 }
@@ -167,7 +168,7 @@ type NavigationHeaderTitleProps = ViewProps & {
   subtitleColor: string
   subtitleFontSize: number
   title: string
-  titleColor: string
+  titleColor?: string
   titleFontSize: number
   titleFontWeight?: 'bold' | 'heavy' | 'medium' | 'semibold'
   titleVisible: number

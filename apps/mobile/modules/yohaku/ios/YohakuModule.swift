@@ -146,6 +146,10 @@ public class YohakuModule: Module {
       Prop("readabilityColor") { (view: VariableBlurEdgeView, color: UIColor?) in
         view.setReadabilityColor(color)
       }
+
+      Prop("navigationForegroundColor") { (view: VariableBlurEdgeView, color: UIColor?) in
+        view.setNavigationForegroundColor(color)
+      }
     }
 
     View(LegacyScrollEdgeMaskView.self) {

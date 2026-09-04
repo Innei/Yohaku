@@ -36,6 +36,7 @@ export function useCollapsingTitle(
     alwaysVisible?: boolean
     leadingInset?: number
     reserveBackClearance?: boolean
+    systemAdaptiveTitleColor?: boolean
     titleFontSize?: number
     titleFontWeight?: 'bold' | 'heavy' | 'medium' | 'semibold'
   },
@@ -217,6 +218,7 @@ export function useCollapsingTitle(
             rise={rise}
             scrollVelocity={velocity}
             subtitle={subtitle}
+            systemAdaptiveTitleColor={options?.systemAdaptiveTitleColor}
             title={title}
             titleFontSize={titleFontSize}
             titleFontWeight={titleFontWeight}
@@ -238,6 +240,7 @@ export function useCollapsingTitle(
       reserveBackClearance,
       rise,
       subtitle,
+      options?.systemAdaptiveTitleColor,
       title,
       titleFontSize,
       titleFontWeight,
