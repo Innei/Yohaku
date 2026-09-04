@@ -13,7 +13,6 @@ import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { articleIdsFromVisible } from '@/screens/lists/flatten-posts-list'
 import { PostContextLink } from '@/screens/lists/post-context-link'
 import { ingestTagByName, syncAll } from '@/sync/engine'
-import { useSyncStatus } from '@/sync/status'
 import { useListBodyIngest } from '@/sync/use-list-body-ingest'
 import { usePalette } from '@/theme/palette'
 
@@ -35,10 +34,8 @@ export function TagDetailScreen({ name }: { name: string }) {
   const locale = useLocale()
   const t = useTranslations('taxonomy')
   const tc = useTranslations('common')
-  const tl = useTranslations('list')
   const palette = usePalette()
   const tabBarInset = usePaperTabBarInset()
-  const status = useSyncStatus()
   const {
     failed: snapshotFailed,
     reload: reloadSnapshot,
@@ -170,9 +167,6 @@ export function TagDetailScreen({ name }: { name: string }) {
                     <AppText variant="largeTitleSans">{name}</AppText>
                   </View>
                   <AppText variant="meta">{subtitle}</AppText>
-                  {(status === 'error' || refreshFailed) && !isEmpty ? (
-                    <AppText variant="meta">{tl('syncFailed')}</AppText>
-                  ) : null}
                 </View>
               )
             }

@@ -44,7 +44,9 @@ export const zh = {
     owner: '主人',
   },
   list: {
-    syncFailed: '同步失败，内容可能不是最新',
+    syncFailedTitle: '同步失败',
+    syncFailedMessage: '内容可能不是最新',
+    syncRetry: '重试',
     syncing: '正在同步…',
     empty: '暂无内容，下拉刷新试试',
     wordCount: '{count} 字',

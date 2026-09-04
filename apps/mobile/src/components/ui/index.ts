@@ -1,5 +1,6 @@
 export type { AppTextProps, TextRole } from './app-text'
 export { AppText } from './app-text'
+export { BannerHost } from './banner-host'
 export type { ButtonProps, ButtonVariant, PillButtonProps } from './button'
 export { Button, PillButton } from './button'
 export type { GroupedListRow } from './grouped-list'

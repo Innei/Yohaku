@@ -45,7 +45,9 @@ export const ko = {
     owner: '주인',
   },
   list: {
-    syncFailed: '동기화에 실패했습니다. 내용이 최신이 아닐 수 있어요',
+    syncFailedTitle: '동기화에 실패했습니다',
+    syncFailedMessage: '내용이 최신이 아닐 수 있어요',
+    syncRetry: '다시 시도',
     syncing: '동기화 중…',
     empty: '아직 아무것도 없어요. 당겨서 새로고침해 보세요',
     wordCount: '{count}자',

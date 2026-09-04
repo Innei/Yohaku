@@ -98,9 +98,6 @@ export function ListShell({
           {title ? <AppText variant={titleVariant}>{title}</AppText> : null}
         </View>
       ) : null}
-      {status === 'error' && !isEmpty && (
-        <AppText variant="meta">{t('syncFailed')}</AppText>
-      )}
       {isEmpty ? (
         <AppText style={styles.empty} variant="secondary">
           {status === 'syncing' ? t('syncing') : t('empty')}

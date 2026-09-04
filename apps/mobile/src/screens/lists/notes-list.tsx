@@ -265,11 +265,6 @@ export function NotesListScreen() {
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <Stack.Screen options={headerOptions} />
       <NotesTrailingToolbar />
-      {status === 'error' && !isEmpty ? (
-        <AppText style={styles.syncFailed} variant="meta">
-          {t('syncFailed')}
-        </AppText>
-      ) : null}
       {isEmpty ? (
         <AppText style={styles.empty} variant="secondary">
           {status === 'syncing' ? t('syncing') : t('empty')}
@@ -371,10 +366,6 @@ const styles = StyleSheet.create({
   },
   more: {
     marginTop: 16,
-  },
-  syncFailed: {
-    marginHorizontal: 20,
-    marginTop: 8,
   },
   topBlur: {
     left: 0,

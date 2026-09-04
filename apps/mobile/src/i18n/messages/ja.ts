@@ -45,7 +45,9 @@ export const ja = {
     owner: '管理人',
   },
   list: {
-    syncFailed: '同期に失敗しました。内容が最新でない可能性があります',
+    syncFailedTitle: '同期に失敗しました',
+    syncFailedMessage: '内容が最新でない可能性があります',
+    syncRetry: '再試行',
     syncing: '同期中…',
     empty: 'まだ何もありません。引っ張って更新してください',
     wordCount: '{count} 字',

@@ -14,7 +14,6 @@ import { articleIdsFromVisible } from '@/screens/lists/flatten-posts-list'
 import { PostContextLink } from '@/screens/lists/post-context-link'
 import { pickFeaturedPost } from '@/screens/lists/post-list'
 import { ingestCategoryBySlug, syncAll } from '@/sync/engine'
-import { useSyncStatus } from '@/sync/status'
 import { useListBodyIngest } from '@/sync/use-list-body-ingest'
 import { usePalette } from '@/theme/palette'
 
@@ -43,10 +42,8 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
   const locale = useLocale()
   const t = useTranslations('taxonomy')
   const tc = useTranslations('common')
-  const tl = useTranslations('list')
   const palette = usePalette()
   const tabBarInset = usePaperTabBarInset()
-  const status = useSyncStatus()
   const {
     failed: snapshotFailed,
     reload: reloadSnapshot,
@@ -192,9 +189,6 @@ export function CategoryDetailScreen({ slug }: { slug: string }) {
                 <View style={styles.hero} onLayout={onTitleLayout}>
                   <AppText variant="largeTitleSans">{name}</AppText>
                   <AppText variant="meta">{subtitle}</AppText>
-                  {(status === 'error' || refreshFailed) && !isEmpty ? (
-                    <AppText variant="meta">{tl('syncFailed')}</AppText>
-                  ) : null}
                 </View>
               )
             }

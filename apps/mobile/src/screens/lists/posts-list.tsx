@@ -13,7 +13,6 @@ import { useLocale, useTranslations } from '@/i18n'
 import { formatRelativeTime } from '@/lib/datetime'
 import { openPost } from '@/lib/open-article'
 import { ingestPostPage, syncAll } from '@/sync/engine'
-import { useSyncStatus } from '@/sync/status'
 import { useListBodyIngest } from '@/sync/use-list-body-ingest'
 import { usePalette } from '@/theme/palette'
 
@@ -42,7 +41,6 @@ export function PostsListScreen() {
   const t = useTranslations('list')
   const palette = usePalette()
   const tabBarInset = usePaperTabBarInset()
-  const status = useSyncStatus()
   const [window, setWindow] = useState({
     limit: postListPageSize,
     locale,
@@ -224,9 +222,6 @@ export function PostsListScreen() {
                   {t('blogKicker')}
                 </AppText>
                 <AppText variant="largeTitleSans">{t('postsHeading')}</AppText>
-                {status === 'error' ? (
-                  <AppText variant="meta">{t('syncFailed')}</AppText>
-                ) : null}
               </View>
             )
           }

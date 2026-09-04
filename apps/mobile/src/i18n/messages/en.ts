@@ -45,7 +45,9 @@ export const en = {
     owner: 'Owner',
   },
   list: {
-    syncFailed: 'Sync failed — content may be out of date',
+    syncFailedTitle: 'Sync failed',
+    syncFailedMessage: 'Content may be out of date',
+    syncRetry: 'Retry',
     syncing: 'Syncing…',
     empty: 'Nothing here yet. Pull to refresh.',
     wordCount: '{count} words',

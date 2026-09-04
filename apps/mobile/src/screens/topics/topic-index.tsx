@@ -14,7 +14,6 @@ import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import {
   flattenIndexList,
   INDEX_EMPTY_ID,
-  INDEX_STATUS_ID,
 } from '@/screens/lists/flatten-index-list'
 import { syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
@@ -84,9 +83,9 @@ export function TopicIndexScreen() {
       flattenIndexList({
         rowIds: items.map((topic) => topic.id),
         showEmpty: isEmpty,
-        showStatus: status === 'error' && !isEmpty,
+        showStatus: false,
       }),
-    [isEmpty, items, status],
+    [isEmpty, items],
   )
   const topicsById = useMemo(() => {
     const map = new Map(items.map((topic) => [topic.id, topic]))
@@ -103,9 +102,6 @@ export function TopicIndexScreen() {
         refreshing={refreshing}
         style={styles.screen}
         renderItem={(item) => {
-          if (item.id === INDEX_STATUS_ID) {
-            return <AppText variant="meta">{tl('syncFailed')}</AppText>
-          }
           if (item.id === INDEX_EMPTY_ID) {
             return (
               <AppText style={styles.empty} variant="secondary">

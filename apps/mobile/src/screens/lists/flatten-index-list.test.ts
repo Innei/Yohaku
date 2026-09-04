@@ -7,6 +7,19 @@ import {
 } from './flatten-index-list'
 
 describe('flattenIndexList', () => {
+  it('lists rows without a status row', () => {
+    expect(
+      flattenIndexList({
+        rowIds: ['a', 'b'],
+        showEmpty: false,
+        showStatus: false,
+      }).map((item) => [item.id, item.type]),
+    ).toEqual([
+      ['a', 'row'],
+      ['b', 'row'],
+    ])
+  })
+
   it('lists rows after optional status', () => {
     expect(
       flattenIndexList({

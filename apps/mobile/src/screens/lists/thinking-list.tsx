@@ -11,7 +11,6 @@ import { thinkings } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
 import { formatThinkingClock, thinkingDayLabel } from '@/lib/datetime'
 import { syncAll } from '@/sync/engine'
-import { useSyncStatus } from '@/sync/status'
 import { usePalette } from '@/theme/palette'
 
 import { ListSearchToolbar } from '../search/search-chrome'
@@ -30,11 +29,9 @@ const query = db.select().from(thinkings).orderBy(desc(thinkings.createdAt))
 export function ThinkingListScreen() {
   const { data } = useLiveQuery(query)
   const locale = useLocale()
-  const t = useTranslations('list')
   const tt = useTranslations('tabs')
   const palette = usePalette()
   const tabBarInset = usePaperTabBarInset()
-  const status = useSyncStatus()
   const [refreshing, setRefreshing] = useState(false)
   const groups = useMemo(() => groupThinkingsByDay(data ?? []), [data])
   const itemsById = useMemo(() => {
@@ -68,9 +65,6 @@ export function ThinkingListScreen() {
               return (
                 <View style={styles.header}>
                   <AppText variant="largeTitleSans">{tt('thinking')}</AppText>
-                  {status === 'error' ? (
-                    <AppText variant="meta">{t('syncFailed')}</AppText>
-                  ) : null}
                 </View>
               )
             }

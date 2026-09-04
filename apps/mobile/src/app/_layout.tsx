@@ -17,7 +17,7 @@ import { ReaderWarmer } from '@/components/dom/reader-warmer'
 import { RouteRestorationHost } from '@/components/navigation/route-restoration-host'
 import { getStackScreenOptions } from '@/components/navigation/stack-screen-options'
 import { SplashOverlay } from '@/components/splash/splash-overlay'
-import { AppText, Desk, ToastHost } from '@/components/ui'
+import { AppText, BannerHost, Desk, ToastHost } from '@/components/ui'
 import { db } from '@/db'
 import { AppRecoveryScreen } from '@/errors/app-recovery-screen'
 import { FatalErrorHost } from '@/errors/fatal-error-host'
@@ -32,6 +32,7 @@ import { useNotificationRouting } from '@/push/use-notification-routing'
 import { usePushLifecycle } from '@/push/use-push-lifecycle'
 import { MembershipRecoveryHost } from '@/screens/me/membership-recovery-host'
 import { useSocketLifecycle } from '@/socket/use-socket-lifecycle'
+import { useSyncErrorBanner } from '@/sync/use-sync-error-banner'
 import { useSyncLifecycle } from '@/sync/use-sync-lifecycle'
 import { useAppFonts } from '@/theme/fonts'
 import { timings } from '@/theme/motion'
@@ -68,6 +69,7 @@ export default function RootLayout() {
   const fontsLoaded = useAppFonts()
   const { success: dbReady, error: dbError } = useMigrations(db, migrations)
   useSyncLifecycle(dbReady)
+  useSyncErrorBanner()
   useOtaForegroundCheck()
   useSocketLifecycle()
   const session = useSession()
@@ -215,6 +217,7 @@ export default function RootLayout() {
             <RouteRestorationHost ready={appPainted} />
             <PushOnboardingHost ready={dataReady && !failed && splashDone} />
             <ToastHost />
+            <BannerHost />
           </ThemeProvider>
         </QueryClientProvider>
       ) : null}
