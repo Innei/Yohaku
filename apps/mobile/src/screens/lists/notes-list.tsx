@@ -1,17 +1,27 @@
+import { VariableBlurEdge, YohakuNative } from '@modules/yohaku'
 import { desc, eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
-import { Stack, useRouter } from 'expo-router'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { Stack, useNavigation, useRouter } from 'expo-router'
+import { useHeaderHeight } from 'expo-router/react-navigation'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import Animated, {
+  useAnimatedProps,
+  useSharedValue,
+} from 'react-native-reanimated'
 
 import { YohakuList } from '@/components/list/yohaku-list'
+import { scrollEdgeProgress } from '@/components/navigation/edge-effect-scroll-view'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
 import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
+import { topBlurOverlayHeight } from '@/components/navigation/top-edge-blur'
 import { AppText } from '@/components/ui'
 import { db } from '@/db'
 import { notes, topics } from '@/db/schema'
 import { useLocale, useTranslations } from '@/i18n'
+import { formatRelativeTime } from '@/lib/datetime'
 import { openNote } from '@/lib/open-article'
+import { useArticleMetaLineText } from '@/screens/details/article-meta-line'
 import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import { ingestNotePage, syncAll } from '@/sync/engine'
 import { useSyncStatus } from '@/sync/status'
@@ -29,6 +39,7 @@ import {
 import { articleIdsFromVisible } from './flatten-posts-list'
 import {
   NOTE_LATEST_HERO_HEIGHT,
+  NOTE_LATEST_TEXT_HERO_HEIGHT,
   noteCoverPlaceholderUri,
   noteCoverUrl,
 } from './note-cover'
@@ -44,6 +55,13 @@ import {
   NoteTimelineRow,
   NoteYearHead,
 } from './note-timeline-rows'
+
+interface TransitionStartNavigation {
+  addListener: (type: 'transitionStart', listener: () => void) => () => void
+}
+
+const AnimatedVariableBlurEdge =
+  Animated.createAnimatedComponent(VariableBlurEdge)
 
 function NotesTrailingToolbar() {
   const router = useRouter()
@@ -85,10 +103,16 @@ function NotesTrailingToolbar() {
 
 export function NotesListScreen() {
   const router = useRouter()
+  const navigation = useNavigation() as unknown as TransitionStartNavigation
   const locale = useLocale()
   const t = useTranslations('list')
   const tt = useTranslations('tabs')
   const palette = usePalette()
+  const headerHeight = useHeaderHeight()
+  const topBlurProgress = useSharedValue(0)
+  const topBlurProps = useAnimatedProps(() => ({
+    progress: topBlurProgress.value,
+  }))
   const tabBarInset = usePaperTabBarInset()
   const status = useSyncStatus()
   const [refreshing, setRefreshing] = useState(false)
@@ -138,7 +162,18 @@ export function NotesListScreen() {
   const [loadingMore, setLoadingMore] = useState(false)
   const loadingMoreRef = useRef(false)
   const localeRef = useRef(locale)
+  const pendingHeroIdRef = useRef<string | null>(null)
   localeRef.current = locale
+
+  useEffect(
+    () =>
+      navigation.addListener('transitionStart', () => {
+        if (!pendingHeroIdRef.current) return
+        YohakuNative.prepareNoteHeroTransition(pendingHeroIdRef.current)
+        pendingHeroIdRef.current = null
+      }),
+    [navigation],
+  )
 
   useListBodyIngest(
     notesInLocale.map((note) => ({
@@ -201,6 +236,30 @@ export function NotesListScreen() {
   const isEmpty = notesInLocale.length === 0
   const coverUri = latest ? noteCoverUrl(latest) : null
   const coverPlaceholderUri = noteCoverPlaceholderUri(latest?.coverThumbhash)
+  const heroHeight = coverUri
+    ? NOTE_LATEST_HERO_HEIGHT
+    : NOTE_LATEST_TEXT_HERO_HEIGHT
+  const heroMeta = useArticleMetaLineText({
+    aiGen: latest?.articleMeta?.aiGen,
+    parts: latest
+      ? [
+          formatRelativeTime(latest.createdAt, locale),
+          latest.mood,
+          latest.weather,
+          latest.likeCount > 0 ? `♡ ${latest.likeCount}` : null,
+        ]
+      : [],
+  })
+  const noteHero = latest
+    ? {
+        coverPlaceholderUri,
+        coverUri,
+        height: heroHeight,
+        id: latest.id,
+        meta: heroMeta,
+        title: latest.title,
+      }
+    : null
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
@@ -217,12 +276,13 @@ export function NotesListScreen() {
         </AppText>
       ) : (
         <YohakuList
+          topEdgeEffectHidden
           contentInsetBottom={tabBarInset}
           items={listItems}
+          noteHero={noteHero}
+          noteHeroMetaColor={palette.neutral[6]}
+          noteHeroTitleColor={palette.neutral[10]}
           refreshing={refreshing}
-          stretchCoverHeight={NOTE_LATEST_HERO_HEIGHT}
-          stretchCoverPlaceholderUri={coverPlaceholderUri}
-          stretchCoverUri={coverUri}
           style={styles.screen}
           renderItem={(item) => {
             if (item.id === NOTE_LIST_RULE_ID) return <NotesOlderRule />
@@ -237,9 +297,16 @@ export function NotesListScreen() {
             if (item.type === 'latest' && latest) {
               return (
                 <NoteLatest
+                  heroHeight={heroHeight}
+                  heroMeta={heroMeta}
                   note={latest}
                   topic={topicById(topicRowsInDb, latest.topicId)}
-                  onOpen={() => openNote(router, latest)}
+                  onOpen={() =>
+                    openNote(router, latest, () => {
+                      pendingHeroIdRef.current = latest.id
+                      YohakuNative.prepareNoteHeroTransition(latest.id)
+                    })
+                  }
                 />
               )
             }
@@ -264,12 +331,32 @@ export function NotesListScreen() {
           }}
           onEndReached={onEndReached}
           onRefresh={onRefresh}
-          onScroll={onNativeScroll}
+          onScroll={(event) => {
+            onNativeScroll(event)
+            topBlurProgress.set(
+              scrollEdgeProgress(
+                event.nativeEvent.contentOffset.y +
+                  event.nativeEvent.adjustedContentInset.top,
+              ),
+            )
+          }}
           onVisibleItems={(items) =>
             setVisibleIds(articleIdsFromVisible(items, ['latest', 'note']))
           }
         />
       )}
+      {!isEmpty ? (
+        <AnimatedVariableBlurEdge
+          animatedProps={topBlurProps}
+          pointerEvents="none"
+          progress={topBlurProgress.get()}
+          readabilityColor={palette.surface.desk}
+          style={[
+            styles.topBlur,
+            { height: topBlurOverlayHeight(headerHeight) },
+          ]}
+        />
+      ) : null}
     </View>
   )
 }
@@ -288,5 +375,11 @@ const styles = StyleSheet.create({
   syncFailed: {
     marginHorizontal: 20,
     marginTop: 8,
+  },
+  topBlur: {
+    left: 0,
+    position: 'absolute',
+    right: 0,
+    top: 0,
   },
 })

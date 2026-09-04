@@ -17,7 +17,7 @@ public class YohakuModule: Module {
     )
 
     Constants([
-      "liquidGlassAvailable": TabBarDomain.liquidGlassAvailable,
+      "liquidGlassAvailable": TabBarDomain.liquidGlassAvailable
     ])
 
     OnCreate {
@@ -78,6 +78,16 @@ public class YohakuModule: Module {
 
     Function("databaseBytes") { () -> Double in
       Double(sqliteDatabaseBytes())
+    }
+
+    Function("prepareNoteHeroTransition") { (noteID: String) in
+      if Thread.isMainThread {
+        YohakuSharedNoteHeroCoordinator.shared.prepareTransition(noteID: noteID)
+      } else {
+        DispatchQueue.main.sync {
+          YohakuSharedNoteHeroCoordinator.shared.prepareTransition(noteID: noteID)
+        }
+      }
     }
 
     Function("secretGet") { (key: String) -> String? in
@@ -247,7 +257,8 @@ public class YohakuModule: Module {
         view.setIconName(name)
       }
 
-      Prop("menuItems") { (view: NavigationHeaderControlView, items: [NavigationHeaderMenuItemSpec]) in
+      Prop("menuItems") {
+        (view: NavigationHeaderControlView, items: [NavigationHeaderMenuItemSpec]) in
         view.setMenuItems(items)
       }
 
@@ -308,6 +319,42 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuNoteHeroHostView.self) {
+      ViewName("YohakuNoteHeroHost")
+
+      Prop("noteHeroCoverPlaceholderUri") { (view: YohakuNoteHeroHostView, value: String?) in
+        view.setNoteHeroCoverPlaceholderUri(value)
+      }
+
+      Prop("noteHeroCoverUri") { (view: YohakuNoteHeroHostView, value: String?) in
+        view.setNoteHeroCoverUri(value)
+      }
+
+      Prop("noteHeroHeight") { (view: YohakuNoteHeroHostView, value: Double) in
+        view.setNoteHeroHeight(value)
+      }
+
+      Prop("noteHeroId") { (view: YohakuNoteHeroHostView, value: String?) in
+        view.setNoteHeroID(value)
+      }
+
+      Prop("noteHeroMeta") { (view: YohakuNoteHeroHostView, value: String?) in
+        view.setNoteHeroMeta(value)
+      }
+
+      Prop("noteHeroMetaColor") { (view: YohakuNoteHeroHostView, value: UIColor?) in
+        view.setNoteHeroMetaColor(value)
+      }
+
+      Prop("noteHeroTitle") { (view: YohakuNoteHeroHostView, value: String?) in
+        view.setNoteHeroTitle(value)
+      }
+
+      Prop("noteHeroTitleColor") { (view: YohakuNoteHeroHostView, value: UIColor?) in
+        view.setNoteHeroTitleColor(value)
+      }
+    }
+
     View(YohakuStretchCoverHostView.self) {
       ViewName("YohakuStretchCoverHost")
 
@@ -356,16 +403,40 @@ public class YohakuModule: Module {
         view.setRefreshing(refreshing)
       }
 
-      Prop("stretchCoverHeight") { (view: YohakuListView, value: Double) in
-        view.setStretchCoverHeight(value)
+      Prop("noteHeroCoverPlaceholderUri") { (view: YohakuListView, value: String?) in
+        view.setNoteHeroCoverPlaceholderUri(value)
       }
 
-      Prop("stretchCoverPlaceholderUri") { (view: YohakuListView, value: String?) in
-        view.setStretchCoverPlaceholderUri(value)
+      Prop("noteHeroCoverUri") { (view: YohakuListView, value: String?) in
+        view.setNoteHeroCoverUri(value)
       }
 
-      Prop("stretchCoverUri") { (view: YohakuListView, value: String?) in
-        view.setStretchCoverUri(value)
+      Prop("noteHeroHeight") { (view: YohakuListView, value: Double) in
+        view.setNoteHeroHeight(value)
+      }
+
+      Prop("noteHeroId") { (view: YohakuListView, value: String?) in
+        view.setNoteHeroID(value)
+      }
+
+      Prop("noteHeroMeta") { (view: YohakuListView, value: String?) in
+        view.setNoteHeroMeta(value)
+      }
+
+      Prop("noteHeroMetaColor") { (view: YohakuListView, value: UIColor?) in
+        view.setNoteHeroMetaColor(value)
+      }
+
+      Prop("noteHeroTitle") { (view: YohakuListView, value: String?) in
+        view.setNoteHeroTitle(value)
+      }
+
+      Prop("noteHeroTitleColor") { (view: YohakuListView, value: UIColor?) in
+        view.setNoteHeroTitleColor(value)
+      }
+
+      Prop("topEdgeEffectHidden") { (view: YohakuListView, hidden: Bool) in
+        view.setTopEdgeEffectHidden(hidden)
       }
     }
 

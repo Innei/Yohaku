@@ -40,7 +40,7 @@ const AnimatedLegacyScrollEdgeMask =
 const AnimatedVariableBlurEdge =
   Animated.createAnimatedComponent(VariableBlurEdge)
 
-function scrollEdgeProgress(distance: number) {
+export function scrollEdgeProgress(distance: number) {
   'worklet'
 
   const linear = Math.min(

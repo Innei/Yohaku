@@ -47,30 +47,10 @@ export function noteCoverPlaceholderUri(
   }
 }
 
-export function noteShowsCoverHero(note: {
-  coverUrl?: string | null
-}): boolean {
-  return noteCoverUrl(note) !== null
-}
-
-export const NOTE_COVER_BLEED_BELOW_NAV = 84
 export const NOTE_LATEST_HERO_HEIGHT = 248
-export const NOTE_COVER_STRETCH_BLUR_DISTANCE = 56
+export const NOTE_LATEST_TEXT_HERO_HEIGHT = 98
 
-export function noteCoverPinnedFrame(
-  cellY: number,
-  heroHeight: number,
-  width: number,
-) {
-  const extra = Math.max(0, cellY)
-  return {
-    blurOpacity: Math.min(1, extra / NOTE_COVER_STRETCH_BLUR_DISTANCE),
-    height: heroHeight + extra,
-    width,
-    x: 0,
-    y: Math.min(0, cellY),
-  }
-}
+const NOTE_COVER_BLEED_BELOW_NAV = 84
 
 export function noteDetailCoverHeight(headerHeight: number) {
   return headerHeight + NOTE_COVER_BLEED_BELOW_NAV

@@ -38,7 +38,8 @@ final class YohakuListHostCell: UICollectionViewCell {
 }
 
 final class YohakuListView: ExpoView, UICollectionViewDataSource,
-  UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+  UICollectionViewDelegate, UICollectionViewDelegateFlowLayout
+{
   let onEndReached = EventDispatcher()
   let onItemPress = EventDispatcher()
   let onLinkPress = EventDispatcher()
@@ -52,10 +53,11 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
   private var registeredReuseIDs = Set<String>()
   private var contentInsetTop: CGFloat = 0
   private var contentInsetBottom: CGFloat = 0
-  private var stretchCoverHeight: CGFloat = 248
-  private var stretchCoverUri: String?
+  private var noteHero = YohakuNoteHeroSpec()
+  private var noteHeroMetaColor: UIColor?
+  private var noteHeroTitleColor: UIColor?
   private var lastSectionInsetTop: CGFloat?
-  private let stretchCover = YohakuListStretchCoverView()
+  private let noteHeroSlot = UIView()
   private var lastVisibleSignature = ""
   private var lastEndReachedCount = 0
   private var refreshControl: UIRefreshControl?
@@ -79,7 +81,8 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
-    addSubview(stretchCover)
+    noteHeroSlot.isUserInteractionEnabled = false
+    addSubview(noteHeroSlot)
     addSubview(collectionView)
     applyInsets()
     registerForTraitChanges([UITraitPreferredContentSizeCategory.self]) {
@@ -92,14 +95,24 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
 
   override func layoutSubviews() {
     super.layoutSubviews()
+    noteHeroSlot.frame = bounds
     collectionView.frame = bounds
     let sectionInsetTop = resolvedSectionInsetTop
     if sectionInsetTop != lastSectionInsetTop {
       lastSectionInsetTop = sectionInsetTop
       collectionView.collectionViewLayout.invalidateLayout()
     }
-    updateStretchCover()
+    updateNoteHero()
     emitVisibleItems()
+  }
+
+  override func didMoveToWindow() {
+    super.didMoveToWindow()
+    updateNoteHero()
+  }
+
+  deinit {
+    YohakuSharedNoteHeroCoordinator.shared.unregister(slot: noteHeroSlot)
   }
 
   override func mountChildComponentView(_ childComponentView: UIView, index: Int) {
@@ -142,38 +155,63 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
   func setContentInsetTop(_ value: Double) {
     contentInsetTop = CGFloat(value)
     collectionView.collectionViewLayout.invalidateLayout()
-    updateStretchCover()
+    updateNoteHero()
   }
 
-  func setStretchCoverPlaceholderUri(_ value: String?) {
-    stretchCover.setPlaceholder(value)
-    updateStretchCover()
+  func setNoteHeroCoverPlaceholderUri(_ value: String?) {
+    noteHero.coverPlaceholderUri = value
+    updateNoteHero()
   }
 
-  func setStretchCoverUri(_ value: String?) {
-    let trimmed = value?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-    let uri = trimmed.isEmpty ? nil : trimmed
-    guard uri != stretchCoverUri else {
-      updateStretchCover()
-      return
+  func setNoteHeroCoverUri(_ value: String?) {
+    let hadCover = normalizedCoverUri != nil
+    noteHero.coverUri = value
+    if hadCover != (normalizedCoverUri != nil) {
+      lastSectionInsetTop = nil
+      collectionView.collectionViewLayout.invalidateLayout()
     }
-    stretchCoverUri = uri
-    stretchCover.setUri(uri)
-    lastSectionInsetTop = nil
-    collectionView.collectionViewLayout.invalidateLayout()
-    updateStretchCover()
+    updateNoteHero()
   }
 
-  func setStretchCoverHeight(_ value: Double) {
-    if value > 0 {
-      stretchCoverHeight = CGFloat(value)
-    }
-    updateStretchCover()
+  func setNoteHeroHeight(_ value: Double) {
+    if value > 0 { noteHero.height = value }
+    updateNoteHero()
+  }
+
+  func setNoteHeroID(_ value: String?) {
+    noteHero.id = value ?? ""
+    updateNoteHero()
+  }
+
+  func setNoteHeroMeta(_ value: String?) {
+    noteHero.meta = value ?? ""
+    updateNoteHero()
+  }
+
+  func setNoteHeroMetaColor(_ value: UIColor?) {
+    noteHeroMetaColor = value
+    updateNoteHero()
+  }
+
+  func setNoteHeroTitle(_ value: String?) {
+    noteHero.title = value ?? ""
+    updateNoteHero()
+  }
+
+  func setNoteHeroTitleColor(_ value: UIColor?) {
+    noteHeroTitleColor = value
+    updateNoteHero()
   }
 
   func setContentInsetBottom(_ value: Double) {
     contentInsetBottom = CGFloat(value)
     applyInsets()
+  }
+
+  func setTopEdgeEffectHidden(_ hidden: Bool) {
+    if #available(iOS 26.0, *) {
+      collectionView.topEdgeEffect.isHidden = hidden
+    }
   }
 
   func setRefreshing(_ refreshing: Bool) {
@@ -231,23 +269,31 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     collectionView.verticalScrollIndicatorInsets.bottom = contentInsetBottom
   }
 
-  private func updateStretchCover() {
-    guard stretchCoverUri != nil else {
-      stretchCover.isHidden = true
-      return
-    }
-    let laid = YohakuStretchCoverLayout.frame(
+  private func updateNoteHero() {
+    let laid = YohakuNoteHeroLayout.frame(
       cellY: resolvedSectionInsetTop - collectionView.contentOffset.y,
-      heroHeight: stretchCoverHeight,
-      width: bounds.width
+      heroHeight: CGFloat(noteHero.height),
+      width: bounds.width,
+      stretches: normalizedCoverUri != nil
     )
-    stretchCover.isHidden = false
-    stretchCover.frame = laid.frame
-    stretchCover.setBlurOpacity(laid.blur)
+    YohakuSharedNoteHeroCoordinator.shared.update(
+      slot: noteHeroSlot,
+      role: .list,
+      spec: noteHero.id.isEmpty ? nil : noteHero,
+      titleColor: noteHeroTitleColor,
+      metaColor: noteHeroMetaColor,
+      frame: laid.frame,
+      blur: laid.blur
+    )
   }
 
   private var resolvedSectionInsetTop: CGFloat {
-    stretchCoverUri == nil ? contentInsetTop : -collectionView.adjustedContentInset.top
+    normalizedCoverUri == nil ? contentInsetTop : -collectionView.adjustedContentInset.top
+  }
+
+  private var normalizedCoverUri: String? {
+    let value = noteHero.coverUri?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    return value.isEmpty ? nil : value
   }
 
   private func reuseIdentifier(for id: String) -> String {
@@ -307,7 +353,7 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     guard signature != lastVisibleSignature else { return }
     lastVisibleSignature = signature
     onVisibleItems([
-      "items": window.map { ["id": $0.id, "type": $0.type] },
+      "items": window.map { ["id": $0.id, "type": $0.type] }
     ])
   }
 
@@ -334,10 +380,11 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
     cellForItemAt indexPath: IndexPath
   ) -> UICollectionViewCell {
     let item = items[indexPath.item]
-    let cell = collectionView.dequeueReusableCell(
-      withReuseIdentifier: reuseIdentifier(for: item.id),
-      for: indexPath
-    ) as! YohakuListHostCell
+    let cell =
+      collectionView.dequeueReusableCell(
+        withReuseIdentifier: reuseIdentifier(for: item.id),
+        for: indexPath
+      ) as! YohakuListHostCell
     if let host = hosts[item.id] {
       cell.attach(host)
     }
@@ -356,7 +403,7 @@ final class YohakuListView: ExpoView, UICollectionViewDataSource,
   }
 
   func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    updateStretchCover()
+    updateNoteHero()
     emitScroll()
     emitVisibleItems()
     maybeEndReached()

@@ -49,6 +49,7 @@ interface YohakuNativeModule {
   pauseTts(): Promise<void>
   playTts(): Promise<void>
   preloadTts(url: string): Promise<void>
+  prepareNoteHeroTransition(noteId: string): void
   presentSafari(url: string): Promise<void>
   renderMermaid(payload: {
     bg: string
@@ -261,13 +262,28 @@ export type YohakuListVisibleItem = {
   type: string
 }
 
+export type YohakuNoteHeroSpec = {
+  coverPlaceholderUri?: string | null
+  coverUri?: string | null
+  height: number
+  id: string
+  meta: string
+  title: string
+}
+
 type YohakuListViewProps = ViewProps & {
   contentInsetBottom?: number
   contentInsetTop?: number
   items: YohakuListNativeItem[]
-  stretchCoverHeight?: number
-  stretchCoverPlaceholderUri?: string | null
-  stretchCoverUri?: string | null
+  noteHeroCoverPlaceholderUri?: string | null
+  noteHeroCoverUri?: string | null
+  noteHeroHeight?: number
+  noteHeroId?: string
+  noteHeroMeta?: string
+  noteHeroMetaColor?: ColorValue
+  noteHeroTitle?: string
+  noteHeroTitleColor?: ColorValue
+  topEdgeEffectHidden?: boolean
   onEndReached?: (event: NativeSyntheticEvent<Record<string, never>>) => void
   onItemPress?: (
     event: NativeSyntheticEvent<{ id: string; type: string }>,
@@ -299,6 +315,20 @@ type YohakuListViewProps = ViewProps & {
 
 export const YohakuListView: ComponentType<YohakuListViewProps> =
   requireNativeViewManager('Yohaku', 'YohakuList')
+
+type YohakuNoteHeroHostProps = ViewProps & {
+  noteHeroCoverPlaceholderUri?: string | null
+  noteHeroCoverUri?: string | null
+  noteHeroHeight?: number
+  noteHeroId?: string
+  noteHeroMeta?: string
+  noteHeroMetaColor?: ColorValue
+  noteHeroTitle?: string
+  noteHeroTitleColor?: ColorValue
+}
+
+export const YohakuNoteHeroHost: ComponentType<YohakuNoteHeroHostProps> =
+  requireNativeViewManager('Yohaku', 'YohakuNoteHeroHost')
 
 type YohakuStretchCoverHostProps = ViewProps & {
   stretchCoverAnchorY?: number

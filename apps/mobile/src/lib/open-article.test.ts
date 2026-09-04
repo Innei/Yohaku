@@ -56,7 +56,7 @@ describe('openNote', () => {
       coverThumbhash: null,
     } satisfies NoteRow
 
-    openNote(router, note)
+    openNote(router, note, () => events.push('beforePush'))
 
     expect(events).toEqual(['prime', 'prefetch', 'prepare'])
     expect(primeDatabaseSnapshot).toHaveBeenCalledWith('note:zh-CN:1', {
@@ -67,6 +67,33 @@ describe('openNote', () => {
 
     finishPreparation(true)
     await vi.waitFor(() => expect(router.push).toHaveBeenCalledOnce())
-    expect(events).toEqual(['prime', 'prefetch', 'prepare', 'push'])
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/notes/[nid]',
+      params: { hero: 'shared', nid: '1' },
+    })
+    expect(events).toEqual([
+      'prime',
+      'prefetch',
+      'prepare',
+      'beforePush',
+      'push',
+    ])
+  })
+
+  it('does not opt ordinary note links into the shared hero', () => {
+    const router = { prefetch: vi.fn(), push: vi.fn() }
+    const note = {
+      content: null,
+      contentFormat: 'html',
+      hasPassword: false,
+      nid: 2,
+    } as NoteRow
+
+    openNote(router, note)
+
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/notes/[nid]',
+      params: { nid: '2' },
+    })
   })
 })

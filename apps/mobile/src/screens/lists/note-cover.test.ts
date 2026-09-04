@@ -1,15 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  NOTE_COVER_BLEED_BELOW_NAV,
-  NOTE_LATEST_HERO_HEIGHT,
-  noteCoverPinnedFrame,
   noteCoverPlaceholderUri,
   noteCoverThumbhash,
   noteCoverUrl,
-  noteDetailCoverAnchorY,
-  noteDetailCoverHeight,
-  noteShowsCoverHero,
 } from './note-cover'
 
 const SAMPLE_THUMBHASH = '1QcSHQRnh493V4dIh4eXh1h4kJUI'
@@ -64,60 +58,5 @@ describe('noteCoverPlaceholderUri', () => {
     expect(noteCoverPlaceholderUri(null)).toBeNull()
     expect(noteCoverPlaceholderUri('')).toBeNull()
     expect(noteCoverPlaceholderUri('%%%')).toBeNull()
-  })
-})
-
-describe('noteShowsCoverHero', () => {
-  it('shows the latest hero only when a cover url exists', () => {
-    expect(noteShowsCoverHero({ coverUrl: 'https://cdn.example/a.jpg' })).toBe(
-      true,
-    )
-    expect(noteShowsCoverHero({ coverUrl: null })).toBe(false)
-  })
-})
-
-describe('noteCoverPinnedFrame', () => {
-  it('sits on the cell at rest', () => {
-    expect(noteCoverPinnedFrame(0, NOTE_LATEST_HERO_HEIGHT, 390)).toEqual({
-      blurOpacity: 0,
-      height: NOTE_LATEST_HERO_HEIGHT,
-      width: 390,
-      x: 0,
-      y: 0,
-    })
-  })
-
-  it('pins to the list top and grows when the cell drops', () => {
-    expect(noteCoverPinnedFrame(60, NOTE_LATEST_HERO_HEIGHT, 390)).toEqual({
-      blurOpacity: 1,
-      height: NOTE_LATEST_HERO_HEIGHT + 60,
-      width: 390,
-      x: 0,
-      y: 0,
-    })
-  })
-
-  it('scrolls away with the cell', () => {
-    expect(noteCoverPinnedFrame(-40, NOTE_LATEST_HERO_HEIGHT, 390)).toEqual({
-      blurOpacity: 0,
-      height: NOTE_LATEST_HERO_HEIGHT,
-      width: 390,
-      x: 0,
-      y: -40,
-    })
-  })
-})
-
-describe('note detail cover slot', () => {
-  it('bleeds under the nav and pins like the list hero', () => {
-    expect(noteDetailCoverHeight(116)).toBe(116 + NOTE_COVER_BLEED_BELOW_NAV)
-    expect(noteDetailCoverAnchorY(116)).toBe(-116)
-    expect(
-      noteCoverPinnedFrame(
-        noteDetailCoverAnchorY(116) - -116,
-        noteDetailCoverHeight(116),
-        390,
-      ),
-    ).toMatchObject({ height: 116 + NOTE_COVER_BLEED_BELOW_NAV, y: 0 })
   })
 })

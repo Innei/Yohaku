@@ -1,6 +1,10 @@
-import { YohakuStretchCoverHost } from '@modules/yohaku'
+import {
+  YohakuNative,
+  YohakuNoteHeroHost,
+  YohakuStretchCoverHost,
+} from '@modules/yohaku'
 import { and, eq } from 'drizzle-orm'
-import { Stack, useRouter } from 'expo-router'
+import { Stack, useNavigation, useRouter } from 'expo-router'
 import { useHeaderHeight } from 'expo-router/react-navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
@@ -23,6 +27,8 @@ import { siteHref } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import {
+  NOTE_LATEST_HERO_HEIGHT,
+  NOTE_LATEST_TEXT_HERO_HEIGHT,
   noteCoverPlaceholderUri,
   noteCoverUrl,
   noteDetailCoverAnchorY,
@@ -42,7 +48,7 @@ import { TtsMiniBar } from '@/tts/tts-mini-bar'
 import { useTtsSession } from '@/tts/use-tts-session'
 
 import { ArticleBody } from './article-body'
-import { ArticleMetaLine } from './article-meta-line'
+import { ArticleMetaLine, useArticleMetaLineText } from './article-meta-line'
 import { ArticleMore } from './article-more'
 import { ArticleNotice } from './article-notice'
 import { useArticlePrint } from './article-print-host'
@@ -54,8 +60,19 @@ import { useCollapsingTitle } from './use-collapsing-title'
 import { useReadingPresence } from './use-reading-presence'
 import { useRetryableBodyRefresh } from './use-retryable-body-refresh'
 
-export function NoteDetailScreen({ nid }: { nid: number }) {
+interface TransitionStartNavigation {
+  addListener: (type: 'transitionStart', listener: () => void) => () => void
+}
+
+export function NoteDetailScreen({
+  nid,
+  sharedHero = false,
+}: {
+  nid: number
+  sharedHero?: boolean
+}) {
   const router = useRouter()
+  const navigation = useNavigation() as unknown as TransitionStartNavigation
   const locale = useLocale()
   const t = useTranslations('detail')
   const tc = useTranslations('common')
@@ -96,6 +113,13 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
   const isLocked = Boolean(note?.hasPassword)
   const openOnWeb = isLocked || isMarkdown
   const webUrl = siteHref(`/notes/${nid}`)
+
+  useEffect(() => {
+    if (!sharedHero) return
+    return navigation.addListener('transitionStart', () => {
+      if (noteId) YohakuNative.prepareNoteHeroTransition(noteId)
+    })
+  }, [navigation, noteId, sharedHero])
 
   useEffect(() => {
     if (!noteId || !updatesEnabled) return
@@ -186,6 +210,13 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
         note.likeCount > 0 ? `♡ ${note.likeCount}` : null,
       ]
     : []
+  const heroMeta = useArticleMetaLineText({
+    aiGen: note?.articleMeta?.aiGen,
+    parts: metaParts,
+  })
+  const heroHeight = coverUrl
+    ? NOTE_LATEST_HERO_HEIGHT
+    : NOTE_LATEST_TEXT_HERO_HEIGHT
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
@@ -224,139 +255,176 @@ export function NoteDetailScreen({ nid }: { nid: number }) {
           refType="note"
           scrollRef={scrollRef}
         >
-          {(compose) => (
-            <>
-              <YohakuStretchCoverHost
-                stretchCoverHeight={noteDetailCoverHeight(headerHeight)}
-                stretchCoverPlaceholderUri={coverPlaceholderUri}
-                stretchCoverUri={coverUrl}
-                style={styles.screen}
-                stretchCoverAnchorY={
-                  coverUrl ? noteDetailCoverAnchorY(headerHeight) : 0
+          {(compose) => {
+            const scroll = (
+              <EdgeEffectScrollView
+                automaticallyAdjustKeyboardInsets={!compose.composing}
+                headerTitleProgress={headerTitleProgress}
+                ref={scrollRef}
+                style={[styles.screen, styles.scrollClear]}
+                contentContainerStyle={[
+                  styles.content,
+                  coverUrl ? styles.contentWithCover : null,
+                  tts.isNarrating && !compose.composing
+                    ? styles.narratingPad
+                    : null,
+                ]}
+                contentInset={
+                  compose.composing
+                    ? { bottom: compose.scrollBottomInset }
+                    : undefined
                 }
+                onScroll={onScroll}
+                onScrollBeginDrag={tts.onScrollBeginDrag}
               >
-                <EdgeEffectScrollView
-                  automaticallyAdjustKeyboardInsets={!compose.composing}
-                  headerTitleProgress={headerTitleProgress}
-                  ref={scrollRef}
-                  style={[styles.screen, styles.scrollClear]}
-                  contentContainerStyle={[
-                    styles.content,
-                    coverUrl ? styles.contentWithCover : null,
-                    tts.isNarrating && !compose.composing
-                      ? styles.narratingPad
-                      : null,
-                  ]}
-                  contentInset={
-                    compose.composing
-                      ? { bottom: compose.scrollBottomInset }
-                      : undefined
-                  }
-                  onScroll={onScroll}
-                  onScrollBeginDrag={tts.onScrollBeginDrag}
-                >
-                  {coverUrl ? (
-                    <NoteCoverBleed headerHeight={headerHeight} />
-                  ) : null}
-                  <View style={styles.header} onLayout={onTitleLayout}>
-                    <AppText variant="largeTitle">{note.title}</AppText>
-                    <ArticleMetaLine
-                      aiGen={note.articleMeta?.aiGen}
-                      parts={metaParts}
-                    />
-                  </View>
-                  <ArticleNotice
-                    id={note.id}
-                    kind="note"
-                    meta={note.articleMeta}
-                    webUrl={webUrl}
-                    listen={{
-                      available: tts.available,
-                      current: tts.current,
-                      elapsed: tts.elapsed,
-                      status: tts.status,
-                      total: tts.total,
-                      onToggle: tts.toggle,
-                    }}
+                {sharedHero ? (
+                  <View
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                    pointerEvents="none"
+                    style={[
+                      styles.heroPlaceholder,
+                      { height: heroHeight },
+                      coverUrl ? { marginTop: -headerHeight } : null,
+                    ]}
+                    onLayout={onTitleLayout}
                   />
-                  {isLocked ? (
-                    <View style={{ minHeight: reservedBodyHeight, gap: 8 }}>
-                      <AppText style={styles.placeholder} variant="secondary">
-                        {t('passwordProtected')}
-                      </AppText>
-                      <AppText
-                        style={styles.lockedHint}
-                        variant="secondary"
-                        onPress={() => void openExternalUrl(webUrl)}
-                      >
-                        {t('passwordHint')}
-                      </AppText>
+                ) : (
+                  <>
+                    {coverUrl ? (
+                      <NoteCoverBleed headerHeight={headerHeight} />
+                    ) : null}
+                    <View style={styles.header} onLayout={onTitleLayout}>
+                      <AppText variant="largeTitle">{note.title}</AppText>
+                      <ArticleMetaLine
+                        aiGen={note.articleMeta?.aiGen}
+                        parts={metaParts}
+                      />
                     </View>
-                  ) : isMarkdown ? (
-                    <View style={{ minHeight: reservedBodyHeight }}>
-                      <AppText
-                        style={styles.placeholder}
-                        variant="secondary"
-                        onPress={() => void openExternalUrl(webUrl)}
-                      >
-                        {tc('openInBrowser')}
-                      </AppText>
-                    </View>
-                  ) : body ? (
-                    <ArticleBody
-                      autoFollow={tts.autoFollow}
-                      content={body}
-                      enrichments={note?.enrichments ?? null}
-                      highlightBlockId={tts.activeBlockId}
-                      queriesEnabled={updatesEnabled}
-                      refId={note.id}
-                      refType="note"
-                      scrollRef={scrollRef}
-                      variant="note"
-                      webUrl={webUrl}
-                    />
-                  ) : failed ? (
-                    <View style={{ minHeight: reservedBodyHeight }}>
-                      <AppText
-                        style={styles.placeholder}
-                        variant="secondary"
-                        onPress={() => setAttempt((n) => n + 1)}
-                      >
-                        {t('bodyFailed')}
-                      </AppText>
-                    </View>
-                  ) : (
-                    <BodyLoadingIndicator minHeight={reservedBodyHeight} />
-                  )}
-                  <NoteTopicBlock topic={topic ?? null} />
-                  <ArticleTail
-                    kind="note"
-                    likeCount={note.likeCount}
+                  </>
+                )}
+                <ArticleNotice
+                  id={note.id}
+                  kind="note"
+                  meta={note.articleMeta}
+                  webUrl={webUrl}
+                  listen={{
+                    available: tts.available,
+                    current: tts.current,
+                    elapsed: tts.elapsed,
+                    status: tts.status,
+                    total: tts.total,
+                    onToggle: tts.toggle,
+                  }}
+                />
+                {isLocked ? (
+                  <View style={{ minHeight: reservedBodyHeight, gap: 8 }}>
+                    <AppText style={styles.placeholder} variant="secondary">
+                      {t('passwordProtected')}
+                    </AppText>
+                    <AppText
+                      style={styles.lockedHint}
+                      variant="secondary"
+                      onPress={() => void openExternalUrl(webUrl)}
+                    >
+                      {t('passwordHint')}
+                    </AppText>
+                  </View>
+                ) : isMarkdown ? (
+                  <View style={{ minHeight: reservedBodyHeight }}>
+                    <AppText
+                      style={styles.placeholder}
+                      variant="secondary"
+                      onPress={() => void openExternalUrl(webUrl)}
+                    >
+                      {tc('openInBrowser')}
+                    </AppText>
+                  </View>
+                ) : body ? (
+                  <ArticleBody
+                    autoFollow={tts.autoFollow}
+                    content={body}
+                    enrichments={note?.enrichments ?? null}
+                    highlightBlockId={tts.activeBlockId}
                     queriesEnabled={updatesEnabled}
                     refId={note.id}
-                    title={note.title}
-                    url={webUrl}
+                    refType="note"
+                    scrollRef={scrollRef}
+                    variant="note"
+                    webUrl={webUrl}
                   />
-                </EdgeEffectScrollView>
-              </YohakuStretchCoverHost>
-              {tts.isNarrating && !compose.composing ? (
-                <TtsMiniBar
-                  autoFollow={tts.autoFollow}
-                  current={tts.current}
-                  duration={tts.duration}
-                  elapsed={tts.elapsed}
-                  playbackRate={tts.playbackRate}
-                  stale={tts.stale}
-                  status={tts.status}
-                  total={tts.total}
-                  onRecenter={tts.recenter}
-                  onSelectRate={tts.setRate}
-                  onStop={tts.stop}
-                  onToggle={tts.toggle}
+                ) : failed ? (
+                  <View style={{ minHeight: reservedBodyHeight }}>
+                    <AppText
+                      style={styles.placeholder}
+                      variant="secondary"
+                      onPress={() => setAttempt((n) => n + 1)}
+                    >
+                      {t('bodyFailed')}
+                    </AppText>
+                  </View>
+                ) : (
+                  <BodyLoadingIndicator minHeight={reservedBodyHeight} />
+                )}
+                <NoteTopicBlock topic={topic ?? null} />
+                <ArticleTail
+                  kind="note"
+                  likeCount={note.likeCount}
+                  queriesEnabled={updatesEnabled}
+                  refId={note.id}
+                  title={note.title}
+                  url={webUrl}
                 />
-              ) : null}
-            </>
-          )}
+              </EdgeEffectScrollView>
+            )
+            return (
+              <>
+                {sharedHero ? (
+                  <YohakuNoteHeroHost
+                    noteHeroCoverPlaceholderUri={coverPlaceholderUri}
+                    noteHeroCoverUri={coverUrl}
+                    noteHeroHeight={heroHeight}
+                    noteHeroId={note.id}
+                    noteHeroMeta={heroMeta}
+                    noteHeroMetaColor={palette.neutral[6]}
+                    noteHeroTitle={note.title}
+                    noteHeroTitleColor={palette.neutral[10]}
+                    style={styles.screen}
+                  >
+                    {scroll}
+                  </YohakuNoteHeroHost>
+                ) : (
+                  <YohakuStretchCoverHost
+                    stretchCoverHeight={noteDetailCoverHeight(headerHeight)}
+                    stretchCoverPlaceholderUri={coverPlaceholderUri}
+                    stretchCoverUri={coverUrl}
+                    style={styles.screen}
+                    stretchCoverAnchorY={
+                      coverUrl ? noteDetailCoverAnchorY(headerHeight) : 0
+                    }
+                  >
+                    {scroll}
+                  </YohakuStretchCoverHost>
+                )}
+                {tts.isNarrating && !compose.composing ? (
+                  <TtsMiniBar
+                    autoFollow={tts.autoFollow}
+                    current={tts.current}
+                    duration={tts.duration}
+                    elapsed={tts.elapsed}
+                    playbackRate={tts.playbackRate}
+                    stale={tts.stale}
+                    status={tts.status}
+                    total={tts.total}
+                    onRecenter={tts.recenter}
+                    onSelectRate={tts.setRate}
+                    onStop={tts.stop}
+                    onToggle={tts.toggle}
+                  />
+                ) : null}
+              </>
+            )
+          }}
         </CommentComposeHost>
       ) : (
         <EdgeEffectScrollView
@@ -393,6 +461,9 @@ const styles = StyleSheet.create({
   },
   narratingPad: {
     paddingBottom: 108,
+  },
+  heroPlaceholder: {
+    marginHorizontal: -20,
   },
   header: {
     gap: 8,

@@ -1,6 +1,7 @@
 import type {
   YohakuListNativeItem,
   YohakuListVisibleItem,
+  YohakuNoteHeroSpec,
 } from '@modules/yohaku'
 import { YohakuListCellView, YohakuListView } from '@modules/yohaku'
 import type { ReactNode } from 'react'
@@ -18,12 +19,13 @@ export function YohakuList({
   contentInsetBottom = 0,
   contentInsetTop = 8,
   items,
+  noteHero,
+  noteHeroMetaColor,
+  noteHeroTitleColor,
   refreshing = false,
   renderItem,
-  stretchCoverHeight,
-  stretchCoverPlaceholderUri,
-  stretchCoverUri,
   style,
+  topEdgeEffectHidden = false,
   onEndReached,
   onItemPress,
   onLinkPress,
@@ -34,9 +36,9 @@ export function YohakuList({
   contentInsetBottom?: number
   contentInsetTop?: number
   items: YohakuListItem[]
-  stretchCoverHeight?: number
-  stretchCoverPlaceholderUri?: string | null
-  stretchCoverUri?: string | null
+  noteHero?: YohakuNoteHeroSpec | null
+  noteHeroMetaColor?: string
+  noteHeroTitleColor?: string
   onEndReached?: () => void
   onItemPress?: (item: { id: string; type: string }) => void
   onLinkPress?: (kind: string, value: string) => void
@@ -46,17 +48,24 @@ export function YohakuList({
   refreshing?: boolean
   renderItem: (item: YohakuListItem) => ReactNode
   style?: StyleProp<ViewStyle>
+  topEdgeEffectHidden?: boolean
 }) {
   return (
     <YohakuListView
       contentInsetBottom={contentInsetBottom}
       contentInsetTop={contentInsetTop}
       items={items}
+      noteHeroCoverPlaceholderUri={noteHero?.coverPlaceholderUri}
+      noteHeroCoverUri={noteHero?.coverUri}
+      noteHeroHeight={noteHero?.height}
+      noteHeroId={noteHero?.id}
+      noteHeroMeta={noteHero?.meta}
+      noteHeroMetaColor={noteHeroMetaColor}
+      noteHeroTitle={noteHero?.title}
+      noteHeroTitleColor={noteHeroTitleColor}
       refreshing={refreshing}
-      stretchCoverHeight={stretchCoverHeight}
-      stretchCoverPlaceholderUri={stretchCoverPlaceholderUri}
-      stretchCoverUri={stretchCoverUri}
       style={style}
+      topEdgeEffectHidden={topEdgeEffectHidden}
       onEndReached={() => onEndReached?.()}
       onItemPress={(event) => onItemPress?.(event.nativeEvent)}
       onRefresh={() => onRefresh?.()}

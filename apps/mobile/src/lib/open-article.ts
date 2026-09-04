@@ -21,20 +21,29 @@ function openAfterPrepare(
   router: Router,
   href: Href,
   prepare?: () => Promise<unknown>,
+  beforePush?: () => void,
 ) {
-  if (!prepare) {
+  const push = () => {
+    beforePush?.()
     router.push(href)
+  }
+  if (!prepare) {
+    push()
     return
   }
   router.prefetch(href)
-  void prepare().finally(() => router.push(href))
+  void prepare().finally(push)
 }
 
 function isFullPostRow(post: OpenPostRow): post is OpenPostRow & PostRow {
   return 'lang' in post
 }
 
-export function openNote(router: Router, note: NoteRow) {
+export function openNote(
+  router: Router,
+  note: NoteRow,
+  prepareSharedHero?: () => void,
+) {
   const webUrl = siteHref(`/notes/${note.nid}`)
   if (note.hasPassword || note.contentFormat === 'markdown') {
     void openExternalUrl(webUrl)
@@ -42,25 +51,32 @@ export function openNote(router: Router, note: NoteRow) {
   }
   const href = {
     pathname: '/notes/[nid]',
-    params: { nid: String(note.nid) },
+    params: {
+      nid: String(note.nid),
+      ...(prepareSharedHero ? { hero: 'shared' } : null),
+    },
   } as const
   if (note.contentFormat === 'lexical' && note.content) {
     primeDatabaseSnapshot(`note:${note.lang}:${note.nid}`, {
       note,
       topic: null,
     })
-    openAfterPrepare(router, href, () =>
-      prepareArticleBody({
-        content: note.content!,
-        enrichments: note.enrichments ?? undefined,
-        id: note.id,
-        variant: 'note',
-        webUrl,
-      }),
+    openAfterPrepare(
+      router,
+      href,
+      () =>
+        prepareArticleBody({
+          content: note.content!,
+          enrichments: note.enrichments ?? undefined,
+          id: note.id,
+          variant: 'note',
+          webUrl,
+        }),
+      prepareSharedHero,
     )
     return
   }
-  router.push(href)
+  openAfterPrepare(router, href, undefined, prepareSharedHero)
 }
 
 export function openPost(router: Router, post: OpenPostRow) {
