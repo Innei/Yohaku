@@ -7,6 +7,8 @@ import type { HostCapabilities, HostEnrichment } from '../../../host'
 import { HostProvider } from '../../../host'
 import { LinkCardVariant } from './dispatch'
 import { FallbackCard } from './variants/FallbackCard'
+import { LeetcodeCard } from './variants/LeetcodeCard'
+import { PaperCard } from './variants/PaperCard'
 import {
   AlbumCard,
   BookCard,
@@ -362,6 +364,36 @@ describe('SelfCard', () => {
     )
     expect(html).not.toContain('yohaku-link-card')
     expect(html).toContain('>plain</a>')
+  })
+})
+
+describe('link card block spacing', () => {
+  it('puts vertical margin on the shell so consecutive cards are not flush', () => {
+    const html = renderToStaticMarkup(<FallbackCard data={baseData} />)
+    expect(html).toContain('my-4')
+  })
+
+  it('puts the same spacing on variants that skip the shell', () => {
+    const paper = renderToStaticMarkup(
+      <PaperCard
+        data={{
+          category: 'academic',
+          title: 'A Paper',
+          url: 'https://arxiv.org/abs/2401.00001',
+        }}
+      />,
+    )
+    const leetcode = renderToStaticMarkup(
+      <LeetcodeCard
+        data={{
+          category: 'code',
+          title: 'Two Sum',
+          url: 'https://leetcode.com/problems/two-sum',
+        }}
+      />,
+    )
+    expect(paper).toContain('my-4')
+    expect(leetcode).toContain('my-4')
   })
 })
 

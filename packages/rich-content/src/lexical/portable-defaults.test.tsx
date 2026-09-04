@@ -142,6 +142,7 @@ it('renders the enrichment card when host.enrichments has the URL', () => {
   }
   const html = renderStatic([linkCardNode], host)
   expect(html).toContain('yohaku-link-card')
+  expect(html).toContain('my-4')
   expect(html).toContain('Enriched Title')
   expect(html).toContain('A very enriched description')
 })

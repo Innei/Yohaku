@@ -23,7 +23,7 @@ interface Props {
 // above the shell's background.
 const baseClass = clsxm(
   'yohaku-link-card group relative isolate not-prose no-underline cursor-pointer',
-  'w-full max-w-full overflow-hidden',
+  'my-4 w-full max-w-full overflow-hidden',
   'rounded-xl',
   'bg-neutral-1 dark:bg-neutral-2 text-neutral-9',
   'ring-1 ring-border',

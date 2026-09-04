@@ -43,7 +43,7 @@ export const LeetcodeCard: FC<Props> = ({ data, className }) => {
       className={clsxm(
         // `group relative isolate` are the host requirements for InkWash —
         // without them the hover bloom never fires.
-        'yohaku-link-card group relative isolate block w-full max-w-[40rem] cursor-pointer overflow-hidden rounded-xl bg-neutral-1 px-5 py-3 text-neutral-9 no-underline ring-1 ring-border not-prose transition-colors duration-200 dark:bg-neutral-2',
+        'yohaku-link-card group relative isolate my-4 block w-full max-w-[40rem] cursor-pointer overflow-hidden rounded-xl bg-neutral-1 px-5 py-3 text-neutral-9 no-underline ring-1 ring-border not-prose transition-colors duration-200 dark:bg-neutral-2',
         className,
       )}
     >
