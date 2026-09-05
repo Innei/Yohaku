@@ -7,7 +7,7 @@ export default function DevDemosLayout() {
   const palette = usePalette()
   return (
     <Stack screenOptions={getStackScreenOptions(palette.surface.desk)}>
-      <Stack.Screen name="index" options={{ headerBackVisible: true }} />
+      <Stack.Screen name="index" options={{ headerBackVisible: false }} />
       <Stack.Screen name="markdown" options={{ headerBackVisible: true }} />
       <Stack.Screen name="print" options={{ headerBackVisible: true }} />
     </Stack>

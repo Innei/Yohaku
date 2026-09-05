@@ -1,11 +1,13 @@
 import { type as typeScale } from '@yohaku/design-system/tokens'
-import { type Href, Link } from 'expo-router'
+import { type Href, Link, Stack, useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
+import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
+import { usesPaperNavigationControls } from '@/components/navigation/platform'
 import type { TextRole } from '@/components/ui'
 import {
   AppText,
@@ -18,6 +20,7 @@ import {
   WellInput,
 } from '@/components/ui'
 import { showToast } from '@/components/ui/toast-store'
+import { useTranslations } from '@/i18n'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
@@ -81,6 +84,38 @@ const textRoles: { role: TextRole; sample: string }[] = [
   { role: 'eyebrow', sample: '眉标 · 前端' },
 ]
 
+function GalleryClose() {
+  const router = useRouter()
+  const t = useTranslations('common')
+  const close = () => {
+    if (router.canDismiss()) router.dismiss()
+    else router.back()
+  }
+
+  if (usesPaperNavigationControls) {
+    return (
+      <Stack.Toolbar asChild placement="left">
+        <PaperNavigationControl
+          accessibilityLabel={t('close')}
+          icon="xmark"
+          identifier="dev-demos-close"
+          onPress={close}
+        />
+      </Stack.Toolbar>
+    )
+  }
+
+  return (
+    <Stack.Toolbar placement="left">
+      <Stack.Toolbar.Button
+        accessibilityLabel={t('close')}
+        icon="xmark"
+        onPress={close}
+      />
+    </Stack.Toolbar>
+  )
+}
+
 export function DevDemos() {
   const palette = usePalette()
   const insets = useSafeAreaInsets()
@@ -91,6 +126,7 @@ export function DevDemos() {
 
   return (
     <View style={styles.screen}>
+      <GalleryClose />
       <EdgeEffectScrollView
         contentContainerStyle={[
           styles.content,
