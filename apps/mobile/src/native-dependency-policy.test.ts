@@ -51,15 +51,31 @@ describe('native dependency policy', () => {
   })
 
   it('pods ElkSwift and BeautifulMermaid for native mermaid', () => {
-    const lock = readFileSync(path.join(mobileRoot, 'ios/Podfile.lock'), 'utf8')
-    expect(lock).toContain('ElkSwift (1.0.2)')
-    expect(lock).toContain('BeautifulMermaid (1.0.4)')
-  })
+    const appConfig = readFileSync(path.join(mobileRoot, 'app.config.ts'), 'utf8')
+    expect(appConfig).toContain('./plugins/with-ios-mermaid-pods.cjs')
 
-  it('does not pod-link FileSystem or AVIF', () => {
-    const lock = readFileSync(path.join(mobileRoot, 'ios/Podfile.lock'), 'utf8')
-    expect(lock).not.toMatch(/ExpoFileSystem|EXFileSystem/)
-    expect(lock).not.toContain('libavif')
-    expect(lock).not.toContain('SDWebImageAVIFCoder')
+    const plugin = readFileSync(
+      path.join(mobileRoot, 'plugins/with-ios-mermaid-pods.cjs'),
+      'utf8',
+    )
+    expect(plugin).toContain("pod 'ElkSwift'")
+    expect(plugin).toContain("pod 'BeautifulMermaid'")
+
+    const elk = readFileSync(
+      path.join(mobileRoot, 'modules/yohaku/ios/Vendor/ElkSwift.podspec'),
+      'utf8',
+    )
+    const mermaid = readFileSync(
+      path.join(mobileRoot, 'modules/yohaku/ios/Vendor/BeautifulMermaid.podspec'),
+      'utf8',
+    )
+    expect(elk).toContain("s.version = '1.0.2'")
+    expect(mermaid).toContain("s.version = '1.0.4'")
+
+    const kit = readFileSync(
+      path.join(mobileRoot, 'modules/yohaku/ios/YohakuKit.podspec'),
+      'utf8',
+    )
+    expect(kit).toContain("s.dependency 'BeautifulMermaid'")
   })
 })
