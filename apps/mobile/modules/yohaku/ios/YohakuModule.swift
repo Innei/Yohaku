@@ -103,8 +103,14 @@ public class YohakuModule: Module {
     }
 
     Function("showToast") { (message: String) in
-      YohakuToastOverlay.shared.show(message: message)
-    }.runOnQueue(.main)
+      if Thread.isMainThread {
+        YohakuToastOverlay.shared.show(message: message)
+      } else {
+        DispatchQueue.main.sync {
+          YohakuToastOverlay.shared.show(message: message)
+        }
+      }
+    }
 
     AsyncFunction("downloadSystemFont") { (postScriptName: String) -> Bool in
       await SystemFontDomain.ensureInstalled(postScriptName: postScriptName)
