@@ -61,6 +61,7 @@ interface YohakuNativeModule {
   secretSet(key: string, value: string): void
   setRestorableRoute(routeURL: string): Promise<void>
   setTtsRate(rate: number): Promise<void>
+  showToast(message: string): void
   stopTts(): Promise<void>
 }
 

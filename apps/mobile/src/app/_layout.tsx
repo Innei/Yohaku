@@ -17,7 +17,7 @@ import { ReaderWarmer } from '@/components/dom/reader-warmer'
 import { RouteRestorationHost } from '@/components/navigation/route-restoration-host'
 import { getStackScreenOptions } from '@/components/navigation/stack-screen-options'
 import { SplashOverlay } from '@/components/splash/splash-overlay'
-import { AppText, BannerHost, Desk, ToastHost } from '@/components/ui'
+import { AppText, BannerHost, Desk } from '@/components/ui'
 import { db } from '@/db'
 import { AppRecoveryScreen } from '@/errors/app-recovery-screen'
 import { FatalErrorHost } from '@/errors/fatal-error-host'
@@ -151,6 +151,14 @@ export default function RootLayout() {
                 }}
               />
               <Stack.Screen
+                name="dev-demos"
+                options={{
+                  animation: 'slide_from_right',
+                  headerShown: false,
+                  presentation: 'fullScreenModal',
+                }}
+              />
+              <Stack.Screen
                 name="comments/[id]"
                 options={{
                   headerShown: false,
@@ -216,7 +224,6 @@ export default function RootLayout() {
             </Stack>
             <RouteRestorationHost ready={appPainted} />
             <PushOnboardingHost ready={dataReady && !failed && splashDone} />
-            <ToastHost />
             <BannerHost />
           </ThemeProvider>
         </QueryClientProvider>

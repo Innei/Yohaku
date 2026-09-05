@@ -1,25 +1,38 @@
-import { Link } from 'expo-router'
+import { Link, useLocalSearchParams } from 'expo-router'
 import * as Updates from 'expo-updates'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { API_PRESETS, apiBaseUrl, setApiBaseUrl } from '@/api/base-url'
 import { AppText, Paper, SinkPressable } from '@/components/ui'
+import { showToast } from '@/components/ui/toast-store'
 import { useTranslations } from '@/i18n'
-import { socketTrace } from '@/socket/trace'
-import {
-  useGatewayDebug,
-  useSocketTraceEntries,
-} from '@/socket/use-gateway-debug'
+import { useGatewayDebug } from '@/socket/use-gateway-debug'
 import { resetAndResync } from '@/sync/engine'
-import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 export function DevToolsScreen() {
   const t = useTranslations('dev')
   const palette = usePalette()
+  const debug = useGatewayDebug()
+  const params = useLocalSearchParams<{ toast?: string | string[] }>()
   const [baseUrl, setBaseUrl] = useState(() => apiBaseUrl())
   const [busy, setBusy] = useState(false)
+  const demoToast = Array.isArray(params.toast) ? params.toast[0] : params.toast
+  const demoToastFired = useRef(false)
+
+  useEffect(() => {
+    if (demoToastFired.current) return
+    if (demoToast !== '1' && demoToast !== 'stack') return
+    demoToastFired.current = true
+    if (demoToast === 'stack') {
+      showToast(t('toastSample'))
+      showToast(t('toastSampleTwo'))
+      showToast(t('toastSampleThree'))
+      return
+    }
+    showToast(t('toastSample'))
+  }, [demoToast, t])
 
   const active =
     API_PRESETS.find((preset) => preset.url === baseUrl)?.id ?? null
@@ -84,8 +97,43 @@ export function DevToolsScreen() {
           </View>
         ))}
       </Paper>
+      <Paper style={styles.card}>
+        <SinkPressable
+          accessibilityLabel={t('showToast')}
+          style={styles.cardRow}
+          onPress={() => showToast(t('toastSample'))}
+        >
+          <AppText variant="body">{t('showToast')}</AppText>
+        </SinkPressable>
+        <View
+          style={[styles.hairline, { backgroundColor: palette.neutral[4] }]}
+        />
+        <SinkPressable
+          accessibilityLabel={t('showToastStack')}
+          style={styles.cardRow}
+          onPress={() => {
+            showToast(t('toastSample'))
+            showToast(t('toastSampleTwo'))
+            showToast(t('toastSampleThree'))
+          }}
+        >
+          <AppText variant="body">{t('showToastStack')}</AppText>
+        </SinkPressable>
+      </Paper>
       <OtaCard />
-      <GatewayTraceCard />
+      <Link asChild href="/dev/websocket">
+        <SinkPressable>
+          <Paper style={styles.entry}>
+            <View style={styles.entryHead}>
+              <AppText variant="entryTitle">{t('websocket')}</AppText>
+              <AppText color={palette.neutral[6]} variant="meta">
+                {debug.state}
+              </AppText>
+            </View>
+            <AppText variant="secondary">{t('websocketHint')}</AppText>
+          </Paper>
+        </SinkPressable>
+      </Link>
       <Link asChild href="/dev-demos">
         <SinkPressable>
           <Paper style={styles.entry}>
@@ -156,116 +204,36 @@ function OtaCard() {
           {source}
         </AppText>
       </View>
-      <View style={[styles.hairline, { backgroundColor: palette.neutral[4] }]} />
+      <View
+        style={[styles.hairline, { backgroundColor: palette.neutral[4] }]}
+      />
       <View style={styles.cardRow}>
         <AppText color={palette.neutral[6]} variant="meta">
           {statusLabel}
         </AppText>
       </View>
-      <View style={[styles.hairline, { backgroundColor: palette.neutral[4] }]} />
-      <SinkPressable disabled={busy} style={styles.cardRow} onPress={() => void check()}>
+      <View
+        style={[styles.hairline, { backgroundColor: palette.neutral[4] }]}
+      />
+      <SinkPressable
+        disabled={busy}
+        style={styles.cardRow}
+        onPress={() => void check()}
+      >
         <AppText variant="body">{t('otaCheck')}</AppText>
       </SinkPressable>
-      <View style={[styles.hairline, { backgroundColor: palette.neutral[4] }]} />
-      <SinkPressable disabled={busy} style={styles.cardRow} onPress={() => void apply()}>
+      <View
+        style={[styles.hairline, { backgroundColor: palette.neutral[4] }]}
+      />
+      <SinkPressable
+        disabled={busy}
+        style={styles.cardRow}
+        onPress={() => void apply()}
+      >
         <AppText variant="body">{t('otaApply')}</AppText>
       </SinkPressable>
     </Paper>
   )
-}
-
-function GatewayTraceCard() {
-  const t = useTranslations('dev')
-  const palette = usePalette()
-  const debug = useGatewayDebug()
-  const events = useSocketTraceEntries()
-  const newestFirst = events.slice().reverse()
-
-  return (
-    <Paper style={styles.card}>
-      <View style={styles.cardRow}>
-        <AppText variant="secondary">{t('websocket')}</AppText>
-        <AppText color={palette.neutral[6]} variant="meta">
-          {debug.state}
-        </AppText>
-      </View>
-      <View style={[styles.hairline, { backgroundColor: palette.neutral[4] }]} />
-      <View style={styles.cardRow}>
-        <AppText variant="secondary">{t('wsSession')}</AppText>
-        <AppText
-          color={palette.neutral[6]}
-          numberOfLines={1}
-          style={styles.mono}
-          variant="meta"
-        >
-          {debug.sid ?? '—'}
-        </AppText>
-      </View>
-      {debug.url ? (
-        <>
-          <View
-            style={[styles.hairline, { backgroundColor: palette.neutral[4] }]}
-          />
-          <View style={styles.urlRow}>
-            <AppText
-              color={palette.neutral[6]}
-              numberOfLines={2}
-              style={styles.mono}
-              variant="meta"
-            >
-              {debug.url}
-            </AppText>
-          </View>
-        </>
-      ) : null}
-      <View style={[styles.hairline, { backgroundColor: palette.neutral[4] }]} />
-      {newestFirst.length === 0 ? (
-        <View style={styles.cardRow}>
-          <AppText color={palette.neutral[6]} variant="meta">
-            {t('wsEmpty')}
-          </AppText>
-        </View>
-      ) : (
-        newestFirst.map((entry, index) => (
-          <View key={`${entry.at}-${index}`} style={styles.event}>
-            <View style={styles.eventHead}>
-              <AppText color={palette.neutral[6]} variant="meta">
-                {formatTraceClock(entry.at)}
-              </AppText>
-              <AppText color={palette.accent} variant="meta">
-                {directionMark(entry.dir)}
-              </AppText>
-              <AppText style={styles.eventName} variant="meta">
-                {entry.event}
-              </AppText>
-            </View>
-            {entry.payload !== undefined ? (
-              <AppText
-                color={palette.neutral[6]}
-                numberOfLines={3}
-                style={styles.mono}
-                variant="meta"
-              >
-                {socketTrace.summarize(entry.payload)}
-              </AppText>
-            ) : null}
-          </View>
-        ))
-      )}
-    </Paper>
-  )
-}
-
-function directionMark(dir: 'in' | 'out' | 'state') {
-  if (dir === 'in') return '↓'
-  if (dir === 'out') return '↑'
-  return '●'
-}
-
-function formatTraceClock(at: number) {
-  const date = new Date(at)
-  const pad = (value: number, width = 2) => String(value).padStart(width, '0')
-  return `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}.${pad(date.getMilliseconds(), 3)}`
 }
 
 const styles = StyleSheet.create({
@@ -291,9 +259,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     gap: 12,
   },
-  urlRow: {
-    paddingVertical: 12,
-  },
   preset: {
     flex: 1,
     gap: 2,
@@ -311,19 +276,10 @@ const styles = StyleSheet.create({
     padding: 18,
     gap: 4,
   },
-  event: {
-    paddingVertical: 10,
-    gap: 4,
-  },
-  eventHead: {
-    flexDirection: 'row',
+  entryHead: {
     alignItems: 'center',
-    gap: 8,
-  },
-  eventName: {
-    flex: 1,
-  },
-  mono: {
-    ...fonts.mono,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
   },
 })

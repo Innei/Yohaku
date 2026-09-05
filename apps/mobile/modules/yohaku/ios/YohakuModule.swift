@@ -102,6 +102,10 @@ public class YohakuModule: Module {
       SecretStore.delete(key)
     }
 
+    Function("showToast") { (message: String) in
+      YohakuToastOverlay.shared.show(message: message)
+    }.runOnQueue(.main)
+
     AsyncFunction("downloadSystemFont") { (postScriptName: String) -> Bool in
       await SystemFontDomain.ensureInstalled(postScriptName: postScriptName)
     }

@@ -44,7 +44,10 @@ describe('restorableRoute', () => {
     '/insights/post/123',
     '/search',
     '/dev',
+    '/dev/websocket',
     '/dev-demos',
+    '/dev-demos/markdown',
+    '/dev-demos/print',
   ])('leaves the prior route active while %s is presented', (pathname) => {
     expect(restorableRoute(pathname, pathname.slice(1).split('/'))).toBeNull()
   })

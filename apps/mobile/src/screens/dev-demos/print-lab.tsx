@@ -12,8 +12,18 @@ import { useWebviewSerifFontFamily } from '@/theme/serif-font'
 import { withLexicalElementDefaults } from '@yohaku/rich-content/src/lexical/element-defaults.ts'
 import printLabFixture from '@yohaku/rich-content/src/lexical/__fixtures__/print-lab.json'
 
+import { LabScreen } from './lab-screen'
+
 const CONTENT = JSON.stringify(withLexicalElementDefaults(printLabFixture))
 const WEB_URL = 'https://innei.in/posts/lab/print'
+
+export function PrintLabScreen() {
+  return (
+    <LabScreen intro="打印稿全节点示例。" title="Print">
+      <PrintLab />
+    </LabScreen>
+  )
+}
 
 export function PrintLab() {
   const palette = usePalette()

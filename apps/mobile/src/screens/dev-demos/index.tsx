@@ -1,25 +1,27 @@
 import { type as typeScale } from '@yohaku/design-system/tokens'
+import { type Href, Link } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import type { TextRole } from '@/components/ui'
 import {
   AppText,
   Button,
-  MarkdownBody,
   Paper,
   PillButton,
   Segment,
+  SinkPressable,
   SlotText,
   WellInput,
 } from '@/components/ui'
+import { showToast } from '@/components/ui/toast-store'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { FileNodeLab } from './file-node-lab'
-import { PrintLab } from './print-lab'
 import { SplashReplayControls, useSplashReplay } from './splash-replay'
 
 function Section({
@@ -37,6 +39,36 @@ function Section({
   )
 }
 
+function LabEntry({
+  chevronColor,
+  hint,
+  href,
+  title,
+}: {
+  chevronColor: string
+  hint: string
+  href: Href
+  title: string
+}) {
+  return (
+    <Link asChild href={href}>
+      <SinkPressable accessibilityRole="link">
+        <Paper style={styles.paperCard}>
+          <View style={styles.entryHead}>
+            <AppText variant="entryTitle">{title}</AppText>
+            <SymbolView
+              name="chevron.right"
+              size={13}
+              tintColor={chevronColor}
+            />
+          </View>
+          <AppText variant="secondary">{hint}</AppText>
+        </Paper>
+      </SinkPressable>
+    </Link>
+  )
+}
+
 const textRoles: { role: TextRole; sample: string }[] = [
   { role: 'largeTitle', sample: '大标题 · 板块页头' },
   { role: 'largeTitleSans', sample: '大标题 Sans · 博文页头' },
@@ -49,38 +81,9 @@ const textRoles: { role: TextRole; sample: string }[] = [
   { role: 'eyebrow', sample: '眉标 · 前端' },
 ]
 
-const markdownSample = `### 评论正文渲染
-
-支持 **加粗**、*斜体*、~~删除线~~、\`行内代码\` 和 [链接](https://innei.in)。
-
-> 引用一段别人的话，用来抬杠。
-
-- 无序列表第一项
-- 第二项，嵌套：
-  - 子项
-
-1. 有序列表
-2. 第二条
-
-\`\`\`ts
-const answer = 42
-console.log(answer)
-\`\`\`
-
-\`\`\`
-pnpm --filter @yohaku/mobile start
-\`\`\`
-
-| 方案 | 结论 |
-| --- | --- |
-| WebView | 否决 |
-| 原生渲染 | ✓ |
-
-![示例图片](https://picsum.photos/seed/yohaku/600/320)
-`
-
 export function DevDemos() {
   const palette = usePalette()
+  const insets = useSafeAreaInsets()
   const [segmentIndex, setSegmentIndex] = useState(0)
   const [likes, setLikes] = useState(42)
   const [liked, setLiked] = useState(false)
@@ -89,7 +92,10 @@ export function DevDemos() {
   return (
     <View style={styles.screen}>
       <EdgeEffectScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: insets.top + 44 },
+        ]}
         style={[styles.screen, { backgroundColor: palette.surface.desk }]}
       >
         <AppText variant="largeTitle">组件目录</AppText>
@@ -98,7 +104,12 @@ export function DevDemos() {
         </AppText>
 
         <Section title="PRINT">
-          <PrintLab />
+          <LabEntry
+            chevronColor={palette.neutral[5]}
+            hint="屏幕渲染、打印、Export PDF"
+            href="/dev-demos/print"
+            title="打印稿全节点示例"
+          />
         </Section>
 
         <Section title="TEXT">
@@ -107,6 +118,24 @@ export function DevDemos() {
               {sample}
             </AppText>
           ))}
+        </Section>
+
+        <Section title="TOAST">
+          <View style={styles.row}>
+            <Button
+              label="弹出 Toast"
+              onPress={() => showToast('已复制链接')}
+            />
+            <Button
+              label="弹出一组"
+              variant="paper"
+              onPress={() => {
+                showToast('已复制链接')
+                showToast('缓存已清除')
+                showToast('更改已保存')
+              }}
+            />
+          </View>
         </Section>
 
         <Section title="BUTTON">
@@ -182,7 +211,12 @@ export function DevDemos() {
         </Section>
 
         <Section title="MARKDOWN">
-          <MarkdownBody markdown={markdownSample} />
+          <LabEntry
+            chevronColor={palette.neutral[5]}
+            hint="加粗、斜体、代码、表格、图片"
+            href="/dev-demos/markdown"
+            title="评论正文渲染"
+          />
         </Section>
 
         <Section title="FILE NODE">
@@ -204,7 +238,6 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 20,
-    paddingTop: 8,
     paddingBottom: 24,
   },
   intro: {
@@ -226,6 +259,12 @@ const styles = StyleSheet.create({
   paperCard: {
     padding: 18,
     gap: 5,
+  },
+  entryHead: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
   },
   paperTitle: {
     marginTop: 2,

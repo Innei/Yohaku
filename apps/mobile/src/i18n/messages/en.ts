@@ -270,6 +270,7 @@ export const en = {
     componentGalleryHint:
       'Base components and state specimens, for on-device tuning',
     websocket: 'WebSocket',
+    websocketHint: 'Live gateway events and session',
     wsSession: 'Session',
     wsEmpty: 'No events yet',
     ota: 'OTA',
@@ -282,6 +283,11 @@ export const en = {
     otaFailed: 'Check failed',
     otaSourceEmbedded: 'Embedded',
     otaSourceUpdate: 'OTA',
+    showToast: 'Show toast',
+    showToastStack: 'Show stacked toasts',
+    toastSample: 'Link copied',
+    toastSampleTwo: 'Storage cleared',
+    toastSampleThree: 'Changes saved',
   },
   print: {
     site: 'Yohaku',
