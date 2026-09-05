@@ -118,7 +118,8 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
     cellRegistration = makeCellRegistration()
-    controller.view = collectionView
+    controller.view = UIView(frame: .zero)
+    addSubview(collectionView)
     controller.onWillAppear = { [weak self] animated, coordinator in
       self?.clearNavigationSelection(animated: animated, coordinator: coordinator)
     }
