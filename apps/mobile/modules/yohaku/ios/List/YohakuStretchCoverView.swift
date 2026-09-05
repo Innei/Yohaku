@@ -410,7 +410,11 @@ final class YohakuSharedNoteHeroCoordinator {
       if entry.hero.superview === slot {
         entry.hero.removeFromSuperview()
       }
-      if entry.list.view == nil, entry.detail.view == nil, !entry.transitioning {
+      if noteID != nil,
+        entry.list.view == nil,
+        entry.detail.view == nil,
+        !entry.transitioning
+      {
         emptyKeys.append(key)
       } else if !entry.transitioning {
         present(entry)
