@@ -8,6 +8,7 @@ struct GroupedListRowSpec: Record {
   @Field var chevron: Bool = false
   @Field var danger: Bool = false
   @Field var pressable: Bool = false
+  @Field var navigates: Bool = false
 }
 
 private func parseHexColor(_ hex: String) -> UIColor? {
@@ -24,6 +25,15 @@ private func parseHexColor(_ hex: String) -> UIColor? {
   )
 }
 
+private final class GroupedListController: UIViewController {
+  var onWillAppear: ((Bool, UIViewControllerTransitionCoordinator?) -> Void)?
+
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    onWillAppear?(animated, transitionCoordinator)
+  }
+}
+
 final class GroupedListView: ExpoView, UICollectionViewDataSource,
   UICollectionViewDelegate {
   let onRowPress = EventDispatcher()
@@ -36,6 +46,7 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
   private var highlightedIndexPath: IndexPath?
   private var flashWorkItem: DispatchWorkItem?
   private weak var requiredScrollView: UIScrollView?
+  private let controller = GroupedListController()
 
   // Everything visual is left to the system's insetGrouped appearance —
   // overriding cell backgrounds, separators, or corner radii breaks the
@@ -69,7 +80,7 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
     // delivers touches instantly (delaysContentTouches is NO on RN's side),
     // so the cell's own touch-down highlight fires on every scroll that
     // starts on a row.
-    view.allowsSelection = false
+    view.allowsSelection = true
     view.dataSource = self
     view.delegate = self
     return view
@@ -107,7 +118,10 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
     cellRegistration = makeCellRegistration()
-    addSubview(collectionView)
+    controller.view = collectionView
+    controller.onWillAppear = { [weak self] animated, coordinator in
+      self?.clearNavigationSelection(animated: animated, coordinator: coordinator)
+    }
     // No pressed-state preview: rows only flash on a recognized tap, so a
     // scroll that pauses on a row can never light it up.
     pressGesture.shouldReceiveTouch = { [weak self] in
@@ -123,8 +137,16 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
 
   override func layoutSubviews() {
     super.layoutSubviews()
+    attachControllerIfNeeded()
     collectionView.frame = bounds
     requireAncestorScrollPanToFail()
+  }
+
+  override func willMove(toSuperview newSuperview: UIView?) {
+    if newSuperview == nil {
+      detachController()
+    }
+    super.willMove(toSuperview: newSuperview)
   }
 
   override func didMoveToWindow() {
@@ -134,6 +156,7 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
       flashWorkItem = nil
       setHighlighted(nil)
     } else {
+      attachControllerIfNeeded()
       requireAncestorScrollPanToFail()
     }
   }
@@ -152,8 +175,73 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
   private func handlePress(_ recognizer: NativePressGestureRecognizer) {
     guard recognizer.state == .recognized else { return }
     guard let indexPath = pressableIndexPath(for: recognizer) else { return }
-    flashHighlight(indexPath)
+    if rows[indexPath.item].navigates {
+      collectionView.selectItem(
+        at: indexPath,
+        animated: false,
+        scrollPosition: []
+      )
+    } else {
+      flashHighlight(indexPath)
+    }
     onRowPress(["id": rows[indexPath.item].id])
+  }
+
+  private func clearNavigationSelection(
+    animated: Bool,
+    coordinator: UIViewControllerTransitionCoordinator?
+  ) {
+    guard let indexPath = collectionView.indexPathsForSelectedItems?.first else {
+      return
+    }
+    guard let coordinator else {
+      collectionView.deselectItem(at: indexPath, animated: animated)
+      return
+    }
+
+    let started = coordinator.animate(
+      alongsideTransition: { [weak self] _ in
+        self?.collectionView.deselectItem(at: indexPath, animated: animated)
+      },
+      completion: { [weak self] context in
+        guard context.isCancelled else { return }
+        self?.collectionView.selectItem(
+          at: indexPath,
+          animated: false,
+          scrollPosition: []
+        )
+      }
+    )
+    if !started {
+      collectionView.deselectItem(at: indexPath, animated: animated)
+    }
+  }
+
+  private func attachControllerIfNeeded() {
+    guard controller.parent == nil, let parent = owningViewController() else {
+      return
+    }
+    parent.addChild(controller)
+    addSubview(controller.view)
+    controller.didMove(toParent: parent)
+  }
+
+  private func detachController() {
+    guard controller.parent != nil else { return }
+    controller.willMove(toParent: nil)
+    controller.view.removeFromSuperview()
+    controller.removeFromParent()
+  }
+
+  private func owningViewController() -> UIViewController? {
+    var responder: UIResponder? = next
+    while let current = responder {
+      if let controller = current as? UIViewController {
+        return controller
+      }
+      responder = current.next
+    }
+    return nil
   }
 
   private func pressableIndexPath(

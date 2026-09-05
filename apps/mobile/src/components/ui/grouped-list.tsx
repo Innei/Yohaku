@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import {
   Platform,
+  type StyleProp,
   StyleSheet,
   View,
-  type StyleProp,
   type ViewProps,
   type ViewStyle,
 } from 'react-native'
@@ -36,6 +36,7 @@ export interface GroupedListRow {
   danger?: boolean
   id: string
   label: string
+  navigates?: boolean
   onPress?: () => void
   value?: string
 }
@@ -58,6 +59,7 @@ export function GroupedList({
     value: row.value,
     chevron: row.chevron ?? false,
     danger: row.danger ?? false,
+    navigates: row.navigates ?? false,
     pressable: row.onPress !== undefined,
   }))
 

@@ -232,6 +232,7 @@ export type GroupedListNativeRow = {
   danger: boolean
   id: string
   label: string
+  navigates: boolean
   pressable: boolean
   value?: string
 }

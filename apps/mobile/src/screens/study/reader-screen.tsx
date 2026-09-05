@@ -208,6 +208,7 @@ export function ReaderScreen() {
       label: t('language'),
       value: localeNames[locale],
       chevron: true,
+      navigates: true,
       onPress: () => router.push('/locale'),
     },
     {

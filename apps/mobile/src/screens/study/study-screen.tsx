@@ -149,6 +149,7 @@ export function StudyScreen() {
       id: 'pages',
       label: t('pages'),
       chevron: true,
+      navigates: true,
       onPress: () => router.push('/pages'),
     },
     ...(owner?.webUrl
