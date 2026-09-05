@@ -1,10 +1,12 @@
 import { type as typeScale } from '@yohaku/design-system/tokens'
 import type { StyleProp, TextStyle } from 'react-native'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native'
 
-import { RemoteImage } from '@/components/ui'
+import { AppText, RemoteImage } from '@/components/ui'
 import type { FontStyle } from '@/theme/font-faces'
+import { clampFontScale } from '@/theme/font-scale'
 import { fonts } from '@/theme/fonts'
+import { noteTypography } from '@/theme/note-typography'
 import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
@@ -36,9 +38,11 @@ function InlineRun({
   inline: PreviewInline
   serifFont: FontStyle
 }) {
+  const fontScale = clampFontScale(useWindowDimensions().fontScale)
   if (inline.break) return '\n'
   return (
     <Text
+      allowFontScaling={false}
       style={{
         ...(inline.code ? fonts.mono : serifFont),
         ...(inline.italic ? { fontStyle: 'italic' as const } : null),
@@ -48,7 +52,9 @@ function InlineRun({
         ...(inline.underline
           ? { textDecorationLine: 'underline' as const }
           : null),
-        ...(inline.code ? { fontSize: typeScale.copy14.size } : null),
+        ...(inline.code
+          ? { fontSize: typeScale.copy14.size * fontScale }
+          : null),
         color: inline.href ? accent : ink,
       }}
     >
@@ -68,7 +74,7 @@ function InlineText({
 }) {
   const palette = usePalette()
   return (
-    <Text style={style}>
+    <AppText style={style}>
       {inlines.map((inline, index) => (
         <InlineRun
           accent={palette.accent}
@@ -78,7 +84,7 @@ function InlineText({
           serifFont={serifFont}
         />
       ))}
-    </Text>
+    </AppText>
   )
 }
 
@@ -93,8 +99,8 @@ function Block({
   const body = {
     ...serifFont,
     color: palette.neutral[9],
-    fontSize: 18,
-    lineHeight: 28,
+    fontSize: noteTypography.fontSize,
+    lineHeight: noteTypography.lineHeight,
   }
 
   if (block.type === 'image') {
@@ -147,9 +153,9 @@ function Block({
               .map((inline) => inline.text ?? inline.href ?? 'br')
               .join('|')}
           >
-            <Text style={[body, styles.marker, { color: palette.neutral[6] }]}>
+            <AppText style={[body, styles.marker, { color: palette.neutral[6] }]}>
               {block.ordered ? `${index + 1}.` : '·'}
-            </Text>
+            </AppText>
             <View style={styles.listBody}>
               <InlineText
                 inlines={item}
@@ -186,7 +192,7 @@ export function NotePreview({ blocks }: { blocks: PreviewBlock[] }) {
 
 const styles = StyleSheet.create({
   blocks: {
-    gap: 16,
+    gap: noteTypography.paragraphGap,
   },
   image: {
     borderCurve: 'continuous',

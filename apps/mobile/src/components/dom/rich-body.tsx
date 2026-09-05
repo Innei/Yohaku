@@ -40,6 +40,7 @@ import {
   type PrintMasthead,
 } from '@/screens/details/article-print'
 import { WEBVIEW_FONT_FAMILY } from '@/theme/font-faces'
+import { noteTypography } from '@/theme/note-typography'
 import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
 
 import { extractBlockInfos } from './anchor-utils'
@@ -775,7 +776,7 @@ export default function RichBody({
               fontSize: 12,
             }
           : {
-              '--rc-font-size-base': `${18 * fontScale}px`,
+              '--rc-font-size-base': `${(bodyVariant === 'note' ? noteTypography.fontSize : 16) * fontScale}px`,
               '--rc-font-size-small': `${14 * fontScale}px`,
               ...(viewportHeight
                 ? { '--app-viewport-height': `${viewportHeight}px` }
@@ -889,6 +890,7 @@ export default function RichBody({
   return (
     <div
       ref={containerRef}
+      data-note-reading={bodyVariant === 'note' && !printDocument ? '' : undefined}
       style={vars}
       className={
         theme === 'dark' && !printDocument
@@ -958,6 +960,18 @@ export default function RichBody({
         }
         .rich-content { max-width: 100% !important; box-sizing: border-box; overflow-wrap: break-word; padding-inline: ${printDocument ? '0 !important' : '20px'}; }
         .rich-content img, .rich-content video, .rich-content iframe { max-width: 100%; }
+        .rich-body-root[data-note-reading] .rich-content > p {
+          line-height: ${noteTypography.lineHeight / noteTypography.fontSize} !important;
+          margin-block: ${noteTypography.paragraphGap}px 0 !important;
+          text-indent: 0 !important;
+        }
+        .rich-body-root[data-note-reading] .rich-content > p:first-child { margin-top: 0 !important; }
+        .rich-body-root[data-note-reading] .rich-content > p::first-letter {
+          float: none !important;
+          font-size: inherit !important;
+          line-height: inherit !important;
+          margin: 0 !important;
+        }
         .rich-content pre { max-width: 100%; overflow-x: auto; }
         .rich-content .rich-table-scroll,
         .rich-content .rich-table-scroll th,
