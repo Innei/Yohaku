@@ -775,7 +775,7 @@ export default function RichBody({
               fontSize: 12,
             }
           : {
-              '--rc-font-size-base': `${16 * fontScale}px`,
+              '--rc-font-size-base': `${18 * fontScale}px`,
               '--rc-font-size-small': `${14 * fontScale}px`,
               ...(viewportHeight
                 ? { '--app-viewport-height': `${viewportHeight}px` }
