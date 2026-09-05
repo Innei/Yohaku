@@ -40,6 +40,8 @@ enum YohakuNoteHeroSlotRole {
 }
 
 final class YohakuNoteHeroView: UIView {
+  private static let imageCache = NSCache<NSURL, UIImage>()
+
   private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
   private let gradient = CAGradientLayer()
   private let imageView = UIImageView()
@@ -176,11 +178,21 @@ final class YohakuNoteHeroView: UIView {
     let next = normalized(uri)
     guard next != requestedUri else { return }
     requestedUri = next
-    loadedUri = nil
-    imageView.image = placeholderImage
     loadGeneration += 1
     let generation = loadGeneration
-    guard let next, let url = URL(string: next) else { return }
+    guard let next, let url = URL(string: next) else {
+      loadedUri = nil
+      imageView.image = placeholderImage
+      return
+    }
+    if let image = Self.imageCache.object(forKey: url as NSURL) {
+      loadedUri = next
+      imageView.image = image
+      return
+    }
+    if imageView.image == nil {
+      imageView.image = placeholderImage
+    }
     URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
       guard let self, generation == self.loadGeneration else { return }
       guard let data, let image = UIImage(data: data) else {
@@ -191,6 +203,7 @@ final class YohakuNoteHeroView: UIView {
         }
         return
       }
+      Self.imageCache.setObject(image, forKey: url as NSURL)
       DispatchQueue.main.async {
         guard generation == self.loadGeneration else { return }
         self.loadedUri = next
@@ -410,11 +423,7 @@ final class YohakuSharedNoteHeroCoordinator {
       if entry.hero.superview === slot {
         entry.hero.removeFromSuperview()
       }
-      if noteID != nil,
-        entry.list.view == nil,
-        entry.detail.view == nil,
-        !entry.transitioning
-      {
+      if entry.list.view == nil, entry.detail.view == nil, !entry.transitioning {
         emptyKeys.append(key)
       } else if !entry.transitioning {
         present(entry)
