@@ -1,5 +1,5 @@
 import type { CSSProperties, FC } from 'react'
-import { Fragment } from 'react'
+import { Fragment, memo } from 'react'
 
 import { fontFamilyToCss } from './fonts'
 import {
@@ -69,16 +69,19 @@ interface SceneContentProps {
   scene: ExcalidrawScene
 }
 
-export const SceneContent: FC<SceneContentProps> = ({ files, scene }) => {
-  const elements = scene.elements.filter((el) => !el.isDeleted)
-  return (
-    <>
-      {elements.map((el) => (
-        <ElementGroup el={el} files={files} key={el.id} />
-      ))}
-    </>
-  )
-}
+export const SceneContent: FC<SceneContentProps> = memo(
+  ({ files, scene }) => {
+    const elements = scene.elements.filter((el) => !el.isDeleted)
+    return (
+      <>
+        {elements.map((el) => (
+          <ElementGroup el={el} files={files} key={el.id} />
+        ))}
+      </>
+    )
+  },
+)
+SceneContent.displayName = 'SceneContent'
 
 interface SceneProps extends SceneContentProps {
   className?: string
