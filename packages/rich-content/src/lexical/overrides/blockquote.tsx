@@ -48,7 +48,7 @@ export const LexicalBlockquoteOverride: BuiltinNodeRenderer = (
           &ldquo;
         </span>
       )}
-      <div className="text-copy-15 italic pl-7 text-(--color-neutral-9)">
+      <div className="text-copy-15 italic pl-7 text-(--color-neutral-9) [&>.rich-paragraph:first-child]:mt-0 [&>.rich-paragraph:last-child]:mb-0">
         {children}
       </div>
       {attribution && (
