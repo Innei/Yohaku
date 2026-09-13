@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs'
 import { readdir,readFile } from 'node:fs/promises'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -193,13 +194,10 @@ async function main() {
   const tokensCss = await readFile(join(root, 'src/tokens.css'), 'utf8')
   const cheatsheetMd = await readFile(join(root, 'CHEATSHEET.md'), 'utf8')
   const templates = await readTemplates(join(root, 'templates'))
-  const variablesCss = await readFile(
-    join(root, '../../apps/web/src/styles/variables.css'),
-    'utf8',
-  )
-  const stylexTokensTs = await readFile(
-    join(root, '../../apps/web/src/theme/tokens.stylex.ts'),
-    'utf8',
+  const variablesCssPath = join(root, '../../apps/web/src/styles/variables.css')
+  const stylexTokensTsPath = join(
+    root,
+    '../../apps/web/src/theme/tokens.stylex.ts',
   )
 
   const result = runChecks({ tokensCss, cheatsheetMd, templates })
@@ -207,13 +205,22 @@ async function main() {
   result.issues.push(...nativeIssues)
   if (nativeIssues.length > 0) result.ok = false
 
-  const declaredVarNames = new Set([
-    ...extractDeclaredVarNames(tokensCss),
-    ...extractDeclaredVarNames(variablesCss),
-  ])
-  const stylexIssues = checkStylexTokenBridge(stylexTokensTs, declaredVarNames)
-  result.issues.push(...stylexIssues)
-  if (stylexIssues.length > 0) result.ok = false
+  if (existsSync(variablesCssPath) && existsSync(stylexTokensTsPath)) {
+    const variablesCss = await readFile(variablesCssPath, 'utf8')
+    const stylexTokensTs = await readFile(stylexTokensTsPath, 'utf8')
+    const declaredVarNames = new Set([
+      ...extractDeclaredVarNames(tokensCss),
+      ...extractDeclaredVarNames(variablesCss),
+    ])
+    const stylexIssues = checkStylexTokenBridge(
+      stylexTokensTs,
+      declaredVarNames,
+    )
+    result.issues.push(...stylexIssues)
+    if (stylexIssues.length > 0) result.ok = false
+  } else {
+    console.log('StyleX bridge check skipped: apps/web not present.')
+  }
 
   if (!result.ok) {
     console.error('Check failed:')
