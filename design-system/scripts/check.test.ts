@@ -2,7 +2,9 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
 import {
+  checkStylexTokenBridge,
   extractCheatsheetHex,
+  extractDeclaredVarNames,
   extractTokens,
   lintTemplate,
   runChecks,
@@ -83,4 +85,19 @@ test('runChecks reports drift when cheatsheet hex disagrees with tokens', () => 
   })
   assert.equal(result.ok, false)
   assert.ok(result.issues[0].includes('--color-neutral-9'))
+})
+
+test('checkStylexTokenBridge flags a var not declared anywhere', () => {
+  const stylexTokensTs = `
+    export const colors = stylex.defineVars({
+      neutral1: 'var(--color-neutral-1)',
+      ghost: 'var(--color-does-not-exist)',
+    })
+  `
+  const declared = extractDeclaredVarNames(`
+    @theme { --color-neutral-1: #f8f8f8; }
+  `)
+  const issues = checkStylexTokenBridge(stylexTokensTs, declared)
+  assert.equal(issues.length, 1)
+  assert.match(issues[0], /--color-does-not-exist/)
 })

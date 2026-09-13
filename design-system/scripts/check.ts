@@ -110,6 +110,35 @@ export function runChecks(input: {
   return { ok: issues.length === 0, issues }
 }
 
+export function extractDeclaredVarNames(css: string): Set<string> {
+  const result = new Set<string>()
+  const re = /(^|[\s;{])(--[\da-z-]+):/gm
+  for (const match of css.matchAll(re)) {
+    result.add(match[2])
+  }
+  return result
+}
+
+export function checkStylexTokenBridge(
+  stylexTokensTs: string,
+  declaredVarNames: Set<string>,
+): string[] {
+  const issues: string[] = []
+  const referenced = new Set<string>()
+  for (const match of stylexTokensTs.matchAll(/var\((--[\da-z-]+)\)/g)) {
+    referenced.add(match[1])
+  }
+  const missing = [...referenced]
+    .filter((name) => !declaredVarNames.has(name))
+    .sort()
+  if (missing.length > 0) {
+    issues.push(
+      `tokens.stylex.ts references undeclared CSS variables: ${missing.join(', ')}`,
+    )
+  }
+  return issues
+}
+
 export function checkNativeParity(tokens: Map<string, string>): string[] {
   const issues: string[] = []
   const expect = (name: string, value: string) => {
@@ -164,11 +193,27 @@ async function main() {
   const tokensCss = await readFile(join(root, 'src/tokens.css'), 'utf8')
   const cheatsheetMd = await readFile(join(root, 'CHEATSHEET.md'), 'utf8')
   const templates = await readTemplates(join(root, 'templates'))
+  const variablesCss = await readFile(
+    join(root, '../../apps/web/src/styles/variables.css'),
+    'utf8',
+  )
+  const stylexTokensTs = await readFile(
+    join(root, '../../apps/web/src/theme/tokens.stylex.ts'),
+    'utf8',
+  )
 
   const result = runChecks({ tokensCss, cheatsheetMd, templates })
   const nativeIssues = checkNativeParity(extractTokens(tokensCss))
   result.issues.push(...nativeIssues)
   if (nativeIssues.length > 0) result.ok = false
+
+  const declaredVarNames = new Set([
+    ...extractDeclaredVarNames(tokensCss),
+    ...extractDeclaredVarNames(variablesCss),
+  ])
+  const stylexIssues = checkStylexTokenBridge(stylexTokensTs, declaredVarNames)
+  result.issues.push(...stylexIssues)
+  if (stylexIssues.length > 0) result.ok = false
 
   if (!result.ok) {
     console.error('Check failed:')
