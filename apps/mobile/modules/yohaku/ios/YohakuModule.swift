@@ -63,6 +63,20 @@ public class YohakuModule: Module {
       ]
     }
 
+    AsyncFunction("rasterizeSvg") { (payload: SvgRasterPayload) -> [String: Any] in
+      let rendered = try await SvgRasterDomain.render(
+        svg: payload.svg,
+        width: payload.width,
+        height: payload.height,
+        bg: payload.bg
+      )
+      return [
+        "height": rendered.height,
+        "uri": rendered.uri,
+        "width": rendered.width,
+      ]
+    }
+
     AsyncFunction("renderMermaid") { (payload: MermaidRenderPayload) -> [String: Any] in
       let rendered = try await MermaidDomain.render(
         source: payload.source,
@@ -316,6 +330,28 @@ public class YohakuModule: Module {
 
       Prop("titleSize") { (view: TextMenuButtonView, size: Double) in
         view.setTitleSize(size)
+      }
+    }
+
+    View(RichTextView.self) {
+      ViewName("RichText")
+
+      Events("onMenuAction", "onLinkPress", "onHighlightPress", "onContentHeight", "onBlockRects", "onSelectionActive")
+
+      Prop("blocks") { (view: RichTextView, blocks: [[String: Any]]) in
+        view.setBlocks(blocks)
+      }
+
+      Prop("highlights") { (view: RichTextView, highlights: [[String: Any]]) in
+        view.setHighlights(highlights)
+      }
+
+      Prop("menuItems") { (view: RichTextView, items: [[String: Any]]) in
+        view.setMenuItems(items)
+      }
+
+      Prop("typography") { (view: RichTextView, typography: [String: Any]) in
+        view.setTypography(typography)
       }
     }
 
