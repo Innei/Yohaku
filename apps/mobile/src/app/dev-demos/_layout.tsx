@@ -10,6 +10,11 @@ export default function DevDemosLayout() {
       <Stack.Screen name="index" options={{ headerBackVisible: false }} />
       <Stack.Screen name="markdown" options={{ headerBackVisible: true }} />
       <Stack.Screen name="print" options={{ headerBackVisible: true }} />
+      <Stack.Screen name="rich-text" options={{ headerBackVisible: true }} />
+      <Stack.Screen
+        name="rich-document"
+        options={{ headerBackVisible: true }}
+      />
     </Stack>
   )
 }

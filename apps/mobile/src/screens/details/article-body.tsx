@@ -4,54 +4,54 @@ import {
   useNavigation,
   useRouter,
 } from 'expo-router'
+import type { SerializedEditorState } from 'lexical'
 import type { RefObject } from 'react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView as ScrollViewType } from 'react-native'
 import {
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   useWindowDimensions,
   View,
 } from 'react-native'
-import Animated, {
-  ReduceMotion,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated'
 
-import { apiBaseUrl } from '@/api/base-url'
 import type { ApiEnrichment, CommentRefType } from '@/api/types'
-import { isPreparedReader } from '@/components/dom/prepare-reader'
-import type {
-  RichBodyImagePress,
-  RichBodyNestedDocExpand,
-} from '@/components/dom/rich-body'
-import RichBody from '@/components/dom/rich-body'
-import { useRichBodyLabels } from '@/components/dom/use-rich-body-labels'
+import { extractBlockInfos } from '@/components/dom/anchor-utils'
 import { AppText } from '@/components/ui'
-import { useLocale, useTranslations } from '@/i18n'
+import { useTranslations } from '@/i18n'
 import { subscribeTocJump } from '@/lib/article-toc'
-import { presentImagePreview } from '@/lib/image-cache'
 import { hrefForExternalUrl } from '@/lib/link-router'
 import { openExternalUrl } from '@/lib/open-external'
-import { getSiteUrl } from '@/lib/site-url'
-import { useOwner } from '@/owner/store'
-import { SelectionCommentSheet } from '@/screens/comments/selection-comment-sheet'
-import { clampFontScale } from '@/theme/font-scale'
-import { timings } from '@/theme/motion'
-import { usePalette } from '@/theme/palette'
-import { useWebviewSerifFontFamily } from '@/theme/serif-font'
-import { useWebviewFontFaces } from '@/theme/webview-fonts'
-import { extractBlockOrder, indexForBlock } from '@/tts/blocks'
-
 import {
-  BODY_LOADING_DELAY_MS,
-  bodyRevealMotion,
-} from './body-reveal'
-import { BodyLoadingIndicator, useReservedBodyHeight } from './body-slot'
+  buildHighlights,
+  indexNativeBlocks,
+  type NativeBlockMap,
+  selectionMessageFromMenuAction,
+} from '@/rich/anchors'
+import { RichDocument } from '@/rich/lexical/rich-document'
+import { SelectionCommentSheet } from '@/screens/comments/selection-comment-sheet'
+import { usePalette } from '@/theme/palette'
+
+import { useReservedBodyHeight } from './body-slot'
 import { useArticleSelection } from './use-article-selection'
+
+interface NestedDoc {
+  contentState: SerializedEditorState
+  title?: string
+}
+
+function parseState(content: string): SerializedEditorState | null {
+  try {
+    const parsed = JSON.parse(content) as SerializedEditorState
+    return parsed && typeof parsed === 'object' && 'root' in parsed
+      ? parsed
+      : null
+  } catch {
+    return null
+  }
+}
 
 export function ArticleBody({
   autoFollow = false,
@@ -76,34 +76,20 @@ export function ArticleBody({
   variant: 'article' | 'note'
   webUrl: string
 }) {
-  const locale = useLocale()
   const t = useTranslations('detail')
   const tc = useTranslations('common')
   const palette = usePalette()
-  const { fontScale: systemFontScale, height: windowHeight } =
-    useWindowDimensions()
-  const fontScale = clampFontScale(systemFontScale)
-  const isPreview = useIsPreview()
+  const { height: windowHeight } = useWindowDimensions()
   const router = useRouter()
   const navigation = useNavigation()
-  const fontFaces = useWebviewFontFaces()
-  const serifFontFamily = useWebviewSerifFontFamily()
-  const owner = useOwner()
-  const site = owner
-    ? { ownerAvatar: owner.avatarUrl, ownerName: owner.name }
-    : undefined
-  const anchorOffsetsRef = useRef<Record<string, number>>({})
-  const blockRectsRef = useRef<Array<{ height: number; y: number }>>([])
-  const bodyTopRef = useRef(0)
-  const prepared = isPreparedReader(refId)
-  const revealedRef = useRef(prepared)
-  const mountedAtRef = useRef(Date.now())
-  const [ready, setReady] = useState(prepared)
-  const [showLoading, setShowLoading] = useState(false)
-  const [slotTop, setSlotTop] = useState<number | null>(null)
-  const [nestedDoc, setNestedDoc] = useState<RichBodyNestedDocExpand | null>(
-    null,
+  const isPreview = useIsPreview()
+  const blockRectsRef = useRef<Record<string, { height: number; y: number }>>(
+    {},
   )
+  const bodyTopRef = useRef(0)
+  const [slotTop, setSlotTop] = useState<number | null>(null)
+  const [nestedDoc, setNestedDoc] = useState<NestedDoc | null>(null)
+  const [blockMap, setBlockMap] = useState<NativeBlockMap>(() => new Map())
   const {
     blockComments,
     closeSelectionSheet,
@@ -114,33 +100,66 @@ export function ArticleBody({
     selectionSheet,
     threadRoots,
   } = useArticleSelection(refId, queriesEnabled)
-  const reveal = useSharedValue(prepared ? 1 : 0)
-  const labels = useRichBodyLabels()
   const reservedHeight = useReservedBodyHeight(slotTop)
-  const bodyStyle = useAnimatedStyle(() => ({ opacity: reveal.value }))
 
-  const handleImagePress = async ({
-    images,
-    index,
-    src,
-  }: RichBodyImagePress) => {
-    const urls = images.length > 0 ? images : src ? [src] : []
-    if (urls.length === 0) return
-    await presentImagePreview({
-      index: Math.max(0, index),
-      siteReferer: getSiteUrl(),
-      urls,
+  const value = useMemo(() => parseState(content), [content])
+  const blockInfos = useMemo(() => extractBlockInfos(content), [content])
+  const activeAnchor = selectionSheet?.anchor ?? null
+  const highlights = useMemo(
+    () =>
+      buildHighlights({
+        activeAnchor,
+        blockComments,
+        blockInfos,
+        highlightBlockId,
+        map: blockMap,
+        rangeComments,
+      }),
+    [
+      activeAnchor,
+      blockComments,
+      blockInfos,
+      highlightBlockId,
+      blockMap,
+      rangeComments,
+    ],
+  )
+
+  const rectForBlock = (blockId: string) => {
+    const rects = blockRectsRef.current
+    if (rects[blockId]) return rects[blockId]
+    const itemKey = Object.keys(rects).find((key) =>
+      key.startsWith(`${blockId}#`),
+    )
+    return itemKey ? rects[itemKey] : undefined
+  }
+
+  const scrollToBlock = (blockId: string, offsetRatio: number) => {
+    const rect = rectForBlock(blockId)
+    if (!rect) return
+    scrollRef.current?.scrollTo({
+      animated: true,
+      y: Math.max(
+        0,
+        rect.y +
+          bodyTopRef.current +
+          rect.height / 2 -
+          windowHeight * offsetRatio,
+      ),
     })
   }
 
-  const handleLinkPress = async (url: string) => {
-    const href = hrefForExternalUrl(url)
-    if (href) {
-      router.push(href)
-    } else {
-      await openExternalUrl(url)
-    }
-  }
+  useEffect(() => {
+    if (!autoFollow || !highlightBlockId) return
+    scrollToBlock(highlightBlockId, 0.38)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoFollow, highlightBlockId])
+
+  useEffect(
+    () => subscribeTocJump((blockId) => scrollToBlock(blockId, 0.12)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
 
   useFocusEffect(
     useCallback(() => {
@@ -149,97 +168,35 @@ export function ArticleBody({
     }, [isPreview, navigation]),
   )
 
-  const scrollToBlock = useCallback(
-    (blockId: string, offsetRatio: number) => {
-      const index = indexForBlock(extractBlockOrder(content), blockId)
-      const rect = blockRectsRef.current[index]
-      if (!rect) return
-      scrollRef.current?.scrollTo({
-        animated: true,
-        y: Math.max(
-          0,
-          rect.y +
-            bodyTopRef.current +
-            rect.height / 2 -
-            windowHeight * offsetRatio,
-        ),
+  const handleSelectionActive = (active: boolean) => {
+    if (isPreview || !navigation.isFocused()) return
+    navigation.setOptions({ gestureEnabled: !active })
+  }
+
+  const handleLinkPress = (url: string) => {
+    const href = hrefForExternalUrl(url)
+    if (href) {
+      router.push(href)
+    } else {
+      void openExternalUrl(url)
+    }
+  }
+
+  const handleHighlightPress = (id: string) => {
+    const range = rangeComments.find((comment) => comment.id === id)
+    if (range) {
+      handleSelectionMessage({
+        type: 'yohaku:range-comment',
+        anchor: range.anchor,
       })
-    },
-    [content, scrollRef, windowHeight],
-  )
-
-  useEffect(() => {
-    if (!autoFollow || !highlightBlockId) return
-    scrollToBlock(highlightBlockId, 0.38)
-  }, [autoFollow, highlightBlockId, scrollToBlock])
-
-  useEffect(
-    () => subscribeTocJump((blockId) => scrollToBlock(blockId, 0.12)),
-    [scrollToBlock],
-  )
-
-  useEffect(() => {
-    if (ready) return
-    const timer = setTimeout(() => setShowLoading(true), BODY_LOADING_DELAY_MS)
-    return () => clearTimeout(timer)
-  }, [ready])
-
-  const handleMessage = (event: { nativeEvent: { data: string } }) => {
-    let payload: {
-      anchor?: unknown
-      data?: unknown
-      locked?: boolean
-      selectedText?: unknown
-      type?: string
-    }
-    try {
-      payload = JSON.parse(event.nativeEvent.data) as typeof payload
-    } catch {
       return
     }
-    if (handleSelectionMessage(payload)) return
-    if (payload.type === 'yohaku:reader-ready') {
-      if (payload.data !== refId || revealedRef.current) return
-      revealedRef.current = true
-      setReady(true)
-      setShowLoading(false)
-      if (
-        bodyRevealMotion(Date.now() - mountedAtRef.current) === 'instant'
-      ) {
-        reveal.set(1)
-      } else {
-        reveal.set(
-          withTiming(1, {
-            ...timings.fade,
-            reduceMotion: ReduceMotion.System,
-          }),
-        )
-      }
-      return
-    }
-    if (payload.type === 'yohaku:gesture-lock') {
-      if (!isPreview && navigation.isFocused()) {
-        navigation.setOptions({ gestureEnabled: payload.locked !== true })
-      }
-      return
-    }
-    if (payload.type === 'yohaku:anchors') {
-      if (payload.data && typeof payload.data === 'object') {
-        anchorOffsetsRef.current = payload.data as Record<string, number>
-      }
-      return
-    }
-    if (payload.type === 'yohaku:blocks') {
-      if (Array.isArray(payload.data)) {
-        blockRectsRef.current = payload.data.filter(
-          (item): item is { height: number; y: number } =>
-            !!item &&
-            typeof item === 'object' &&
-            typeof (item as { y?: unknown }).y === 'number' &&
-            typeof (item as { height?: unknown }).height === 'number',
-        )
-      }
-      return
+    const block = blockComments.find((comment) => comment.id === id)
+    if (block) {
+      handleSelectionMessage({
+        type: 'yohaku:block-comment',
+        anchor: block.anchor,
+      })
     }
   }
 
@@ -252,61 +209,40 @@ export function ArticleBody({
         setSlotTop(y)
       }}
     >
-      {showLoading ? (
-        <View
-          accessibilityElementsHidden={ready}
-          importantForAccessibility={ready ? 'no-hide-descendants' : 'auto'}
-          pointerEvents="none"
-          style={styles.loading}
-        >
-          <BodyLoadingIndicator minHeight={reservedHeight} />
-        </View>
-      ) : null}
-      <Animated.View style={[styles.bodyBleed, bodyStyle]}>
-        <RichBody
-          activeCommentAnchor={selectionSheet?.anchor ?? null}
-          apiBase={apiBaseUrl()}
-          blockComments={blockComments}
-          content={content}
-          enrichments={enrichments ?? undefined}
-          fontFaces={fontFaces}
-          fontScale={fontScale}
-          highlightBlockId={highlightBlockId}
-          labels={labels}
-          locale={locale}
-          rangeComments={rangeComments}
-          readerId={refId}
-          serifFontFamily={serifFontFamily}
-          site={site}
-          theme={palette.theme}
+      {value ? (
+        <RichDocument
+          enrichments={enrichments}
+          highlights={highlights}
+          value={value}
           variant={variant}
-          viewportHeight={windowHeight}
           webUrl={webUrl}
-          dom={{
-            contentInsetAdjustmentBehavior: 'never',
-            containerStyle: { minHeight: reservedHeight, width: '100%' },
-            matchContents: true,
-            scrollEnabled: false,
-            selectionBlockTitle,
-            selectionCommentTitle,
-            selectionMenu: 'copyComment',
-            shared: true,
-            siteReferer: getSiteUrl(),
-            onMessage: handleMessage,
-          }}
-          onImagePress={handleImagePress}
+          menuItems={[
+            {
+              id: 'comment',
+              label: selectionCommentTitle,
+              icon: 'text.bubble',
+            },
+            {
+              id: 'comment-block',
+              label: selectionBlockTitle,
+              icon: 'text.quote',
+            },
+          ]}
+          onHighlightPress={handleHighlightPress}
           onLinkPress={handleLinkPress}
-          onNestedDocExpand={async (payload) => setNestedDoc(payload)}
-          onScrollToAnchor={async (id) => {
-            const y = anchorOffsetsRef.current[id]
-            if (y === undefined) return
-            scrollRef.current?.scrollTo({
-              animated: true,
-              y: Math.max(0, y + bodyTopRef.current),
-            })
+          onNestedDocExpand={setNestedDoc}
+          onSegments={(segments) => setBlockMap(indexNativeBlocks(segments))}
+          onSelectionActive={handleSelectionActive}
+          onBlockLayout={(blockId, y, height) => {
+            blockRectsRef.current[blockId] = { y, height }
           }}
+          onMenuAction={(event) =>
+            handleSelectionMessage(
+              selectionMessageFromMenuAction(event, blockInfos, blockMap),
+            )
+          }
         />
-      </Animated.View>
+      ) : null}
       <Modal
         animationType="slide"
         presentationStyle="pageSheet"
@@ -324,34 +260,17 @@ export function ArticleBody({
               <AppText variant="secondary">{tc('close')}</AppText>
             </Pressable>
           </View>
-          <View style={styles.sheetBody}>
+          <ScrollView contentContainerStyle={styles.sheetBody}>
             {nestedDoc ? (
-              <RichBody
-                apiBase={apiBaseUrl()}
-                content={JSON.stringify(nestedDoc.contentState)}
-                enrichments={enrichments ?? undefined}
-                fontFaces={fontFaces}
-                fontScale={fontScale}
-                labels={labels}
-                locale={locale}
-                serifFontFamily={serifFontFamily}
-                site={site}
-                theme={palette.theme}
+              <RichDocument
+                nested
+                value={nestedDoc.contentState}
                 variant={variant}
-                viewportHeight={windowHeight}
                 webUrl={webUrl}
-                dom={{
-                  contentInsetAdjustmentBehavior: 'never',
-                  scrollEnabled: true,
-                  siteReferer: getSiteUrl(),
-                  style: { flex: 1 },
-                }}
-                onImagePress={handleImagePress}
                 onLinkPress={handleLinkPress}
-                onScrollToAnchor={async () => {}}
               />
             ) : null}
-          </View>
+          </ScrollView>
         </View>
       </Modal>
       <SelectionCommentSheet
@@ -369,20 +288,12 @@ const styles = StyleSheet.create({
   bodySlot: {
     position: 'relative',
   },
-  loading: {
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
-  },
   sheet: {
     flex: 1,
   },
-  bodyBleed: {
-    marginHorizontal: -20,
-  },
   sheetBody: {
-    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   sheetHeader: {
     alignItems: 'center',
