@@ -13,12 +13,31 @@ const loadConfig = (environment: 'development' | 'production') => {
   return createAppConfig()
 }
 
+const originalOtaSign = process.env.YOHAKU_OTA_SIGN
+const originalConfiguration = process.env.CONFIGURATION
+const originalEasBuild = process.env.EAS_BUILD
+
 afterEach(() => {
   vi.resetModules()
   if (originalEnvironment === undefined) {
     delete process.env.EXPO_PUBLIC_APNS_ENV
   } else {
     process.env.EXPO_PUBLIC_APNS_ENV = originalEnvironment
+  }
+  if (originalOtaSign === undefined) {
+    delete process.env.YOHAKU_OTA_SIGN
+  } else {
+    process.env.YOHAKU_OTA_SIGN = originalOtaSign
+  }
+  if (originalConfiguration === undefined) {
+    delete process.env.CONFIGURATION
+  } else {
+    process.env.CONFIGURATION = originalConfiguration
+  }
+  if (originalEasBuild === undefined) {
+    delete process.env.EAS_BUILD
+  } else {
+    process.env.EAS_BUILD = originalEasBuild
   }
 })
 
@@ -88,6 +107,25 @@ describe('mobile notification native config', () => {
     const config = loadConfig('production')
     expect(config.ios?.infoPlist).not.toHaveProperty('NSFaceIDUsageDescription')
     expect(config.plugins).not.toContain('expo-secure-store')
+  })
+
+  it('omits OTA code signing from local debug so expo-dev-client can load Metro', () => {
+    delete process.env.YOHAKU_OTA_SIGN
+    delete process.env.CONFIGURATION
+    delete process.env.EAS_BUILD
+    const config = loadConfig('development')
+    expect(config.updates).not.toHaveProperty('codeSigningCertificate')
+    expect(config.updates).not.toHaveProperty('codeSigningMetadata')
+  })
+
+  it('keeps OTA code signing for Release native builds', () => {
+    process.env.CONFIGURATION = 'Release'
+    const config = loadConfig('development')
+    expect(config.updates?.codeSigningCertificate).toBeDefined()
+    expect(config.updates?.codeSigningMetadata).toEqual({
+      alg: 'rsa-v1_5-sha256',
+      keyid: 'main',
+    })
   })
 
   it('passes Expo a project-relative OTA signing certificate path', () => {

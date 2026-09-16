@@ -62,6 +62,28 @@ function apnsEnvironment(): 'development' | 'production' {
     : 'development'
 }
 
+export function shouldEmbedOtaCodeSigning(
+  env: NodeJS.ProcessEnv = process.env,
+) {
+  return (
+    env.EAS_BUILD === 'true' ||
+    env.CONFIGURATION === 'Release' ||
+    env.YOHAKU_OTA_SIGN === 'true'
+  )
+}
+
+function updatesForCurrentBuild(
+  updates: ExpoConfig['updates'] | undefined,
+): ExpoConfig['updates'] | undefined {
+  if (!updates || shouldEmbedOtaCodeSigning()) return updates
+  return {
+    enabled: updates.enabled,
+    fallbackToCacheTimeout: updates.fallbackToCacheTimeout,
+    requestHeaders: updates.requestHeaders,
+    url: updates.url,
+  }
+}
+
 export function resolveOverlayUpdates(
   overlayDir: string,
   overlayExpo: OverlayExpo | null,
@@ -104,9 +126,9 @@ export function createAppConfig(): ExpoConfig {
   const overlay = overlayDir ? overlayFiles(overlayDir) : null
   const overlayExpo = readOverlayExpo(overlay?.expoJson ?? null)
   applyOverlayEnv(overlayExpo)
-  const updates = overlayDir
-    ? resolveOverlayUpdates(overlayDir, overlayExpo)
-    : undefined
+  const updates = updatesForCurrentBuild(
+    overlayDir ? resolveOverlayUpdates(overlayDir, overlayExpo) : undefined,
+  )
   const site = {
     bundleId: overlayExpo?.bundleId ?? PUBLIC_BUNDLE_ID,
     scheme: overlayExpo?.scheme ?? PUBLIC_SCHEME,
@@ -159,9 +181,7 @@ export function createAppConfig(): ExpoConfig {
       entitlements: {
         'aps-environment': apns,
         'com.apple.developer.usernotifications.communication': true,
-        'keychain-access-groups': [
-          `$(AppIdentifierPrefix)${site.bundleId}`,
-        ],
+        'keychain-access-groups': [`$(AppIdentifierPrefix)${site.bundleId}`],
       },
       ...(overlayExpo?.appleTeamId
         ? { appleTeamId: overlayExpo.appleTeamId }
@@ -169,6 +189,7 @@ export function createAppConfig(): ExpoConfig {
     },
     plugins: [
       'expo-router',
+      ['expo-dev-client', { toolsButton: false }],
       '@bacons/apple-targets',
       './plugins/with-notification-localizations.cjs',
       './plugins/with-ios-scene-lifecycle.cjs',

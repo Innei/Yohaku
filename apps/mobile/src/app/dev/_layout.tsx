@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router'
 
+import { navigationScrollEdgeEffects } from '@/components/navigation/scroll-edges'
 import { usePalette } from '@/theme/palette'
 
 export default function DevLayout() {
@@ -13,6 +14,7 @@ export default function DevLayout() {
         headerShown: false,
         headerTitle: '',
         headerTransparent: true,
+        scrollEdgeEffects: navigationScrollEdgeEffects,
       }}
     >
       <Stack.Screen name="index" />

@@ -1,0 +1,111 @@
+diff --git a/ios/RNSScreen.mm b/ios/RNSScreen.mm
+--- a/ios/RNSScreen.mm
++++ b/ios/RNSScreen.mm
+@@ -59,6 +59,7 @@ struct ContentWrapperBox {
+   ContentWrapperBox _contentWrapperBox;
+   bool _sheetHasInitialDetentSet;
+   BOOL _shouldUpdateScrollEdgeEffects;
++  BOOL _hasConfiguredScrollEdgeEffects;
+   UITapGestureRecognizer *_backdropTapGestureRecognizer;
+   RCTSurfaceTouchHandler *_touchHandler;
+   react::RNSScreenShadowNode::ConcreteState::Shared _state;
+@@ -95,6 +96,7 @@ struct ContentWrapperBox {
+   _fullScreenSwipeEnabled = RNSOptionalBooleanUndefined;
+   _fullScreenSwipeShadowEnabled = YES;
+   _shouldUpdateScrollEdgeEffects = NO;
++  _hasConfiguredScrollEdgeEffects = NO;
+ #if !TARGET_OS_TV
+   _sheetExpandsWhenScrolledToEdge = YES;
+ #endif // !TARGET_OS_TV
+@@ -599,6 +601,17 @@ RNS_IGNORE_SUPER_CALL_END
+   } else {
+     [_touchHandler detachFromView:self];
+   }
++
++  if (self.window != nil && _hasConfiguredScrollEdgeEffects) {
++    [self updateContentScrollViewEdgeEffectsIfExists];
++    __weak RNSScreenView *weakSelf = self;
++    dispatch_async(dispatch_get_main_queue(), ^{
++      RNSScreenView *strongSelf = weakSelf;
++      if (strongSelf != nil && strongSelf.window != nil) {
++        [strongSelf updateContentScrollViewEdgeEffectsIfExists];
++      }
++    });
++  }
+ }
+ 
+ - (nullable RCTSurfaceTouchHandler *)touchHandler
+@@ -1107,7 +1120,7 @@ RNS_IGNORE_SUPER_CALL_END
+ 
+ - (void)updateContentScrollViewEdgeEffectsIfExists
+ {
+-  [RNSScrollEdgeEffectApplicator applyToScrollView:[RNSScrollViewFinder findScrollViewInFirstDescendantChainFrom:self]
++  [RNSScrollEdgeEffectApplicator applyToScrollView:[RNSScrollViewFinder findFirstScrollViewInSubtreeOf:self]
+                                       withProvider:self];
+ }
+ 
+@@ -1374,6 +1387,7 @@ RNS_IGNORE_SUPER_CALL_END
+ {
+   [super finalizeUpdates:updateMask];
+   if (_shouldUpdateScrollEdgeEffects) {
++    _hasConfiguredScrollEdgeEffects = YES;
+     [self updateContentScrollViewEdgeEffectsIfExists];
+     _shouldUpdateScrollEdgeEffects = NO;
+   }
+diff --git a/ios/helpers/scroll-view/RNSScrollViewFinder.h b/ios/helpers/scroll-view/RNSScrollViewFinder.h
+--- a/ios/helpers/scroll-view/RNSScrollViewFinder.h
++++ b/ios/helpers/scroll-view/RNSScrollViewFinder.h
+@@ -25,4 +25,6 @@
+  */
+ + (nullable UIScrollView *)findContentScrollViewWithDelegatingToProvider:(nullable UIView *)view;
+ 
+++ (nullable UIScrollView *)findFirstScrollViewInSubtreeOf:(nullable UIView *)view;
++
+ @end
+diff --git a/ios/helpers/scroll-view/RNSScrollViewFinder.mm b/ios/helpers/scroll-view/RNSScrollViewFinder.mm
+--- a/ios/helpers/scroll-view/RNSScrollViewFinder.mm
++++ b/ios/helpers/scroll-view/RNSScrollViewFinder.mm
+@@ -1,4 +1,8 @@
+ #import "RNSScrollViewFinder.h"
++#import "RNSScreen.h"
++#import "RNSScreenStackHeaderConfig.h"
++
++static const NSUInteger kRNSScrollViewSearchVisitLimit = 250;
+ 
+ @implementation RNSScrollViewFinder
+ 
+@@ -41,4 +45,34 @@
+   return nil;
+ }
+ 
+++ (nullable UIScrollView *)findFirstScrollViewInSubtreeOf:(nullable UIView *)view
++{
++  if (view == nil) {
++    return nil;
++  }
++
++  NSMutableArray<UIView *> *stack = [NSMutableArray arrayWithObject:view];
++  NSUInteger visitedCount = 0;
++
++  while (stack.count > 0 && visitedCount < kRNSScrollViewSearchVisitLimit) {
++    UIView *currentView = stack.lastObject;
++    [stack removeLastObject];
++    visitedCount += 1;
++
++    if ([currentView isKindOfClass:UIScrollView.class]) {
++      return static_cast<UIScrollView *>(currentView);
++    }
++
++    for (UIView *subview in [currentView.subviews reverseObjectEnumerator]) {
++      if ([subview isKindOfClass:RNSScreenView.class] ||
++          [subview isKindOfClass:RNSScreenStackHeaderConfig.class]) {
++        continue;
++      }
++      [stack addObject:subview];
++    }
++  }
++
++  return nil;
++}
++
+ @end

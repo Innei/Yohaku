@@ -2207,6 +2207,12 @@
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 0px;
   }
+  .\[\&\>\.rich-paragraph\:first-child\]\:mt-0 > .rich-paragraph:first-child {
+    margin-top: 0px;
+  }
+  .\[\&\>\.rich-paragraph\:last-child\]\:mb-0 > .rich-paragraph:last-child {
+    margin-bottom: 0px;
+  }
   .\[\&\>div\]\:min-h-0\! > div {
     min-height: 0px !important;
   }

@@ -15,6 +15,16 @@ describe('native dependency policy', () => {
     expect(packageJson.dependencies).not.toHaveProperty('expo-secure-store')
   })
 
+  it('depends on expo-dev-client so debug builds can pick a Metro runtime', () => {
+    expect(packageJson.dependencies).toHaveProperty('expo-dev-client')
+    expect(packageJson.scripts.start).toContain('--dev-client')
+    const appConfig = readFileSync(
+      path.join(mobileRoot, 'app.config.ts'),
+      'utf8',
+    )
+    expect(appConfig).toContain("'expo-dev-client'")
+  })
+
   it('does not depend on beautiful-mermaid from app code', () => {
     expect(packageJson.dependencies).not.toHaveProperty('beautiful-mermaid')
   })
@@ -35,7 +45,9 @@ describe('native dependency policy', () => {
       'expo-image',
     )
 
-    const expoImageRoot = path.dirname(require.resolve('expo-image/package.json'))
+    const expoImageRoot = path.dirname(
+      require.resolve('expo-image/package.json'),
+    )
     const podspec = readFileSync(
       path.join(expoImageRoot, 'ios/ExpoImage.podspec'),
       'utf8',
@@ -51,7 +63,10 @@ describe('native dependency policy', () => {
   })
 
   it('pods ElkSwift and BeautifulMermaid for native mermaid', () => {
-    const appConfig = readFileSync(path.join(mobileRoot, 'app.config.ts'), 'utf8')
+    const appConfig = readFileSync(
+      path.join(mobileRoot, 'app.config.ts'),
+      'utf8',
+    )
     expect(appConfig).toContain('./plugins/with-ios-mermaid-pods.cjs')
 
     const plugin = readFileSync(
@@ -66,7 +81,10 @@ describe('native dependency policy', () => {
       'utf8',
     )
     const mermaid = readFileSync(
-      path.join(mobileRoot, 'modules/yohaku/ios/Vendor/BeautifulMermaid.podspec'),
+      path.join(
+        mobileRoot,
+        'modules/yohaku/ios/Vendor/BeautifulMermaid.podspec',
+      ),
       'utf8',
     )
     expect(elk).toContain("s.version = '1.0.2'")

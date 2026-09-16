@@ -769,11 +769,16 @@ internal final class DomWebView: ExpoView, UIScrollViewDelegate, WKUIDelegate, W
   }
 
   private func applyScrollEdgeEffects(to scrollView: UIScrollView) {
-    guard #available(iOS 26.0, *), let effects = scrollEdgeEffects else { return }
-    apply(effects.top, to: scrollView.topEdgeEffect)
-    apply(effects.bottom, to: scrollView.bottomEdgeEffect)
-    apply(effects.left, to: scrollView.leftEdgeEffect)
-    apply(effects.right, to: scrollView.rightEdgeEffect)
+    guard #available(iOS 26.0, *) else { return }
+    if let effects = scrollEdgeEffects {
+      apply(effects.top, to: scrollView.topEdgeEffect)
+      apply(effects.bottom, to: scrollView.bottomEdgeEffect)
+      apply(effects.left, to: scrollView.leftEdgeEffect)
+      apply(effects.right, to: scrollView.rightEdgeEffect)
+      return
+    }
+    apply(.soft, to: scrollView.topEdgeEffect)
+    apply(.soft, to: scrollView.bottomEdgeEffect)
   }
 
   private func installHeader() {

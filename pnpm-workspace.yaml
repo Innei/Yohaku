@@ -23,3 +23,4 @@ patchedDependencies:
   expo-image@57.0.2: patches/expo-image@57.0.2.patch
   expo-router@57.0.17: patches/expo-router@57.0.17.patch
   react-native-enriched-markdown@1.0.2: patches/react-native-enriched-markdown@1.0.2.patch
+  react-native-screens@4.26.2: patches/react-native-screens@4.26.2.patch

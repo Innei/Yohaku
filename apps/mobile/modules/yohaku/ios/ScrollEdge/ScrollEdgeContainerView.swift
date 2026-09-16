@@ -33,6 +33,7 @@ final class ScrollEdgeContainerView: ExpoView {
     // Setting UIScrollView.topEdgeEffect is not enough — iOS 26 only
     // composites the soft edge under a registered overlay container.
     guard let scrollView = findSiblingScrollView() else { return }
+    YohakuScrollEdges.navigation(scrollView)
 
     if let existing = interaction as? UIScrollEdgeElementContainerInteraction {
       existing.scrollView = scrollView
