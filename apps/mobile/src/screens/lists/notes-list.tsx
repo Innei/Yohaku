@@ -1,17 +1,12 @@
-import { VariableBlurEdge, YohakuNative } from '@modules/yohaku'
+import { YohakuNative } from '@modules/yohaku'
 import { desc, eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack, useNavigation, useRouter } from 'expo-router'
 import { useHeaderHeight } from 'expo-router/react-navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, StatusBar, StyleSheet, View } from 'react-native'
-import Animated, {
-  useAnimatedProps,
-  useSharedValue,
-} from 'react-native-reanimated'
 
 import { YohakuList } from '@/components/list/yohaku-list'
-import { scrollEdgeProgress } from '@/components/navigation/edge-effect-scroll-view'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
 import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import { usesPaperNavigationControls } from '@/components/navigation/platform'
@@ -61,9 +56,6 @@ interface TransitionStartNavigation {
   addListener: (type: 'transitionStart', listener: () => void) => () => void
 }
 
-const AnimatedVariableBlurEdge =
-  Animated.createAnimatedComponent(VariableBlurEdge)
-
 function NotesTrailingToolbar() {
   const router = useRouter()
   const t = useTranslations('topic')
@@ -88,10 +80,7 @@ function NotesTrailingToolbar() {
         />
       }
       trailingSystem={
-        <Stack.Toolbar.Menu
-          accessibilityLabel={tc('more')}
-          icon="ellipsis"
-        >
+        <Stack.Toolbar.Menu accessibilityLabel={tc('more')} icon="ellipsis">
           <Stack.Toolbar.MenuAction icon="square.stack" onPress={openSeries}>
             {t('indexTitle')}
           </Stack.Toolbar.MenuAction>
@@ -109,10 +98,6 @@ export function NotesListScreen() {
   const tt = useTranslations('tabs')
   const palette = usePalette()
   const headerHeight = useHeaderHeight()
-  const topBlurProgress = useSharedValue(0)
-  const topBlurProps = useAnimatedProps(() => ({
-    progress: topBlurProgress.value,
-  }))
   const tabBarInset = usePaperTabBarInset()
   const status = useSyncStatus()
   const [refreshing, setRefreshing] = useState(false)
@@ -281,6 +266,11 @@ export function NotesListScreen() {
           noteHeroTitleColor={palette.neutral[10]}
           refreshing={refreshing}
           style={styles.screen}
+          nativeTopBlur={{
+            height: topBlurOverlayHeight(headerHeight),
+            readabilityColor: palette.surface.desk,
+            foregroundColor: palette.neutral[10],
+          }}
           renderItem={(item) => {
             if (item.id === NOTE_LIST_RULE_ID) return <NotesOlderRule />
             if (item.id === NOTE_LIST_FOOTER_ID) {
@@ -328,33 +318,12 @@ export function NotesListScreen() {
           }}
           onEndReached={onEndReached}
           onRefresh={onRefresh}
-          onScroll={(event) => {
-            onNativeScroll(event)
-            topBlurProgress.set(
-              scrollEdgeProgress(
-                event.nativeEvent.contentOffset.y +
-                  event.nativeEvent.contentInset.top,
-              ),
-            )
-          }}
+          onScroll={onNativeScroll}
           onVisibleItems={(items) =>
             setVisibleIds(articleIdsFromVisible(items, ['latest', 'note']))
           }
         />
       )}
-      {!isEmpty ? (
-        <AnimatedVariableBlurEdge
-          animatedProps={topBlurProps}
-          navigationForegroundColor={palette.neutral[10]}
-          pointerEvents="none"
-          progress={topBlurProgress.get()}
-          readabilityColor={palette.surface.desk}
-          style={[
-            styles.topBlur,
-            { height: topBlurOverlayHeight(headerHeight) },
-          ]}
-        />
-      ) : null}
     </View>
   )
 }
@@ -369,11 +338,5 @@ const styles = StyleSheet.create({
   },
   more: {
     marginTop: 16,
-  },
-  topBlur: {
-    left: 0,
-    position: 'absolute',
-    right: 0,
-    top: 0,
   },
 })

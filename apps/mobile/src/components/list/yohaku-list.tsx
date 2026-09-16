@@ -1,5 +1,5 @@
 import type { YohakuNoteHeroSpec } from '@modules/yohaku'
-import { YohakuNoteHeroHost } from '@modules/yohaku'
+import { YohakuNoteHeroHost, YohakuScrollAttachment } from '@modules/yohaku'
 import { FlashList } from '@shopify/flash-list'
 import type { ReactNode } from 'react'
 import type {
@@ -11,6 +11,8 @@ import type {
 } from 'react-native'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { ScrollViewMarker } from 'react-native-screens/experimental'
+
+import { pageScrollEdgeEffects } from '@/components/navigation/scroll-edges'
 
 import { listPrefetchWindow } from './list-prefetch-window'
 
@@ -25,6 +27,7 @@ export function YohakuList({
   noteHero,
   noteHeroMetaColor,
   noteHeroTitleColor,
+  nativeTopBlur,
   refreshing = false,
   renderItem,
   style,
@@ -40,6 +43,11 @@ export function YohakuList({
   noteHero?: YohakuNoteHeroSpec | null
   noteHeroMetaColor?: string
   noteHeroTitleColor?: string
+  nativeTopBlur?: {
+    height: number
+    readabilityColor: string
+    foregroundColor: string
+  }
   onEndReached?: () => void
   onRefresh?: () => void
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
@@ -68,7 +76,7 @@ export function YohakuList({
         paddingBottom: 24,
       }}
       renderScrollComponent={
-        topEdgeEffectHidden ? HiddenTopScrollView : undefined
+        topEdgeEffectHidden ? HiddenTopScrollView : MarkedScrollView
       }
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
@@ -82,6 +90,9 @@ export function YohakuList({
 
   return noteHero ? (
     <YohakuNoteHeroHost
+      nativeTopBlurForegroundColor={nativeTopBlur?.foregroundColor}
+      nativeTopBlurHeight={nativeTopBlur?.height}
+      nativeTopBlurReadabilityColor={nativeTopBlur?.readabilityColor}
       noteHeroContentInsetTop={contentInsetTop}
       noteHeroCoverPlaceholderUri={noteHero.coverPlaceholderUri}
       noteHeroCoverUri={noteHero.coverUri}
@@ -101,12 +112,35 @@ export function YohakuList({
   )
 }
 
-const styles = StyleSheet.create({ fill: { flex: 1 } })
+const styles = StyleSheet.create({
+  fill: { flex: 1 },
+  attachment: { position: 'absolute', width: 0, height: 0 },
+})
+
+function MarkedScrollView(props: ScrollViewProps) {
+  return (
+    <ScrollViewMarker
+      scrollEdgeEffects={pageScrollEdgeEffects(false)}
+      style={styles.fill}
+    >
+      <ScrollView {...props}>
+        {props.children}
+        <YohakuScrollAttachment style={styles.attachment} />
+      </ScrollView>
+    </ScrollViewMarker>
+  )
+}
 
 function HiddenTopScrollView(props: ScrollViewProps) {
   return (
-    <ScrollViewMarker scrollEdgeEffects={{ top: 'hidden' }} style={styles.fill}>
-      <ScrollView {...props} />
+    <ScrollViewMarker
+      scrollEdgeEffects={pageScrollEdgeEffects(true)}
+      style={styles.fill}
+    >
+      <ScrollView {...props}>
+        {props.children}
+        <YohakuScrollAttachment style={styles.attachment} />
+      </ScrollView>
     </ScrollViewMarker>
   )
 }

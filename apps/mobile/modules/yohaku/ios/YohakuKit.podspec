@@ -16,5 +16,7 @@ Pod::Spec.new do |s|
     'DEFINES_MODULE' => 'YES',
   }
 
-  s.source_files = '**/*.{h,m,swift}'
+  install_modules_dependencies(s)
+
+  s.source_files = '**/*.{h,m,mm,swift}'
 end

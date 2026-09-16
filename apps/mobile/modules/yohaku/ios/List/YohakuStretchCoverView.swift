@@ -1,6 +1,6 @@
 import UIKit
 
-struct YohakuNoteHeroSpec {
+struct YohakuNoteHeroSpec: Equatable {
   var coverPlaceholderUri: String?
   var coverUri: String?
   var height: Double = 98
@@ -16,7 +16,8 @@ enum YohakuNoteHeroLayout {
     cellY: CGFloat,
     heroHeight: CGFloat,
     width: CGFloat,
-    stretches: Bool
+    stretches: Bool,
+    restingCellY: CGFloat = 0
   ) -> (frame: CGRect, blur: CGFloat) {
     guard stretches else {
       return (CGRect(x: 0, y: cellY, width: width, height: heroHeight), 0)
@@ -29,7 +30,7 @@ enum YohakuNoteHeroLayout {
         width: width,
         height: heroHeight + extra
       ),
-      min(1, extra / blurDistance)
+      min(1, max(0, cellY - restingCellY) / blurDistance)
     )
   }
 }
@@ -343,6 +344,9 @@ private final class YohakuSharedNoteHeroEntry {
   var ownerRole: YohakuNoteHeroSlotRole?
   var preparedRole: YohakuNoteHeroSlotRole?
   var transitioning = false
+  var displayedSpec: YohakuNoteHeroSpec?
+  var titleColor: UIColor?
+  var metaColor: UIColor?
 }
 
 final class YohakuSharedNoteHeroCoordinator {
@@ -365,11 +369,26 @@ final class YohakuSharedNoteHeroCoordinator {
 
     let entry = entries[noteID] ?? YohakuSharedNoteHeroEntry()
     entries[noteID] = entry
+    // Expo props arrive independently: a slot can register with the default
+    // detail role before its list role arrives. A slot must own only one role,
+    // otherwise currentRole keeps selecting stale detail geometry on scroll.
+    let previousRole: YohakuNoteHeroSlotRole = role == .list ? .detail : .list
+    let previousState = state(for: previousRole, in: entry)
+    if previousState.view === slot {
+      previousState.view = nil
+      if entry.ownerRole == previousRole { entry.ownerRole = nil }
+      if entry.preparedRole == previousRole { entry.preparedRole = nil }
+    }
     let state = state(for: role, in: entry)
     state.view = slot
     state.frame = frame
     state.blur = blur
-    entry.hero.update(spec: spec, titleColor: titleColor, metaColor: metaColor)
+    if entry.displayedSpec != spec || entry.titleColor != titleColor || entry.metaColor != metaColor {
+      entry.displayedSpec = spec
+      entry.titleColor = titleColor
+      entry.metaColor = metaColor
+      entry.hero.update(spec: spec, titleColor: titleColor, metaColor: metaColor)
+    }
     present(entry)
   }
 
@@ -388,20 +407,8 @@ final class YohakuSharedNoteHeroCoordinator {
 
     entry.ownerRole = role
     entry.preparedRole = role
-    let controller = viewController(for: slot)
-    guard let container = controller?.navigationController?.view ?? slot.window else {
-      return
-    }
-    let frame = entry.hero.convert(entry.hero.bounds, to: container)
-    entry.hero.removeFromSuperview()
-    entry.hero.frame = frame
-    if let navigation = controller?.navigationController,
-      navigation.navigationBar.superview === container
-    {
-      container.insertSubview(entry.hero, belowSubview: navigation.navigationBar)
-    } else {
-      container.addSubview(entry.hero)
-    }
+    // Preparation can precede the transition coordinator (or navigation can be
+    // cancelled). Keep the hero in its scroll-driven slot until animation starts.
     present(entry)
   }
 
@@ -437,7 +444,6 @@ final class YohakuSharedNoteHeroCoordinator {
   private func present(_ entry: YohakuSharedNoteHeroEntry) {
     guard !entry.transitioning else { return }
     if startNavigationTransition(entry) { return }
-    if entry.preparedRole != nil { return }
 
     if let role = currentRole(entry), isVisible(state(for: role, in: entry).view) {
       attach(entry, to: role)
@@ -460,10 +466,7 @@ final class YohakuSharedNoteHeroCoordinator {
       let transition = detailController.transitionCoordinator
         ?? listController.transitionCoordinator,
       let fromController = transition.viewController(forKey: .from),
-      let toController = transition.viewController(forKey: .to),
-      let navigation = detailController.navigationController
-        ?? listController.navigationController,
-      navigation.navigationBar.superview === navigation.view
+      let toController = transition.viewController(forKey: .to)
     else { return false }
 
     let transitionID = ObjectIdentifier(transition as AnyObject)
@@ -492,30 +495,33 @@ final class YohakuSharedNoteHeroCoordinator {
       isVisible(from.view)
     else { return false }
 
-    let container = navigation.view!
+    // UIKit owns navigation chrome separately on iOS 27. Use the transition's
+    // content container instead of depending on the navigation bar's parent.
+    let container = transition.containerView
     let startFrame = entry.hero.convert(entry.hero.bounds, to: container)
-    var endFrame = to.frame
-    if toRole == .detail, !entry.hero.hasCover {
-      endFrame.origin.y =
-        navigation.navigationBar.convert(
-          navigation.navigationBar.bounds,
-          to: container
-        ).maxY
-    }
+    // The destination controller may still be translated offscreen for a push.
+    // Both navigation screens fill the content container. Convert through the
+    // destination's local coordinates, excluding its temporary push transform.
+    let localFrame = to.view!.convert(to.frame, to: toController.view)
+    let endFrame = localFrame.offsetBy(
+      dx: container.bounds.minX - toController.view.bounds.minX,
+      dy: container.bounds.minY - toController.view.bounds.minY
+    )
     entry.handledTransition = transitionID
     entry.transitioning = true
     entry.hero.removeFromSuperview()
     entry.hero.frame = startFrame
     entry.hero.setBlurOpacity(from.blur)
     entry.hero.setRole(toRole)
-    container.insertSubview(entry.hero, belowSubview: navigation.navigationBar)
+    container.addSubview(entry.hero)
+    entry.hero.layoutIfNeeded()
 
     let started = transition.animate(
       alongsideTransition: { _ in
         container.bringSubviewToFront(entry.hero)
-        container.bringSubviewToFront(navigation.navigationBar)
         entry.hero.frame = endFrame
         entry.hero.setBlurOpacity(to.blur)
+        entry.hero.layoutIfNeeded()
       },
       completion: { [weak self, weak entry] context in
         guard let self, let entry else { return }
@@ -555,8 +561,9 @@ final class YohakuSharedNoteHeroCoordinator {
   private func currentRole(
     _ entry: YohakuSharedNoteHeroEntry
   ) -> YohakuNoteHeroSlotRole? {
-    if entry.hero.superview === entry.detail.view { return .detail }
-    if entry.hero.superview === entry.list.view { return .list }
+    guard let superview = entry.hero.superview else { return nil }
+    if superview === entry.detail.view { return .detail }
+    if superview === entry.list.view { return .list }
     return nil
   }
 

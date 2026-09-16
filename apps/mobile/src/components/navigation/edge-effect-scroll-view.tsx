@@ -1,4 +1,8 @@
-import { LegacyScrollEdgeMask, VariableBlurEdge } from '@modules/yohaku'
+import {
+  LegacyScrollEdgeMask,
+  VariableBlurEdge,
+  YohakuScrollAttachment,
+} from '@modules/yohaku'
 import { useHeaderHeight } from 'expo-router/react-navigation'
 import type { Ref } from 'react'
 import { useCallback, useRef } from 'react'
@@ -24,6 +28,7 @@ import {
   PAPER_TAB_BAR_SCROLL_EDGE_BLEED,
   usePaperTabBarInset,
 } from './paper-tab-bar-inset'
+import { pageScrollEdgeEffects } from './scroll-edges'
 import { topBlurOverlayHeight } from './top-edge-blur'
 
 type ReanimatedScrollHandler = ReturnType<typeof useAnimatedScrollHandler>
@@ -157,19 +162,16 @@ export function EdgeEffectScrollView({
         updateBottomProgress()
         onLayout?.(event)
       }}
-    />
+    >
+      {props.children}
+      <YohakuScrollAttachment style={styles.attachment} />
+    </Animated.ScrollView>
   )
 
   const markedScrollView = (
     <ScrollViewMarker
+      scrollEdgeEffects={pageScrollEdgeEffects(Boolean(headerTitleProgress))}
       style={styles.fill}
-      scrollEdgeEffects={
-        headerTitleProgress
-          ? {
-              top: 'hidden' as const,
-            }
-          : undefined
-      }
     >
       {scrollView}
     </ScrollViewMarker>
@@ -211,6 +213,7 @@ export function EdgeEffectScrollView({
 }
 
 const styles = StyleSheet.create({
+  attachment: { position: 'absolute', width: 0, height: 0 },
   fill: {
     flex: 1,
     backgroundColor: 'transparent',

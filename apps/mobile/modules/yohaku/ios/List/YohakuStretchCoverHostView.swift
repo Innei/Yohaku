@@ -1,7 +1,7 @@
 import ExpoModulesCore
 import UIKit
 
-final class YohakuNoteHeroHostView: ExpoView {
+final class YohakuNoteHeroHostView: ExpoView, YohakuNativeScrollConsumer {
   private let noteHeroSlot = UIView()
   private var noteHero = YohakuNoteHeroSpec()
   private var noteHeroRole: YohakuNoteHeroSlotRole = .detail
@@ -9,7 +9,8 @@ final class YohakuNoteHeroHostView: ExpoView {
   private var noteHeroMetaColor: UIColor?
   private var noteHeroTitleColor: UIColor?
   private weak var observedScroll: UIScrollView?
-  private var offsetObservation: NSKeyValueObservation?
+  private var topBlur: VariableBlurEdgeView?
+  private var topBlurHeight: CGFloat = 0
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
@@ -20,7 +21,6 @@ final class YohakuNoteHeroHostView: ExpoView {
 
   override func didMoveToWindow() {
     super.didMoveToWindow()
-    attachScrollIfNeeded()
     updateNoteHero()
   }
 
@@ -31,23 +31,22 @@ final class YohakuNoteHeroHostView: ExpoView {
   override func mountChildComponentView(_ childComponentView: UIView, index: Int) {
     // Fabric uses UIView indices as React child indices. The hero occupies 0.
     super.mountChildComponentView(childComponentView, index: index + 1)
-    attachScrollIfNeeded()
-    DispatchQueue.main.async { [weak self] in
-      self?.attachScrollIfNeeded()
-    }
   }
 
   override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
     super.unmountChildComponentView(childComponentView, index: index + 1)
     if observedScroll == nil || observedScroll?.isDescendant(of: self) == false {
-      detachScroll()
+      observedScroll = nil
     }
   }
 
   override func layoutSubviews() {
     super.layoutSubviews()
     noteHeroSlot.frame = bounds
-    attachScrollIfNeeded()
+    if let topBlur {
+      topBlur.frame = CGRect(x: 0, y: 0, width: bounds.width, height: topBlurHeight)
+      bringSubviewToFront(topBlur)
+    }
     updateNoteHero()
   }
 
@@ -101,39 +100,51 @@ final class YohakuNoteHeroHostView: ExpoView {
     updateNoteHero()
   }
 
-  private func attachScrollIfNeeded() {
-    let scroll = findScrollView()
-    guard scroll !== observedScroll else { return }
-    detachScroll()
-    observedScroll = scroll
-    offsetObservation = scroll?.observe(\.contentOffset, options: [.new]) {
-      [weak self] _, _ in
-      self?.updateNoteHero()
+  func nativeScrollDidChange(_ scroll: UIScrollView) {
+    if observedScroll !== scroll {
+      observedScroll = scroll
+      YohakuScrollEdges.hideTop(scroll)
     }
     updateNoteHero()
   }
 
-  private func detachScroll() {
-    offsetObservation = nil
-    observedScroll = nil
+  func nativeScrollDidDetach(_ scroll: UIScrollView) {
+    if observedScroll === scroll { observedScroll = nil }
   }
 
-  private func findScrollView() -> UIScrollView? {
-    func walk(_ view: UIView) -> UIScrollView? {
-      if view !== noteHeroSlot, let scroll = view as? UIScrollView {
-        return scroll
-      }
-      for child in view.subviews {
-        if let scroll = walk(child) { return scroll }
-      }
-      return nil
+  func setNativeTopBlurHeight(_ value: Double) {
+    topBlurHeight = max(0, CGFloat(value))
+    if topBlur == nil, topBlurHeight > 0 {
+      let blur = VariableBlurEdgeView(appContext: appContext)
+      topBlur = blur
+      blur.setReadabilityColor(nativeTopBlurReadabilityColor)
+      blur.setNavigationForegroundColor(nativeTopBlurForegroundColor)
+      addSubview(blur)
     }
-    return walk(self)
+    topBlur?.isHidden = topBlurHeight == 0
+    setNeedsLayout()
+    updateNoteHero()
   }
+
+  func setNativeTopBlurReadabilityColor(_ color: UIColor?) {
+    // Colors may arrive before the height prop.
+    nativeTopBlurReadabilityColor = color
+    topBlur?.setReadabilityColor(color)
+  }
+
+  func setNativeTopBlurForegroundColor(_ color: UIColor?) {
+    nativeTopBlurForegroundColor = color
+    topBlur?.setNavigationForegroundColor(color)
+  }
+
+  private var nativeTopBlurReadabilityColor: UIColor?
+  private var nativeTopBlurForegroundColor: UIColor?
 
   private func updateNoteHero() {
     let offsetY = observedScroll?.contentOffset.y ?? 0
     let topInset = observedScroll?.adjustedContentInset.top ?? 0
+    let progress = min(1, max(0, (offsetY + topInset) / 32))
+    topBlur?.setProgress(Double(progress * progress * (3 - 2 * progress)))
     let hasCover =
       noteHero.coverUri?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       == false
@@ -143,7 +154,10 @@ final class YohakuNoteHeroHostView: ExpoView {
         : (hasCover ? -topInset - offsetY : -offsetY),
       heroHeight: CGFloat(noteHero.height),
       width: bounds.width,
-      stretches: hasCover
+      stretches: hasCover,
+      // The list includes padding and UIKit's resting top inset in cellY.
+      // They extend the cover behind the header, but are not a pull gesture.
+      restingCellY: noteHeroRole == .list ? noteHeroContentInsetTop + topInset : 0
     )
     YohakuSharedNoteHeroCoordinator.shared.update(
       slot: noteHeroSlot,
@@ -157,13 +171,12 @@ final class YohakuNoteHeroHostView: ExpoView {
   }
 }
 
-final class YohakuStretchCoverHostView: ExpoView {
+final class YohakuStretchCoverHostView: ExpoView, YohakuNativeScrollConsumer {
   private let stretchCover = YohakuListStretchCoverView()
   private var stretchCoverHeight: CGFloat = 248
   private var stretchCoverUri: String?
   private var stretchAnchorY: CGFloat = 0
   private weak var observedScroll: UIScrollView?
-  private var offsetObservation: NSKeyValueObservation?
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
@@ -171,29 +184,19 @@ final class YohakuStretchCoverHostView: ExpoView {
     addSubview(stretchCover)
   }
 
-  override func didMoveToWindow() {
-    super.didMoveToWindow()
-    attachScrollIfNeeded()
-  }
-
   override func mountChildComponentView(_ childComponentView: UIView, index: Int) {
     super.mountChildComponentView(childComponentView, index: index + 1)
-    attachScrollIfNeeded()
-    DispatchQueue.main.async { [weak self] in
-      self?.attachScrollIfNeeded()
-    }
   }
 
   override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
     super.unmountChildComponentView(childComponentView, index: index + 1)
     if observedScroll == nil || observedScroll?.isDescendant(of: self) == false {
-      detachScroll()
+      observedScroll = nil
     }
   }
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    attachScrollIfNeeded()
     updateStretchCover()
   }
 
@@ -224,32 +227,16 @@ final class YohakuStretchCoverHostView: ExpoView {
     updateStretchCover()
   }
 
-  private func attachScrollIfNeeded() {
-    let scroll = findScrollView()
-    guard scroll !== observedScroll else { return }
-    detachScroll()
-    observedScroll = scroll
-    offsetObservation = scroll?.observe(\.contentOffset, options: [.new]) {
-      [weak self] _, _ in
-      self?.updateStretchCover()
+  func nativeScrollDidChange(_ scroll: UIScrollView) {
+    if observedScroll !== scroll {
+      observedScroll = scroll
+      YohakuScrollEdges.hideTop(scroll)
     }
     updateStretchCover()
   }
 
-  private func detachScroll() {
-    offsetObservation = nil
-    observedScroll = nil
-  }
-
-  private func findScrollView() -> UIScrollView? {
-    func walk(_ view: UIView) -> UIScrollView? {
-      if view !== stretchCover, let scroll = view as? UIScrollView { return scroll }
-      for child in view.subviews {
-        if let scroll = walk(child) { return scroll }
-      }
-      return nil
-    }
-    return walk(self)
+  func nativeScrollDidDetach(_ scroll: UIScrollView) {
+    if observedScroll === scroll { observedScroll = nil }
   }
 
   private func updateStretchCover() {

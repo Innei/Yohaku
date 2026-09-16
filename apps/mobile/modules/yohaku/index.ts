@@ -258,6 +258,9 @@ export type YohakuNoteHeroSpec = {
 }
 
 type YohakuNoteHeroHostProps = ViewProps & {
+  nativeTopBlurHeight?: number
+  nativeTopBlurReadabilityColor?: ColorValue
+  nativeTopBlurForegroundColor?: ColorValue
   noteHeroRole?: 'list' | 'detail'
   noteHeroContentInsetTop?: number
   noteHeroCoverPlaceholderUri?: string | null
@@ -272,6 +275,9 @@ type YohakuNoteHeroHostProps = ViewProps & {
 
 export const YohakuNoteHeroHost: ComponentType<YohakuNoteHeroHostProps> =
   requireNativeViewManager('Yohaku', 'YohakuNoteHeroHost')
+
+export const YohakuScrollAttachment: ComponentType<ViewProps> =
+  requireNativeViewManager('Yohaku', 'YohakuScrollAttachment')
 
 type YohakuStretchCoverHostProps = ViewProps & {
   stretchCoverAnchorY?: number

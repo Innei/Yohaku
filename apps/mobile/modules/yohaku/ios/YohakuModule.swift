@@ -333,8 +333,22 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuScrollAttachmentView.self) {
+      ViewName("YohakuScrollAttachment")
+    }
+
     View(YohakuNoteHeroHostView.self) {
       ViewName("YohakuNoteHeroHost")
+
+      Prop("nativeTopBlurHeight") { (view: YohakuNoteHeroHostView, value: Double) in
+        view.setNativeTopBlurHeight(value)
+      }
+      Prop("nativeTopBlurReadabilityColor") { (view: YohakuNoteHeroHostView, value: UIColor?) in
+        view.setNativeTopBlurReadabilityColor(value)
+      }
+      Prop("nativeTopBlurForegroundColor") { (view: YohakuNoteHeroHostView, value: UIColor?) in
+        view.setNativeTopBlurForegroundColor(value)
+      }
 
       Prop("noteHeroRole") { (view: YohakuNoteHeroHostView, value: String) in
         view.setNoteHeroRole(value)
