@@ -42,6 +42,7 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
   let onPageScroll = EventDispatcher()
   let onPageSelected = EventDispatcher()
 
+  private let containerController = UIViewController()
   private let pageController = UIPageViewController(
     transitionStyle: .scroll,
     navigationOrientation: .horizontal,
@@ -60,6 +61,8 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
     pageController.dataSource = self
     pageController.delegate = self
     pageController.view.backgroundColor = .clear
+    containerController.addChild(pageController)
+    pageController.didMove(toParent: containerController)
     setValue(pageController.view, forKey: "contentView")
   }
 
@@ -77,7 +80,10 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
 
   override func didMoveToWindow() {
     super.didMoveToWindow()
-    attachPageController()
+    if window == nil {
+      detachPagingScrollView()
+      return
+    }
     attachPagingScrollView()
   }
 
@@ -107,6 +113,10 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
       host.hosted.removeFromSuperview()
       host.willMove(toParent: nil)
       host.removeFromParent()
+    }
+    if hosts.isEmpty {
+      detachPagingScrollView()
+      return
     }
     showPage(clampPage(page), animated: false)
   }
@@ -169,15 +179,6 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
     }
   }
 
-  private func attachPageController() {
-    guard window != nil else { return }
-    if pageController.parent == nil, let owner = owningViewController() {
-      owner.addChild(pageController)
-      pageController.didMove(toParent: owner)
-    }
-    pageController.view.frame = bounds
-  }
-
   private func attachPagingScrollView() {
     guard pagingScrollView == nil else { return }
     let scroll = pageController.view.subviews.first { $0 is UIScrollView } as? UIScrollView
@@ -188,18 +189,37 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
     }
   }
 
+  private func detachPagingScrollView() {
+    pagingOffsetObservation?.invalidate()
+    pagingOffsetObservation = nil
+    pagingScrollView = nil
+  }
+
+  private func emitOnMain(_ work: @escaping () -> Void) {
+    if Thread.isMainThread {
+      work()
+    } else {
+      DispatchQueue.main.async(execute: work)
+    }
+  }
+
   private func emitProgress() {
-    guard let scroll = pagingScrollView, scroll.bounds.width > 0 else { return }
-    let relative = scroll.contentOffset.x / scroll.bounds.width - 1
-    let maxProgress = max(0, CGFloat(hosts.count) - 1)
-    let progress = min(maxProgress, max(0, CGFloat(page) + relative))
-    onPageScroll(["progress": progress])
+    emitOnMain { [weak self] in
+      guard let self, self.window != nil, let scroll = self.pagingScrollView, scroll.bounds.width > 0
+      else { return }
+      let relative = scroll.contentOffset.x / scroll.bounds.width - 1
+      let maxProgress = max(0, CGFloat(self.hosts.count) - 1)
+      let progress = min(maxProgress, max(0, CGFloat(self.page) + relative))
+      self.onPageScroll(["progress": progress])
+    }
   }
 
   private func emitSelected() {
-    guard lastReportedPage != page else { return }
-    lastReportedPage = page
-    onPageSelected(["page": page])
+    emitOnMain { [weak self] in
+      guard let self, self.window != nil, self.lastReportedPage != self.page else { return }
+      self.lastReportedPage = self.page
+      self.onPageSelected(["page": self.page])
+    }
   }
 
   private func clampPage(_ value: Int) -> Int {
@@ -207,14 +227,4 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
     return min(max(value, 0), hosts.count - 1)
   }
 
-  private func owningViewController() -> UIViewController? {
-    var responder: UIResponder? = next
-    while let current = responder {
-      if let viewController = current as? UIViewController {
-        return viewController
-      }
-      responder = current.next
-    }
-    return nil
-  }
 }
