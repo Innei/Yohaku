@@ -19,17 +19,13 @@ describe('react-native-screens scroll-edge patch', () => {
       path.join(workspaceRoot, 'pnpm-workspace.yaml'),
       'utf8',
     )
-    expect(workspace).toContain(
-      'react-native-screens@4.26.2: yohaku-oss/patches/react-native-screens@4.26.2.patch',
-    )
+    // The workspace root is this repo in the public checkout and its parent
+    // when this repo is a submodule, so resolve the configured patch path
+    // instead of hardcoding the submodule prefix.
+    const entry = /react-native-screens@4\.26\.2:\s*(\S+)/.exec(workspace)
+    expect(entry).not.toBeNull()
 
-    const patch = readFileSync(
-      path.join(
-        workspaceRoot,
-        'yohaku-oss/patches/react-native-screens@4.26.2.patch',
-      ),
-      'utf8',
-    )
+    const patch = readFileSync(path.resolve(workspaceRoot, entry![1]), 'utf8')
     expect(patch).toContain('findFirstScrollViewInSubtreeOf')
     expect(patch).toContain('_hasConfiguredScrollEdgeEffects')
   })

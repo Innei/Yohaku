@@ -72,7 +72,7 @@ export function shouldEmbedOtaCodeSigning(
   )
 }
 
-function updatesForCurrentBuild(
+export function updatesForCurrentBuild(
   updates: ExpoConfig['updates'] | undefined,
 ): ExpoConfig['updates'] | undefined {
   if (!updates || shouldEmbedOtaCodeSigning()) return updates
