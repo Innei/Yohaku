@@ -13,10 +13,6 @@ export function guestCardHref(kind: GuestCardKind): '/login' | '/reader' {
   return kind === 'signedOut' ? '/login' : '/reader'
 }
 
-export function showReaderHero(session: SessionUser | null): boolean {
-  return session?.role !== 'owner'
-}
-
 export function accountAvatarUri(
   session: SessionUser | null,
   owner: Pick<OwnerSnapshot, 'avatarUrl'> | null,

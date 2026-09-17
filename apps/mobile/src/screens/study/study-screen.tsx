@@ -1,20 +1,28 @@
-import { SettingsAvatar } from '@modules/yohaku'
+import { SettingsAvatar, YohakuPager } from '@modules/yohaku'
 import { useQuery } from '@tanstack/react-query'
 import { Image } from 'expo-image'
 import * as Linking from 'expo-linking'
-import { useFocusEffect, useRouter } from 'expo-router'
-import { useCallback, useState } from 'react'
+import { useRouter } from 'expo-router'
+import type { ReactNode } from 'react'
+import { useState } from 'react'
+import type { AccessibilityActionEvent, NativeSyntheticEvent } from 'react-native'
 import { StyleSheet, View } from 'react-native'
+import Animated, {
+  Extrapolation,
+  interpolate,
+  type SharedValue,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated'
 
 import { api } from '@/api/client'
-import { refreshSession } from '@/auth/session'
 import { useSession } from '@/auth/session-store'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
+import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import type { GroupedListRow } from '@/components/ui'
 import { AppText, GroupedList, SinkPressable, SlotText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
 import { openExternalUrl } from '@/lib/open-external'
-import { getPrivacyUrl } from '@/lib/site-url'
 import { displaySite } from '@/owner/snapshot'
 import { openSocialLink, socialLinks } from '@/owner/social-links'
 import { useOwner } from '@/owner/store'
@@ -22,11 +30,18 @@ import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { MeAmbienceGrain, MeAmbienceWash } from '../me/me-ambience'
-import { MembershipBanner } from '../me/membership-banner'
 import { DeskCard } from './desk-card'
-import { GuestDoor } from './guest-door'
+import { ReaderScreen } from './reader-screen'
 
-function OwnerHero() {
+const AVATAR_COLLAPSE_DISTANCE = 120
+
+function OwnerHero({
+  avatarActive,
+  pageIndicator,
+}: {
+  avatarActive: boolean
+  pageIndicator: ReactNode
+}) {
   const owner = useOwner()
   const palette = usePalette()
 
@@ -34,7 +49,8 @@ function OwnerHero() {
     <View style={styles.hero}>
       {owner?.avatarUrl ? (
         <SettingsAvatar
-          collapseDistance={120}
+          active={avatarActive}
+          collapseDistance={AVATAR_COLLAPSE_DISTANCE}
           imageUri={owner.avatarUrl}
           ringColor={palette.neutral[4]}
           style={styles.avatar}
@@ -52,6 +68,7 @@ function OwnerHero() {
       ) : null}
       <WritingStats />
       <SocialRow />
+      {pageIndicator}
     </View>
   )
 }
@@ -137,13 +154,20 @@ function SocialRow() {
   )
 }
 
-export function StudyScreen() {
+function OwnerStudyPage({
+  avatarActive,
+  pageIndicator,
+  scrollsToTop,
+}: {
+  avatarActive: boolean
+  pageIndicator: ReactNode
+  scrollsToTop: boolean
+}) {
   const t = useTranslations('me')
   const router = useRouter()
   const palette = usePalette()
   const owner = useOwner()
-  const session = useSession()
-  const privacyUrl = getPrivacyUrl()
+  const paperTabBarInset = usePaperTabBarInset()
   const siteRows: GroupedListRow[] = [
     {
       id: 'pages',
@@ -163,40 +187,173 @@ export function StudyScreen() {
           } satisfies GroupedListRow,
         ]
       : []),
-    ...(privacyUrl
-      ? [
-          {
-            id: 'privacy',
-            label: t('privacy'),
-            chevron: true,
-            onPress: () => void openExternalUrl(privacyUrl),
-          } satisfies GroupedListRow,
-        ]
-      : []),
   ]
-
-  useFocusEffect(
-    useCallback(() => {
-      void refreshSession()
-    }, []),
-  )
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <MeAmbienceWash />
       <EdgeEffectScrollView
         contentContainerStyle={styles.content}
+        scrollsToTop={scrollsToTop}
         style={styles.scroll}
+        contentInset={{
+          bottom: Math.max(0, AVATAR_COLLAPSE_DISTANCE - paperTabBarInset),
+        }}
       >
-        <OwnerHero />
+        <OwnerHero avatarActive={avatarActive} pageIndicator={pageIndicator} />
         <DeskCard />
-        <MembershipBanner />
         {siteRows.length > 0 ? (
           <GroupedList rows={siteRows} style={styles.blog} />
         ) : null}
-        <GuestDoor session={session} />
       </EdgeEffectScrollView>
       <MeAmbienceGrain />
+    </View>
+  )
+}
+
+function PageIndicator({
+  activePage,
+  labels,
+  onSelectPage,
+  progress,
+}: {
+  activePage: number
+  labels: [string, string]
+  onSelectPage: (page: number) => void
+  progress: SharedValue<number>
+}) {
+  const palette = usePalette()
+  const firstStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      progress.value,
+      [0, 1],
+      [1, 0.28],
+      Extrapolation.CLAMP,
+    ),
+    transform: [
+      {
+        scaleX: interpolate(
+          progress.value,
+          [0, 1],
+          [1, 0.55],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
+  }))
+  const secondStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      progress.value,
+      [0, 1],
+      [0.28, 1],
+      Extrapolation.CLAMP,
+    ),
+    transform: [
+      {
+        scaleX: interpolate(
+          progress.value,
+          [0, 1],
+          [0.55, 1],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
+  }))
+
+  const handleAccessibilityAction = (event: AccessibilityActionEvent) => {
+    if (event.nativeEvent.actionName === 'increment') onSelectPage(1)
+    if (event.nativeEvent.actionName === 'decrement') onSelectPage(0)
+  }
+
+  return (
+    <View
+      accessible
+      accessibilityActions={[{ name: 'decrement' }, { name: 'increment' }]}
+      accessibilityLabel={labels[activePage]}
+      accessibilityRole="adjustable"
+      style={styles.pageIndicator}
+      accessibilityValue={{
+        max: 2,
+        min: 1,
+        now: activePage + 1,
+        text: labels[activePage],
+      }}
+      onAccessibilityAction={handleAccessibilityAction}
+    >
+      <Animated.View
+        style={[
+          styles.pageIndicatorMark,
+          { backgroundColor: palette.neutral[8] },
+          firstStyle,
+        ]}
+      />
+      <Animated.View
+        style={[
+          styles.pageIndicatorMark,
+          { backgroundColor: palette.neutral[8] },
+          secondStyle,
+        ]}
+      />
+    </View>
+  )
+}
+
+export function StudyScreen() {
+  const palette = usePalette()
+  const owner = useOwner()
+  const session = useSession()
+  const t = useTranslations('study')
+  const progress = useSharedValue(0)
+  const [activePage, setActivePage] = useState(0)
+  const labels: [string, string] = [
+    owner?.name || owner?.siteHost || t('tabFallback'),
+    session?.role === 'owner' ? t('account') : t('me'),
+  ]
+  const selectPage = (page: number) => {
+    setActivePage(page)
+  }
+  const indicator = (
+    <PageIndicator
+      activePage={activePage}
+      labels={labels}
+      progress={progress}
+      onSelectPage={selectPage}
+    />
+  )
+
+  return (
+    <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
+      <YohakuPager
+        page={activePage}
+        style={styles.pager}
+        onPageScroll={(event: NativeSyntheticEvent<{ progress: number }>) => {
+          progress.set(event.nativeEvent.progress)
+        }}
+        onPageSelected={(event: NativeSyntheticEvent<{ page: number }>) => {
+          setActivePage(event.nativeEvent.page)
+        }}
+      >
+        <View
+          accessibilityElementsHidden={activePage !== 0}
+          style={styles.page}
+        >
+          <OwnerStudyPage
+            avatarActive={activePage === 0}
+            pageIndicator={indicator}
+            scrollsToTop={activePage === 0}
+          />
+        </View>
+        <View
+          accessibilityElementsHidden={activePage !== 1}
+          style={styles.page}
+        >
+          <ReaderScreen
+            avatarActive={activePage === 1}
+            pageIndicator={indicator}
+            scrollsToTop={activePage === 1}
+          />
+        </View>
+      </YohakuPager>
     </View>
   )
 }
@@ -208,7 +365,28 @@ const styles = StyleSheet.create({
   scroll: {
     backgroundColor: 'transparent',
   },
+  pager: {
+    flex: 1,
+  },
+  page: {
+    flex: 1,
+  },
+  pageIndicator: {
+    alignItems: 'center',
+    alignSelf: 'center',
+    flexDirection: 'row',
+    gap: 5,
+    height: 18,
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  pageIndicatorMark: {
+    borderRadius: 1,
+    height: 2,
+    width: 18,
+  },
   content: {
+    flexGrow: 1,
     paddingHorizontal: 20,
     paddingTop: 24,
     paddingBottom: 24,

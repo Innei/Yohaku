@@ -5,6 +5,7 @@ import Constants from 'expo-constants'
 import { Link, useFocusEffect, useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import * as Updates from 'expo-updates'
+import type { ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
 
@@ -20,6 +21,9 @@ import { likedRefs, readingHistory } from '@/db/schema'
 import { localeNames, useLocale, useTranslations } from '@/i18n'
 import { likedActivityCount } from '@/interactions/liked-count'
 import { clearImageCache, imageCacheBytes } from '@/lib/image-cache'
+import { openExternalUrl } from '@/lib/open-external'
+import { getPrivacyUrl } from '@/lib/site-url'
+import { useOwner } from '@/owner/store'
 import { loadPushConfig } from '@/push/config'
 import { NotificationSettings } from '@/push/notification-settings'
 import type { Palette } from '@/theme/palette'
@@ -28,9 +32,10 @@ import { usePalette } from '@/theme/palette'
 import { ActivityStats } from '../me/activity-stats'
 import { showDeleteAccount, showMyComments } from '../me/activity-visibility'
 import { commentTotalFromPage } from '../me/comment-total'
+import { MembershipBanner } from '../me/membership-banner'
 import { hasProviderIcon, ProviderIcon } from '../me/provider-icon'
 import { useMyCommentsQuery } from '../me/use-my-comments'
-import { showReaderHero } from './guest-card'
+import { accountAvatarUri } from './guest-card'
 
 function formatStorageBytes(bytes: number): string {
   if (bytes < 1024) return `${Math.max(0, Math.round(bytes))} B`
@@ -83,13 +88,15 @@ function IdentityLine({ session }: { session: SessionUser }) {
 }
 
 function Avatar({
-  session,
+  active,
+  imageUri,
   palette,
 }: {
-  session: SessionUser | null
+  active: boolean
+  imageUri: string | null
   palette: Palette
 }) {
-  if (!session?.image) {
+  if (!imageUri) {
     return (
       <View style={[styles.avatarRing, { borderColor: palette.neutral[4] }]}>
         <View style={[styles.avatar, { backgroundColor: palette.neutral[3] }]}>
@@ -105,23 +112,26 @@ function Avatar({
 
   return (
     <SettingsAvatar
+      active={active}
       collapseDistance={120}
-      imageUri={session.image}
+      imageUri={imageUri}
       ringColor={palette.neutral[4]}
       style={styles.realAvatarSlot}
     />
   )
 }
 
-function ProfileHero() {
+function ProfileHero({ avatarActive }: { avatarActive: boolean }) {
   const t = useTranslations('auth')
   const palette = usePalette()
   const router = useRouter()
   const session = useSession()
+  const owner = useOwner()
+  const imageUri = accountAvatarUri(session, owner)
 
   return (
     <View style={styles.hero}>
-      <Avatar palette={palette} session={session} />
+      <Avatar active={avatarActive} imageUri={imageUri} palette={palette} />
       <View style={styles.heroText}>
         <AppText variant="entryTitleSans">
           {session ? (session.name ?? t('anonymous')) : t('signedOut')}
@@ -161,9 +171,16 @@ function Section({ label, rows }: { label: string; rows: GroupedListRow[] }) {
   )
 }
 
-export function ReaderScreen() {
+export function ReaderScreen({
+  avatarActive,
+  pageIndicator,
+  scrollsToTop,
+}: {
+  avatarActive: boolean
+  pageIndicator: ReactNode
+  scrollsToTop: boolean
+}) {
   const t = useTranslations('me')
-  const ts = useTranslations('study')
   const ta = useTranslations('auth')
   const tc = useTranslations('common')
   const palette = usePalette()
@@ -182,6 +199,7 @@ export function ReaderScreen() {
   const storageLabel = formatStorageBytes(readStorageBytes())
   const commentsVisible = showMyComments(session)
   const deleteVisible = showDeleteAccount(session)
+  const privacyUrl = getPrivacyUrl()
   const commentsQuery = useMyCommentsQuery(locale, commentsVisible)
   const commentsPage = commentsQuery.data?.pages[0]
   const commentsCount = commentsQuery.isError
@@ -230,6 +248,16 @@ export function ReaderScreen() {
         ])
       },
     },
+    ...(privacyUrl
+      ? [
+          {
+            id: 'privacy',
+            label: t('privacy'),
+            chevron: true,
+            onPress: () => void openExternalUrl(privacyUrl),
+          } satisfies GroupedListRow,
+        ]
+      : []),
     { id: 'version', label: t('version'), value: versionLabel },
   ]
 
@@ -282,13 +310,14 @@ export function ReaderScreen() {
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <EdgeEffectScrollView
         contentContainerStyle={styles.content}
+        scrollsToTop={scrollsToTop}
         style={styles.scroll}
       >
-        {showReaderHero(session) ? (
-          <ProfileHero />
-        ) : (
-          <AppText variant="largeTitleSans">{ts('account')}</AppText>
-        )}
+        <View style={styles.heroBlock}>
+          <ProfileHero avatarActive={avatarActive} />
+          {pageIndicator}
+        </View>
+        <MembershipBanner />
         <ActivityStats
           commentsCount={commentsCount ?? 0}
           likedCount={likedCount}
@@ -331,6 +360,9 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
     gap: 14,
+  },
+  heroBlock: {
+    gap: 10,
   },
   heroText: {
     alignItems: 'center',

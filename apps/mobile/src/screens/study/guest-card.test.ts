@@ -6,7 +6,6 @@ import {
   accountAvatarUri,
   guestCardHref,
   guestCardKind,
-  showReaderHero,
   tabAccessibilityLabel,
 } from './guest-card'
 
@@ -37,12 +36,6 @@ describe('guest card', () => {
     expect(guestCardHref('reader')).toBe('/reader')
     expect(guestCardKind(owner)).toBe('owner')
     expect(guestCardHref('owner')).toBe('/reader')
-  })
-
-  it('hides the reader portrait for the owner', () => {
-    expect(showReaderHero(null)).toBe(true)
-    expect(showReaderHero(reader)).toBe(true)
-    expect(showReaderHero(owner)).toBe(false)
   })
 })
 
