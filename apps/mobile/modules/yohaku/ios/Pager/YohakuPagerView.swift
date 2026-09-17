@@ -85,11 +85,18 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
       return
     }
     attachPagingScrollView()
+    syncSafeArea()
+  }
+
+  override func safeAreaInsetsDidChange() {
+    super.safeAreaInsetsDidChange()
+    syncSafeArea()
   }
 
   override func layoutSubviews() {
     super.layoutSubviews()
     pageController.view.frame = bounds
+    syncSafeArea()
     hosts.forEach { $0.view.setNeedsLayout() }
   }
 
@@ -180,12 +187,22 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
   }
 
   private func attachPagingScrollView() {
-    guard pagingScrollView == nil else { return }
     let scroll = pageController.view.subviews.first { $0 is UIScrollView } as? UIScrollView
+    scroll?.contentInsetAdjustmentBehavior = .never
+    scroll?.contentInset = .zero
+    scroll?.scrollIndicatorInsets = .zero
+    guard pagingScrollView !== scroll else { return }
     pagingScrollView = scroll
     pagingOffsetObservation?.invalidate()
     pagingOffsetObservation = scroll?.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
       self?.emitProgress()
+    }
+  }
+
+  private func syncSafeArea() {
+    let insets = safeAreaInsets
+    if pageController.additionalSafeAreaInsets != insets {
+      pageController.additionalSafeAreaInsets = insets
     }
   }
 
