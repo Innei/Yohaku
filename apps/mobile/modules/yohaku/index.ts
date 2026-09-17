@@ -188,6 +188,15 @@ type SettingsAvatarProps = ViewProps & {
 export const SettingsAvatar: ComponentType<SettingsAvatarProps> =
   requireNativeViewManager('Yohaku', 'SettingsAvatar')
 
+type YohakuPagerProps = ViewProps & {
+  page?: number
+  onPageScroll?: (event: NativeSyntheticEvent<{ progress: number }>) => void
+  onPageSelected?: (event: NativeSyntheticEvent<{ page: number }>) => void
+}
+
+export const YohakuPager: ComponentType<YohakuPagerProps> =
+  requireNativeViewManager('Yohaku', 'YohakuPager')
+
 export type NavigationHeaderMenuItem = {
   category?: string
   hidden?: boolean

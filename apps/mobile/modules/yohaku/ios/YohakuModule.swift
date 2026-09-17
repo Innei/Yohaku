@@ -242,6 +242,16 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuPagerView.self) {
+      ViewName("YohakuPager")
+
+      Events("onPageScroll", "onPageSelected")
+
+      Prop("page") { (view: YohakuPagerView, value: Double) in
+        view.setPage(value)
+      }
+    }
+
     View(NavigationHeaderControlView.self) {
       ViewName("NavigationHeaderControl")
 
