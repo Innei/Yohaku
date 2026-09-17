@@ -335,6 +335,7 @@ export function StudyScreen() {
       >
         <View
           accessibilityElementsHidden={activePage !== 0}
+          collapsable={false}
           style={styles.page}
         >
           <OwnerStudyPage
@@ -345,6 +346,7 @@ export function StudyScreen() {
         </View>
         <View
           accessibilityElementsHidden={activePage !== 1}
+          collapsable={false}
           style={styles.page}
         >
           <ReaderScreen
@@ -367,9 +369,11 @@ const styles = StyleSheet.create({
   },
   pager: {
     flex: 1,
+    flexDirection: 'row',
   },
   page: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
   },
   pageIndicator: {
     alignItems: 'center',

@@ -24,7 +24,7 @@ final class YohakuPagerView: ExpoView, UIScrollViewDelegate {
     scrollView.showsVerticalScrollIndicator = false
     scrollView.contentInsetAdjustmentBehavior = .never
     scrollView.delegate = self
-    addSubview(scrollView)
+    setValue(scrollView, forKey: "contentView")
   }
 
   func setPage(_ value: Double) {
@@ -40,6 +40,8 @@ final class YohakuPagerView: ExpoView, UIScrollViewDelegate {
     pages.insert(childComponentView, at: insertAt)
     scrollView.insertSubview(childComponentView, at: insertAt)
     setNeedsLayout()
+    layoutIfNeeded()
+    layoutPages()
   }
 
   override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
@@ -55,11 +57,15 @@ final class YohakuPagerView: ExpoView, UIScrollViewDelegate {
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    scrollView.frame = bounds
+    layoutPages()
+  }
+
+  private func layoutPages() {
     let width = bounds.width
     let height = bounds.height
     guard width > 0, height > 0 else { return }
 
+    scrollView.frame = bounds
     scrollView.contentSize = CGSize(width: width * CGFloat(pages.count), height: height)
     for (index, child) in pages.enumerated() {
       child.frame = CGRect(x: CGFloat(index) * width, y: 0, width: width, height: height)
