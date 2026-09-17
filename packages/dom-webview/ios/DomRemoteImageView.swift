@@ -7,6 +7,7 @@ final class DomRemoteImageView: ExpoView {
   private var images: [String] = []
   private var index = 0
   private var contentFit = "cover"
+  private var siteReferer: String?
   private var loadGeneration = 0
 
   private lazy var tapRecognizer = UITapGestureRecognizer(
@@ -51,6 +52,12 @@ final class DomRemoteImageView: ExpoView {
     index = value
   }
 
+  func setSiteReferer(_ value: String?) {
+    guard siteReferer != value else { return }
+    siteReferer = value
+    reload()
+  }
+
   func setAccessibilityLabelValue(_ value: String?) {
     accessibilityLabel = value
   }
@@ -69,7 +76,8 @@ final class DomRemoteImageView: ExpoView {
       index: index,
       objectFit: contentFit,
       cornerRadius: layer.cornerRadius,
-      preparedImage: imageView.image
+      preparedImage: imageView.image,
+      siteReferer: siteReferer
     )
   }
 
@@ -77,7 +85,10 @@ final class DomRemoteImageView: ExpoView {
     imageView.image = nil
     loadGeneration += 1
     let generation = loadGeneration
-    guard let uri, let source = DomImageAssetSource.resolve(uri) else { return }
+    guard
+      let uri,
+      let source = DomImageAssetSource.resolve(uri, siteReferer: siteReferer)
+    else { return }
 
     if let prepared = DomImageAssetStore.shared.preparedImage(for: source) {
       imageView.image = prepared

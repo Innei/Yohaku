@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native'
 
 import { AppText, RemoteImage } from '@/components/ui'
+import { getSiteUrl } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 
 import { type BlockProps, num, str } from './types'
@@ -21,6 +22,7 @@ export function ImageBlock({ gallery, node }: BlockProps) {
         contentFit="cover"
         images={images}
         index={Math.max(0, images.indexOf(src))}
+        siteReferer={getSiteUrl()}
         uri={src}
         style={[
           styles.image,

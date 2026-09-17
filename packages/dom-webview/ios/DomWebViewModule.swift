@@ -271,6 +271,10 @@ public final class DomWebViewModule: Module {
       Prop("label") { (view: DomRemoteImageView, label: String?) in
         view.setAccessibilityLabelValue(label)
       }
+
+      Prop("siteReferer") { (view: DomRemoteImageView, siteReferer: String?) in
+        view.setSiteReferer(siteReferer)
+      }
     }
   }
 }

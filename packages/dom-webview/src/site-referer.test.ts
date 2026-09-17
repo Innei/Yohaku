@@ -136,6 +136,10 @@ describe('native asset handler', () => {
       path.join(packageDir, 'src/DomWebView.tsx'),
       'utf8',
     )
+    const remoteImage = readFileSync(
+      path.join(packageDir, 'ios/DomRemoteImageView.swift'),
+      'utf8',
+    )
     expect(store).toContain(
       'static func resolve(_ rawValue: String, siteReferer: String? = nil)',
     )
@@ -155,5 +159,10 @@ describe('native asset handler', () => {
     )
     expect(view).toContain('var siteReferer: String?')
     expect(wrapper).toContain('siteReferer={siteReferer}')
+    expect(moduleSource).toContain('view.setSiteReferer(siteReferer)')
+    expect(remoteImage).toContain(
+      'DomImageAssetSource.resolve(uri, siteReferer: siteReferer)',
+    )
+    expect(remoteImage).toContain('siteReferer: siteReferer')
   })
 })

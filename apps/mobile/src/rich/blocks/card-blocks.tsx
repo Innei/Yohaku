@@ -62,6 +62,7 @@ function Card({
         {image ? (
           <RemoteImage
             contentFit="cover"
+            siteReferer={getSiteUrl()}
             style={[styles.cardImage, { backgroundColor: palette.neutral[2] }]}
             uri={image}
           />
