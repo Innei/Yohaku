@@ -252,6 +252,32 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuStudyShellView.self) {
+      ViewName("YohakuStudyShell")
+
+      Events("onPageScroll", "onPageSelected")
+
+      Prop("page") { (view: YohakuStudyShellView, value: Double) in
+        view.setPage(value)
+      }
+
+      Prop("ownerImageUri") { (view: YohakuStudyShellView, value: String) in
+        view.setOwnerImageUri(value)
+      }
+
+      Prop("accountImageUri") { (view: YohakuStudyShellView, value: String) in
+        view.setAccountImageUri(value)
+      }
+
+      Prop("ringColor") { (view: YohakuStudyShellView, color: UIColor?) in
+        view.setRingColor(color)
+      }
+
+      Prop("collapseDistance") { (view: YohakuStudyShellView, value: Double) in
+        view.setCollapseDistance(value)
+      }
+    }
+
     View(NavigationHeaderControlView.self) {
       ViewName("NavigationHeaderControl")
 

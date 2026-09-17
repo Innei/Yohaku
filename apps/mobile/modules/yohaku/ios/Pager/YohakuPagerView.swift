@@ -1,7 +1,7 @@
 import ExpoModulesCore
 import UIKit
 
-private final class YohakuPagerFillView: UIView {
+private final class YohakuPagerPageView: UIView {
   override func layoutSubviews() {
     super.layoutSubviews()
     for subview in subviews {
@@ -12,204 +12,125 @@ private final class YohakuPagerFillView: UIView {
   }
 }
 
-private final class YohakuPagerPageHost: UIViewController {
-  let hosted: UIView
-
-  init(hosted: UIView) {
-    self.hosted = hosted
-    super.init(nibName: nil, bundle: nil)
-  }
-
-  @available(*, unavailable)
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
-
-  override func loadView() {
-    let fill = YohakuPagerFillView()
-    fill.backgroundColor = .clear
-    fill.addSubview(hosted)
-    view = fill
-  }
-
-  override func viewDidLayoutSubviews() {
-    super.viewDidLayoutSubviews()
-    hosted.frame = view.bounds
-  }
-}
-
-final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+final class YohakuPagerView: ExpoView, UIScrollViewDelegate {
   let onPageScroll = EventDispatcher()
   let onPageSelected = EventDispatcher()
 
-  private let containerController = UIViewController()
-  private let pageController = UIPageViewController(
-    transitionStyle: .scroll,
-    navigationOrientation: .horizontal,
-    options: nil
-  )
-  private var hosts: [YohakuPagerPageHost] = []
+  private let scrollView = UIScrollView()
+  private var pages: [YohakuPagerPageView] = []
   private var page = 0
   private var lastReportedPage = 0
-  private var pagingOffsetObservation: NSKeyValueObservation?
-  private weak var pagingScrollView: UIScrollView?
+  private var lastReportedProgress: CGFloat = -1
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
 
     clipsToBounds = true
-    pageController.dataSource = self
-    pageController.delegate = self
-    pageController.view.backgroundColor = .clear
-    containerController.addChild(pageController)
-    pageController.didMove(toParent: containerController)
-    setValue(pageController.view, forKey: "contentView")
-  }
-
-  deinit {
-    pagingOffsetObservation?.invalidate()
-    pageController.willMove(toParent: nil)
-    pageController.removeFromParent()
+    scrollView.isPagingEnabled = true
+    scrollView.bounces = false
+    scrollView.alwaysBounceHorizontal = false
+    scrollView.alwaysBounceVertical = false
+    scrollView.isDirectionalLockEnabled = true
+    scrollView.showsHorizontalScrollIndicator = false
+    scrollView.showsVerticalScrollIndicator = false
+    scrollView.contentInsetAdjustmentBehavior = .never
+    scrollView.contentInset = .zero
+    scrollView.scrollIndicatorInsets = .zero
+    scrollView.delegate = self
+    addSubview(scrollView)
   }
 
   func setPage(_ value: Double) {
     let clamped = clampPage(Int(value.rounded()))
-    let animated = window != nil && lastReportedPage != clamped && !hosts.isEmpty
-    showPage(clamped, animated: animated)
+    let animated =
+      window != nil && lastReportedPage != clamped && bounds.width > 0 && !scrollView.isDragging
+      && !scrollView.isDecelerating
+    page = clamped
+    scrollToCurrentPage(animated: animated)
   }
 
   override func didMoveToWindow() {
     super.didMoveToWindow()
-    if window == nil {
-      detachPagingScrollView()
-      return
-    }
-    attachPagingScrollView()
-    syncSafeArea()
-  }
-
-  override func safeAreaInsetsDidChange() {
-    super.safeAreaInsetsDidChange()
-    syncSafeArea()
+    if window == nil { return }
+    layoutPages()
   }
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    pageController.view.frame = bounds
-    syncSafeArea()
-    hosts.forEach { $0.view.setNeedsLayout() }
+    layoutPages()
+    DispatchQueue.main.async { [weak self] in
+      self?.layoutPages()
+    }
   }
 
   override func mountChildComponentView(_ childComponentView: UIView, index: Int) {
-    let insertAt = min(max(index, 0), hosts.count)
-    let host = YohakuPagerPageHost(hosted: childComponentView)
-    hosts.insert(host, at: insertAt)
-    if hosts.count == 1 {
-      showPage(0, animated: false)
-    } else if insertAt <= page {
-      showPage(clampPage(page + 1), animated: false)
-    }
-    attachPagingScrollView()
+    let insertAt = min(max(index, 0), pages.count)
+    let pageView = YohakuPagerPageView()
+    pageView.clipsToBounds = true
+    pageView.addSubview(childComponentView)
+    pages.insert(pageView, at: insertAt)
+    scrollView.insertSubview(pageView, at: insertAt)
+    setNeedsLayout()
+    layoutIfNeeded()
   }
 
   override func unmountChildComponentView(_ childComponentView: UIView, index: Int) {
-    let match = hosts.firstIndex { $0.hosted === childComponentView }
+    let match = pages.firstIndex { $0.subviews.contains(childComponentView) }
     let removeAt = match ?? index
-    if removeAt >= 0, removeAt < hosts.count {
-      let host = hosts.remove(at: removeAt)
-      host.hosted.removeFromSuperview()
-      host.willMove(toParent: nil)
-      host.removeFromParent()
+    if removeAt >= 0, removeAt < pages.count {
+      let pageView = pages.remove(at: removeAt)
+      childComponentView.removeFromSuperview()
+      pageView.removeFromSuperview()
     }
-    if hosts.isEmpty {
-      detachPagingScrollView()
-      return
-    }
-    showPage(clampPage(page), animated: false)
+    page = clampPage(page)
+    setNeedsLayout()
   }
 
-  func pageViewController(
-    _ pageViewController: UIPageViewController,
-    viewControllerBefore viewController: UIViewController
-  ) -> UIViewController? {
-    guard let index = hosts.firstIndex(where: { $0 === viewController }), index > 0 else {
-      return nil
-    }
-    return hosts[index - 1]
+  func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    emitProgress()
   }
 
-  func pageViewController(
-    _ pageViewController: UIPageViewController,
-    viewControllerAfter viewController: UIViewController
-  ) -> UIViewController? {
-    guard let index = hosts.firstIndex(where: { $0 === viewController }), index + 1 < hosts.count
-    else {
-      return nil
-    }
-    return hosts[index + 1]
-  }
-
-  func pageViewController(
-    _ pageViewController: UIPageViewController,
-    didFinishAnimating finished: Bool,
-    previousViewControllers: [UIViewController],
-    transitionCompleted completed: Bool
-  ) {
-    guard completed,
-      let visible = pageViewController.viewControllers?.first,
-      let index = hosts.firstIndex(where: { $0 === visible })
-    else { return }
-    page = index
+  func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
     emitSelected()
   }
 
-  private func showPage(_ index: Int, animated: Bool) {
-    let clamped = clampPage(index)
-    guard hosts.indices.contains(clamped) else { return }
-    if pageController.viewControllers?.first === hosts[clamped] {
-      page = clamped
-      return
-    }
-    let direction: UIPageViewController.NavigationDirection =
-      clamped >= page ? .forward : .reverse
-    page = clamped
-    pageController.setViewControllers(
-      [hosts[clamped]],
-      direction: direction,
-      animated: animated
-    ) { [weak self] finished in
-      guard let self, finished else { return }
-      self.emitSelected()
-    }
-    if !animated {
+  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
+    if !decelerate {
       emitSelected()
     }
   }
 
-  private func attachPagingScrollView() {
-    let scroll = pageController.view.subviews.first { $0 is UIScrollView } as? UIScrollView
-    scroll?.contentInsetAdjustmentBehavior = .never
-    scroll?.contentInset = .zero
-    scroll?.scrollIndicatorInsets = .zero
-    guard pagingScrollView !== scroll else { return }
-    pagingScrollView = scroll
-    pagingOffsetObservation?.invalidate()
-    pagingOffsetObservation = scroll?.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
-      self?.emitProgress()
+  func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+    emitSelected()
+  }
+
+  private func layoutPages() {
+    let width = bounds.width
+    let height = bounds.height
+    guard width > 0, height > 0 else { return }
+
+    scrollView.frame = bounds
+    scrollView.contentInset = .zero
+    scrollView.contentSize = CGSize(width: width * CGFloat(pages.count), height: height)
+    for (index, pageView) in pages.enumerated() {
+      pageView.frame = CGRect(x: CGFloat(index) * width, y: 0, width: width, height: height)
+      pageView.setNeedsLayout()
+    }
+    page = clampPage(page)
+    if !scrollView.isDragging, !scrollView.isDecelerating {
+      scrollToCurrentPage(animated: false)
     }
   }
 
-  private func syncSafeArea() {
-    let insets = safeAreaInsets
-    if pageController.additionalSafeAreaInsets != insets {
-      pageController.additionalSafeAreaInsets = insets
+  private func scrollToCurrentPage(animated: Bool) {
+    guard bounds.width > 0 else { return }
+    let offset = CGPoint(x: CGFloat(page) * bounds.width, y: 0)
+    guard abs(scrollView.contentOffset.x - offset.x) > 0.5 else { return }
+    if animated {
+      scrollView.setContentOffset(offset, animated: true)
+    } else {
+      scrollView.contentOffset = offset
     }
-  }
-
-  private func detachPagingScrollView() {
-    pagingOffsetObservation?.invalidate()
-    pagingOffsetObservation = nil
-    pagingScrollView = nil
   }
 
   private func emitOnMain(_ work: @escaping () -> Void) {
@@ -222,26 +143,33 @@ final class YohakuPagerView: ExpoView, UIPageViewControllerDataSource, UIPageVie
 
   private func emitProgress() {
     emitOnMain { [weak self] in
-      guard let self, self.window != nil, let scroll = self.pagingScrollView, scroll.bounds.width > 0
-      else { return }
-      let relative = scroll.contentOffset.x / scroll.bounds.width - 1
-      let maxProgress = max(0, CGFloat(self.hosts.count) - 1)
-      let progress = min(maxProgress, max(0, CGFloat(self.page) + relative))
+      guard let self, self.window != nil, self.bounds.width > 0 else { return }
+      let maxProgress = max(0, CGFloat(self.pages.count) - 1)
+      let progress = min(maxProgress, max(0, self.scrollView.contentOffset.x / self.bounds.width))
+      if abs(progress - self.lastReportedProgress) < 0.001 { return }
+      self.lastReportedProgress = progress
       self.onPageScroll(["progress": progress])
     }
   }
 
   private func emitSelected() {
     emitOnMain { [weak self] in
-      guard let self, self.window != nil, self.lastReportedPage != self.page else { return }
-      self.lastReportedPage = self.page
-      self.onPageSelected(["page": self.page])
+      guard let self, self.window != nil else { return }
+      let next = self.currentPageFromOffset()
+      self.page = next
+      guard self.lastReportedPage != next else { return }
+      self.lastReportedPage = next
+      self.onPageSelected(["page": next])
     }
   }
 
-  private func clampPage(_ value: Int) -> Int {
-    guard !hosts.isEmpty else { return 0 }
-    return min(max(value, 0), hosts.count - 1)
+  private func currentPageFromOffset() -> Int {
+    guard bounds.width > 0 else { return 0 }
+    return clampPage(Int((scrollView.contentOffset.x / bounds.width).rounded()))
   }
 
+  private func clampPage(_ value: Int) -> Int {
+    guard !pages.isEmpty else { return 0 }
+    return min(max(value, 0), pages.count - 1)
+  }
 }

@@ -197,6 +197,19 @@ type YohakuPagerProps = ViewProps & {
 export const YohakuPager: ComponentType<YohakuPagerProps> =
   requireNativeViewManager('Yohaku', 'YohakuPager')
 
+type YohakuStudyShellProps = ViewProps & {
+  accountImageUri?: string
+  collapseDistance?: number
+  ownerImageUri?: string
+  page?: number
+  ringColor?: string
+  onPageScroll?: (event: NativeSyntheticEvent<{ progress: number }>) => void
+  onPageSelected?: (event: NativeSyntheticEvent<{ page: number }>) => void
+}
+
+export const YohakuStudyShell: ComponentType<YohakuStudyShellProps> =
+  requireNativeViewManager('Yohaku', 'YohakuStudyShell')
+
 export type NavigationHeaderMenuItem = {
   category?: string
   hidden?: boolean

@@ -1,15 +1,11 @@
-import { SettingsAvatar, YohakuPager } from '@modules/yohaku'
+import { YohakuStudyShell } from '@modules/yohaku'
 import { useQuery } from '@tanstack/react-query'
 import { Image } from 'expo-image'
 import * as Linking from 'expo-linking'
 import { useRouter } from 'expo-router'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import type {
-  AccessibilityActionEvent,
-  LayoutChangeEvent,
-  NativeSyntheticEvent,
-} from 'react-native'
+import type { AccessibilityActionEvent, NativeSyntheticEvent } from 'react-native'
 import { StyleSheet, View } from 'react-native'
 import Animated, {
   Extrapolation,
@@ -21,8 +17,6 @@ import Animated, {
 
 import { api } from '@/api/client'
 import { useSession } from '@/auth/session-store'
-import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
-import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset'
 import type { GroupedListRow } from '@/components/ui'
 import { AppText, GroupedList, SinkPressable, SlotText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
@@ -35,33 +29,16 @@ import { usePalette } from '@/theme/palette'
 
 import { MeAmbienceGrain, MeAmbienceWash } from '../me/me-ambience'
 import { DeskCard } from './desk-card'
+import { accountAvatarUri } from './guest-card'
 import { ReaderScreen } from './reader-screen'
 
 const AVATAR_COLLAPSE_DISTANCE = 120
 
-function OwnerHero({
-  avatarActive,
-  pageIndicator,
-}: {
-  avatarActive: boolean
-  pageIndicator: ReactNode
-}) {
+function OwnerHero({ pageIndicator }: { pageIndicator: ReactNode }) {
   const owner = useOwner()
-  const palette = usePalette()
 
   return (
     <View style={styles.hero}>
-      {owner?.avatarUrl ? (
-        <SettingsAvatar
-          active={avatarActive}
-          collapseDistance={AVATAR_COLLAPSE_DISTANCE}
-          imageUri={owner.avatarUrl}
-          ringColor={palette.neutral[4]}
-          style={styles.avatar}
-        />
-      ) : (
-        <View style={[styles.avatar, { backgroundColor: palette.neutral[10] }]} />
-      )}
       {owner?.name ? (
         <AppText variant="entryTitle">{owner.name}</AppText>
       ) : null}
@@ -158,20 +135,10 @@ function SocialRow() {
   )
 }
 
-function OwnerStudyPage({
-  avatarActive,
-  pageIndicator,
-  scrollsToTop,
-}: {
-  avatarActive: boolean
-  pageIndicator: ReactNode
-  scrollsToTop: boolean
-}) {
+function OwnerStudyPage({ pageIndicator }: { pageIndicator: ReactNode }) {
   const t = useTranslations('me')
   const router = useRouter()
-  const palette = usePalette()
   const owner = useOwner()
-  const paperTabBarInset = usePaperTabBarInset()
   const siteRows: GroupedListRow[] = [
     {
       id: 'pages',
@@ -194,23 +161,12 @@ function OwnerStudyPage({
   ]
 
   return (
-    <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
-      <MeAmbienceWash />
-      <EdgeEffectScrollView
-        contentContainerStyle={styles.content}
-        scrollsToTop={scrollsToTop}
-        style={styles.scroll}
-        contentInset={{
-          bottom: Math.max(0, AVATAR_COLLAPSE_DISTANCE - paperTabBarInset),
-        }}
-      >
-        <OwnerHero avatarActive={avatarActive} pageIndicator={pageIndicator} />
-        <DeskCard />
-        {siteRows.length > 0 ? (
-          <GroupedList rows={siteRows} style={styles.blog} />
-        ) : null}
-      </EdgeEffectScrollView>
-      <MeAmbienceGrain />
+    <View style={styles.pageContent}>
+      <OwnerHero pageIndicator={pageIndicator} />
+      <DeskCard />
+      {siteRows.length > 0 ? (
+        <GroupedList rows={siteRows} style={styles.blog} />
+      ) : null}
     </View>
   )
 }
@@ -309,16 +265,6 @@ export function StudyScreen() {
   const t = useTranslations('study')
   const progress = useSharedValue(0)
   const [activePage, setActivePage] = useState(0)
-  const [pagerSize, setPagerSize] = useState({ height: 0, width: 0 })
-  const pageStyle =
-    pagerSize.width > 0
-      ? { height: pagerSize.height, width: pagerSize.width }
-      : styles.page
-  const handlePagerLayout = (event: LayoutChangeEvent) => {
-    const { height, width } = event.nativeEvent.layout
-    if (width === pagerSize.width && height === pagerSize.height) return
-    setPagerSize({ height, width })
-  }
   const labels: [string, string] = [
     owner?.name || owner?.siteHost || t('tabFallback'),
     session?.role === 'owner' ? t('account') : t('me'),
@@ -337,10 +283,14 @@ export function StudyScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
-      <YohakuPager
+      <MeAmbienceWash />
+      <YohakuStudyShell
+        accountImageUri={accountAvatarUri(session, owner) ?? ''}
+        collapseDistance={AVATAR_COLLAPSE_DISTANCE}
+        ownerImageUri={owner?.avatarUrl ?? ''}
         page={activePage}
+        ringColor={palette.neutral[4]}
         style={styles.pager}
-        onLayout={handlePagerLayout}
         onPageScroll={(event: NativeSyntheticEvent<{ progress: number }>) => {
           progress.set(event.nativeEvent.progress)
         }}
@@ -351,26 +301,17 @@ export function StudyScreen() {
         <View
           accessibilityElementsHidden={activePage !== 0}
           collapsable={false}
-          style={pageStyle}
         >
-          <OwnerStudyPage
-            avatarActive={activePage === 0}
-            pageIndicator={indicator}
-            scrollsToTop={activePage === 0}
-          />
+          <OwnerStudyPage pageIndicator={indicator} />
         </View>
         <View
           accessibilityElementsHidden={activePage !== 1}
           collapsable={false}
-          style={pageStyle}
         >
-          <ReaderScreen
-            avatarActive={activePage === 1}
-            pageIndicator={indicator}
-            scrollsToTop={activePage === 1}
-          />
+          <ReaderScreen pageIndicator={indicator} />
         </View>
-      </YohakuPager>
+      </YohakuStudyShell>
+      <MeAmbienceGrain />
     </View>
   )
 }
@@ -379,16 +320,14 @@ const styles = StyleSheet.create({
   screen: {
     flex: 1,
   },
-  scroll: {
-    backgroundColor: 'transparent',
-  },
+
   pager: {
     flex: 1,
-    flexDirection: 'row',
   },
-  page: {
-    width: '100%',
-    height: '100%',
+  pageContent: {
+    gap: 16,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
   },
   pageIndicator: {
     alignItems: 'center',
@@ -404,20 +343,10 @@ const styles = StyleSheet.create({
     height: 2,
     width: 18,
   },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 24,
-    gap: 16,
-  },
   hero: {
     alignItems: 'center',
     gap: 8,
     paddingBottom: 8,
-  },
-  avatar: {
-    width: 100,
-    height: 100,
   },
   host: {
     textTransform: 'uppercase',
