@@ -4,7 +4,11 @@ import path from 'node:path'
 
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createAppConfig, resolveOverlayUpdates } from '../../app.config'
+import {
+  createAppConfig,
+  resolveOverlayUpdates,
+  updatesForCurrentBuild,
+} from '../../app.config'
 
 const originalEnvironment = process.env.EXPO_PUBLIC_APNS_ENV
 
@@ -12,6 +16,13 @@ const loadConfig = (environment: 'development' | 'production') => {
   process.env.EXPO_PUBLIC_APNS_ENV = environment
   return createAppConfig()
 }
+
+const signedUpdates = () => ({
+  codeSigningCertificate: './certs/certificate.pem',
+  codeSigningMetadata: { alg: 'rsa-v1_5-sha256', keyid: 'main' },
+  enabled: true,
+  url: 'https://ota.example.com',
+})
 
 const originalOtaSign = process.env.YOHAKU_OTA_SIGN
 const originalConfiguration = process.env.CONFIGURATION
@@ -113,16 +124,16 @@ describe('mobile notification native config', () => {
     delete process.env.YOHAKU_OTA_SIGN
     delete process.env.CONFIGURATION
     delete process.env.EAS_BUILD
-    const config = loadConfig('development')
-    expect(config.updates).not.toHaveProperty('codeSigningCertificate')
-    expect(config.updates).not.toHaveProperty('codeSigningMetadata')
+    const updates = updatesForCurrentBuild(signedUpdates())
+    expect(updates).not.toHaveProperty('codeSigningCertificate')
+    expect(updates).not.toHaveProperty('codeSigningMetadata')
   })
 
   it('keeps OTA code signing for Release native builds', () => {
     process.env.CONFIGURATION = 'Release'
-    const config = loadConfig('development')
-    expect(config.updates?.codeSigningCertificate).toBeDefined()
-    expect(config.updates?.codeSigningMetadata).toEqual({
+    const updates = updatesForCurrentBuild(signedUpdates())
+    expect(updates?.codeSigningCertificate).toBeDefined()
+    expect(updates?.codeSigningMetadata).toEqual({
       alg: 'rsa-v1_5-sha256',
       keyid: 'main',
     })
