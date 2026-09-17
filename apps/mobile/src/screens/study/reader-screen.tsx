@@ -5,6 +5,7 @@ import Constants from 'expo-constants'
 import { Link, useFocusEffect, useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
 import * as Updates from 'expo-updates'
+import type { ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
 
@@ -17,17 +18,28 @@ import { AppText, Button, GroupedList, SinkPressable } from '@/components/ui'
 import { showToast } from '@/components/ui/toast-store'
 import { db } from '@/db'
 import { likedRefs, readingHistory } from '@/db/schema'
-import { localeNames, useLocale, useTranslations } from '@/i18n'
+import type { Locale } from '@/i18n'
+import {
+  localeNames,
+  locales,
+  setLocale,
+  useLocale,
+  useTranslations,
+} from '@/i18n'
 import { likedActivityCount } from '@/interactions/liked-count'
 import { clearImageCache, imageCacheBytes } from '@/lib/image-cache'
+import { openExternalUrl } from '@/lib/open-external'
+import { getPrivacyUrl } from '@/lib/site-url'
 import { loadPushConfig } from '@/push/config'
 import { NotificationSettings } from '@/push/notification-settings'
+import { syncAll } from '@/sync/engine'
 import type { Palette } from '@/theme/palette'
 import { usePalette } from '@/theme/palette'
 
 import { ActivityStats } from '../me/activity-stats'
 import { showDeleteAccount, showMyComments } from '../me/activity-visibility'
 import { commentTotalFromPage } from '../me/comment-total'
+import { MembershipBanner } from '../me/membership-banner'
 import { hasProviderIcon, ProviderIcon } from '../me/provider-icon'
 import { useMyCommentsQuery } from '../me/use-my-comments'
 import { showReaderHero } from './guest-card'
@@ -145,29 +157,18 @@ function ProfileHero() {
   )
 }
 
-function Section({ label, rows }: { label: string; rows: GroupedListRow[] }) {
-  const palette = usePalette()
-  return (
-    <View style={styles.section}>
-      <AppText
-        color={palette.neutral[6]}
-        style={styles.sectionLabel}
-        variant="eyebrow"
-      >
-        {label}
-      </AppText>
-      <GroupedList rows={rows} style={styles.sectionList} />
-    </View>
-  )
-}
-
-export function ReaderScreen() {
+export function ReaderScreen({
+  pageIndicator,
+  scrollsToTop,
+}: {
+  pageIndicator: ReactNode
+  scrollsToTop: boolean
+}) {
   const t = useTranslations('me')
   const ts = useTranslations('study')
   const ta = useTranslations('auth')
   const tc = useTranslations('common')
   const palette = usePalette()
-  const router = useRouter()
   const locale = useLocale()
   const session = useSession()
   const version = Constants.expoConfig?.version ?? '—'
@@ -182,6 +183,7 @@ export function ReaderScreen() {
   const storageLabel = formatStorageBytes(readStorageBytes())
   const commentsVisible = showMyComments(session)
   const deleteVisible = showDeleteAccount(session)
+  const privacyUrl = getPrivacyUrl()
   const commentsQuery = useMyCommentsQuery(locale, commentsVisible)
   const commentsPage = commentsQuery.data?.pages[0]
   const commentsCount = commentsQuery.isError
@@ -207,9 +209,16 @@ export function ReaderScreen() {
       id: 'language',
       label: t('language'),
       value: localeNames[locale],
-      chevron: true,
-      navigates: true,
-      onPress: () => router.push('/locale'),
+      menu: locales.map((item) => ({
+        id: item,
+        title: localeNames[item],
+        on: item === locale,
+      })),
+      onMenuSelect: (next) => {
+        if (next === locale) return
+        setLocale(next as Locale)
+        void syncAll({ force: true })
+      },
     },
     {
       id: 'storage',
@@ -230,6 +239,16 @@ export function ReaderScreen() {
         ])
       },
     },
+    ...(privacyUrl
+      ? [
+          {
+            id: 'privacy',
+            label: t('privacy'),
+            chevron: true,
+            onPress: () => void openExternalUrl(privacyUrl),
+          } satisfies GroupedListRow,
+        ]
+      : []),
     { id: 'version', label: t('version'), value: versionLabel },
   ]
 
@@ -282,23 +301,36 @@ export function ReaderScreen() {
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <EdgeEffectScrollView
         contentContainerStyle={styles.content}
+        scrollsToTop={scrollsToTop}
         style={styles.scroll}
       >
-        {showReaderHero(session) ? (
-          <ProfileHero />
-        ) : (
-          <AppText variant="largeTitleSans">{ts('account')}</AppText>
-        )}
+        <View style={styles.heroBlock}>
+          {showReaderHero(session) ? (
+            <ProfileHero />
+          ) : (
+            <AppText variant="largeTitleSans">{ts('account')}</AppText>
+          )}
+          {pageIndicator}
+        </View>
+        <MembershipBanner />
         <ActivityStats
           commentsCount={commentsCount ?? 0}
           likedCount={likedCount}
           readingCount={readingCount}
           showComments={commentsVisible}
         />
-        <Section label={t('sectionGeneral')} rows={generalRows} />
+        <GroupedList
+          header={t('sectionGeneral')}
+          rows={generalRows}
+          style={styles.sectionList}
+        />
         {pushConfigured ? <NotificationSettings /> : null}
         {accountRows.length > 0 ? (
-          <Section label={t('sectionAccount')} rows={accountRows} />
+          <GroupedList
+            header={t('sectionAccount')}
+            rows={accountRows}
+            style={styles.sectionList}
+          />
         ) : null}
         {__DEV__ ? (
           <Link asChild href="/dev-demos">
@@ -331,6 +363,9 @@ const styles = StyleSheet.create({
   hero: {
     alignItems: 'center',
     gap: 14,
+  },
+  heroBlock: {
+    gap: 10,
   },
   heroText: {
     alignItems: 'center',
@@ -366,13 +401,6 @@ const styles = StyleSheet.create({
   realAvatarSlot: {
     width: 100,
     height: 100,
-  },
-  section: {
-    gap: 8,
-  },
-  sectionLabel: {
-    marginLeft: 4,
-    textTransform: 'uppercase',
   },
   sectionList: {
     marginHorizontal: -20,

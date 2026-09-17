@@ -51,6 +51,12 @@ interface YohakuNativeModule {
   preloadTts(url: string): Promise<void>
   prepareNoteHeroTransition(noteId: string): void
   presentSafari(url: string): Promise<void>
+  rasterizeSvg(payload: {
+    bg: string
+    height: number
+    svg: string
+    width: number
+  }): Promise<{ height: number; uri: string; width: number }>
   renderMermaid(payload: {
     bg: string
     fg: string
@@ -233,6 +239,7 @@ export type GroupedListNativeRow = {
   danger: boolean
   id: string
   label: string
+  menu?: NavigationHeaderMenuItem[]
   navigates: boolean
   pressable: boolean
   value?: string
@@ -240,7 +247,12 @@ export type GroupedListNativeRow = {
 
 type GroupedListViewProps = ViewProps & {
   dangerColor: string
-  onNativeHeight?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  onNativeMetrics?: (
+    event: NativeSyntheticEvent<{ height: number; textLeading: number }>,
+  ) => void
+  onRowMenuAction?: (
+    event: NativeSyntheticEvent<{ id: string; item: string }>,
+  ) => void
   onRowPress?: (event: NativeSyntheticEvent<{ id: string }>) => void
   rows: GroupedListNativeRow[]
 }
@@ -317,3 +329,30 @@ type TicketStubViewProps = ViewProps & {
 
 export const TicketStubView: ComponentType<TicketStubViewProps> =
   requireNativeViewManager('Yohaku', 'TicketStub')
+
+type RichTextNativeProps = ViewProps & {
+  blocks: unknown[]
+  highlights: unknown[]
+  menuItems: unknown[]
+  onContentHeight?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  onSelectionActive?: (event: NativeSyntheticEvent<{ active: boolean }>) => void
+  onBlockRects?: (
+    event: NativeSyntheticEvent<{
+      rects: Array<{ height: number; id: string; y: number }>
+    }>,
+  ) => void
+  onHighlightPress?: (event: NativeSyntheticEvent<{ id: string }>) => void
+  onLinkPress?: (event: NativeSyntheticEvent<{ href: string }>) => void
+  onMenuAction?: (
+    event: NativeSyntheticEvent<{
+      end: { blockId: string; offset: number }
+      id: string
+      start: { blockId: string; offset: number }
+      text: string
+    }>,
+  ) => void
+  typography: Record<string, unknown>
+}
+
+export const RichTextNativeView: ComponentType<RichTextNativeProps> =
+  requireNativeViewManager('Yohaku', 'RichText')

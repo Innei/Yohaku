@@ -608,6 +608,7 @@ final class SettingsAvatarView: ExpoView {
   private let compositorView = SettingsAvatarCompositorView()
   private weak var observedScrollView: UIScrollView?
   private var contentOffsetObservation: NSKeyValueObservation?
+  private var ancestorOffsetObservations: [NSKeyValueObservation] = []
   private var adjustedInsetObservation: NSKeyValueObservation?
   private var compensationDisplayLink: CADisplayLink?
   private var dynamicIslandCoversVisible = false
@@ -740,15 +741,14 @@ final class SettingsAvatarView: ExpoView {
   private func attachToAncestorScrollView() {
     guard window != nil else { return }
     var candidate = superview
-    var scrollView: UIScrollView?
+    var scrollViews: [UIScrollView] = []
     while let view = candidate {
       if let match = view as? UIScrollView {
-        scrollView = match
-        break
+        scrollViews.append(match)
       }
       candidate = view.superview
     }
-    guard let scrollView else { return }
+    guard let scrollView = scrollViews.first else { return }
     guard observedScrollView !== scrollView else {
       updateForCurrentScrollPosition()
       return
@@ -762,6 +762,11 @@ final class SettingsAvatarView: ExpoView {
     ) { [weak self] _, _ in
       self?.updateForCurrentScrollPosition()
     }
+    ancestorOffsetObservations = scrollViews.dropFirst().map { ancestor in
+      ancestor.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
+        self?.updateForCurrentScrollPosition()
+      }
+    }
     adjustedInsetObservation = scrollView.observe(
       \.adjustedContentInset,
       options: [.new]
@@ -772,8 +777,10 @@ final class SettingsAvatarView: ExpoView {
 
   private func detachFromScrollView() {
     contentOffsetObservation?.invalidate()
+    ancestorOffsetObservations.forEach { $0.invalidate() }
     adjustedInsetObservation?.invalidate()
     contentOffsetObservation = nil
+    ancestorOffsetObservations = []
     adjustedInsetObservation = nil
     observedScrollView = nil
   }
