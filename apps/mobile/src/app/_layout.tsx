@@ -177,15 +177,6 @@ export default function RootLayout() {
                 }}
               />
               <Stack.Screen
-                name="locale"
-                options={{
-                  headerShown: false,
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: [0.5],
-                  sheetGrabberVisible: true,
-                }}
-              />
-              <Stack.Screen
                 name="desk"
                 options={{
                   headerShown: false,

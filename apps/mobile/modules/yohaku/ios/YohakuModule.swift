@@ -358,7 +358,7 @@ public class YohakuModule: Module {
     View(GroupedListView.self) {
       ViewName("GroupedList")
 
-      Events("onRowPress", "onNativeHeight")
+      Events("onRowPress", "onRowMenuAction", "onNativeMetrics")
 
       Prop("rows") { (view: GroupedListView, rows: [GroupedListRowSpec]) in
         view.setRows(rows)

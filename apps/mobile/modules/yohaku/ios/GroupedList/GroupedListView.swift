@@ -9,6 +9,7 @@ struct GroupedListRowSpec: Record {
   @Field var danger: Bool = false
   @Field var pressable: Bool = false
   @Field var navigates: Bool = false
+  @Field var menu: [NavigationHeaderMenuItemSpec] = []
 }
 
 private func parseHexColor(_ hex: String) -> UIColor? {
@@ -37,11 +38,13 @@ private final class GroupedListController: UIViewController {
 final class GroupedListView: ExpoView, UICollectionViewDataSource,
   UICollectionViewDelegate {
   let onRowPress = EventDispatcher()
-  let onNativeHeight = EventDispatcher()
+  let onRowMenuAction = EventDispatcher()
+  let onNativeMetrics = EventDispatcher()
 
   private var rows: [GroupedListRowSpec] = []
   private var dangerColor = UIColor.systemRed
   private var reportedHeight: CGFloat = 0
+  private var reportedTextLeading: CGFloat = 0
   private var contentSizeObservation: NSKeyValueObservation?
   private var highlightedIndexPath: IndexPath?
   private var flashWorkItem: DispatchWorkItem?
@@ -111,7 +114,14 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
         content.secondaryText = value
       }
       cell.contentConfiguration = content
-      cell.accessories = row.chevron ? [.disclosureIndicator()] : []
+      if row.menu.isEmpty {
+        cell.accessories = row.chevron ? [.disclosureIndicator()] : []
+      } else {
+        let menu = makeYohakuMenu(items: row.menu) { [weak self] item in
+          self?.onRowMenuAction(["id": row.id, "item": item])
+        }
+        cell.accessories = [.popUpMenu(menu)]
+      }
     }
   }
 
@@ -132,7 +142,7 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
     addGestureRecognizer(pressGesture)
     contentSizeObservation = collectionView.observe(\.contentSize, options: [.new]) {
       [weak self] _, _ in
-      self?.reportHeightIfNeeded()
+      self?.reportMetricsIfNeeded()
     }
   }
 
@@ -140,6 +150,8 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
     super.layoutSubviews()
     attachControllerIfNeeded()
     collectionView.frame = bounds
+    collectionView.layoutIfNeeded()
+    reportMetricsIfNeeded()
     requireAncestorScrollPanToFail()
   }
 
@@ -293,11 +305,23 @@ final class GroupedListView: ExpoView, UICollectionViewDataSource,
     }
   }
 
-  private func reportHeightIfNeeded() {
+  private func textLeading() -> CGFloat {
+    let first = IndexPath(item: 0, section: 0)
+    guard let content = collectionView.cellForItem(at: first)?.contentView
+      as? UIListContentView, let guide = content.textLayoutGuide
+    else { return reportedTextLeading }
+    return content.convert(guide.layoutFrame, to: self).minX
+  }
+
+  private func reportMetricsIfNeeded() {
     let height = collectionView.contentSize.height
-    guard height > 0, abs(height - reportedHeight) > 0.5 else { return }
+    let leading = textLeading()
+    guard height > 0 else { return }
+    guard abs(height - reportedHeight) > 0.5
+      || abs(leading - reportedTextLeading) > 0.5 else { return }
     reportedHeight = height
-    onNativeHeight(["height": height])
+    reportedTextLeading = leading
+    onNativeMetrics(["height": height, "textLeading": leading])
   }
 
   // The collection view's own touch pipeline still highlights cells even

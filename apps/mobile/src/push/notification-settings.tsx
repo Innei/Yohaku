@@ -118,11 +118,11 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   sectionLabel: {
-    marginLeft: 4,
+    marginLeft: 16,
     textTransform: 'uppercase',
   },
   card: {
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     paddingVertical: 4,
   },
   row: {

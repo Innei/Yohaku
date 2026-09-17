@@ -239,6 +239,7 @@ export type GroupedListNativeRow = {
   danger: boolean
   id: string
   label: string
+  menu?: NavigationHeaderMenuItem[]
   navigates: boolean
   pressable: boolean
   value?: string
@@ -246,7 +247,12 @@ export type GroupedListNativeRow = {
 
 type GroupedListViewProps = ViewProps & {
   dangerColor: string
-  onNativeHeight?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  onNativeMetrics?: (
+    event: NativeSyntheticEvent<{ height: number; textLeading: number }>,
+  ) => void
+  onRowMenuAction?: (
+    event: NativeSyntheticEvent<{ id: string; item: string }>,
+  ) => void
   onRowPress?: (event: NativeSyntheticEvent<{ id: string }>) => void
   rows: GroupedListNativeRow[]
 }
