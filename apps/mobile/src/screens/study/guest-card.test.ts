@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import type { SessionUser } from '@/auth/session-store'
 
 import {
+  accountAvatarUri,
   guestCardHref,
   guestCardKind,
   showReaderHero,
@@ -21,6 +22,13 @@ const reader: SessionUser = {
 
 const owner: SessionUser = { ...reader, role: 'owner', name: 'Innei' }
 
+const ownerFace = {
+  avatarUrl: 'https://example.com/owner.png',
+  name: 'Innei',
+  siteHost: 'innei.in',
+  webUrl: 'https://innei.in',
+}
+
 describe('guest card', () => {
   it('routes signed-out to login and others to reader', () => {
     expect(guestCardKind(null)).toBe('signedOut')
@@ -35,6 +43,31 @@ describe('guest card', () => {
     expect(showReaderHero(null)).toBe(true)
     expect(showReaderHero(reader)).toBe(true)
     expect(showReaderHero(owner)).toBe(false)
+  })
+})
+
+describe('accountAvatarUri', () => {
+  it('prefers the session image', () => {
+    expect(accountAvatarUri(reader, ownerFace)).toBe('https://example.com/r.png')
+  })
+
+  it('falls back to the owner avatar when the session has no image', () => {
+    expect(accountAvatarUri({ ...reader, image: null }, ownerFace)).toBe(
+      'https://example.com/owner.png',
+    )
+    expect(accountAvatarUri(null, ownerFace)).toBe(
+      'https://example.com/owner.png',
+    )
+  })
+
+  it('returns null when neither side has an image', () => {
+    expect(accountAvatarUri(null, null)).toBeNull()
+    expect(
+      accountAvatarUri(
+        { ...reader, image: null },
+        { ...ownerFace, avatarUrl: null },
+      ),
+    ).toBeNull()
   })
 })
 
