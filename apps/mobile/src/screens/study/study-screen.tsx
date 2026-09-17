@@ -5,7 +5,11 @@ import * as Linking from 'expo-linking'
 import { useRouter } from 'expo-router'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import type { AccessibilityActionEvent, NativeSyntheticEvent } from 'react-native'
+import type {
+  AccessibilityActionEvent,
+  LayoutChangeEvent,
+  NativeSyntheticEvent,
+} from 'react-native'
 import { StyleSheet, View } from 'react-native'
 import Animated, {
   Extrapolation,
@@ -305,6 +309,16 @@ export function StudyScreen() {
   const t = useTranslations('study')
   const progress = useSharedValue(0)
   const [activePage, setActivePage] = useState(0)
+  const [pagerSize, setPagerSize] = useState({ height: 0, width: 0 })
+  const pageStyle =
+    pagerSize.width > 0
+      ? { height: pagerSize.height, width: pagerSize.width }
+      : styles.page
+  const handlePagerLayout = (event: LayoutChangeEvent) => {
+    const { height, width } = event.nativeEvent.layout
+    if (width === pagerSize.width && height === pagerSize.height) return
+    setPagerSize({ height, width })
+  }
   const labels: [string, string] = [
     owner?.name || owner?.siteHost || t('tabFallback'),
     session?.role === 'owner' ? t('account') : t('me'),
@@ -326,6 +340,7 @@ export function StudyScreen() {
       <YohakuPager
         page={activePage}
         style={styles.pager}
+        onLayout={handlePagerLayout}
         onPageScroll={(event: NativeSyntheticEvent<{ progress: number }>) => {
           progress.set(event.nativeEvent.progress)
         }}
@@ -336,7 +351,7 @@ export function StudyScreen() {
         <View
           accessibilityElementsHidden={activePage !== 0}
           collapsable={false}
-          style={styles.page}
+          style={pageStyle}
         >
           <OwnerStudyPage
             avatarActive={activePage === 0}
@@ -347,7 +362,7 @@ export function StudyScreen() {
         <View
           accessibilityElementsHidden={activePage !== 1}
           collapsable={false}
-          style={styles.page}
+          style={pageStyle}
         >
           <ReaderScreen
             avatarActive={activePage === 1}
@@ -390,7 +405,6 @@ const styles = StyleSheet.create({
     width: 18,
   },
   content: {
-    flexGrow: 1,
     paddingHorizontal: 20,
     paddingTop: 24,
     paddingBottom: 24,
