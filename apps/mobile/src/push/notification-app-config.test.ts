@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 
+import type { ExpoConfig } from 'expo/config'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -17,7 +18,7 @@ const loadConfig = (environment: 'development' | 'production') => {
   return createAppConfig()
 }
 
-const signedUpdates = () => ({
+const signedUpdates = (): NonNullable<ExpoConfig['updates']> => ({
   codeSigningCertificate: './certs/certificate.pem',
   codeSigningMetadata: { alg: 'rsa-v1_5-sha256', keyid: 'main' },
   enabled: true,
