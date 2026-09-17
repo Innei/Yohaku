@@ -225,6 +225,10 @@ public class YohakuModule: Module {
     View(SettingsAvatarView.self) {
       ViewName("SettingsAvatar")
 
+      Prop("active") { (view: SettingsAvatarView, value: Bool) in
+        view.setActive(value)
+      }
+
       Prop("collapseDistance") { (view: SettingsAvatarView, value: Double) in
         view.setCollapseDistance(value)
       }

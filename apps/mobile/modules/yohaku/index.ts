@@ -179,6 +179,7 @@ export const NavigationHeaderTitle: ComponentType<NavigationHeaderTitleProps> =
   requireNativeViewManager('Yohaku', 'NavigationHeaderTitle')
 
 type SettingsAvatarProps = ViewProps & {
+  active?: boolean
   collapseDistance?: number
   imageUri: string
   ringColor?: string
