@@ -1,5 +1,1 @@
-import { LikedListScreen } from '@/screens/me/liked-list'
-
-export default function LikedRoute() {
-  return <LikedListScreen />
-}
+export { LikedListScreen as default } from '@/screens/me/liked-list'

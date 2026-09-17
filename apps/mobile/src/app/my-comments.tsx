@@ -1,5 +1,1 @@
-import { MyCommentsListScreen } from '@/screens/me/my-comments-list'
-
-export default function MyCommentsRoute() {
-  return <MyCommentsListScreen />
-}
+export { MyCommentsListScreen as default } from '@/screens/me/my-comments-list'
