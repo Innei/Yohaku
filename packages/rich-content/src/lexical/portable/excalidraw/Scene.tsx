@@ -1,3 +1,7 @@
+// The iOS app serialises this tree outside React render; the compiler's
+// memo-cache hook would make that an invalid hook call.
+'use no memo'
+
 import type { CSSProperties, FC } from 'react'
 import { Fragment, memo } from 'react'
 

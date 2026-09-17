@@ -246,6 +246,21 @@ export function DevDemos() {
           </Paper>
         </Section>
 
+        <Section title="RICH TEXT">
+          <LabEntry
+            chevronColor={palette.neutral[5]}
+            hint="原生 UITextView 正文：跨段落选取、编辑菜单、高亮"
+            href="/dev-demos/rich-text"
+            title="原生正文 POC"
+          />
+          <LabEntry
+            chevronColor={palette.neutral[5]}
+            hint="生产文章 lexical JSON 经 haklex override 渲染成原生 segments"
+            href="/dev-demos/rich-document"
+            title="原生文档"
+          />
+        </Section>
+
         <Section title="MARKDOWN">
           <LabEntry
             chevronColor={palette.neutral[5]}
