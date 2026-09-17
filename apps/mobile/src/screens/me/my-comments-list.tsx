@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
 import { useMemo } from 'react'
 import { ActivityIndicator, StyleSheet, View } from 'react-native'
 
@@ -8,6 +8,7 @@ import { usePaperTabBarInset } from '@/components/navigation/paper-tab-bar-inset
 import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
 import { AppText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
+import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import {
   flattenIndexList,
   INDEX_EMPTY_ID,
@@ -23,7 +24,6 @@ import { ActivityLink, openActivityHref } from './activity-link'
 import { myCommentDestination } from './my-comments-destination'
 import { useMyCommentsQuery } from './use-my-comments'
 
-const TITLE_ID = '__title'
 const MORE_ID = '__more'
 
 export function MyCommentsListScreen() {
@@ -32,6 +32,17 @@ export function MyCommentsListScreen() {
   const palette = usePalette()
   const locale = useLocale()
   const tabBarInset = usePaperTabBarInset()
+  const { headerOptions, onNativeScroll } = useCollapsingTitle(
+    t('comments'),
+    '',
+    undefined,
+    undefined,
+    {
+      alwaysVisible: true,
+      titleFontSize: 18,
+      titleFontWeight: 'bold',
+    },
+  )
   const queriesEnabled = useRouteTransitionSettled(`my-comments:${locale}`)
   const query = useMyCommentsQuery(locale, queriesEnabled)
   const comments = query.data?.pages.flatMap((page) => page.data) ?? []
@@ -41,7 +52,6 @@ export function MyCommentsListScreen() {
   }, [comments])
   const listItems = useMemo(() => {
     const rows = [
-      { id: TITLE_ID, type: 'title', estimatedHeight: 48 },
       ...flattenIndexList({
         rowIds: comments.map((comment) => comment.id),
         showEmpty: !query.isPending && !query.isError && comments.length === 0,
@@ -69,15 +79,13 @@ export function MyCommentsListScreen() {
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
+      <Stack.Screen options={headerOptions} />
       <YohakuList
         contentInsetBottom={tabBarInset}
         items={listItems}
         refreshing={query.isRefetching}
         style={styles.screen}
         renderItem={(item) => {
-          if (item.id === TITLE_ID) {
-            return <AppText variant="largeTitleSans">{t('comments')}</AppText>
-          }
           if (item.id === INDEX_STATUS_ID) {
             return (
               <AppText
@@ -116,6 +124,7 @@ export function MyCommentsListScreen() {
           }
         }}
         onRefresh={() => void query.refetch()}
+        onScroll={onNativeScroll}
       />
     </View>
   )
