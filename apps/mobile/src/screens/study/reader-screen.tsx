@@ -1,17 +1,16 @@
-import { SettingsAvatar, YohakuNative } from '@modules/yohaku'
+import { YohakuNative } from '@modules/yohaku'
 import { desc } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import Constants from 'expo-constants'
 import { Link, useFocusEffect, useRouter } from 'expo-router'
-import { SymbolView } from 'expo-symbols'
 import * as Updates from 'expo-updates'
+import type { ReactNode } from 'react'
 import { useCallback, useState } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
 
 import { deleteAccount, refreshSession, signOut } from '@/auth/session'
 import type { SessionUser } from '@/auth/session-store'
 import { useSession } from '@/auth/session-store'
-import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import type { GroupedListRow } from '@/components/ui'
 import { AppText, Button, GroupedList, SinkPressable } from '@/components/ui'
 import { showToast } from '@/components/ui/toast-store'
@@ -20,17 +19,18 @@ import { likedRefs, readingHistory } from '@/db/schema'
 import { localeNames, useLocale, useTranslations } from '@/i18n'
 import { likedActivityCount } from '@/interactions/liked-count'
 import { clearImageCache, imageCacheBytes } from '@/lib/image-cache'
+import { openExternalUrl } from '@/lib/open-external'
+import { getPrivacyUrl } from '@/lib/site-url'
 import { loadPushConfig } from '@/push/config'
 import { NotificationSettings } from '@/push/notification-settings'
-import type { Palette } from '@/theme/palette'
 import { usePalette } from '@/theme/palette'
 
 import { ActivityStats } from '../me/activity-stats'
 import { showDeleteAccount, showMyComments } from '../me/activity-visibility'
 import { commentTotalFromPage } from '../me/comment-total'
+import { MembershipBanner } from '../me/membership-banner'
 import { hasProviderIcon, ProviderIcon } from '../me/provider-icon'
 import { useMyCommentsQuery } from '../me/use-my-comments'
-import { showReaderHero } from './guest-card'
 
 function formatStorageBytes(bytes: number): string {
   if (bytes < 1024) return `${Math.max(0, Math.round(bytes))} B`
@@ -82,46 +82,13 @@ function IdentityLine({ session }: { session: SessionUser }) {
   )
 }
 
-function Avatar({
-  session,
-  palette,
-}: {
-  session: SessionUser | null
-  palette: Palette
-}) {
-  if (!session?.image) {
-    return (
-      <View style={[styles.avatarRing, { borderColor: palette.neutral[4] }]}>
-        <View style={[styles.avatar, { backgroundColor: palette.neutral[3] }]}>
-          <SymbolView
-            name="person.crop.circle"
-            size={36}
-            tintColor={palette.neutral[6]}
-          />
-        </View>
-      </View>
-    )
-  }
-
-  return (
-    <SettingsAvatar
-      collapseDistance={120}
-      imageUri={session.image}
-      ringColor={palette.neutral[4]}
-      style={styles.realAvatarSlot}
-    />
-  )
-}
-
 function ProfileHero() {
   const t = useTranslations('auth')
-  const palette = usePalette()
   const router = useRouter()
   const session = useSession()
 
   return (
     <View style={styles.hero}>
-      <Avatar palette={palette} session={session} />
       <View style={styles.heroText}>
         <AppText variant="entryTitleSans">
           {session ? (session.name ?? t('anonymous')) : t('signedOut')}
@@ -161,12 +128,10 @@ function Section({ label, rows }: { label: string; rows: GroupedListRow[] }) {
   )
 }
 
-export function ReaderScreen() {
+export function ReaderScreen({ pageIndicator }: { pageIndicator: ReactNode }) {
   const t = useTranslations('me')
-  const ts = useTranslations('study')
   const ta = useTranslations('auth')
   const tc = useTranslations('common')
-  const palette = usePalette()
   const router = useRouter()
   const locale = useLocale()
   const session = useSession()
@@ -182,6 +147,7 @@ export function ReaderScreen() {
   const storageLabel = formatStorageBytes(readStorageBytes())
   const commentsVisible = showMyComments(session)
   const deleteVisible = showDeleteAccount(session)
+  const privacyUrl = getPrivacyUrl()
   const commentsQuery = useMyCommentsQuery(locale, commentsVisible)
   const commentsPage = commentsQuery.data?.pages[0]
   const commentsCount = commentsQuery.isError
@@ -230,6 +196,16 @@ export function ReaderScreen() {
         ])
       },
     },
+    ...(privacyUrl
+      ? [
+          {
+            id: 'privacy',
+            label: t('privacy'),
+            chevron: true,
+            onPress: () => void openExternalUrl(privacyUrl),
+          } satisfies GroupedListRow,
+        ]
+      : []),
     { id: 'version', label: t('version'), value: versionLabel },
   ]
 
@@ -279,16 +255,12 @@ export function ReaderScreen() {
   ]
 
   return (
-    <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
-      <EdgeEffectScrollView
-        contentContainerStyle={styles.content}
-        style={styles.scroll}
-      >
-        {showReaderHero(session) ? (
-          <ProfileHero />
-        ) : (
-          <AppText variant="largeTitleSans">{ts('account')}</AppText>
-        )}
+    <View style={styles.pageContent}>
+      <View style={styles.heroBlock}>
+        <ProfileHero />
+        {pageIndicator}
+      </View>
+        <MembershipBanner />
         <ActivityStats
           commentsCount={commentsCount ?? 0}
           likedCount={likedCount}
@@ -310,27 +282,22 @@ export function ReaderScreen() {
             </SinkPressable>
           </Link>
         ) : null}
-      </EdgeEffectScrollView>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-  },
-  scroll: {
-    backgroundColor: 'transparent',
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 24,
+  pageContent: {
     gap: 28,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
   },
   hero: {
     alignItems: 'center',
     gap: 14,
+  },
+  heroBlock: {
+    gap: 10,
   },
   heroText: {
     alignItems: 'center',
@@ -346,26 +313,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     maxWidth: '100%',
-  },
-  avatarRing: {
-    width: 74,
-    height: 74,
-    borderRadius: 37,
-    borderWidth: StyleSheet.hairlineWidth,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-  },
-  realAvatarSlot: {
-    width: 100,
-    height: 100,
   },
   section: {
     gap: 8,

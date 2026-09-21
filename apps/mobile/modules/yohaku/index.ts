@@ -179,6 +179,7 @@ export const NavigationHeaderTitle: ComponentType<NavigationHeaderTitleProps> =
   requireNativeViewManager('Yohaku', 'NavigationHeaderTitle')
 
 type SettingsAvatarProps = ViewProps & {
+  active?: boolean
   collapseDistance?: number
   imageUri: string
   ringColor?: string
@@ -186,6 +187,28 @@ type SettingsAvatarProps = ViewProps & {
 
 export const SettingsAvatar: ComponentType<SettingsAvatarProps> =
   requireNativeViewManager('Yohaku', 'SettingsAvatar')
+
+type YohakuPagerProps = ViewProps & {
+  page?: number
+  onPageScroll?: (event: NativeSyntheticEvent<{ progress: number }>) => void
+  onPageSelected?: (event: NativeSyntheticEvent<{ page: number }>) => void
+}
+
+export const YohakuPager: ComponentType<YohakuPagerProps> =
+  requireNativeViewManager('Yohaku', 'YohakuPager')
+
+type YohakuStudyShellProps = ViewProps & {
+  accountImageUri?: string
+  collapseDistance?: number
+  ownerImageUri?: string
+  page?: number
+  ringColor?: string
+  onPageScroll?: (event: NativeSyntheticEvent<{ progress: number }>) => void
+  onPageSelected?: (event: NativeSyntheticEvent<{ page: number }>) => void
+}
+
+export const YohakuStudyShell: ComponentType<YohakuStudyShellProps> =
+  requireNativeViewManager('Yohaku', 'YohakuStudyShell')
 
 export type NavigationHeaderMenuItem = {
   category?: string

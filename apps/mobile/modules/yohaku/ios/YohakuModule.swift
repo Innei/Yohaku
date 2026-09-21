@@ -225,6 +225,10 @@ public class YohakuModule: Module {
     View(SettingsAvatarView.self) {
       ViewName("SettingsAvatar")
 
+      Prop("active") { (view: SettingsAvatarView, value: Bool) in
+        view.setActive(value)
+      }
+
       Prop("collapseDistance") { (view: SettingsAvatarView, value: Double) in
         view.setCollapseDistance(value)
       }
@@ -235,6 +239,42 @@ public class YohakuModule: Module {
 
       Prop("ringColor") { (view: SettingsAvatarView, color: UIColor?) in
         view.setRingColor(color)
+      }
+    }
+
+    View(YohakuPagerView.self) {
+      ViewName("YohakuPager")
+
+      Events("onPageScroll", "onPageSelected")
+
+      Prop("page") { (view: YohakuPagerView, value: Double) in
+        view.setPage(value)
+      }
+    }
+
+    View(YohakuStudyShellView.self) {
+      ViewName("YohakuStudyShell")
+
+      Events("onPageScroll", "onPageSelected")
+
+      Prop("page") { (view: YohakuStudyShellView, value: Double) in
+        view.setPage(value)
+      }
+
+      Prop("ownerImageUri") { (view: YohakuStudyShellView, value: String) in
+        view.setOwnerImageUri(value)
+      }
+
+      Prop("accountImageUri") { (view: YohakuStudyShellView, value: String) in
+        view.setAccountImageUri(value)
+      }
+
+      Prop("ringColor") { (view: YohakuStudyShellView, color: UIColor?) in
+        view.setRingColor(color)
+      }
+
+      Prop("collapseDistance") { (view: YohakuStudyShellView, value: Double) in
+        view.setCollapseDistance(value)
       }
     }
 
