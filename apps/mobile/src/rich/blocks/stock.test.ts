@@ -35,10 +35,8 @@ describe('stockHeader', () => {
     })
   })
 
-  it('prefers the previous close when provided', () => {
-    const header = stockHeader({ chartPreviousClose: 200, symbol: 'X' }, [
-      bar(100, 190),
-    ])
+  it('reports a drop below the first open as down', () => {
+    const header = stockHeader({ symbol: 'X' }, [bar(200, 210), bar(210, 190)])
     expect(header?.up).toBe(false)
     expect(header?.changePct).toBeCloseTo(-5)
   })

@@ -80,7 +80,11 @@ export function afilmoryIds(node: Record<string, unknown>): string[] | null {
   if (!Array.isArray(items)) return null
   const ids: string[] = []
   for (const item of items) {
-    if (item && typeof item === 'object' && typeof (item as Record<string, unknown>).id === 'string') {
+    if (
+      item &&
+      typeof item === 'object' &&
+      typeof (item as Record<string, unknown>).id === 'string'
+    ) {
       ids.push((item as Record<string, unknown>).id as string)
     }
   }

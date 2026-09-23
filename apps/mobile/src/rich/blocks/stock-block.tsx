@@ -8,7 +8,8 @@ import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { UnsupportedBlock } from './card-blocks'
-import { emaSeries, rangeLabel, stockHeader,type StockRange } from './stock'
+import { useBoneColor } from './skeleton'
+import { emaSeries, rangeLabel, stockHeader, type StockRange } from './stock'
 import { type BlockProps, num, str } from './types'
 
 const CHART_HEIGHT = 226
@@ -33,8 +34,7 @@ function emaPeriods(node: BlockProps['node']): number[] {
 }
 
 function StockSkeleton() {
-  const palette = usePalette()
-  const bone = { backgroundColor: palette.neutral[2] }
+  const bone = { backgroundColor: useBoneColor() }
   return (
     <Paper style={styles.card}>
       <View style={styles.header}>

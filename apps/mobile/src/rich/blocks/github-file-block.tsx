@@ -10,6 +10,7 @@ import { useRichDocument } from '../lexical/context'
 import { UnsupportedBlock } from './card-blocks'
 import { CodeBlock } from './code-block'
 import { type GithubFileRef, parseGithubFileUrl } from './github-file'
+import { useBoneColor } from './skeleton'
 import { type BlockProps, str } from './types'
 
 const COLLAPSED_LINES = 12
@@ -35,18 +36,9 @@ function Header({ fileRef, url }: { fileRef: GithubFileRef; url: string }) {
   const doc = useRichDocument()
   const palette = usePalette()
   return (
-    <NativePressable
-      haptic={false}
-      onPress={() => doc.onLinkPress?.(url)}
-    >
-      <View
-        style={[styles.header, { borderBottomColor: palette.neutral[3] }]}
-      >
-        <SymbolView
-          name="doc.text"
-          size={16}
-          tintColor={palette.neutral[6]}
-        />
+    <NativePressable haptic={false} onPress={() => doc.onLinkPress?.(url)}>
+      <View style={[styles.header, { borderBottomColor: palette.neutral[3] }]}>
+        <SymbolView name="doc.text" size={16} tintColor={palette.neutral[6]} />
         <View style={styles.headerText}>
           <AppText numberOfLines={1} variant="secondary">
             {fileName(fileRef.path)}
@@ -66,12 +58,7 @@ function Header({ fileRef, url }: { fileRef: GithubFileRef; url: string }) {
 }
 
 function BodySkeleton() {
-  const palette = usePalette()
-  return (
-    <View
-      style={[styles.skeleton, { backgroundColor: palette.neutral[2] }]}
-    />
-  )
+  return <View style={[styles.skeleton, { backgroundColor: useBoneColor() }]} />
 }
 
 export function GithubFileBlock({ blockId, node }: BlockProps) {
@@ -118,9 +105,7 @@ export function GithubFileBlock({ blockId, node }: BlockProps) {
           haptic={false}
           onPress={() => setExpanded((value) => !value)}
         >
-          <View
-            style={[styles.expand, { borderTopColor: palette.neutral[3] }]}
-          >
+          <View style={[styles.expand, { borderTopColor: palette.neutral[3] }]}>
             <AppText color={palette.accent} variant="secondary">
               {expanded ? '收起' : `展开全部 · ${lines.length} 行`}
             </AppText>

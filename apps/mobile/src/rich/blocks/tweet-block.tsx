@@ -7,6 +7,7 @@ import { usePalette } from '@/theme/palette'
 
 import { useRichDocument } from '../lexical/context'
 import { UnsupportedBlock } from './card-blocks'
+import { useBoneColor } from './skeleton'
 import {
   formatTweetDate,
   type ParsedTweet,
@@ -23,7 +24,7 @@ async function fetchTweet(id: string): Promise<ParsedTweet | null> {
   const res = await fetch(
     `https://cdn.syndication.twimg.com/tweet-result?id=${id}&lang=zh&token=${tweetToken(id)}`,
   )
-  if (!res.ok) return null
+  if (!res.ok) throw new Error(`${res.status}`)
   const json = await res.json()
   return parseTweet(json)
 }
@@ -66,8 +67,7 @@ function TweetText({
 }
 
 function TweetSkeleton() {
-  const palette = usePalette()
-  const bone = { backgroundColor: palette.neutral[2] }
+  const bone = { backgroundColor: useBoneColor() }
   return (
     <Paper style={styles.card}>
       <View style={styles.header}>
@@ -87,6 +87,7 @@ function TweetSkeleton() {
 export function TweetBlock({ blockId, node }: BlockProps) {
   const doc = useRichDocument()
   const palette = usePalette()
+  const bone = useBoneColor()
   const url = str(node.url)
   const id = tweetIdFromUrl(url)
 
@@ -136,7 +137,7 @@ export function TweetBlock({ blockId, node }: BlockProps) {
             uri={tweet.photo.url}
             style={[
               styles.media,
-              { aspectRatio: mediaRatio, backgroundColor: palette.neutral[2] },
+              { aspectRatio: mediaRatio, backgroundColor: bone },
             ]}
           />
         ) : (
@@ -145,7 +146,7 @@ export function TweetBlock({ blockId, node }: BlockProps) {
             uri={media.url}
             style={[
               styles.media,
-              { aspectRatio: mediaRatio, backgroundColor: palette.neutral[2] },
+              { aspectRatio: mediaRatio, backgroundColor: bone },
             ]}
           />
         )
@@ -154,7 +155,10 @@ export function TweetBlock({ blockId, node }: BlockProps) {
         <AppText color={palette.neutral[6]} variant="meta">
           {formatTweetDate(tweet.createdAt)}
         </AppText>
-        <NativePressable onPress={() => doc.onLinkPress?.(url)}>
+        <NativePressable
+          style={styles.viewOnX}
+          onPress={() => doc.onLinkPress?.(url)}
+        >
           <AppText color={palette.accent} variant="meta">
             在 X 上查看
           </AppText>
@@ -177,6 +181,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     minHeight: 44,
   },
+  viewOnX: { minHeight: 44, justifyContent: 'center' },
   skeletonLine: { height: 12, borderRadius: 6 },
   skeletonMedia: { height: 150 },
 })

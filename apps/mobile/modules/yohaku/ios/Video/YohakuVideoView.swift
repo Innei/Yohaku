@@ -25,6 +25,7 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
   private var asset: AVURLAsset?
   private var loadTask: Task<Void, Never>?
   private var readyObservation: NSKeyValueObservation?
+  private var playbackObservation: NSKeyValueObservation?
   private var isFullScreen = false
 
   required init(appContext: AppContext? = nil) {
@@ -124,6 +125,7 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
     if window == nil {
       guard !isFullScreen else { return }
       playerController.player?.pause()
+      deactivateAudioSessionIfIdle()
       playerController.willMove(toParent: nil)
       playerController.removeFromParent()
       return
@@ -158,7 +160,7 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
   }
 
   @objc private func presentFullScreen() {
-    guard let host = hostViewController else { return }
+    guard let host = hostViewController, host.presentedViewController == nil else { return }
     let player = ensurePlayer()
     let controller = YohakuFullScreenPlayerController()
     controller.player = player
@@ -166,6 +168,7 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
     controller.onDismiss = { [weak self] in
       self?.isFullScreen = false
       self?.enterPlaybackState()
+      self?.deactivateAudioSessionIfIdle()
     }
     isFullScreen = true
     try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
@@ -192,7 +195,26 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
       guard controller.isReadyForDisplay else { return }
       DispatchQueue.main.async { self?.posterView.isHidden = true }
     }
+    playbackObservation = player.observe(\.timeControlStatus, options: [.new]) { [weak self] player, _ in
+      guard player.timeControlStatus == .paused else { return }
+      DispatchQueue.main.async { self?.deactivateAudioSessionIfIdle() }
+    }
+    NotificationCenter.default.addObserver(
+      self,
+      selector: #selector(playbackDidEnd),
+      name: .AVPlayerItemDidPlayToEndTime,
+      object: player.currentItem
+    )
     return player
+  }
+
+  @objc private func playbackDidEnd() {
+    deactivateAudioSessionIfIdle()
+  }
+
+  private func deactivateAudioSessionIfIdle() {
+    guard playerController.player?.timeControlStatus != .playing else { return }
+    try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
   }
 
   private func enterPlaybackState() {
@@ -206,6 +228,8 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
     loadTask?.cancel()
     loadTask = nil
     readyObservation = nil
+    playbackObservation = nil
+    NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: nil)
     playerController.player?.pause()
     playerController.player = nil
     playerController.showsPlaybackControls = false

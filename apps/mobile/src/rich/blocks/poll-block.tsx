@@ -12,7 +12,8 @@ import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { UnsupportedBlock } from './card-blocks'
-import { optimisticVote, type PollOption,pollRows } from './poll'
+import { optimisticVote, type PollOption, pollRows } from './poll'
+import { useBoneColor } from './skeleton'
 import { type BlockProps, str } from './types'
 
 const ROW_RADIUS = radius.control
@@ -33,13 +34,14 @@ function optionsOf(node: BlockProps['node']): PollOption[] {
 }
 
 function PollSkeleton({ optionCount }: { optionCount: number }) {
-  const palette = usePalette()
-  const bone = { backgroundColor: palette.neutral[2] }
+  const bone = { backgroundColor: useBoneColor() }
   return (
     <Paper style={styles.card}>
       <View style={styles.headerCol}>
         <View style={[styles.skeletonLine, { width: '40%' }, bone]} />
-        <View style={[styles.skeletonLine, { height: 20, width: '70%' }, bone]} />
+        <View
+          style={[styles.skeletonLine, { height: 20, width: '70%' }, bone]}
+        />
       </View>
       <View style={styles.optionCol}>
         {Array.from({ length: Math.max(optionCount, 3) }).map((_, index) => (
@@ -162,8 +164,7 @@ export function PollBlock({ blockId, node }: BlockProps) {
           const selected = showResults
             ? row.mine
             : multiple && pickedLocal.includes(row.id)
-          const rowDisabled =
-            !state.canVote || hasVoted || (!multiple && vote.isPending)
+          const rowDisabled = !state.canVote || hasVoted || vote.isPending
           return (
             <NativePressable
               accessibilityLabel={`${row.label}${showResults ? `，${row.pct}%` : ''}`}
@@ -193,7 +194,11 @@ export function PollBlock({ blockId, node }: BlockProps) {
                   ]}
                 />
               ) : null}
-              <AppText numberOfLines={2} style={styles.optionLabel} variant="body">
+              <AppText
+                numberOfLines={2}
+                style={styles.optionLabel}
+                variant="body"
+              >
                 {row.label}
               </AppText>
               {selected ? (

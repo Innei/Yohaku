@@ -282,7 +282,6 @@ export interface ApiStockBar {
 export interface ApiStockBars {
   bars: ApiStockBar[]
   meta: {
-    chartPreviousClose?: number
     exchange?: string
     longName?: string
     symbol: string

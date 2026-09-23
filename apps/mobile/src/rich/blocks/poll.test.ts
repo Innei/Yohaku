@@ -63,10 +63,9 @@ describe('pollRows', () => {
 
 describe('optimisticVote', () => {
   it('bumps the picked tally, total votes, and locks further voting', () => {
-    const next = optimisticVote(
-      state({ tallies: { o_1: 2 }, totalVotes: 2 }),
-      ['o_1'],
-    )
+    const next = optimisticVote(state({ tallies: { o_1: 2 }, totalVotes: 2 }), [
+      'o_1',
+    ])
     expect(next).toEqual(
       state({
         canVote: false,

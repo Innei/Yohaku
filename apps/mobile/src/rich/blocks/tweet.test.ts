@@ -145,7 +145,12 @@ describe('parseTweet', () => {
     })
     expect(tweet?.entities).toEqual([
       { type: 'mention', start: 0, end: 6, href: 'https://x.com/innei' },
-      { type: 'hashtag', start: 10, end: 15, href: 'https://x.com/hashtag/yoha' },
+      {
+        type: 'hashtag',
+        start: 10,
+        end: 15,
+        href: 'https://x.com/hashtag/yoha',
+      },
     ])
   })
 })

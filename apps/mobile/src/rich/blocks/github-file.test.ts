@@ -21,7 +21,9 @@ describe('parseGithubFileUrl', () => {
 
   it('parses a blob URL with a tag ref and no directory', () => {
     expect(
-      parseGithubFileUrl('https://github.com/facebook/react/blob/v18.2.0/README.md'),
+      parseGithubFileUrl(
+        'https://github.com/facebook/react/blob/v18.2.0/README.md',
+      ),
     ).toEqual({
       language: 'markdown',
       owner: 'facebook',

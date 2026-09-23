@@ -15,6 +15,7 @@ import {
   type TrackSummary,
   trackSummary,
 } from './map-track'
+import { useBoneColor } from './skeleton'
 import { type BlockProps, str } from './types'
 
 const MAP_RATIO = 350 / 220
@@ -26,7 +27,7 @@ interface Track {
 
 async function fetchTrack(url: string): Promise<Track | null> {
   const res = await fetch(url)
-  if (!res.ok) return null
+  if (!res.ok) throw new Error(`${res.status}`)
   const json: unknown = await res.json()
   const polylines = trackPolylines(json)
   if (!trackBounds(polylines)) return null
@@ -41,10 +42,10 @@ function track(node: BlockProps['node']): string {
 }
 
 function MapSkeleton({ title }: { title: string }) {
-  const palette = usePalette()
+  const bone = useBoneColor()
   return (
     <Paper style={styles.card}>
-      <View style={[styles.map, { backgroundColor: palette.neutral[2] }]} />
+      <View style={[styles.map, { backgroundColor: bone }]} />
       <View style={styles.caption}>
         <View style={styles.captionText}>
           {title ? (
@@ -52,12 +53,7 @@ function MapSkeleton({ title }: { title: string }) {
               {title}
             </AppText>
           ) : null}
-          <View
-            style={[
-              styles.skeletonLine,
-              { backgroundColor: palette.neutral[2] },
-            ]}
-          />
+          <View style={[styles.skeletonLine, { backgroundColor: bone }]} />
         </View>
         <View style={styles.expand} />
       </View>
@@ -67,6 +63,7 @@ function MapSkeleton({ title }: { title: string }) {
 
 export function MapBlock({ blockId, node }: BlockProps) {
   const palette = usePalette()
+  const bone = useBoneColor()
   const url = track(node)
   const title = str(node.title)
   const [expanded, setExpanded] = useState(false)
@@ -93,10 +90,9 @@ export function MapBlock({ blockId, node }: BlockProps) {
       <YohakuTrackMap
         accessibilityElementsHidden
         accentColor={palette.accent}
-        importantForAccessibility="no-hide-descendants"
         paperColor={palette.surface.paper}
         polylines={polylines}
-        style={[styles.map, { backgroundColor: palette.neutral[2] }]}
+        style={[styles.map, { backgroundColor: bone }]}
         onPress={() => setExpanded(true)}
       />
       <View style={styles.caption}>
@@ -135,7 +131,7 @@ export function MapBlock({ blockId, node }: BlockProps) {
         visible={expanded}
         onRequestClose={() => setExpanded(false)}
       >
-        <View style={[styles.sheet, { backgroundColor: palette.neutral[2] }]}>
+        <View style={[styles.sheet, { backgroundColor: bone }]}>
           <YohakuTrackMap
             interactive
             accentColor={palette.accent}

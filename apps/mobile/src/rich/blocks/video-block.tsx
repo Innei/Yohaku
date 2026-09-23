@@ -1,18 +1,16 @@
 import { YohakuVideo } from '@modules/yohaku'
-import { radius } from '@yohaku/design-system/tokens'
+import { neutral, radius } from '@yohaku/design-system/tokens'
 import { useState } from 'react'
 import { StyleSheet } from 'react-native'
-
-import { usePalette } from '@/theme/palette'
 
 import { UnsupportedBlock } from './card-blocks'
 import { type BlockProps, str } from './types'
 
 const RESERVED_RATIO = 16 / 9
 const PORTRAIT_RATIO_CAP = 4 / 5
+const BACKDROP = neutral.light[10]
 
 export function VideoBlock({ blockId, node }: BlockProps) {
-  const palette = usePalette()
   const src = str(node.src)
   const [ratio, setRatio] = useState(RESERVED_RATIO)
 
@@ -20,15 +18,12 @@ export function VideoBlock({ blockId, node }: BlockProps) {
 
   return (
     <YohakuVideo
-      backdropColor={palette.neutral[8]}
+      backdropColor={BACKDROP}
       src={src}
-      style={[
-        styles.video,
-        { aspectRatio: ratio, backgroundColor: palette.neutral[8] },
-      ]}
-      onNaturalSize={({ nativeEvent: { height, width } }) =>
-        setRatio(Math.max(width / height, PORTRAIT_RATIO_CAP))
-      }
+      style={[styles.video, { aspectRatio: ratio, backgroundColor: BACKDROP }]}
+      onNaturalSize={({ nativeEvent: { height, width } }) => {
+        if (height > 0) setRatio(Math.max(width / height, PORTRAIT_RATIO_CAP))
+      }}
     />
   )
 }

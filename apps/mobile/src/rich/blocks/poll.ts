@@ -12,7 +12,10 @@ export interface PollRow {
   pct: number
 }
 
-function largestRemainderPercentages(counts: number[], total: number): number[] {
+function largestRemainderPercentages(
+  counts: number[],
+  total: number,
+): number[] {
   if (total <= 0) return counts.map(() => 0)
   const raw = counts.map((count) => (count * 100) / total)
   const pcts = raw.map(Math.floor)

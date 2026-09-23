@@ -107,7 +107,10 @@ function Tile({
       ]}
     >
       {placeholderUri ? (
-        <Image source={{ uri: placeholderUri }} style={StyleSheet.absoluteFill} />
+        <Image
+          source={{ uri: placeholderUri }}
+          style={StyleSheet.absoluteFill}
+        />
       ) : null}
       <RemoteImage
         accessibilityLabel={image.alt}
@@ -253,7 +256,9 @@ function AfilmorySkeleton({
   const bone = { backgroundColor: palette.neutral[3] }
 
   if (items.length <= 1) {
-    const ratio = items[0] ? ratioOf({ height: items[0].h, width: items[0].w }) : 1
+    const ratio = items[0]
+      ? ratioOf({ height: items[0].h, width: items[0].w })
+      : 1
     return (
       <View style={styles.wrap}>
         <View
@@ -312,8 +317,7 @@ export function AfilmoryBlock({ blockId, node }: BlockProps) {
 
   if (query.isPending) {
     const source = node.source as
-      | { items?: { h: number; id: string; w: number }[] }
-      | undefined
+      { items?: { h: number; id: string; w: number }[] } | undefined
     return <AfilmorySkeleton items={source?.items ?? []} />
   }
 

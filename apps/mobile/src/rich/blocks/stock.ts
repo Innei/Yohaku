@@ -28,7 +28,7 @@ export function stockHeader(
   bars: ApiStockBar[],
 ): StockHeader | null {
   const last = bars.at(-1)
-  const base = meta.chartPreviousClose ?? bars[0]?.open
+  const base = bars[0]?.open
   if (!last || !base) return null
   const changePct = ((last.close - base) / base) * 100
   return { changePct, lastClose: last.close, up: changePct >= 0 }
