@@ -13,6 +13,7 @@ const SAMPLES: Array<{ id: string; label: string; only?: string }> = [
   { id: '180759007416291328', label: '链接卡/引用/对话/文件' },
   { id: '155012508522909696', label: 'mermaid/表格/alert' },
   { id: '170934497552896000', label: '列表/embed/自动链接' },
+  { id: '133259626676764688', label: '推文 embed' },
   { id: '180759007416291328', label: '只看 chat', only: 'chat' },
 ]
 

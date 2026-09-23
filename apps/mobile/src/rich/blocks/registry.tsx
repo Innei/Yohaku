@@ -9,6 +9,7 @@ import {
 import { ChatBlock } from './chat-block'
 import { CodeBlock } from './code-block'
 import { CalloutBlock, DetailsBlock } from './container-blocks'
+import { EmbedBlock } from './embed-block'
 import { ExcalidrawBlock } from './excalidraw-block'
 import { ImageBlock } from './image-block'
 import { MermaidBlock } from './mermaid-block'
@@ -23,6 +24,7 @@ export const blockRegistry: Record<string, ComponentType<BlockProps>> = {
   chat: ChatBlock,
   'code-block': CodeBlock,
   details: DetailsBlock,
+  embed: EmbedBlock,
   excalidraw: ExcalidrawBlock,
   file: FileBlock,
   image: ImageBlock,
