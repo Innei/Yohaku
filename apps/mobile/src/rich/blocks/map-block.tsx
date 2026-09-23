@@ -93,7 +93,7 @@ export function MapBlock({ blockId, node }: BlockProps) {
         paperColor={palette.surface.paper}
         polylines={polylines}
         style={[styles.map, { backgroundColor: bone }]}
-        onPress={() => setExpanded(true)}
+        onNativePress={() => setExpanded(true)}
       />
       <View style={styles.caption}>
         <View style={styles.captionText}>

@@ -13,7 +13,7 @@ private final class TrackEndpoint: NSObject, MKAnnotation {
 }
 
 final class YohakuTrackMapView: ExpoView, MKMapViewDelegate {
-  let onPress = EventDispatcher()
+  let onNativePress = EventDispatcher()
 
   private static let casingTitle = "casing"
   private static let fitPadding = UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 28)
@@ -85,7 +85,7 @@ final class YohakuTrackMapView: ExpoView, MKMapViewDelegate {
   }
 
   @objc private func handleTap() {
-    onPress([:])
+    onNativePress([:])
   }
 
   private func rebuild() {

@@ -283,7 +283,7 @@ public class YohakuModule: Module {
     View(YohakuTrackMapView.self) {
       ViewName("YohakuTrackMap")
 
-      Events("onPress")
+      Events("onNativePress")
 
       Prop("polylines") { (view: YohakuTrackMapView, value: [[[Double]]]) in
         view.setPolylines(value)

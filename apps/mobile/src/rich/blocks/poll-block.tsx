@@ -209,17 +209,17 @@ export function PollBlock({ blockId, node }: BlockProps) {
                 />
               ) : null}
               {showResults ? (
-                <SlotText
-                  value={`${row.pct}%`}
-                  textStyle={{
-                    ...fonts.mono,
-                    fontSize: 13,
-                    lineHeight: 20,
-                    color: palette.neutral[7],
-                    minWidth: 36,
-                    textAlign: 'right',
-                  }}
-                />
+                <View style={styles.percent}>
+                  <SlotText
+                    value={`${row.pct}%`}
+                    textStyle={{
+                      ...fonts.mono,
+                      fontSize: 13,
+                      lineHeight: 20,
+                      color: palette.neutral[7],
+                    }}
+                  />
+                </View>
               ) : null}
             </NativePressable>
           )
@@ -263,6 +263,7 @@ const styles = StyleSheet.create({
   headerCol: { gap: 6 },
   optionCol: { gap: 8 },
   optionLabel: { flex: 1 },
+  percent: { alignItems: 'flex-end', minWidth: 36 },
   row: {
     alignItems: 'center',
     borderRadius: ROW_RADIUS,
