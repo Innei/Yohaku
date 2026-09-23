@@ -266,6 +266,20 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuVideoView.self) {
+      ViewName("YohakuVideo")
+
+      Events("onNaturalSize")
+
+      Prop("src") { (view: YohakuVideoView, value: String) in
+        view.setSrc(value)
+      }
+
+      Prop("backdropColor") { (view: YohakuVideoView, color: UIColor?) in
+        view.setBackdropColor(color)
+      }
+    }
+
     View(YohakuStudyShellView.self) {
       ViewName("YohakuStudyShell")
 

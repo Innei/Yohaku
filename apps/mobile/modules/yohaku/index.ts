@@ -203,6 +203,17 @@ type YohakuPagerProps = ViewProps & {
 export const YohakuPager: ComponentType<YohakuPagerProps> =
   requireNativeViewManager('Yohaku', 'YohakuPager')
 
+type YohakuVideoProps = ViewProps & {
+  backdropColor?: ColorValue
+  onNaturalSize?: (
+    event: NativeSyntheticEvent<{ height: number; width: number }>,
+  ) => void
+  src: string
+}
+
+export const YohakuVideo: ComponentType<YohakuVideoProps> =
+  requireNativeViewManager('Yohaku', 'YohakuVideo')
+
 type YohakuStudyShellProps = ViewProps & {
   accountImageUri?: string
   collapseDistance?: number

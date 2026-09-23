@@ -17,6 +17,7 @@ import { MermaidBlock } from './mermaid-block'
 import { PollBlock } from './poll-block'
 import { TableBlock } from './table-block'
 import type { BlockProps } from './types'
+import { VideoBlock } from './video-block'
 
 export { UnsupportedBlock }
 
@@ -37,4 +38,5 @@ export const blockRegistry: Record<string, ComponentType<BlockProps>> = {
   'nested-doc': NestedDocBlock,
   poll: PollBlock,
   table: TableBlock,
+  video: VideoBlock,
 }
