@@ -33,7 +33,7 @@ function buildClient(baseURL: string) {
     // Native fetch can send an Origin header directly. This also makes
     // cookie-bearing requests pass Better Auth's CSRF origin validation when
     // the server-side Expo hook cannot promote `expo-origin` early enough.
-    fetchOptions: { headers: { origin: AUTH_ORIGIN } },
+    fetchOptions: { headers: { origin: AUTH_ORIGIN }, timeout: 15_000 },
     plugins: [plugin],
   })
 }

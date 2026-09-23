@@ -21,6 +21,7 @@ const brandMark = {
 
 export function LoginSheet() {
   const t = useTranslations('auth')
+  const tc = useTranslations('common')
   const palette = usePalette()
   const router = useRouter()
   const queriesEnabled = useRouteTransitionSettled('login')
@@ -132,7 +133,7 @@ export function LoginSheet() {
               onChangeText={setPassword}
             />
             <Button
-              label={t('signIn')}
+              label={busy?.kind === 'email' ? tc('loading') : t('signIn')}
               style={styles.submit}
               disabled={
                 locked ||

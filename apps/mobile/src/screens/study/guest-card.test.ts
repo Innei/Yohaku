@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 
 import type { SessionUser } from '@/auth/session-store'
 
-import { showReaderHero, tabAccessibilityLabel } from './guest-card'
+import {
+  accountAvatarUri,
+  guestCardHref,
+  guestCardKind,
+  tabAccessibilityLabel,
+} from './guest-card'
 
 const reader: SessionUser = {
   id: '1',
@@ -16,11 +21,46 @@ const reader: SessionUser = {
 
 const owner: SessionUser = { ...reader, role: 'owner', name: 'Innei' }
 
-describe('reader identity', () => {
-  it('hides the reader portrait for the owner', () => {
-    expect(showReaderHero(null)).toBe(true)
-    expect(showReaderHero(reader)).toBe(true)
-    expect(showReaderHero(owner)).toBe(false)
+const ownerFace = {
+  avatarUrl: 'https://example.com/owner.png',
+  name: 'Innei',
+  siteHost: 'innei.in',
+  webUrl: 'https://innei.in',
+}
+
+describe('guest card', () => {
+  it('routes signed-out to login and others to reader', () => {
+    expect(guestCardKind(null)).toBe('signedOut')
+    expect(guestCardHref('signedOut')).toBe('/login')
+    expect(guestCardKind(reader)).toBe('reader')
+    expect(guestCardHref('reader')).toBe('/reader')
+    expect(guestCardKind(owner)).toBe('owner')
+    expect(guestCardHref('owner')).toBe('/reader')
+  })
+})
+
+describe('accountAvatarUri', () => {
+  it('prefers the session image', () => {
+    expect(accountAvatarUri(reader, ownerFace)).toBe('https://example.com/r.png')
+  })
+
+  it('falls back to the owner avatar when the session has no image', () => {
+    expect(accountAvatarUri({ ...reader, image: null }, ownerFace)).toBe(
+      'https://example.com/owner.png',
+    )
+    expect(accountAvatarUri(null, ownerFace)).toBe(
+      'https://example.com/owner.png',
+    )
+  })
+
+  it('returns null when neither side has an image', () => {
+    expect(accountAvatarUri(null, null)).toBeNull()
+    expect(
+      accountAvatarUri(
+        { ...reader, image: null },
+        { ...ownerFace, avatarUrl: null },
+      ),
+    ).toBeNull()
   })
 })
 

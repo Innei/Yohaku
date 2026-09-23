@@ -8,6 +8,7 @@ describe('restorableRoute', () => {
     ['/', ['(tabs)', '(study)'], '/(tabs)/(study)'],
     ['/notes', ['(tabs)', '(notes)', 'notes'], '/notes'],
     ['/thinking', ['(tabs)', '(thinking)', 'thinking'], '/thinking'],
+    ['/reader', ['(tabs)', '(study)', 'reader'], '/reader'],
     [
       '/posts/life/hello',
       ['posts', '[category]', '[slug]'],
@@ -38,7 +39,6 @@ describe('restorableRoute', () => {
     '/toc',
     '/login',
     '/desk',
-    '/reader',
     '/summary/post/123',
     '/insights/post/123',
     '/search',

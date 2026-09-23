@@ -1,7 +1,23 @@
 import type { SessionUser } from '@/auth/session-store'
+import type { OwnerSnapshot } from '@/owner/snapshot'
 
-export function showReaderHero(session: SessionUser | null): boolean {
-  return session?.role !== 'owner'
+export type GuestCardKind = 'signedOut' | 'reader' | 'owner'
+
+export function guestCardKind(session: SessionUser | null): GuestCardKind {
+  if (!session) return 'signedOut'
+  if (session.role === 'owner') return 'owner'
+  return 'reader'
+}
+
+export function guestCardHref(kind: GuestCardKind): '/login' | '/reader' {
+  return kind === 'signedOut' ? '/login' : '/reader'
+}
+
+export function accountAvatarUri(
+  session: SessionUser | null,
+  owner: Pick<OwnerSnapshot, 'avatarUrl'> | null,
+): string | null {
+  return session?.image || owner?.avatarUrl || null
 }
 
 export function tabAccessibilityLabel(

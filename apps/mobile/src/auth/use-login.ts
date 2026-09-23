@@ -5,11 +5,14 @@ import { api } from '@/api/client'
 import { getAuthClient } from '@/auth/client'
 import { refreshSession } from '@/auth/session'
 import { getSession } from '@/auth/session-store'
+import { showToast } from '@/components/ui/toast-store'
+import { useTranslations } from '@/i18n'
 
 export type LoginBusy =
   { kind: 'social'; provider: string } | { kind: 'email' } | null
 
 export function useLogin(enabled = true) {
+  const t = useTranslations('auth')
   const providersQuery = useQuery({
     enabled,
     queryFn: () => api.authProviders(),
@@ -30,11 +33,15 @@ export function useLogin(enabled = true) {
     if (busy) return false
     setBusy({ kind: 'social', provider })
     try {
-      await getAuthClient().signIn.social({
+      const { error } = await getAuthClient().signIn.social({
         provider,
         callbackURL: '/',
       })
+      if (error) throw error
       return await settle()
+    } catch {
+      showToast(t('socialUnavailable'))
+      return false
     } finally {
       setBusy(null)
     }

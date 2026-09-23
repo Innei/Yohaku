@@ -16,7 +16,10 @@ import {
 
 import { CollapsingHeaderTitle } from '@/components/navigation/collapsing-header-title'
 import { usesPaperNavigationControls } from '@/components/navigation/platform'
-import { collapsingTitleScrollEdgeEffects } from '@/components/navigation/top-edge-blur'
+import {
+  collapsingTitleScrollEdgeEffects,
+  navigationScrollEdgeEffects,
+} from '@/components/navigation/scroll-edges'
 import { navTitleReveal } from '@/theme/nav-title-reveal'
 
 import type { PresenceMark } from './presence-marks'
@@ -230,7 +233,9 @@ export function useCollapsingTitle(
       // empty value also prevents Expo Router from flashing the route name
       // before the async title is available.
       title: title ?? '',
-      scrollEdgeEffects: collapsingTitleScrollEdgeEffects,
+      scrollEdgeEffects: alwaysVisible
+        ? navigationScrollEdgeEffects
+        : collapsingTitleScrollEdgeEffects,
     }),
     [
       leadingInset,
@@ -245,6 +250,7 @@ export function useCollapsingTitle(
       titleFontSize,
       titleFontWeight,
       titleVisible,
+      alwaysVisible,
       velocity,
     ],
   )

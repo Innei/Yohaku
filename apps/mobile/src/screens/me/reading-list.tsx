@@ -1,5 +1,5 @@
 import { desc, eq } from 'drizzle-orm'
-import { useRouter } from 'expo-router'
+import { Stack, useRouter } from 'expo-router'
 import { useMemo } from 'react'
 import { StyleSheet, View } from 'react-native'
 
@@ -10,6 +10,7 @@ import { db } from '@/db'
 import { notes, posts, readingHistory } from '@/db/schema'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
+import { useCollapsingTitle } from '@/screens/details/use-collapsing-title'
 import {
   flattenIndexList,
   INDEX_EMPTY_ID,
@@ -26,14 +27,23 @@ import {
 } from './activity-link'
 import { type ReadingListItem, resolveReadingItems } from './reading-list-model'
 
-const TITLE_ID = '__title'
-
 export function ReadingListScreen() {
   const t = useTranslations('me')
   const tabs = useTranslations('tabs')
   const locale = useLocale()
   const palette = usePalette()
   const tabBarInset = usePaperTabBarInset()
+  const { headerOptions, onNativeScroll } = useCollapsingTitle(
+    t('reading'),
+    '',
+    undefined,
+    undefined,
+    {
+      alwaysVisible: true,
+      titleFontSize: 18,
+      titleFontWeight: 'bold',
+    },
+  )
   const labels = { note: tabs('notes'), thinking: tabs('thinking') }
   const { snapshot: items } = useDatabaseSnapshot({
     identity: `reading:${locale}`,
@@ -53,27 +63,23 @@ export function ReadingListScreen() {
     return map
   }, [rows])
   const listItems = useMemo(
-    () => [
-      { id: TITLE_ID, type: 'title', estimatedHeight: 48 },
-      ...flattenIndexList({
+    () =>
+      flattenIndexList({
         rowIds: rows.map(readingRowKey),
         showEmpty: rows.length === 0,
         showStatus: false,
       }),
-    ],
     [rows],
   )
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
+      <Stack.Screen options={headerOptions} />
       <YohakuList
         contentInsetBottom={tabBarInset}
         items={listItems}
         style={styles.screen}
         renderItem={(item) => {
-          if (item.id === TITLE_ID) {
-            return <AppText variant="largeTitleSans">{t('reading')}</AppText>
-          }
           if (item.id === INDEX_EMPTY_ID) {
             return (
               <View style={styles.empty}>
@@ -86,6 +92,7 @@ export function ReadingListScreen() {
           if (!row) return null
           return <ReadingRow item={row} labels={labels} />
         }}
+        onScroll={onNativeScroll}
       />
     </View>
   )

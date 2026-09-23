@@ -3,6 +3,7 @@ const EXACT_ROUTES = new Set([
   '/my-comments',
   '/notes',
   '/pages',
+  '/reader',
   '/reading',
   '/series',
   '/thinking',

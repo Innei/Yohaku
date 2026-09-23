@@ -17,13 +17,22 @@ export function useRouteTransitionSettled(routeIdentity: string): boolean {
   const navigation = useNavigation() as unknown as TransitionEndNavigation
   const [settledRoute, setSettledRoute] = useState<string | null>(null)
 
-  useEffect(
-    () =>
-      navigation.addListener('transitionEnd', (event) => {
-        if (!event.data.closing) setSettledRoute(routeIdentity)
-      }),
-    [navigation, routeIdentity],
-  )
+  useEffect(() => {
+    // A form sheet can finish presenting before this listener is attached.
+    // Deferring work must never leave the route's queries disabled forever.
+    const settle = () => setSettledRoute(routeIdentity)
+    const timeout = setTimeout(settle, 1_000)
+    const unsubscribe = navigation.addListener('transitionEnd', (event) => {
+      if (!event.data.closing) {
+        clearTimeout(timeout)
+        settle()
+      }
+    })
+    return () => {
+      clearTimeout(timeout)
+      unsubscribe()
+    }
+  }, [navigation, routeIdentity])
 
   return settledRoute === routeIdentity
 }

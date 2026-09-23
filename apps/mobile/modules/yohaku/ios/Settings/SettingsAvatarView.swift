@@ -606,6 +606,7 @@ final class SettingsAvatarView: ExpoView {
   ]
 
   private let compositorView = SettingsAvatarCompositorView()
+  private let slotImageView = UIImageView()
   private weak var observedScrollView: UIScrollView?
   private var contentOffsetObservation: NSKeyValueObservation?
   private var ancestorOffsetObservations: [NSKeyValueObservation] = []
@@ -617,6 +618,7 @@ final class SettingsAvatarView: ExpoView {
   private var imageLoadGeneration = 0
   private var ringColor: UIColor?
   private var collapseDistance: CGFloat = 120
+  private var active = true
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
@@ -625,6 +627,10 @@ final class SettingsAvatarView: ExpoView {
     clipsToBounds = false
     isOpaque = false
     isUserInteractionEnabled = false
+    slotImageView.contentMode = .scaleAspectFill
+    slotImageView.clipsToBounds = true
+    slotImageView.isUserInteractionEnabled = false
+    addSubview(slotImageView)
     compositorView.onDisplayLink = { [weak self] in
       self?.updateTransitionCompensation()
     }
@@ -654,7 +660,20 @@ final class SettingsAvatarView: ExpoView {
 
   override func layoutSubviews() {
     super.layoutSubviews()
+    slotImageView.frame = bounds
+    slotImageView.layer.cornerRadius = min(bounds.width, bounds.height) / 2
     updateForCurrentScrollPosition()
+  }
+
+  func setActive(_ value: Bool) {
+    guard active != value else { return }
+    active = value
+    if active {
+      scheduleScrollViewAttachment()
+      updateForCurrentScrollPosition()
+    } else {
+      detachCompositor()
+    }
   }
 
   func setCollapseDistance(_ value: Double) {
@@ -671,10 +690,12 @@ final class SettingsAvatarView: ExpoView {
     imageTask?.cancel()
     imageTask = nil
     compositorView.avatarImageView.image = nil
+    slotImageView.image = nil
 
     guard let url = URL(string: value) else { return }
     if let cached = Self.imageCache.object(forKey: url as NSURL) {
       compositorView.avatarImageView.image = cached
+      slotImageView.image = cached
       return
     }
 
@@ -716,11 +737,14 @@ final class SettingsAvatarView: ExpoView {
   func setRingColor(_ color: UIColor?) {
     ringColor = color
     compositorView.setRingColor(color)
+    slotImageView.layer.borderColor = color?.cgColor
+    slotImageView.layer.borderWidth = color == nil ? 0 : 1 / max(1, window?.screen.scale ?? 3)
   }
 
   private func applyLoadedImage(_ image: UIImage, generation: Int) {
     guard imageLoadGeneration == generation else { return }
 
+    slotImageView.image = image
     compositorView.avatarImageView.alpha = 0
     compositorView.avatarImageView.image = image
     UIView.animate(
@@ -741,14 +765,19 @@ final class SettingsAvatarView: ExpoView {
   private func attachToAncestorScrollView() {
     guard window != nil else { return }
     var candidate = superview
-    var scrollViews: [UIScrollView] = []
+    var verticalScrolls: [UIScrollView] = []
+    var pagingScrolls: [UIScrollView] = []
     while let view = candidate {
       if let match = view as? UIScrollView {
-        scrollViews.append(match)
+        if match.isPagingEnabled {
+          pagingScrolls.append(match)
+        } else {
+          verticalScrolls.append(match)
+        }
       }
       candidate = view.superview
     }
-    guard let scrollView = scrollViews.first else { return }
+    guard let scrollView = verticalScrolls.first else { return }
     guard observedScrollView !== scrollView else {
       updateForCurrentScrollPosition()
       return
@@ -762,7 +791,7 @@ final class SettingsAvatarView: ExpoView {
     ) { [weak self] _, _ in
       self?.updateForCurrentScrollPosition()
     }
-    ancestorOffsetObservations = scrollViews.dropFirst().map { ancestor in
+    ancestorOffsetObservations = (Array(verticalScrolls.dropFirst()) + pagingScrolls).map { ancestor in
       ancestor.observe(\.contentOffset, options: [.new]) { [weak self] _, _ in
         self?.updateForCurrentScrollPosition()
       }
@@ -786,6 +815,10 @@ final class SettingsAvatarView: ExpoView {
   }
 
   private func updateForCurrentScrollPosition() {
+    guard active else {
+      detachCompositor()
+      return
+    }
     guard
       let window,
       let ownerViewController = owningViewController(),
@@ -867,11 +900,14 @@ final class SettingsAvatarView: ExpoView {
     } else if compositorView.frame != hostView.bounds {
       compositorView.frame = hostView.bounds
     }
+    slotImageView.isHidden = true
   }
 
   private func detachCompositor() {
     stopCompensationDisplayLink()
     compositorView.removeFromSuperview()
+    compositorView.disableDynamicIslandMask()
+    slotImageView.isHidden = false
   }
 
   private func updateCompensationDisplayLink() {
