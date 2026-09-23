@@ -79,7 +79,7 @@ function TweetSkeleton() {
       </View>
       <View style={[styles.skeletonLine, { width: '100%' }, bone]} />
       <View style={[styles.skeletonLine, { width: '84%' }, bone]} />
-      <View style={[styles.media, bone]} />
+      <View style={[styles.media, styles.skeletonMedia, bone]} />
     </Paper>
   )
 }
@@ -178,4 +178,5 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   skeletonLine: { height: 12, borderRadius: 6 },
+  skeletonMedia: { height: 150 },
 })
