@@ -27,6 +27,10 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
   private var readyObservation: NSKeyValueObservation?
   private var playbackObservation: NSKeyValueObservation?
   private var isFullScreen = false
+  private var posterURL: URL?
+  private var posterImage: UIImage?
+  private var posterTask: Task<Void, Never>?
+  private var loops = false
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
@@ -84,6 +88,7 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
 
   deinit {
     loadTask?.cancel()
+    posterTask?.cancel()
   }
 
   func setSrc(_ value: String) {
@@ -96,6 +101,36 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
     loadTask = Task { [weak self] in
       await self?.loadMetadata(asset)
     }
+    startLoopingIfVisible()
+  }
+
+  func setPoster(_ value: String?) {
+    let url = value.flatMap { URL(string: $0) }
+    guard url != posterURL else { return }
+    posterURL = url
+    posterImage = nil
+    posterView.image = nil
+    posterTask?.cancel()
+    guard let url else { return }
+    posterTask = Task { [weak self] in
+      guard let (data, _) = try? await URLSession.shared.data(from: url),
+        let image = UIImage(data: data)
+      else { return }
+      await MainActor.run {
+        guard let self, self.posterURL == url else { return }
+        self.posterImage = image
+        self.posterView.image = image
+      }
+    }
+  }
+
+  func setLoop(_ value: Bool) {
+    guard value != loops else { return }
+    loops = value
+    playButton.isHidden = value
+    fullScreenButton.isHidden = value
+    if value { durationPill.isHidden = true }
+    startLoopingIfVisible()
   }
 
   func setBackdropColor(_ color: UIColor?) {
@@ -134,6 +169,7 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
       host.addChild(playerController)
       playerController.didMove(toParent: host)
     }
+    startLoopingIfVisible()
   }
 
   func playerViewController(
@@ -209,11 +245,25 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
   }
 
   @objc private func playbackDidEnd() {
+    if loops, let player = playerController.player {
+      player.seek(to: .zero)
+      player.play()
+      return
+    }
     deactivateAudioSessionIfIdle()
   }
 
+  private func startLoopingIfVisible() {
+    guard loops, window != nil, asset != nil else { return }
+    let player = ensurePlayer()
+    player.isMuted = true
+    player.actionAtItemEnd = .none
+    player.preventsDisplaySleepDuringVideoPlayback = false
+    player.play()
+  }
+
   private func deactivateAudioSessionIfIdle() {
-    guard playerController.player?.timeControlStatus != .playing else { return }
+    guard !loops, playerController.player?.timeControlStatus != .playing else { return }
     try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
   }
 
@@ -234,10 +284,10 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
     playerController.player = nil
     playerController.showsPlaybackControls = false
     asset = nil
-    posterView.image = nil
+    posterView.image = posterImage
     posterView.isHidden = false
-    playButton.isHidden = false
-    fullScreenButton.isHidden = false
+    playButton.isHidden = loops
+    fullScreenButton.isHidden = loops
     durationPill.isHidden = true
   }
 
@@ -256,10 +306,11 @@ final class YohakuVideoView: ExpoView, AVPlayerViewControllerDelegate {
     if let duration = try? await asset.load(.duration), duration.seconds.isFinite {
       guard !Task.isCancelled, asset === self.asset else { return }
       durationLabel.text = formatDuration(duration.seconds)
-      durationPill.isHidden = playerController.showsPlaybackControls
+      durationPill.isHidden = playerController.showsPlaybackControls || loops
       setNeedsLayout()
     }
 
+    guard posterURL == nil else { return }
     let generator = AVAssetImageGenerator(asset: asset)
     generator.appliesPreferredTrackTransform = true
     generator.maximumSize = CGSize(width: 1280, height: 1280)

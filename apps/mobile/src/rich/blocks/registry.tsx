@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 
+import { AfilmoryBlock } from './afilmory-block'
 import {
   FileBlock,
   LinkCardBlock,
@@ -12,7 +13,7 @@ import { CalloutBlock, DetailsBlock } from './container-blocks'
 import { EmbedBlock } from './embed-block'
 import { ExcalidrawBlock } from './excalidraw-block'
 import { ImageBlock } from './image-block'
-import { AfilmoryBlock, GalleryBlock } from './image-grid-block'
+import { GalleryBlock } from './image-grid-block'
 import { MapBlock } from './map-block'
 import { MermaidBlock } from './mermaid-block'
 import { PollBlock } from './poll-block'

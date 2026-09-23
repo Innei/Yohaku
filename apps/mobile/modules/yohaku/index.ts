@@ -205,9 +205,11 @@ export const YohakuPager: ComponentType<YohakuPagerProps> =
 
 type YohakuVideoProps = ViewProps & {
   backdropColor?: ColorValue
+  loop?: boolean
   onNaturalSize?: (
     event: NativeSyntheticEvent<{ height: number; width: number }>,
   ) => void
+  poster?: string
   src: string
 }
 

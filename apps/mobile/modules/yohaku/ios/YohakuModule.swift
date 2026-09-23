@@ -278,6 +278,14 @@ public class YohakuModule: Module {
       Prop("backdropColor") { (view: YohakuVideoView, color: UIColor?) in
         view.setBackdropColor(color)
       }
+
+      Prop("poster") { (view: YohakuVideoView, value: String?) in
+        view.setPoster(value)
+      }
+
+      Prop("loop") { (view: YohakuVideoView, value: Bool?) in
+        view.setLoop(value ?? false)
+      }
     }
 
     View(YohakuTrackMapView.self) {

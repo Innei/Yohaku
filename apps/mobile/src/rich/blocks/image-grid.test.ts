@@ -1,11 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  afilmoryIds,
-  afilmoryImages,
-  galleryImages,
-  gridRows,
-} from './image-grid'
+import { galleryImages, gridRows } from './image-grid'
 
 describe('galleryImages', () => {
   it('maps node.images to GridImage with src/full equal', () => {
@@ -41,64 +36,6 @@ describe('galleryImages', () => {
   it('returns empty array when node.images is missing or malformed', () => {
     expect(galleryImages({})).toEqual([])
     expect(galleryImages({ images: 'nope' })).toEqual([])
-  })
-})
-
-describe('afilmoryIds', () => {
-  it('collects ids when source.kind is list', () => {
-    const node = {
-      source: { items: [{ id: 'A' }, { id: 'B' }], kind: 'list' },
-    }
-    expect(afilmoryIds(node)).toEqual(['A', 'B'])
-  })
-
-  it('returns null for non-list sources', () => {
-    expect(afilmoryIds({ source: { filter: {}, kind: 'filter' } })).toBeNull()
-    expect(afilmoryIds({})).toBeNull()
-    expect(afilmoryIds({ source: null })).toBeNull()
-  })
-})
-
-describe('afilmoryImages', () => {
-  const baseUrl = 'https://innei.afilmory.art'
-
-  it('resolves relative urls against baseUrl and carries dims/thumbhash', () => {
-    const result = afilmoryImages(baseUrl, [
-      {
-        exif: {},
-        height: 2592,
-        id: 'DSCF6041',
-        originalUrl: '/东京/DSCF6041.jpg',
-        thumbHash: 'abcd',
-        thumbnailUrl: '/.afilmory/thumbnails/DSCF6041.jpg',
-        title: 'DSCF6041',
-        width: 3888,
-      },
-    ])
-    expect(result).toEqual([
-      {
-        alt: 'DSCF6041',
-        full: 'https://innei.afilmory.art/%E4%B8%9C%E4%BA%AC/DSCF6041.jpg',
-        height: 2592,
-        src: 'https://innei.afilmory.art/.afilmory/thumbnails/DSCF6041.jpg',
-        thumbhash: 'abcd',
-        width: 3888,
-      },
-    ])
-  })
-
-  it('keeps absolute urls unchanged', () => {
-    const result = afilmoryImages(baseUrl, [
-      {
-        height: 100,
-        id: 'x',
-        originalUrl: 'https://r2.innei.ren/x.jpg',
-        thumbnailUrl: 'https://r2.innei.ren/thumb/x.jpg',
-        width: 100,
-      },
-    ])
-    expect(result[0]?.src).toBe('https://r2.innei.ren/thumb/x.jpg')
-    expect(result[0]?.full).toBe('https://r2.innei.ren/x.jpg')
   })
 })
 

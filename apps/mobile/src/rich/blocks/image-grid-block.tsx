@@ -1,7 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
 import { radius } from '@yohaku/design-system/tokens'
-import { SymbolView } from 'expo-symbols'
-import type { ReactNode } from 'react'
 import {
   Image,
   StyleSheet,
@@ -10,21 +7,13 @@ import {
   type ViewStyle,
 } from 'react-native'
 
-import { AppText, NativePressable, RemoteImage } from '@/components/ui'
+import { AppText, RemoteImage } from '@/components/ui'
 import { noteCoverPlaceholderUri } from '@/screens/lists/note-cover'
 import { usePalette } from '@/theme/palette'
 
-import { useRichDocument } from '../lexical/context'
 import { UnsupportedBlock } from './card-blocks'
-import {
-  afilmoryIds,
-  afilmoryImages,
-  type AfilmoryManifestPhoto,
-  galleryImages,
-  type GridImage,
-  gridRows,
-} from './image-grid'
-import { type BlockProps, str } from './types'
+import { galleryImages, type GridImage, gridRows } from './image-grid'
+import type { BlockProps } from './types'
 
 const MOCKUP_CONTENT_WIDTH = 350
 const FULL_ROW_HEIGHT = 236
@@ -50,30 +39,6 @@ function captionOf(images: GridImage[]): string | undefined {
     images
       .map((image) => image.alt)
       .filter((alt): alt is string => Boolean(alt))
-      .join(' · ') || undefined
-  )
-}
-
-function formatShutter(value: number | string | undefined): string | null {
-  if (value === undefined || value === '') return null
-  if (typeof value === 'number') {
-    if (!Number.isFinite(value)) return null
-    return value >= 1 ? `${value}s` : `1/${Math.round(1 / value)}s`
-  }
-  return value.includes('/') ? `${value}s` : value
-}
-
-function exifLine(exif: AfilmoryManifestPhoto['exif']): string | undefined {
-  if (!exif) return undefined
-  return (
-    [
-      exif.Model,
-      exif.LensModel,
-      typeof exif.FNumber === 'number' ? `ƒ/${exif.FNumber}` : undefined,
-      formatShutter(exif.ExposureTime),
-      typeof exif.ISO === 'number' ? `ISO ${exif.ISO}` : undefined,
-    ]
-      .filter((part): part is string => Boolean(part))
       .join(' · ') || undefined
   )
 }
@@ -131,13 +96,11 @@ function Tile({
   )
 }
 
-export function ImageGrid({
+function ImageGrid({
   caption,
-  footer,
   images,
 }: {
   caption?: string
-  footer?: ReactNode
   images: GridImage[]
 }) {
   const palette = usePalette()
@@ -185,16 +148,15 @@ export function ImageGrid({
   return (
     <View style={styles.wrap}>
       {grid}
-      {footer ??
-        (caption ? (
-          <AppText
-            color={palette.neutral[6]}
-            style={styles.caption}
-            variant="meta"
-          >
-            {caption}
-          </AppText>
-        ) : null)}
+      {caption ? (
+        <AppText
+          color={palette.neutral[6]}
+          style={styles.caption}
+          variant="meta"
+        >
+          {caption}
+        </AppText>
+      ) : null}
     </View>
   )
 }
@@ -207,154 +169,9 @@ export function GalleryBlock({ blockId, node }: BlockProps) {
   return <ImageGrid caption={captionOf(images)} images={images} />
 }
 
-function AfilmoryFooter({
-  baseUrl,
-  photo,
-}: {
-  baseUrl: string
-  photo: AfilmoryManifestPhoto
-}) {
-  const doc = useRichDocument()
-  const palette = usePalette()
-  return (
-    <View style={styles.footerRow}>
-      <AppText
-        color={palette.neutral[6]}
-        style={styles.exifText}
-        variant="meta"
-      >
-        {exifLine(photo.exif) ?? photo.id}
-      </AppText>
-      <NativePressable
-        accessibilityLabel="在 Afilmory 中打开"
-        haptic={false}
-        style={styles.openButton}
-        onPress={() =>
-          doc.onLinkPress?.(
-            `${baseUrl.replace(/\/$/, '')}/photos/${encodeURIComponent(photo.id)}`,
-          )
-        }
-      >
-        <SymbolView
-          name="arrow.up.right.square"
-          size={16}
-          tintColor={palette.neutral[6]}
-        />
-      </NativePressable>
-    </View>
-  )
-}
-
-function AfilmorySkeleton({
-  items,
-}: {
-  items: { h: number; id: string; w: number }[]
-}) {
-  const palette = usePalette()
-  const contentWidth = useContentWidth()
-  const scale = contentWidth / MOCKUP_CONTENT_WIDTH
-  const bone = { backgroundColor: palette.neutral[3] }
-
-  if (items.length <= 1) {
-    const ratio = items[0]
-      ? ratioOf({ height: items[0].h, width: items[0].w })
-      : 1
-    return (
-      <View style={styles.wrap}>
-        <View
-          style={[
-            bone,
-            { borderRadius: radius.control, height: contentWidth / ratio },
-          ]}
-        />
-      </View>
-    )
-  }
-
-  return (
-    <View style={styles.wrap}>
-      <View style={[styles.grid, { borderRadius: radius.control }]}>
-        {gridRows(items.length).rows.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
-            {row.map((index) => (
-              <View
-                key={index}
-                style={[bone, { flex: 1, height: rowHeight(row, scale) }]}
-              />
-            ))}
-          </View>
-        ))}
-      </View>
-    </View>
-  )
-}
-
-async function fetchAfilmoryPhotos(
-  baseUrl: string,
-  ids: string[],
-): Promise<AfilmoryManifestPhoto[]> {
-  const qs = new URLSearchParams({ ids: ids.join(',') })
-  const res = await fetch(
-    `${baseUrl.replace(/\/$/, '')}/api/manifest/photos?${qs.toString()}`,
-  )
-  if (!res.ok) throw new Error(`${res.status}`)
-  return res.json()
-}
-
-export function AfilmoryBlock({ blockId, node }: BlockProps) {
-  const baseUrl = str(node.baseUrl)
-  const ids = afilmoryIds(node)
-  const enabled = Boolean(baseUrl) && ids !== null && ids.length > 0
-
-  const query = useQuery({
-    enabled,
-    queryFn: () => fetchAfilmoryPhotos(baseUrl, ids!),
-    queryKey: ['afilmory-photos', baseUrl, ids],
-    staleTime: Infinity,
-  })
-
-  if (!enabled) return <UnsupportedBlock blockId={blockId} node={node} />
-
-  if (query.isPending) {
-    const source = node.source as
-      { items?: { h: number; id: string; w: number }[] } | undefined
-    return <AfilmorySkeleton items={source?.items ?? []} />
-  }
-
-  if (query.isError || !query.data || query.data.length === 0) {
-    return <UnsupportedBlock blockId={blockId} node={node} />
-  }
-
-  const images = afilmoryImages(baseUrl, query.data)
-  if (images.length === 1) {
-    return (
-      <ImageGrid
-        footer={<AfilmoryFooter baseUrl={baseUrl} photo={query.data[0]!} />}
-        images={images}
-      />
-    )
-  }
-  return <ImageGrid caption={captionOf(images)} images={images} />
-}
-
 const styles = StyleSheet.create({
   caption: { textAlign: 'center' },
-  exifText: { flex: 1, fontVariant: ['tabular-nums'] },
-  footerRow: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    gap: 8,
-    minHeight: 44,
-  },
   grid: { gap: 4, overflow: 'hidden' },
-  openButton: {
-    alignItems: 'center',
-    height: 44,
-    justifyContent: 'center',
-    margin: -12,
-    marginLeft: 0,
-    width: 44,
-  },
   overflowPill: {
     backgroundColor: 'rgba(20,19,18,0.62)',
     borderRadius: 999,

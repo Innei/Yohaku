@@ -7,43 +7,9 @@ export interface GridImage {
   width?: number
 }
 
-export interface AfilmoryManifestPhotoExif {
-  ExposureTime?: number | string
-  FNumber?: number
-  FocalLength?: string
-  ISO?: number
-  LensModel?: string
-  Model?: string
-}
-
-export interface AfilmoryManifestPhoto {
-  exif?: AfilmoryManifestPhotoExif
-  height?: number
-  id: string
-  originalUrl?: string
-  thumbHash?: string
-  thumbnailUrl?: string
-  title?: string
-  width?: number
-}
-
 export interface GridRows {
   overflow: number
   rows: number[][]
-}
-
-function isAbsoluteUrl(url: string): boolean {
-  return /^https?:\/\//i.test(url) || url.startsWith('//')
-}
-
-function resolveGridUrl(baseUrl: string, url: string): string {
-  if (!url) return ''
-  if (isAbsoluteUrl(url)) return url
-  try {
-    return new URL(url, baseUrl).toString()
-  } catch {
-    return url
-  }
 }
 
 export function galleryImages(node: Record<string, unknown>): GridImage[] {
@@ -69,40 +35,6 @@ export function galleryImages(node: Record<string, unknown>): GridImage[] {
     })
   }
   return result
-}
-
-export function afilmoryIds(node: Record<string, unknown>): string[] | null {
-  const source = node.source
-  if (!source || typeof source !== 'object') return null
-  const record = source as Record<string, unknown>
-  if (record.kind !== 'list') return null
-  const items = record.items
-  if (!Array.isArray(items)) return null
-  const ids: string[] = []
-  for (const item of items) {
-    if (
-      item &&
-      typeof item === 'object' &&
-      typeof (item as Record<string, unknown>).id === 'string'
-    ) {
-      ids.push((item as Record<string, unknown>).id as string)
-    }
-  }
-  return ids
-}
-
-export function afilmoryImages(
-  baseUrl: string,
-  photos: AfilmoryManifestPhoto[],
-): GridImage[] {
-  return photos.map((photo) => ({
-    alt: photo.title,
-    full: resolveGridUrl(baseUrl, photo.originalUrl ?? ''),
-    height: photo.height,
-    src: resolveGridUrl(baseUrl, photo.thumbnailUrl ?? ''),
-    thumbhash: photo.thumbHash,
-    width: photo.width,
-  }))
 }
 
 export function gridRows(count: number): GridRows {

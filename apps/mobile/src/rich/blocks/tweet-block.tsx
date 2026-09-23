@@ -1,24 +1,32 @@
 import { useQuery } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { SymbolView } from 'expo-symbols'
+import { Image, StyleSheet, View } from 'react-native'
 
 import { AppText, NativePressable, Paper, RemoteImage } from '@/components/ui'
+import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { useRichDocument } from '../lexical/context'
 import { UnsupportedBlock } from './card-blocks'
 import { useBoneColor } from './skeleton'
 import {
-  formatTweetDate,
   type ParsedTweet,
   parseTweet,
-  type TweetEntityRange,
   tweetIdFromUrl,
   tweetToken,
 } from './tweet'
+import { TweetMediaView } from './tweet-media'
+import {
+  QuotedTweet,
+  statusUrl,
+  TweetFooter,
+  TweetText,
+  VerifiedSeal,
+} from './tweet-parts'
 import { type BlockProps, str } from './types'
 
-const MEDIA_RADIUS = 12
+const CARD_PADDING = 16
+const X_LOGO = require('../../../assets/social/x.png')
 
 async function fetchTweet(id: string): Promise<ParsedTweet | null> {
   const res = await fetch(
@@ -27,43 +35,6 @@ async function fetchTweet(id: string): Promise<ParsedTweet | null> {
   if (!res.ok) throw new Error(`${res.status}`)
   const json = await res.json()
   return parseTweet(json)
-}
-
-function TweetText({
-  entities,
-  text,
-}: {
-  entities: TweetEntityRange[]
-  text: string
-}) {
-  const doc = useRichDocument()
-  const palette = usePalette()
-  const codePoints = Array.from(text)
-  const nodes: ReactNode[] = []
-  let cursor = 0
-  entities.forEach((entity) => {
-    if (entity.start > cursor) {
-      nodes.push(codePoints.slice(cursor, entity.start).join(''))
-    }
-    nodes.push(
-      <AppText
-        color={palette.accent}
-        key={`${entity.type}-${entity.start}`}
-        onPress={() => doc.onLinkPress?.(entity.href)}
-      >
-        {codePoints.slice(entity.start, entity.end).join('')}
-      </AppText>,
-    )
-    cursor = entity.end
-  })
-  if (cursor < codePoints.length) {
-    nodes.push(codePoints.slice(cursor).join(''))
-  }
-  return (
-    <AppText style={styles.text} variant="body">
-      {nodes}
-    </AppText>
-  )
 }
 
 function TweetSkeleton() {
@@ -79,7 +50,7 @@ function TweetSkeleton() {
       </View>
       <View style={[styles.skeletonLine, { width: '100%' }, bone]} />
       <View style={[styles.skeletonLine, { width: '84%' }, bone]} />
-      <View style={[styles.media, styles.skeletonMedia, bone]} />
+      <View style={[styles.skeletonMedia, bone]} />
     </Paper>
   )
 }
@@ -87,7 +58,6 @@ function TweetSkeleton() {
 export function TweetBlock({ blockId, node }: BlockProps) {
   const doc = useRichDocument()
   const palette = usePalette()
-  const bone = useBoneColor()
   const url = str(node.url)
   const id = tweetIdFromUrl(url)
 
@@ -104,8 +74,7 @@ export function TweetBlock({ blockId, node }: BlockProps) {
   }
 
   const tweet = query.data
-  const media = tweet.photo ?? tweet.videoPoster
-  const mediaRatio = media ? media.width / media.height : undefined
+  const { replyTo } = tweet
 
   return (
     <Paper style={styles.card}>
@@ -116,72 +85,73 @@ export function TweetBlock({ blockId, node }: BlockProps) {
           uri={tweet.user.avatar}
         />
         <View style={styles.headerText}>
-          <AppText numberOfLines={1} variant="secondary">
-            {tweet.user.name}
-          </AppText>
-          <AppText color={palette.neutral[6]} numberOfLines={1} variant="meta">
+          <View style={styles.nameRow}>
+            <AppText
+              color={palette.neutral[9]}
+              numberOfLines={1}
+              style={styles.name}
+              variant="secondary"
+            >
+              {tweet.user.name}
+            </AppText>
+            {tweet.user.verified ? <VerifiedSeal size={15} /> : null}
+          </View>
+          <AppText color={palette.neutral[7]} numberOfLines={1} variant="meta">
             @{tweet.user.screenName}
           </AppText>
         </View>
-        <AppText color={palette.neutral[5]} variant="meta">
-          X
-        </AppText>
+        <Image
+          accessibilityLabel="X"
+          source={X_LOGO}
+          style={[styles.xLogo, { tintColor: palette.neutral[9] }]}
+        />
       </View>
-      <TweetText entities={tweet.entities} text={tweet.text} />
-      {media ? (
-        tweet.photo ? (
-          <RemoteImage
-            contentFit="cover"
-            images={[tweet.photo.url]}
-            index={0}
-            uri={tweet.photo.url}
-            style={[
-              styles.media,
-              { aspectRatio: mediaRatio, backgroundColor: bone },
-            ]}
-          />
-        ) : (
-          <RemoteImage
-            contentFit="cover"
-            uri={media.url}
-            style={[
-              styles.media,
-              { aspectRatio: mediaRatio, backgroundColor: bone },
-            ]}
-          />
-        )
-      ) : null}
-      <View style={styles.footer}>
-        <AppText color={palette.neutral[6]} variant="meta">
-          {formatTweetDate(tweet.createdAt)}
-        </AppText>
+      {replyTo ? (
         <NativePressable
-          style={styles.viewOnX}
-          onPress={() => doc.onLinkPress?.(url)}
+          haptic={false}
+          style={styles.replyLine}
+          onPress={() =>
+            doc.onLinkPress?.(statusUrl(replyTo.screenName, replyTo.statusId))
+          }
         >
-          <AppText color={palette.accent} variant="meta">
-            在 X 上查看
+          <SymbolView
+            name="arrow.turn.down.right"
+            size={12}
+            tintColor={palette.neutral[5]}
+          />
+          <AppText color={palette.neutral[6]} variant="meta">
+            回复{' '}
+            <AppText color={palette.accent} variant="meta">
+              @{replyTo.screenName}
+            </AppText>
           </AppText>
         </NativePressable>
-      </View>
+      ) : null}
+      {tweet.text ? (
+        <TweetText entities={tweet.entities} text={tweet.text} />
+      ) : null}
+      <TweetMediaView bleed={CARD_PADDING} media={tweet.media} />
+      {tweet.quoted ? <QuotedTweet tweet={tweet.quoted} /> : null}
+      <TweetFooter tweet={tweet} url={url} />
     </Paper>
   )
 }
 
 const styles = StyleSheet.create({
-  card: { marginVertical: 12, padding: 16, gap: 12 },
+  card: { marginVertical: 12, padding: CARD_PADDING, gap: 12 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   avatar: { width: 40, height: 40, borderRadius: 20 },
   headerText: { flex: 1, gap: 1, minWidth: 0 },
-  text: { lineHeight: 24 },
-  media: { width: '100%', borderRadius: MEDIA_RADIUS, overflow: 'hidden' },
-  footer: {
-    flexDirection: 'row',
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  name: { ...fonts.sansSemiBold, flexShrink: 1 },
+  xLogo: { width: 16, height: 16 },
+  replyLine: {
     alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: 'row',
+    gap: 6,
+    marginVertical: -12,
     minHeight: 44,
   },
-  viewOnX: { minHeight: 44, justifyContent: 'center' },
   skeletonLine: { height: 12, borderRadius: 6 },
-  skeletonMedia: { height: 150 },
+  skeletonMedia: { height: 150, borderRadius: 12 },
 })
