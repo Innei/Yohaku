@@ -280,6 +280,24 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuTrackMapView.self) {
+      ViewName("YohakuTrackMap")
+
+      Events("onPress")
+
+      Prop("polylines") { (view: YohakuTrackMapView, value: [[[Double]]]) in
+        view.setPolylines(value)
+      }
+
+      Prop("accentColor") { (view: YohakuTrackMapView, color: UIColor?) in
+        view.setAccentColor(color)
+      }
+
+      Prop("interactive") { (view: YohakuTrackMapView, value: Bool) in
+        view.setInteractive(value)
+      }
+    }
+
     View(YohakuStudyShellView.self) {
       ViewName("YohakuStudyShell")
 

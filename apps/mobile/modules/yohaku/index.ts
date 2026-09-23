@@ -214,6 +214,16 @@ type YohakuVideoProps = ViewProps & {
 export const YohakuVideo: ComponentType<YohakuVideoProps> =
   requireNativeViewManager('Yohaku', 'YohakuVideo')
 
+type YohakuTrackMapProps = ViewProps & {
+  accentColor?: ColorValue
+  interactive?: boolean
+  onPress?: (event: NativeSyntheticEvent<Record<string, never>>) => void
+  polylines: number[][][]
+}
+
+export const YohakuTrackMap: ComponentType<YohakuTrackMapProps> =
+  requireNativeViewManager('Yohaku', 'YohakuTrackMap')
+
 type YohakuStudyShellProps = ViewProps & {
   accountImageUri?: string
   collapseDistance?: number
