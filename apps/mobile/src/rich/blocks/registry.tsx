@@ -16,6 +16,7 @@ import { AfilmoryBlock, GalleryBlock } from './image-grid-block'
 import { MapBlock } from './map-block'
 import { MermaidBlock } from './mermaid-block'
 import { PollBlock } from './poll-block'
+import { StockBlock } from './stock-block'
 import { TableBlock } from './table-block'
 import type { BlockProps } from './types'
 import { VideoBlock } from './video-block'
@@ -39,6 +40,7 @@ export const blockRegistry: Record<string, ComponentType<BlockProps>> = {
   mermaid: MermaidBlock,
   'nested-doc': NestedDocBlock,
   poll: PollBlock,
+  stock: StockBlock,
   table: TableBlock,
   video: VideoBlock,
 }

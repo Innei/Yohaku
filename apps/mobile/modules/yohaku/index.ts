@@ -225,6 +225,34 @@ type YohakuTrackMapProps = ViewProps & {
 export const YohakuTrackMap: ComponentType<YohakuTrackMapProps> =
   requireNativeViewManager('Yohaku', 'YohakuTrackMap')
 
+export type YohakuKlineBar = {
+  c: number
+  h: number
+  l: number
+  o: number
+  t: number
+  v: number
+}
+
+export type YohakuKlineEma = {
+  color: string
+  period: number
+  values: number[]
+}
+
+type YohakuKlineProps = ViewProps & {
+  bars: YohakuKlineBar[]
+  downColor?: ColorValue
+  ema: YohakuKlineEma[]
+  gridColor?: ColorValue
+  labelColor?: ColorValue
+  upColor?: ColorValue
+  volumeColor?: ColorValue
+}
+
+export const YohakuKline: ComponentType<YohakuKlineProps> =
+  requireNativeViewManager('Yohaku', 'YohakuKline')
+
 type YohakuStudyShellProps = ViewProps & {
   accountImageUri?: string
   collapseDistance?: number

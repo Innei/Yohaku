@@ -302,6 +302,38 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuKlineView.self) {
+      ViewName("YohakuKline")
+
+      Prop("bars") { (view: YohakuKlineView, value: [KlineBar]) in
+        view.setBars(value)
+      }
+
+      Prop("ema") { (view: YohakuKlineView, value: [KlineEma]) in
+        view.setEma(value)
+      }
+
+      Prop("upColor") { (view: YohakuKlineView, color: UIColor?) in
+        view.setUpColor(color)
+      }
+
+      Prop("downColor") { (view: YohakuKlineView, color: UIColor?) in
+        view.setDownColor(color)
+      }
+
+      Prop("gridColor") { (view: YohakuKlineView, color: UIColor?) in
+        view.setGridColor(color)
+      }
+
+      Prop("labelColor") { (view: YohakuKlineView, color: UIColor?) in
+        view.setLabelColor(color)
+      }
+
+      Prop("volumeColor") { (view: YohakuKlineView, color: UIColor?) in
+        view.setVolumeColor(color)
+      }
+    }
+
     View(YohakuStudyShellView.self) {
       ViewName("YohakuStudyShell")
 

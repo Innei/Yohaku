@@ -270,6 +270,25 @@ export interface ApiPushActivation {
   relayUrl: string
 }
 
+export interface ApiStockBar {
+  close: number
+  high: number
+  low: number
+  open: number
+  timestamp: number
+  volume?: number
+}
+
+export interface ApiStockBars {
+  bars: ApiStockBar[]
+  meta: {
+    chartPreviousClose?: number
+    exchange?: string
+    longName?: string
+    symbol: string
+  }
+}
+
 export interface ApiPollState {
   canVote: boolean
   closed: boolean

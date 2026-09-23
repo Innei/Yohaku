@@ -39,6 +39,7 @@ import type {
   ApiSearchPost,
   ApiSessionUser,
   ApiSiteInfo,
+  ApiStockBars,
   ApiTagDetail,
   ApiTopic,
   ApiTts,
@@ -441,6 +442,12 @@ export const api = {
       method: 'POST',
       body: { optionIds },
     }),
+  stockBars: (params: {
+    from: string
+    interval: string
+    symbol: string
+    to: string
+  }) => request<ApiStockBars>('/serverless/built-in/stock_bars', params),
   membershipPlans: () => request<MembershipPlansResult>('/membership/plans'),
   membershipStatus: () => request<MembershipStatusResult>('/membership/status'),
   membershipAppleAccountToken: () =>
