@@ -221,6 +221,8 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
     let layout = RichLayoutManager()
     let container = NSTextContainer(size: .zero)
     layoutManager = layout
+    // TextKit adds font leading on top of maximumLineHeight; Hiragino's 0.5em leading turned 28pt lines into 37pt.
+    layout.usesFontLeading = false
     container.widthTracksTextView = true
     storage.addLayoutManager(layout)
     layout.addTextContainer(container)
