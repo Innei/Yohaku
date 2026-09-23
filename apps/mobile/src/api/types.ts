@@ -269,3 +269,13 @@ export interface ApiPushActivation {
   enabled: true
   relayUrl: string
 }
+
+export interface ApiPollState {
+  canVote: boolean
+  closed: boolean
+  errorMessage?: string
+  status: 'ready' | 'error'
+  tallies: Record<string, number>
+  totalVotes: number
+  userVote?: string[]
+}

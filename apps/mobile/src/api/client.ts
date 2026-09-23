@@ -32,6 +32,7 @@ import type {
   ApiPage,
   ApiPaged,
   ApiPagination,
+  ApiPollState,
   ApiPost,
   ApiPushActivation,
   ApiSearchNote,
@@ -433,6 +434,12 @@ export const api = {
     request<ApiPushActivation>('/notifications/push/activate', undefined, {
       method: 'POST',
       body,
+    }),
+  pollState: (id: string) => request<ApiPollState>(`/polls/${encodeURIComponent(id)}`),
+  pollVote: (id: string, optionIds: string[]) =>
+    request<ApiPollState>(`/polls/${encodeURIComponent(id)}/vote`, undefined, {
+      method: 'POST',
+      body: { optionIds },
     }),
   membershipPlans: () => request<MembershipPlansResult>('/membership/plans'),
   membershipStatus: () => request<MembershipStatusResult>('/membership/status'),

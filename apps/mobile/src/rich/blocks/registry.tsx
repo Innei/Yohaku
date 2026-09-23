@@ -14,6 +14,7 @@ import { ExcalidrawBlock } from './excalidraw-block'
 import { ImageBlock } from './image-block'
 import { AfilmoryBlock, GalleryBlock } from './image-grid-block'
 import { MermaidBlock } from './mermaid-block'
+import { PollBlock } from './poll-block'
 import { TableBlock } from './table-block'
 import type { BlockProps } from './types'
 
@@ -34,5 +35,6 @@ export const blockRegistry: Record<string, ComponentType<BlockProps>> = {
   'link-card': LinkCardBlock,
   mermaid: MermaidBlock,
   'nested-doc': NestedDocBlock,
+  poll: PollBlock,
   table: TableBlock,
 }
