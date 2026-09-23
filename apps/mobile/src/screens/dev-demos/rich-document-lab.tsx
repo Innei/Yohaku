@@ -9,13 +9,20 @@ import { usePalette } from '@/theme/palette'
 
 import { LabScreen } from './lab-screen'
 
-const SAMPLES: Array<{ id: string; label: string; only?: string }> = [
+const SAMPLES: Array<{
+  id: string
+  label: string
+  note?: boolean
+  only?: string
+}> = [
   { id: '180759007416291328', label: '链接卡/引用/对话/文件' },
   { id: '155012508522909696', label: 'mermaid/表格/alert' },
   { id: '170934497552896000', label: '列表/embed/自动链接' },
   { id: '133259626676764688', label: '推文 embed' },
   { id: '133259626676764691', label: '投票' },
   { id: '180759007416291328', label: '只看 chat', only: 'chat' },
+  { id: '215', label: '地图/图集/视频', note: true },
+  { id: '216', label: '股票', note: true },
 ]
 
 export function RichDocumentLab() {
@@ -31,7 +38,12 @@ export function RichDocumentLab() {
   useEffect(() => {
     let cancelled = false
     setError('')
-    fetch(`https://mx.innei.in/api/v3/posts/${sample.id}`)
+    fetch(
+      sample.note
+        ? `https://mx.innei.in/api/v3/notes/nid/${sample.id}`
+        : `https://mx.innei.in/api/v3/posts/${sample.id}`,
+      { headers: { 'accept-language': '' } },
+    )
       .then((res) => res.json())
       .then(
         ({
@@ -40,12 +52,12 @@ export function RichDocumentLab() {
           data: {
             content: string
             slug: string
-            category: { slug: string }
+            category?: { slug: string }
           }
         }) => {
           if (cancelled) return
           setState({
-            id: sample.id,
+            id: sample.label,
             value: (() => {
               const parsed = JSON.parse(
                 post.content,
@@ -59,7 +71,9 @@ export function RichDocumentLab() {
               }
               return parsed
             })(),
-            webUrl: `https://innei.in/posts/${post.category.slug}/${post.slug}`,
+            webUrl: sample.note
+              ? `https://innei.in/notes/${sample.id}`
+              : `https://innei.in/posts/${post.category?.slug}/${post.slug}`,
           })
         },
       )
@@ -79,8 +93,8 @@ export function RichDocumentLab() {
       <View style={styles.row}>
         {SAMPLES.map((item) => (
           <PillButton
-            active={item.id === sample.id}
-            key={item.id}
+            active={item === sample}
+            key={item.label}
             onPress={() => setSample(item)}
           >
             <AppText variant="secondary">{item.label}</AppText>
@@ -92,7 +106,7 @@ export function RichDocumentLab() {
           {error}
         </AppText>
       ) : null}
-      {state && state.id === sample.id ? (
+      {state && state.id === sample.label ? (
         <RichDocument
           menuItems={[{ id: 'comment', label: '评论', icon: 'text.bubble' }]}
           value={state.value}
