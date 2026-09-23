@@ -41,6 +41,10 @@ function ratioOf(image: { height?: number; width?: number }): number {
   return Math.max(raw, PORTRAIT_RATIO_CAP)
 }
 
+function rowHeight(row: number[], scale: number): number {
+  return (row.length === 1 ? FULL_ROW_HEIGHT : PAIR_ROW_HEIGHT) * scale
+}
+
 function captionOf(images: GridImage[]): string | undefined {
   return (
     images
@@ -161,16 +165,12 @@ export function ImageGrid({
               return (
                 <Tile
                   fullUrls={fullUrls}
+                  height={rowHeight(row, scale)}
                   image={images[index]!}
                   index={index}
                   key={index}
                   overflow={isLastRow && isLastTile ? overflow : undefined}
                   style={{ flex: 1 }}
-                  height={
-                    row.length === 1
-                      ? FULL_ROW_HEIGHT * scale
-                      : PAIR_ROW_HEIGHT * scale
-                  }
                 />
               )
             })}
@@ -223,7 +223,9 @@ function AfilmoryFooter({
         {exifLine(photo.exif) ?? photo.id}
       </AppText>
       <NativePressable
+        accessibilityLabel="在 Afilmory 中打开"
         haptic={false}
+        style={styles.openButton}
         onPress={() =>
           doc.onLinkPress?.(
             `${baseUrl.replace(/\/$/, '')}/photos/${encodeURIComponent(photo.id)}`,
@@ -272,16 +274,7 @@ function AfilmorySkeleton({
             {row.map((index) => (
               <View
                 key={index}
-                style={[
-                  bone,
-                  {
-                    flex: 1,
-                    height:
-                      row.length === 1
-                        ? FULL_ROW_HEIGHT * scale
-                        : PAIR_ROW_HEIGHT * scale,
-                  },
-                ]}
+                style={[bone, { flex: 1, height: rowHeight(row, scale) }]}
               />
             ))}
           </View>
@@ -350,6 +343,14 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   grid: { gap: 4, overflow: 'hidden' },
+  openButton: {
+    alignItems: 'center',
+    height: 44,
+    justifyContent: 'center',
+    margin: -12,
+    marginLeft: 0,
+    width: 44,
+  },
   overflowPill: {
     backgroundColor: 'rgba(20,19,18,0.62)',
     borderRadius: 999,
