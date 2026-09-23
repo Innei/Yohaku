@@ -17,6 +17,7 @@ import type {
   MembershipStatusResult,
 } from './membership'
 import { parseNdjsonText, readNdjsonStream } from './ndjson'
+import { parsePollState } from './poll-state'
 import { readPresenceMap } from './presence-map'
 import { parseThinkingList } from './thinking'
 import type {
@@ -32,7 +33,6 @@ import type {
   ApiPage,
   ApiPaged,
   ApiPagination,
-  ApiPollState,
   ApiPost,
   ApiPushActivation,
   ApiSearchNote,
@@ -436,12 +436,15 @@ export const api = {
       method: 'POST',
       body,
     }),
-  pollState: (id: string) => request<ApiPollState>(`/polls/${encodeURIComponent(id)}`),
-  pollVote: (id: string, optionIds: string[]) =>
-    request<ApiPollState>(`/polls/${encodeURIComponent(id)}/vote`, undefined, {
-      method: 'POST',
-      body: { optionIds },
-    }),
+  pollState: async (id: string) =>
+    parsePollState(await fetchRawJson(`/polls/${encodeURIComponent(id)}`)),
+  pollVote: async (id: string, optionIds: string[]) =>
+    parsePollState(
+      await fetchRawJson(`/polls/${encodeURIComponent(id)}/vote`, undefined, {
+        method: 'POST',
+        body: { optionIds },
+      }),
+    ),
   stockBars: (params: {
     from: string
     interval: string
