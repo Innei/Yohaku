@@ -12,6 +12,7 @@ import { CalloutBlock, DetailsBlock } from './container-blocks'
 import { EmbedBlock } from './embed-block'
 import { ExcalidrawBlock } from './excalidraw-block'
 import { ImageBlock } from './image-block'
+import { AfilmoryBlock, GalleryBlock } from './image-grid-block'
 import { MermaidBlock } from './mermaid-block'
 import { TableBlock } from './table-block'
 import type { BlockProps } from './types'
@@ -19,6 +20,7 @@ import type { BlockProps } from './types'
 export { UnsupportedBlock }
 
 export const blockRegistry: Record<string, ComponentType<BlockProps>> = {
+  afilmory: AfilmoryBlock,
   'alert-quote': CalloutBlock,
   banner: CalloutBlock,
   chat: ChatBlock,
@@ -27,6 +29,7 @@ export const blockRegistry: Record<string, ComponentType<BlockProps>> = {
   embed: EmbedBlock,
   excalidraw: ExcalidrawBlock,
   file: FileBlock,
+  gallery: GalleryBlock,
   image: ImageBlock,
   'link-card': LinkCardBlock,
   mermaid: MermaidBlock,
