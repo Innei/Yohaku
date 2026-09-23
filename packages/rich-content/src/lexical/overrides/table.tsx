@@ -1,19 +1,18 @@
 import type { BuiltinNodeRenderer } from '@haklex/rich-compose'
 
+import { RichTableScroll } from '../../table-scroll'
+
 type TableCellNode = {
   headerState?: number | boolean
   colSpan?: number
 }
 
 const TableRenderer: BuiltinNodeRenderer = (_node, key, children) => (
-  <div
-    className="rich-table-scroll my-5 w-full min-w-0 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch]"
-    key={key}
-  >
+  <RichTableScroll className="my-5" key={key}>
     <table className="w-max min-w-full border-collapse [&_p]:my-1! [&_tr:last-child_td]:border-b-0">
       <tbody>{children}</tbody>
     </table>
-  </div>
+  </RichTableScroll>
 )
 
 const TableRowRenderer: BuiltinNodeRenderer = (_node, key, children) => (
@@ -36,7 +35,7 @@ const TableCellRenderer: BuiltinNodeRenderer = (node, key, children) => {
   }
   return (
     <td
-      className="whitespace-nowrap border-b border-neutral-3/50 py-1.5 pr-4 align-top text-neutral-9"
+      className="whitespace-nowrap border-b border-neutral-3/50 py-1.5 pr-4 align-middle text-neutral-9"
       colSpan={span}
       key={key}
     >

@@ -9,6 +9,8 @@
     "./lexical": "./src/lexical/create-renderer.tsx",
     "./module-imports": "./src/styles/module-imports.ts",
     "./block-styles.css": "./src/styles/yohaku-block-styles.css",
+    "./table-scroll": "./src/table-scroll.tsx",
+    "./table-scroll.css": "./src/styles/table-scroll.css",
     "./rich.css": "./dist/rich.css",
     "./src/*": "./src/*"
   },

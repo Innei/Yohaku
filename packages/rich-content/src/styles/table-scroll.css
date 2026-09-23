@@ -1,0 +1,105 @@
+.rich-table-scroll-shell {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+}
+
+.rich-table-scroll {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: color-mix(
+      in srgb,
+      var(--color-neutral-5, rgb(156 163 175)) 70%,
+      transparent
+    )
+    transparent;
+  scrollbar-width: thin;
+}
+
+.rich-table-scroll table {
+  margin-block: 0;
+}
+
+.rich-table-scroll table tr > :first-child {
+  padding-inline-start: 0.75rem;
+}
+
+.rich-table-scroll table tr > :last-child {
+  padding-inline-end: 0.75rem;
+}
+
+.rich-table-scroll::-webkit-scrollbar {
+  height: 0.45rem;
+}
+
+.rich-table-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rich-table-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(
+    in srgb,
+    var(--color-neutral-5, rgb(156 163 175)) 70%,
+    transparent
+  );
+  border-radius: 999px;
+}
+
+.rich-table-scroll:focus-visible {
+  outline: 2px solid
+    color-mix(in srgb, var(--color-primary, #4f46e5) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.rich-table-scroll-cue {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  display: grid;
+  padding-block: 0.45rem;
+  padding-inline: 0.35rem;
+  place-items: center;
+  pointer-events: none;
+  color: var(--color-neutral-8, rgb(75 85 99));
+  background: color-mix(
+    in srgb,
+    var(--color-background, white) 88%,
+    transparent
+  );
+  font-size: 0.8rem;
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity 160ms ease;
+}
+
+.rich-table-scroll-shell:hover .rich-table-scroll-cue,
+.rich-table-scroll-shell:focus-within .rich-table-scroll-cue {
+  opacity: 1;
+}
+
+.rich-table-scroll-cue-left {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--color-background, white),
+    transparent
+  );
+}
+
+.rich-table-scroll-cue-right {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    var(--color-background, white),
+    transparent
+  );
+}
+
+@media (max-width: 640px) {
+  .rich-table-scroll-cue {
+    padding-block: 0.35rem;
+  }
+}
