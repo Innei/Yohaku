@@ -293,6 +293,10 @@ public class YohakuModule: Module {
         view.setAccentColor(color)
       }
 
+      Prop("paperColor") { (view: YohakuTrackMapView, color: UIColor?) in
+        view.setPaperColor(color)
+      }
+
       Prop("interactive") { (view: YohakuTrackMapView, value: Bool) in
         view.setInteractive(value)
       }

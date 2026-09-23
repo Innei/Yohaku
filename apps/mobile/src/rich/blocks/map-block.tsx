@@ -91,9 +91,10 @@ export function MapBlock({ blockId, node }: BlockProps) {
   return (
     <Paper style={styles.card}>
       <YohakuTrackMap
+        accessibilityElementsHidden
         accentColor={palette.accent}
-        accessibilityLabel="轨迹地图"
-        accessibilityRole="button"
+        importantForAccessibility="no-hide-descendants"
+        paperColor={palette.surface.paper}
         polylines={polylines}
         style={[styles.map, { backgroundColor: palette.neutral[2] }]}
         onPress={() => setExpanded(true)}
@@ -138,6 +139,7 @@ export function MapBlock({ blockId, node }: BlockProps) {
           <YohakuTrackMap
             interactive
             accentColor={palette.accent}
+            paperColor={palette.surface.paper}
             polylines={polylines}
             style={StyleSheet.absoluteFill}
           />

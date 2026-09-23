@@ -218,6 +218,7 @@ type YohakuTrackMapProps = ViewProps & {
   accentColor?: ColorValue
   interactive?: boolean
   onPress?: (event: NativeSyntheticEvent<Record<string, never>>) => void
+  paperColor?: ColorValue
   polylines: number[][][]
 }
 

@@ -16,7 +16,6 @@ final class YohakuTrackMapView: ExpoView, MKMapViewDelegate {
   let onPress = EventDispatcher()
 
   private static let casingTitle = "casing"
-  private static let paperColor = UIColor(red: 253 / 255, green: 252 / 255, blue: 249 / 255, alpha: 1)
   private static let fitPadding = UIEdgeInsets(top: 28, left: 28, bottom: 28, right: 28)
   private static let minimumSpanMeters = 400.0
 
@@ -24,7 +23,9 @@ final class YohakuTrackMapView: ExpoView, MKMapViewDelegate {
   private let tapRecognizer = UITapGestureRecognizer()
   private var segments: [[CLLocationCoordinate2D]] = []
   private var accentColor = UIColor(red: 197 / 255, green: 100 / 255, blue: 115 / 255, alpha: 1)
+  private var paperColor = UIColor(red: 253 / 255, green: 252 / 255, blue: 249 / 255, alpha: 1)
   private var fittedSize: CGSize = .zero
+  private var isInteractive = false
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
@@ -61,7 +62,14 @@ final class YohakuTrackMapView: ExpoView, MKMapViewDelegate {
     rebuild()
   }
 
+  func setPaperColor(_ color: UIColor?) {
+    guard let color else { return }
+    paperColor = color
+    rebuild()
+  }
+
   func setInteractive(_ interactive: Bool) {
+    isInteractive = interactive
     mapView.isUserInteractionEnabled = interactive
     mapView.showsCompass = interactive
     tapRecognizer.isEnabled = !interactive
@@ -71,6 +79,7 @@ final class YohakuTrackMapView: ExpoView, MKMapViewDelegate {
     super.layoutSubviews()
     mapView.frame = bounds
     guard bounds.width > 0, bounds.height > 0, bounds.size != fittedSize else { return }
+    guard !isInteractive || fittedSize == .zero else { return }
     fittedSize = bounds.size
     fitToTrack()
   }
@@ -116,7 +125,7 @@ final class YohakuTrackMapView: ExpoView, MKMapViewDelegate {
     guard let polyline = overlay as? MKPolyline else { return MKOverlayRenderer(overlay: overlay) }
     let renderer = MKPolylineRenderer(polyline: polyline)
     let isCasing = polyline.title == Self.casingTitle
-    renderer.strokeColor = isCasing ? Self.paperColor : accentColor
+    renderer.strokeColor = isCasing ? paperColor : accentColor
     renderer.lineWidth = isCasing ? 7 : 3.5
     renderer.lineCap = .round
     renderer.lineJoin = .round
@@ -133,8 +142,8 @@ final class YohakuTrackMapView: ExpoView, MKMapViewDelegate {
 
   private func endpointImage(isStart: Bool) -> UIImage {
     let ringWidth: CGFloat = isStart ? 3 : 2.5
-    let fill = isStart ? Self.paperColor : accentColor
-    let ring = isStart ? accentColor : Self.paperColor
+    let fill = isStart ? paperColor : accentColor
+    let ring = isStart ? accentColor : paperColor
     let side = 12 + ringWidth
     return UIGraphicsImageRenderer(size: CGSize(width: side, height: side)).image { _ in
       let circle = UIBezierPath(ovalIn: CGRect(x: ringWidth / 2, y: ringWidth / 2, width: 12, height: 12))
