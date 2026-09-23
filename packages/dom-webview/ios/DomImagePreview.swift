@@ -957,6 +957,7 @@ private final class DomImagePageViewController: UIViewController,
       at: .centeredHorizontally,
       animated: false
     )
+    updateCounter()
   }
 
   override func viewDidDisappear(_ animated: Bool) {

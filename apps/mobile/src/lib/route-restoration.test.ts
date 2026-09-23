@@ -38,7 +38,6 @@ describe('restorableRoute', () => {
     '/comments/123',
     '/toc',
     '/login',
-    '/locale',
     '/desk',
     '/summary/post/123',
     '/insights/post/123',

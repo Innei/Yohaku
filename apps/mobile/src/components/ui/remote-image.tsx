@@ -8,6 +8,7 @@ export type RemoteImageProps = ViewProps & {
   contentFit?: RemoteImageContentFit
   images?: string[]
   index?: number
+  siteReferer?: string
   style?: StyleProp<ViewStyle>
   uri: string
 }
@@ -17,6 +18,7 @@ type NativeRemoteImageProps = ViewProps & {
   images: string[]
   index: number
   label?: string
+  siteReferer?: string
   uri: string
 }
 
@@ -28,6 +30,7 @@ export function RemoteImage({
   contentFit = 'cover',
   images,
   index = 0,
+  siteReferer,
   uri,
   ...rest
 }: RemoteImageProps) {
@@ -39,6 +42,7 @@ export function RemoteImage({
       images={images ?? []}
       index={index}
       label={accessibilityLabel}
+      siteReferer={siteReferer}
       uri={uri}
     />
   )

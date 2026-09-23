@@ -16,13 +16,21 @@ import { AppText, Button, GroupedList, SinkPressable } from '@/components/ui'
 import { showToast } from '@/components/ui/toast-store'
 import { db } from '@/db'
 import { likedRefs, readingHistory } from '@/db/schema'
-import { localeNames, useLocale, useTranslations } from '@/i18n'
+import type { Locale } from '@/i18n'
+import {
+  localeNames,
+  locales,
+  setLocale,
+  useLocale,
+  useTranslations,
+} from '@/i18n'
 import { likedActivityCount } from '@/interactions/liked-count'
 import { clearImageCache, imageCacheBytes } from '@/lib/image-cache'
 import { openExternalUrl } from '@/lib/open-external'
 import { getPrivacyUrl } from '@/lib/site-url'
 import { loadPushConfig } from '@/push/config'
 import { NotificationSettings } from '@/push/notification-settings'
+import { syncAll } from '@/sync/engine'
 import { usePalette } from '@/theme/palette'
 
 import { ActivityStats } from '../me/activity-stats'
@@ -112,27 +120,10 @@ function ProfileHero() {
   )
 }
 
-function Section({ label, rows }: { label: string; rows: GroupedListRow[] }) {
-  const palette = usePalette()
-  return (
-    <View style={styles.section}>
-      <AppText
-        color={palette.neutral[6]}
-        style={styles.sectionLabel}
-        variant="eyebrow"
-      >
-        {label}
-      </AppText>
-      <GroupedList rows={rows} style={styles.sectionList} />
-    </View>
-  )
-}
-
 export function ReaderScreen({ pageIndicator }: { pageIndicator: ReactNode }) {
   const t = useTranslations('me')
   const ta = useTranslations('auth')
   const tc = useTranslations('common')
-  const router = useRouter()
   const locale = useLocale()
   const session = useSession()
   const version = Constants.expoConfig?.version ?? '—'
@@ -173,9 +164,16 @@ export function ReaderScreen({ pageIndicator }: { pageIndicator: ReactNode }) {
       id: 'language',
       label: t('language'),
       value: localeNames[locale],
-      chevron: true,
-      navigates: true,
-      onPress: () => router.push('/locale'),
+      menu: locales.map((item) => ({
+        id: item,
+        title: localeNames[item],
+        on: item === locale,
+      })),
+      onMenuSelect: (next) => {
+        if (next === locale) return
+        setLocale(next as Locale)
+        void syncAll({ force: true })
+      },
     },
     {
       id: 'storage',
@@ -267,10 +265,18 @@ export function ReaderScreen({ pageIndicator }: { pageIndicator: ReactNode }) {
           readingCount={readingCount}
           showComments={commentsVisible}
         />
-        <Section label={t('sectionGeneral')} rows={generalRows} />
+        <GroupedList
+          header={t('sectionGeneral')}
+          rows={generalRows}
+          style={styles.sectionList}
+        />
         {pushConfigured ? <NotificationSettings /> : null}
         {accountRows.length > 0 ? (
-          <Section label={t('sectionAccount')} rows={accountRows} />
+          <GroupedList
+            header={t('sectionAccount')}
+            rows={accountRows}
+            style={styles.sectionList}
+          />
         ) : null}
         {__DEV__ ? (
           <Link asChild href="/dev-demos">
@@ -313,13 +319,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     maxWidth: '100%',
-  },
-  section: {
-    gap: 8,
-  },
-  sectionLabel: {
-    marginLeft: 4,
-    textTransform: 'uppercase',
   },
   sectionList: {
     marginHorizontal: -20,

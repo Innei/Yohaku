@@ -51,6 +51,12 @@ interface YohakuNativeModule {
   preloadTts(url: string): Promise<void>
   prepareNoteHeroTransition(noteId: string): void
   presentSafari(url: string): Promise<void>
+  rasterizeSvg(payload: {
+    bg: string
+    height: number
+    svg: string
+    width: number
+  }): Promise<{ height: number; uri: string; width: number }>
   renderMermaid(payload: {
     bg: string
     fg: string
@@ -197,6 +203,58 @@ type YohakuPagerProps = ViewProps & {
 export const YohakuPager: ComponentType<YohakuPagerProps> =
   requireNativeViewManager('Yohaku', 'YohakuPager')
 
+type YohakuVideoProps = ViewProps & {
+  backdropColor?: ColorValue
+  loop?: boolean
+  onNaturalSize?: (
+    event: NativeSyntheticEvent<{ height: number; width: number }>,
+  ) => void
+  poster?: string
+  src: string
+}
+
+export const YohakuVideo: ComponentType<YohakuVideoProps> =
+  requireNativeViewManager('Yohaku', 'YohakuVideo')
+
+type YohakuTrackMapProps = ViewProps & {
+  accentColor?: ColorValue
+  interactive?: boolean
+  onNativePress?: (event: NativeSyntheticEvent<Record<string, never>>) => void
+  paperColor?: ColorValue
+  polylines: number[][][]
+}
+
+export const YohakuTrackMap: ComponentType<YohakuTrackMapProps> =
+  requireNativeViewManager('Yohaku', 'YohakuTrackMap')
+
+export type YohakuKlineBar = {
+  c: number
+  h: number
+  l: number
+  o: number
+  t: number
+  v: number
+}
+
+export type YohakuKlineEma = {
+  color: string
+  period: number
+  values: number[]
+}
+
+type YohakuKlineProps = ViewProps & {
+  bars: YohakuKlineBar[]
+  downColor?: ColorValue
+  ema: YohakuKlineEma[]
+  gridColor?: ColorValue
+  labelColor?: ColorValue
+  upColor?: ColorValue
+  volumeColor?: ColorValue
+}
+
+export const YohakuKline: ComponentType<YohakuKlineProps> =
+  requireNativeViewManager('Yohaku', 'YohakuKline')
+
 type YohakuStudyShellProps = ViewProps & {
   accountImageUri?: string
   collapseDistance?: number
@@ -256,6 +314,7 @@ export type GroupedListNativeRow = {
   danger: boolean
   id: string
   label: string
+  menu?: NavigationHeaderMenuItem[]
   navigates: boolean
   pressable: boolean
   value?: string
@@ -263,7 +322,12 @@ export type GroupedListNativeRow = {
 
 type GroupedListViewProps = ViewProps & {
   dangerColor: string
-  onNativeHeight?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  onNativeMetrics?: (
+    event: NativeSyntheticEvent<{ height: number; textLeading: number }>,
+  ) => void
+  onRowMenuAction?: (
+    event: NativeSyntheticEvent<{ id: string; item: string }>,
+  ) => void
   onRowPress?: (event: NativeSyntheticEvent<{ id: string }>) => void
   rows: GroupedListNativeRow[]
 }
@@ -340,3 +404,30 @@ type TicketStubViewProps = ViewProps & {
 
 export const TicketStubView: ComponentType<TicketStubViewProps> =
   requireNativeViewManager('Yohaku', 'TicketStub')
+
+type RichTextNativeProps = ViewProps & {
+  blocks: unknown[]
+  highlights: unknown[]
+  menuItems: unknown[]
+  onContentHeight?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  onSelectionActive?: (event: NativeSyntheticEvent<{ active: boolean }>) => void
+  onBlockRects?: (
+    event: NativeSyntheticEvent<{
+      rects: Array<{ height: number; id: string; y: number }>
+    }>,
+  ) => void
+  onHighlightPress?: (event: NativeSyntheticEvent<{ id: string }>) => void
+  onLinkPress?: (event: NativeSyntheticEvent<{ href: string }>) => void
+  onMenuAction?: (
+    event: NativeSyntheticEvent<{
+      end: { blockId: string; offset: number }
+      id: string
+      start: { blockId: string; offset: number }
+      text: string
+    }>,
+  ) => void
+  typography: Record<string, unknown>
+}
+
+export const RichTextNativeView: ComponentType<RichTextNativeProps> =
+  requireNativeViewManager('Yohaku', 'RichText')
