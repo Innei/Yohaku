@@ -124,13 +124,14 @@ private struct KlineChart: View {
   private var volumeChart: some View {
     Chart {
       ForEach(Array(model.bars.enumerated()), id: \.offset) { index, bar in
-        let xStart: PlottableValue<Double> = .value("s", Double(index) - Self.bodyHalfWidth)
-        let xEnd: PlottableValue<Double> = .value("e", Double(index) + Self.bodyHalfWidth)
-        let yStart: CGFloat = 0
-        let yEnd: CGFloat = bar.v
-        BarMark(xStart: xStart, xEnd: xEnd, yStart: yStart, yEnd: yEnd)
-          .cornerRadius(1)
-          .foregroundStyle(model.volumeColor)
+        RectangleMark(
+          xStart: .value("s", Double(index) - Self.bodyHalfWidth),
+          xEnd: .value("e", Double(index) + Self.bodyHalfWidth),
+          yStart: .value("v0", 0.0),
+          yEnd: .value("v", bar.v)
+        )
+        .cornerRadius(1)
+        .foregroundStyle(model.volumeColor)
       }
     }
     .chartXScale(domain: xDomain)
