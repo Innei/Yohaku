@@ -13,7 +13,7 @@ export function extractImageUrls(input: {
   collectFromText(input.text, urls)
   if (input.enrichments) {
     for (const entry of Object.values(input.enrichments)) {
-      if (entry.image?.url) urls.add(entry.image.url)
+      if (entry.previewImage?.url) urls.add(entry.previewImage.url)
       if (entry.thumbnailImage?.url) urls.add(entry.thumbnailImage.url)
     }
   }
