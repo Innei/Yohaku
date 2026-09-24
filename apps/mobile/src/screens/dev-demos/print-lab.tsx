@@ -1,20 +1,18 @@
+import printLabFixture from '@yohaku/rich-content/src/lexical/__fixtures__/print-lab.json'
+import { withLexicalElementDefaults } from '@yohaku/rich-content/src/lexical/element-defaults.ts'
 import { StyleSheet, View } from 'react-native'
 
-import { apiBaseUrl } from '@/api/base-url'
-import RichBody from '@/components/dom/rich-body'
-import { useRichBodyLabels } from '@/components/dom/use-rich-body-labels'
 import { AppText, Button } from '@/components/ui'
-import { useLocale, useTranslations } from '@/i18n'
+import { useTranslations } from '@/i18n'
 import { useOwner } from '@/owner/store'
+import { RichDocument } from '@/rich/lexical/rich-document'
 import { useArticlePrint } from '@/screens/details/article-print-host'
 import { usePalette } from '@/theme/palette'
-import { useWebviewSerifFontFamily } from '@/theme/serif-font'
-import { withLexicalElementDefaults } from '@yohaku/rich-content/src/lexical/element-defaults.ts'
-import printLabFixture from '@yohaku/rich-content/src/lexical/__fixtures__/print-lab.json'
 
 import { LabScreen } from './lab-screen'
 
-const CONTENT = JSON.stringify(withLexicalElementDefaults(printLabFixture))
+const STATE = withLexicalElementDefaults(printLabFixture)
+const CONTENT = JSON.stringify(STATE)
 const WEB_URL = 'https://innei.in/posts/lab/print'
 
 export function PrintLabScreen() {
@@ -27,12 +25,9 @@ export function PrintLabScreen() {
 
 export function PrintLab() {
   const palette = usePalette()
-  const locale = useLocale()
   const t = useTranslations('common')
   const tp = useTranslations('print')
   const owner = useOwner()
-  const labels = useRichBodyLabels()
-  const serifFontFamily = useWebviewSerifFontFamily()
   const { host, print } = useArticlePrint()
 
   return (
@@ -69,20 +64,11 @@ export function PrintLab() {
         }
       />
       <View style={[styles.stage, { borderColor: palette.neutral[3] }]}>
-        <AppText variant="meta">屏幕渲染 · 点打印走假 WebView</AppText>
-        <RichBody
-          apiBase={apiBaseUrl()}
-          content={CONTENT}
-          labels={labels}
-          locale={locale}
-          serifFontFamily={serifFontFamily}
-          theme={palette.theme}
+        <AppText variant="meta">屏幕渲染 · 打印走原生分页</AppText>
+        <RichDocument
+          value={STATE as never}
           variant="article"
           webUrl={WEB_URL}
-          dom={{ matchContents: true, scrollEnabled: false }}
-          onImagePress={async () => {}}
-          onLinkPress={async () => {}}
-          onScrollToAnchor={async () => {}}
         />
       </View>
     </View>

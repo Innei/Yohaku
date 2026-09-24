@@ -6,15 +6,12 @@ import {
 } from 'react'
 import type { GestureResponderEvent } from 'react-native'
 
-import { prepareArticleBody } from '@/components/dom/prepare-reader'
 import { useTranslations } from '@/i18n'
 import { copyUrl } from '@/lib/copy-url'
 import { openExternalUrl } from '@/lib/open-external'
 import { shareUrl } from '@/lib/share'
 
 import type { ActivityHref } from './activity-href'
-import type { LikedListItem } from './liked-list-model'
-import type { ReadingListItem } from './reading-list-model'
 
 type LinkPressEvent =
   GestureResponderEvent | ReactMouseEvent<HTMLAnchorElement, MouseEvent>
@@ -22,47 +19,12 @@ type LinkPressEvent =
 export function openActivityHref(
   target: ActivityHref,
   router: { push: (href: Href) => void },
-  prepare?: () => void | Promise<unknown>,
 ) {
   if (target.browser && target.webUrl) {
     void openExternalUrl(target.webUrl)
     return
   }
-  const href = target.href
-  const result = prepare?.()
-  if (result) {
-    void Promise.resolve(result).finally(() => router.push(href))
-    return
-  }
-  router.push(href)
-}
-
-export function prepareActivityBody(
-  item: LikedListItem | ReadingListItem,
-  webUrl: string,
-) {
-  if (item.kind === 'post') {
-    if (item.post.contentFormat === 'lexical' && item.post.content) {
-      return prepareArticleBody({
-        content: item.post.content,
-        enrichments: item.post.enrichments ?? undefined,
-        id: item.post.id,
-        variant: 'article',
-        webUrl,
-      })
-    }
-    return
-  }
-  if (item.kind !== 'note') return
-  if (item.note.contentFormat === 'lexical' && item.note.content) {
-    return prepareArticleBody({
-      content: item.note.content,
-      enrichments: item.note.enrichments ?? undefined,
-      id: item.note.id,
-      variant: 'note',
-      webUrl,
-    })
-  }
+  router.push(target.href)
 }
 
 export function ActivityLink({

@@ -1,13 +1,11 @@
 import type { Href } from 'expo-router'
 
-import { prepareArticleBody } from '@/components/dom/prepare-reader'
 import type { NoteRow, PostRow } from '@/db/schema'
 import { primeDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { openExternalUrl } from '@/lib/open-external'
 import { siteHref } from '@/lib/site-url'
 
 type Router = {
-  prefetch: (href: Href) => void
   push: (href: Href) => void
 }
 
@@ -16,24 +14,6 @@ type OpenPostRow = Pick<
   'categorySlug' | 'contentFormat' | 'id' | 'slug'
 > &
   Partial<Pick<PostRow, 'content' | 'enrichments'>>
-
-function openAfterPrepare(
-  router: Router,
-  href: Href,
-  prepare?: () => Promise<unknown>,
-  beforePush?: () => void,
-) {
-  const push = () => {
-    beforePush?.()
-    router.push(href)
-  }
-  if (!prepare) {
-    push()
-    return
-  }
-  router.prefetch(href)
-  void prepare().finally(push)
-}
 
 function isFullPostRow(post: OpenPostRow): post is OpenPostRow & PostRow {
   return 'lang' in post
@@ -61,22 +41,9 @@ export function openNote(
       note,
       topic: null,
     })
-    openAfterPrepare(
-      router,
-      href,
-      () =>
-        prepareArticleBody({
-          content: note.content!,
-          enrichments: note.enrichments ?? undefined,
-          id: note.id,
-          variant: 'note',
-          webUrl,
-        }),
-      prepareSharedHero,
-    )
-    return
   }
-  openAfterPrepare(router, href, undefined, prepareSharedHero)
+  prepareSharedHero?.()
+  router.push(href)
 }
 
 export function openPost(router: Router, post: OpenPostRow) {
@@ -90,23 +57,11 @@ export function openPost(router: Router, post: OpenPostRow) {
     pathname: '/posts/[category]/[slug]',
     params: { category: post.categorySlug, postId: post.id, slug: post.slug },
   } as const
-  if (post.contentFormat === 'lexical' && post.content) {
-    if (isFullPostRow(post)) {
-      primeDatabaseSnapshot(
-        `post:${post.lang}:${post.id}:${post.categorySlug}:${post.slug}`,
-        post,
-      )
-    }
-    openAfterPrepare(router, href, () =>
-      prepareArticleBody({
-        content: post.content!,
-        enrichments: post.enrichments ?? undefined,
-        id: post.id,
-        variant: 'article',
-        webUrl,
-      }),
+  if (post.contentFormat === 'lexical' && post.content && isFullPostRow(post)) {
+    primeDatabaseSnapshot(
+      `post:${post.lang}:${post.id}:${post.categorySlug}:${post.slug}`,
+      post,
     )
-    return
   }
   router.push(href)
 }

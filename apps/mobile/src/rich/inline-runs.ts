@@ -2,9 +2,11 @@ export interface InlineRun {
   bold?: boolean
   code?: boolean
   color?: string
+  footnote?: string
   highlight?: boolean
   href?: string
   italic?: boolean
+  math?: boolean
   spoiler?: boolean
   strike?: boolean
   sub?: boolean

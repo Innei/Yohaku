@@ -30,6 +30,7 @@ import {
   type NativeBlockMap,
   selectionMessageFromMenuAction,
 } from '@/rich/anchors'
+import { FOOTNOTE_SCHEME } from '@/rich/lexical/footnotes'
 import { RichDocument } from '@/rich/lexical/rich-document'
 import { SelectionCommentSheet } from '@/screens/comments/selection-comment-sheet'
 import { usePalette } from '@/theme/palette'
@@ -42,7 +43,7 @@ interface NestedDoc {
   title?: string
 }
 
-function parseState(content: string): SerializedEditorState | null {
+export function parseState(content: string): SerializedEditorState | null {
   try {
     const parsed = JSON.parse(content) as SerializedEditorState
     return parsed && typeof parsed === 'object' && 'root' in parsed
@@ -87,6 +88,7 @@ export function ArticleBody({
     {},
   )
   const bodyTopRef = useRef(0)
+  const footnoteSectionRef = useRef<string | null>(null)
   const [slotTop, setSlotTop] = useState<number | null>(null)
   const [nestedDoc, setNestedDoc] = useState<NestedDoc | null>(null)
   const [blockMap, setBlockMap] = useState<NativeBlockMap>(() => new Map())
@@ -134,17 +136,19 @@ export function ArticleBody({
     return itemKey ? rects[itemKey] : undefined
   }
 
-  const scrollToBlock = (blockId: string, offsetRatio: number) => {
+  const scrollToBlock = (
+    blockId: string,
+    offsetRatio: number,
+    align: 'center' | 'top' = 'center',
+  ) => {
     const rect = rectForBlock(blockId)
     if (!rect) return
+    const anchor = align === 'top' ? 0 : rect.height / 2
     scrollRef.current?.scrollTo({
       animated: true,
       y: Math.max(
         0,
-        rect.y +
-          bodyTopRef.current +
-          rect.height / 2 -
-          windowHeight * offsetRatio,
+        rect.y + bodyTopRef.current + anchor - windowHeight * offsetRatio,
       ),
     })
   }
@@ -174,6 +178,11 @@ export function ArticleBody({
   }
 
   const handleLinkPress = (url: string) => {
+    if (url.startsWith(FOOTNOTE_SCHEME)) {
+      if (footnoteSectionRef.current)
+        scrollToBlock(footnoteSectionRef.current, 0.12, 'top')
+      return
+    }
     const href = hrefForExternalUrl(url)
     if (href) {
       router.push(href)
@@ -231,7 +240,6 @@ export function ArticleBody({
           onHighlightPress={handleHighlightPress}
           onLinkPress={handleLinkPress}
           onNestedDocExpand={setNestedDoc}
-          onSegments={(segments) => setBlockMap(indexNativeBlocks(segments))}
           onSelectionActive={handleSelectionActive}
           onBlockLayout={(blockId, y, height) => {
             blockRectsRef.current[blockId] = { y, height }
@@ -241,6 +249,16 @@ export function ArticleBody({
               selectionMessageFromMenuAction(event, blockInfos, blockMap),
             )
           }
+          onSegments={(segments) => {
+            footnoteSectionRef.current =
+              segments.flatMap((segment) =>
+                segment.kind === 'view' &&
+                segment.node.type === 'footnote-section'
+                  ? [segment.blockId]
+                  : [],
+              )[0] ?? null
+            setBlockMap(indexNativeBlocks(segments))
+          }}
         />
       ) : null}
       <Modal
@@ -267,7 +285,9 @@ export function ArticleBody({
                 value={nestedDoc.contentState}
                 variant={variant}
                 webUrl={webUrl}
-                onLinkPress={handleLinkPress}
+                onLinkPress={(url) => {
+                  if (!url.startsWith(FOOTNOTE_SCHEME)) handleLinkPress(url)
+                }}
               />
             ) : null}
           </ScrollView>

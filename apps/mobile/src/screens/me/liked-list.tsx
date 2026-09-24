@@ -20,11 +20,7 @@ import { usePalette } from '@/theme/palette'
 import { ActivityEntry, ActivityUnavailable } from './activity-entry'
 import { viewLikedItem } from './activity-entry-model'
 import { likedHref } from './activity-href'
-import {
-  ActivityLink,
-  openActivityHref,
-  prepareActivityBody,
-} from './activity-link'
+import { ActivityLink, openActivityHref } from './activity-link'
 import { type LikedListItem, resolveLikedItems } from './liked-list-model'
 
 export function LikedListScreen() {
@@ -122,10 +118,7 @@ function LikedRow({
     return <ActivityUnavailable label={t('unavailable')} />
   }
 
-  const open = () =>
-    openActivityHref(target, router, () => {
-      if (target.webUrl) return prepareActivityBody(item, target.webUrl)
-    })
+  const open = () => openActivityHref(target, router)
 
   return (
     <ActivityLink target={target} onOpen={open}>

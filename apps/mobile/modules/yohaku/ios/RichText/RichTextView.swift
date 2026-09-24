@@ -1,7 +1,7 @@
 import ExpoModulesCore
 import UIKit
 
-private extension NSAttributedString.Key {
+extension NSAttributedString.Key {
   static let richBlockId = NSAttributedString.Key("YohakuRichBlockId")
   static let richHighlightId = NSAttributedString.Key("YohakuRichHighlightId")
   static let richSpoiler = NSAttributedString.Key("YohakuRichSpoiler")
@@ -9,7 +9,7 @@ private extension NSAttributedString.Key {
   static let richRule = NSAttributedString.Key("YohakuRichRule")
 }
 
-private struct HeadingSpec {
+struct HeadingSpec {
   var size: CGFloat = 24
   var lineHeight: CGFloat = 30
   var spacingBefore: CGFloat = 0
@@ -25,7 +25,7 @@ private struct HeadingSpec {
   }
 }
 
-private struct RichTypography {
+struct RichTypography {
   var fontFamily: String?
   var fallbackFontFamily: String?
   var codeFontFamily: String?
@@ -156,12 +156,12 @@ extension UIColor {
   }
 }
 
-private struct BlockRange {
+struct BlockRange {
   let id: String
   let range: NSRange
 }
 
-private final class RichLayoutManager: NSLayoutManager {
+final class RichLayoutManager: NSLayoutManager {
   var quoteColor = UIColor.secondaryLabel
   var ruleColor = UIColor.separator
 
@@ -182,9 +182,31 @@ private final class RichLayoutManager: NSLayoutManager {
     storage.enumerateAttribute(.richRule, in: characters) { value, range, _ in
       guard value != nil else { return }
       let glyphs = self.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
-      context.setFillColor(self.ruleColor.cgColor)
+      context.setFillColor(((value as? UIColor) ?? self.ruleColor).cgColor)
       self.enumerateLineFragments(forGlyphRange: glyphs) { rect, _, container, _, _ in
         context.fill(CGRect(x: origin.x, y: rect.midY + origin.y, width: container.size.width, height: 1))
+      }
+    }
+  }
+
+  override func drawGlyphs(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
+    super.drawGlyphs(forGlyphRange: glyphsToShow, at: origin)
+    guard let storage = textStorage, let context = UIGraphicsGetCurrentContext() else { return }
+    let characters = characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
+    storage.enumerateAttribute(.richMath, in: characters) { value, range, _ in
+      guard let key = value as? String, let box = RichMath.box(forKey: key) else { return }
+      let scale = CGFloat((storage.attribute(.richMathScale, at: range.location, effectiveRange: nil) as? NSNumber)?.doubleValue ?? 1)
+      for index in range.location..<NSMaxRange(range) {
+        let glyph = self.glyphIndexForCharacter(at: index)
+        let line = self.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil)
+        let location = self.location(forGlyphAt: glyph)
+        let offset = (storage.attribute(.attachment, at: index, effectiveRange: nil) as? NSTextAttachment)?.bounds.minY ?? 0
+        RichMath.draw(
+          box,
+          scale: scale,
+          bottomLeft: CGPoint(x: origin.x + line.minX + location.x, y: origin.y + line.minY + location.y - offset),
+          in: context
+        )
       }
     }
   }
@@ -192,6 +214,11 @@ private final class RichLayoutManager: NSLayoutManager {
 
 private final class RichTextContentView: UITextView {
   var revealedSpoilers = Set<Int>()
+
+  override func copy(_ sender: Any?) {
+    guard selectedRange.length > 0 else { return super.copy(sender) }
+    UIPasteboard.general.string = RichMath.plainText(of: attributedText.attributedSubstring(from: selectedRange))
+  }
 }
 
 final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDelegate {
@@ -304,6 +331,121 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
   }
 
   private func rebuild() {
+    let (result, ranges) = RichAttributedBuilder.build(
+      blocks: blocks,
+      typography: typography,
+      revealedSpoilers: textView.revealedSpoilers
+    )
+
+    for highlight in highlights {
+      guard let blockId = highlight["blockId"] as? String,
+            let start = highlight["start"] as? Int,
+            let end = highlight["end"] as? Int,
+            let block = ranges.first(where: { $0.id == blockId }) else { continue }
+      let clampedStart = max(0, min(start, block.range.length))
+      let clampedEnd = max(clampedStart, min(end, block.range.length))
+      let range = NSRange(location: block.range.location + clampedStart, length: clampedEnd - clampedStart)
+      guard range.length > 0 else { continue }
+      let kind = highlight["kind"] as? String ?? "comment"
+      let color: UIColor
+      switch kind {
+      case "active": color = typography.activeHighlightColor
+      case "block": color = typography.accentColor.withAlphaComponent(0.08)
+      default: color = typography.highlightColor
+      }
+      result.addAttribute(.backgroundColor, value: color, range: range)
+      if let id = highlight["id"] as? String {
+        result.addAttribute(.richHighlightId, value: id, range: range)
+      }
+    }
+
+    blockRanges = ranges
+    textView.attributedText = result
+    reportedHeight = -1
+    reportHeight()
+  }
+
+  private func locate(_ location: Int) -> [String: Any] {
+    for block in blockRanges {
+      let end = block.range.location + block.range.length
+      if location >= block.range.location && location <= end {
+        return ["blockId": block.id, "offset": location - block.range.location]
+      }
+    }
+    return ["blockId": "", "offset": 0]
+  }
+
+  private func selectionPayload() -> [String: Any] {
+    let selected = textView.selectedRange
+    let text = RichMath.plainText(of: textView.attributedText.attributedSubstring(from: selected))
+    return [
+      "text": text,
+      "start": locate(selected.location),
+      "end": locate(selected.location + selected.length),
+    ]
+  }
+
+  @objc private func handleTap(_ recognizer: UITapGestureRecognizer) {
+    guard textView.selectedRange.length == 0 else { return }
+    let point = recognizer.location(in: textView)
+    let index = textView.layoutManager.characterIndex(for: point, in: textView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
+    guard index < textView.attributedText.length else { return }
+    let attributes = textView.attributedText.attributes(at: index, effectiveRange: nil)
+    if let spoiler = attributes[.richSpoiler] as? Int {
+      textView.revealedSpoilers.insert(spoiler)
+      rebuild()
+      return
+    }
+    if let id = attributes[.richHighlightId] as? String {
+      onHighlightPress(["id": id])
+    }
+  }
+
+  func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+    true
+  }
+
+  func textViewDidChangeSelection(_ textView: UITextView) {
+    let active = textView.selectedRange.length > 0
+    guard active != selectionActive else { return }
+    selectionActive = active
+    onSelectionActive(["active": active])
+  }
+
+  func textView(_ textView: UITextView, menuConfigurationFor textItem: UITextItem, defaultMenu: UIMenu) -> UITextItem.MenuConfiguration? {
+    if case .textAttachment = textItem.content { return nil }
+    return UITextItem.MenuConfiguration(menu: defaultMenu)
+  }
+
+  func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
+    if case .textAttachment = textItem.content { return nil }
+    guard case .link(let url) = textItem.content else { return defaultAction }
+    return UIAction { [weak self] _ in
+      self?.onLinkPress(["href": url.absoluteString])
+    }
+  }
+
+  func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
+    let custom = menuItems.compactMap { item -> UIAction? in
+      guard let id = item["id"] as? String, let label = item["label"] as? String else { return nil }
+      let image = (item["icon"] as? String).flatMap { UIImage(systemName: $0) }
+      return UIAction(title: label, image: image) { [weak self] _ in
+        guard let self else { return }
+        var payload = self.selectionPayload()
+        payload["id"] = id
+        self.onMenuAction(payload)
+      }
+    }
+    return UIMenu(children: custom + suggestedActions)
+  }
+}
+
+enum RichAttributedBuilder {
+  static func build(
+    blocks: [[String: Any]],
+    typography: RichTypography,
+    revealedSpoilers: Set<Int> = []
+  ) -> (NSMutableAttributedString, [BlockRange]) {
     let result = NSMutableAttributedString()
     var ranges: [BlockRange] = []
     var spoilerIndex = 0
@@ -327,7 +469,7 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
 
       switch role {
       case "heading":
-        let level = block["level"] as? Int ?? 2
+        let level = (block["level"] as? NSNumber)?.intValue ?? 2
         let spec = typography.headings[level] ?? HeadingSpec([:])
         let weight: UIFont.Weight = spec.weight == "semibold" ? .semibold : .bold
         let (font, fakeBold) = typography.font(family: typography.fontFamily, size: spec.size, weight: weight)
@@ -350,11 +492,11 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
         if typography.quoteItalic { extra[.obliqueness] = 0.12 }
         extra[.richQuote] = true
       case "listItem":
-        let depth = block["depth"] as? Int ?? 0
+        let depth = (block["depth"] as? NSNumber)?.intValue ?? 0
         let indent = CGFloat(depth) * typography.listIndent
         let listType = block["listType"] as? String ?? "bullet"
         if listType == "number" {
-          prefix = "\(block["index"] as? Int ?? 1).\t"
+          prefix = "\((block["index"] as? NSNumber)?.intValue ?? 1).\t"
         } else if listType == "check" {
           prefix = "\t"
         } else {
@@ -410,7 +552,18 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
         guard !text.isEmpty else { continue }
         var attributes = baseAttributes
         var font = baseFont
-        let isCode = run["code"] as? Bool ?? false
+        let isMath = run["math"] as? Bool ?? false
+        if isMath, let math = RichMath.attachment(
+          latex: text,
+          fontSize: baseFont.pointSize,
+          color: baseColor,
+          mode: .text,
+          attributes: baseAttributes
+        ) {
+          result.append(math)
+          continue
+        }
+        let isCode = isMath || run["code"] as? Bool ?? false
         if isCode {
           font = typography.codeFont(size: round(baseFont.pointSize * 0.9))
           attributes[.backgroundColor] = typography.codeBackground
@@ -457,7 +610,7 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
         }
         if run["spoiler"] as? Bool ?? false {
           attributes[.richSpoiler] = spoilerIndex
-          if !textView.revealedSpoilers.contains(spoilerIndex) {
+          if !revealedSpoilers.contains(spoilerIndex) {
             attributes[.foregroundColor] = typography.color
             attributes[.backgroundColor] = typography.color
           }
@@ -475,99 +628,6 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
       }
     }
 
-    for highlight in highlights {
-      guard let blockId = highlight["blockId"] as? String,
-            let start = highlight["start"] as? Int,
-            let end = highlight["end"] as? Int,
-            let block = ranges.first(where: { $0.id == blockId }) else { continue }
-      let clampedStart = max(0, min(start, block.range.length))
-      let clampedEnd = max(clampedStart, min(end, block.range.length))
-      let range = NSRange(location: block.range.location + clampedStart, length: clampedEnd - clampedStart)
-      guard range.length > 0 else { continue }
-      let kind = highlight["kind"] as? String ?? "comment"
-      let color: UIColor
-      switch kind {
-      case "active": color = typography.activeHighlightColor
-      case "block": color = typography.accentColor.withAlphaComponent(0.08)
-      default: color = typography.highlightColor
-      }
-      result.addAttribute(.backgroundColor, value: color, range: range)
-      if let id = highlight["id"] as? String {
-        result.addAttribute(.richHighlightId, value: id, range: range)
-      }
-    }
-
-    blockRanges = ranges
-    textView.attributedText = result
-    reportedHeight = -1
-    reportHeight()
-  }
-
-  private func locate(_ location: Int) -> [String: Any] {
-    for block in blockRanges {
-      let end = block.range.location + block.range.length
-      if location >= block.range.location && location <= end {
-        return ["blockId": block.id, "offset": location - block.range.location]
-      }
-    }
-    return ["blockId": "", "offset": 0]
-  }
-
-  private func selectionPayload() -> [String: Any] {
-    let selected = textView.selectedRange
-    let text = (textView.attributedText.string as NSString).substring(with: selected)
-    return [
-      "text": text,
-      "start": locate(selected.location),
-      "end": locate(selected.location + selected.length),
-    ]
-  }
-
-  @objc private func handleTap(_ recognizer: UITapGestureRecognizer) {
-    guard textView.selectedRange.length == 0 else { return }
-    let point = recognizer.location(in: textView)
-    let index = textView.layoutManager.characterIndex(for: point, in: textView.textContainer, fractionOfDistanceBetweenInsertionPoints: nil)
-    guard index < textView.attributedText.length else { return }
-    let attributes = textView.attributedText.attributes(at: index, effectiveRange: nil)
-    if let spoiler = attributes[.richSpoiler] as? Int {
-      textView.revealedSpoilers.insert(spoiler)
-      rebuild()
-      return
-    }
-    if let id = attributes[.richHighlightId] as? String {
-      onHighlightPress(["id": id])
-    }
-  }
-
-  func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
-    true
-  }
-
-  func textViewDidChangeSelection(_ textView: UITextView) {
-    let active = textView.selectedRange.length > 0
-    guard active != selectionActive else { return }
-    selectionActive = active
-    onSelectionActive(["active": active])
-  }
-
-  func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
-    guard case .link(let url) = textItem.content else { return defaultAction }
-    return UIAction { [weak self] _ in
-      self?.onLinkPress(["href": url.absoluteString])
-    }
-  }
-
-  func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
-    let custom = menuItems.compactMap { item -> UIAction? in
-      guard let id = item["id"] as? String, let label = item["label"] as? String else { return nil }
-      let image = (item["icon"] as? String).flatMap { UIImage(systemName: $0) }
-      return UIAction(title: label, image: image) { [weak self] _ in
-        guard let self else { return }
-        var payload = self.selectionPayload()
-        payload["id"] = id
-        self.onMenuAction(payload)
-      }
-    }
-    return UIMenu(children: custom + suggestedActions)
+    return (result, ranges)
   }
 }

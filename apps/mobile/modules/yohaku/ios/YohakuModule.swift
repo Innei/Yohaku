@@ -90,6 +90,10 @@ public class YohakuModule: Module {
       ]
     }
 
+    AsyncFunction("printRichDocument") { (payload: [String: Any]) -> String in
+      await RichPrintDomain.run(payload)
+    }
+
     Function("databaseBytes") { () -> Double in
       Double(sqliteDatabaseBytes())
     }
@@ -307,6 +311,56 @@ public class YohakuModule: Module {
 
       Prop("interactive") { (view: YohakuTrackMapView, value: Bool) in
         view.setInteractive(value)
+      }
+    }
+
+    View(YohakuWebEmbedView.self) {
+      ViewName("YohakuWebEmbed")
+      Events("onContentHeight", "onEmbedError", "onEmbedLink")
+
+      Prop("url") { (view: YohakuWebEmbedView, value: String) in
+        view.url = value
+      }
+
+      Prop("props") { (view: YohakuWebEmbedView, value: [String: Any]) in
+        view.props = value
+      }
+
+      Prop("theme") { (view: YohakuWebEmbedView, value: String) in
+        view.theme = value
+      }
+
+      Prop("initialHeight") { (view: YohakuWebEmbedView, value: Double) in
+        view.initialHeight = value
+      }
+
+      Prop("baseUrl") { (view: YohakuWebEmbedView, value: String) in
+        view.baseUrl = value
+      }
+
+      OnViewDidUpdateProps { view in
+        view.update()
+      }
+    }
+
+    View(YohakuMathView.self) {
+      ViewName("YohakuMath")
+      Events("onContentSize", "onMathError")
+
+      Prop("latex") { (view: YohakuMathView, value: String) in
+        view.latex = value
+      }
+
+      Prop("fontSize") { (view: YohakuMathView, value: Double) in
+        view.fontSize = CGFloat(value)
+      }
+
+      Prop("color") { (view: YohakuMathView, value: UIColor?) in
+        view.color = value ?? .label
+      }
+
+      OnViewDidUpdateProps { view in
+        view.update()
       }
     }
 

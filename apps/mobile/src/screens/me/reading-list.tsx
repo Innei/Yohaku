@@ -20,11 +20,7 @@ import { usePalette } from '@/theme/palette'
 import { ActivityEntry, ActivityUnavailable } from './activity-entry'
 import { viewReadingItem } from './activity-entry-model'
 import { readingHref } from './activity-href'
-import {
-  ActivityLink,
-  openActivityHref,
-  prepareActivityBody,
-} from './activity-link'
+import { ActivityLink, openActivityHref } from './activity-link'
 import { type ReadingListItem, resolveReadingItems } from './reading-list-model'
 
 export function ReadingListScreen() {
@@ -120,10 +116,7 @@ function ReadingRow({
     return <ActivityUnavailable label={t('unavailable')} />
   }
 
-  const open = () =>
-    openActivityHref(target, router, () => {
-      if (target.webUrl) return prepareActivityBody(item, target.webUrl)
-    })
+  const open = () => openActivityHref(target, router)
 
   return (
     <ActivityLink target={target} onOpen={open}>

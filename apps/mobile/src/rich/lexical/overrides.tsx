@@ -233,9 +233,17 @@ export const nativeBuiltinOverrides: Record<string, BuiltinNodeRenderer> = {
     bold: true,
   }),
   tag: inlineText((node) => `#${node.text ?? ''}`, { code: true }),
-  footnote: inlineText((node) => String(node.identifier ?? ''), { sup: true }),
+  footnote: (node, key) => {
+    const identifier = String(node.identifier ?? '')
+    return (
+      <RunMarker
+        key={key}
+        run={{ footnote: identifier, sup: true, text: identifier }}
+      />
+    )
+  },
   'katex-inline': inlineText((node) => String(node.equation ?? ''), {
-    code: true,
+    math: true,
   }),
   comment: () => null,
   'code-highlight': inlineText((node) => String(node.text ?? '')),

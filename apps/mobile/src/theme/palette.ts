@@ -15,7 +15,7 @@ export interface Palette {
   theme: ThemeName
 }
 
-const palettes: Record<ThemeName, Palette> = {
+export const palettes: Record<ThemeName, Palette> = {
   light: {
     theme: 'light',
     neutral: neutral.light,
