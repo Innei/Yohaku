@@ -2,6 +2,8 @@ import type { SerializedEditorState } from 'lexical'
 import { useEffect, useState } from 'react'
 import { Alert, StyleSheet, View } from 'react-native'
 
+import { camelizeEnrichments } from '@/api/enrichments'
+import type { ApiEnrichment } from '@/api/types'
 import { AppText, PillButton } from '@/components/ui'
 import { openExternalUrl } from '@/lib/open-external'
 import { RichDocument } from '@/rich/lexical/rich-document'
@@ -29,6 +31,7 @@ export function RichDocumentLab() {
   const palette = usePalette()
   const [sample, setSample] = useState(SAMPLES[0]!)
   const [state, setState] = useState<{
+    enrichments: Record<string, ApiEnrichment> | null
     id: string
     value: SerializedEditorState
     webUrl: string
@@ -48,15 +51,18 @@ export function RichDocumentLab() {
       .then(
         ({
           data: post,
+          meta,
         }: {
           data: {
             content: string
             slug: string
             category?: { slug: string }
           }
+          meta?: { enrichments?: Record<string, unknown> }
         }) => {
           if (cancelled) return
           setState({
+            enrichments: camelizeEnrichments(meta?.enrichments),
             id: sample.label,
             value: (() => {
               const parsed = JSON.parse(
@@ -108,6 +114,7 @@ export function RichDocumentLab() {
       ) : null}
       {state && state.id === sample.label ? (
         <RichDocument
+          enrichments={state.enrichments}
           menuItems={[{ id: 'comment', label: '评论', icon: 'text.bubble' }]}
           value={state.value}
           webUrl={state.webUrl}

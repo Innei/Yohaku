@@ -34,7 +34,7 @@ describe('extractImageUrls', () => {
           e1: {
             title: 'film',
             url: 'https://example.com/x',
-            image: { url: 'https://cdn.example/full.jpg' },
+            previewImage: { url: 'https://cdn.example/full.jpg' },
             thumbnailImage: { url: 'https://cdn.example/thumb.jpg' },
           },
         },

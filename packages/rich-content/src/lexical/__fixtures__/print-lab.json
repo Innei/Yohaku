@@ -40,7 +40,9 @@
           { "type": "tag", "version": 1, "text": "前端", "detail": 0, "format": 0, "mode": "normal", "style": "" },
           { "type": "comment", "version": 1, "text": "批注", "detail": 0, "format": 0, "mode": "normal", "style": "" },
           { "type": "katex-inline", "version": 1, "equation": "e^{i\\pi}+1=0" },
-          { "type": "footnote", "version": 1, "identifier": "1" }
+          { "type": "footnote", "version": 1, "identifier": "1" },
+          { "type": "text", "version": 1, "text": "，再引用一次", "detail": 0, "format": 0, "mode": "normal", "style": "" },
+          { "type": "footnote", "version": 1, "identifier": "2" }
         ]
       },
       {
@@ -116,7 +118,7 @@
         "children": [{ "type": "text", "version": 1, "text": "const x = 1", "detail": 0, "format": 0, "mode": "normal", "style": "" }]
       },
       { "type": "code-block", "version": 1, "code": "fn main() {}", "language": "rust" },
-      { "type": "code-snippet", "version": 1, "files": [{ "code": "echo hi", "filename": "hi.sh", "language": "bash" }] },
+      { "type": "code-snippet", "version": 1, "files": [{ "code": "echo hi", "filename": "hi.sh", "language": "bash" }, { "code": "export const greet = (name: string) => `hi, ${name}`", "filename": "greet.ts", "language": "ts" }] },
       {
         "type": "alert-quote",
         "version": 1,
@@ -157,9 +159,17 @@
         "showResults": "always",
         "options": [{ "id": "o1", "label": "印" }, { "id": "o2", "label": "不印" }]
       },
-      { "type": "stock", "version": 1, "variant": "snapshot", "symbol": "AAPL" },
-      { "type": "afilmory", "version": 1, "baseUrl": "https://gallery.example.com", "source": { "kind": "list", "items": [{ "id": "ph1", "w": 4, "h": 3, "hash": "abcd" }] }, "layout": "grid", "title": "相册" },
-      { "type": "map", "version": 1, "title": "东京", "pois": [{ "lat": 35.68, "lon": 139.76, "title": "东京站" }] },
+      { "type": "stock", "version": 1, "variant": "kline", "symbol": "AAPL", "range": { "from": "2026-07-01T00:00:00.000Z", "to": "2026-09-18T00:00:00.000Z", "interval": "1d" }, "ema": [5, 20] },
+      { "type": "afilmory", "version": 1, "baseUrl": "https://innei.afilmory.art", "source": { "kind": "filter", "filter": {} }, "layout": "grid", "title": "相册", "limit": 6 },
+      {
+        "type": "map",
+        "version": 1,
+        "title": "多摩川",
+        "pois": [{ "lat": 35.68, "lon": 139.76, "title": "东京站" }],
+        "track": {
+          "url": "data:application/json,%7B%22points%22%3A%20%5B%5B35.6195%2C%20139.6505%5D%2C%20%5B35.6207%2C%20139.6535%5D%2C%20%5B35.621900000000004%2C%20139.6556%5D%2C%20%5B35.6231%2C%20139.6568%5D%2C%20%5B35.624300000000005%2C%20139.6589%5D%2C%20%5B35.6255%2C%20139.6619%5D%2C%20%5B35.6267%2C%20139.664%5D%2C%20%5B35.627900000000004%2C%20139.6652%5D%2C%20%5B35.6291%2C%20139.66729999999998%5D%2C%20%5B35.630300000000005%2C%20139.6703%5D%2C%20%5B35.6315%2C%20139.67239999999998%5D%2C%20%5B35.6327%2C%20139.6736%5D%2C%20%5B35.633900000000004%2C%20139.6757%5D%2C%20%5B35.6351%2C%20139.6787%5D%2C%20%5B35.636300000000006%2C%20139.6808%5D%2C%20%5B35.6375%2C%20139.682%5D%2C%20%5B35.6387%2C%20139.6841%5D%2C%20%5B35.639900000000004%2C%20139.6871%5D%2C%20%5B35.6411%2C%20139.6892%5D%2C%20%5B35.6423%2C%20139.69039999999998%5D%2C%20%5B35.6435%2C%20139.6925%5D%2C%20%5B35.6447%2C%20139.69549999999998%5D%2C%20%5B35.645900000000005%2C%20139.6976%5D%2C%20%5B35.6471%2C%20139.6988%5D%5D%7D"
+        }
+      },
       { "type": "mermaid", "version": 1, "diagram": "graph TD\n  A --> B" },
       { "type": "excalidraw", "version": 1, "snapshot": "{\"elements\":[]}" },
       {
@@ -182,7 +192,7 @@
         "messages": [{ "id": "m1", "participantId": "u", "content": "能打印吗？" }, { "id": "m2", "participantId": "a", "content": "能。" }]
       },
       { "type": "embed", "version": 1, "url": "https://github.com/Innei/Yohaku/blob/main/README.md", "source": "github-file" },
-      { "type": "dynamic", "version": 1, "url": "https://example.com/widget.js" },
+      { "type": "dynamic", "version": 1, "url": "https://object.innei.in/mx-space/2026/0613/i8c9ymqd9ltmrnzaep.mjs", "props": { "question": "余白（よはく）在日语里的意思是？", "options": ["页边空白", "多余的钱", "夜晚"], "answer": 0 }, "initialHeight": 272 },
       {
         "type": "grid-container",
         "version": 1,
@@ -194,10 +204,23 @@
         ]
       },
       {
-        "type": "footnote-section",
+        "type": "grid-container",
         "version": 1,
-        "children": [{ "type": "paragraph", "version": 1, "children": [{ "type": "text", "version": 1, "text": "1. 脚注正文。", "detail": 0, "format": 0, "mode": "normal", "style": "" }] }]
-      }
+        "cols": 3,
+        "gap": "8px",
+        "cells": [
+          {
+            "root": { "type": "root", "version": 1, "children": [{ "type": "paragraph", "version": 1, "children": [{ "type": "image", "version": 1, "src": "https://picsum.photos/seed/yohaku-grid0/400/300", "altText": "", "width": 400, "height": 300 }] }] }
+          },
+          {
+            "root": { "type": "root", "version": 1, "children": [{ "type": "paragraph", "version": 1, "children": [{ "type": "image", "version": 1, "src": "https://picsum.photos/seed/yohaku-grid1/400/300", "altText": "", "width": 400, "height": 300 }] }] }
+          },
+          {
+            "root": { "type": "root", "version": 1, "children": [{ "type": "paragraph", "version": 1, "children": [{ "type": "image", "version": 1, "src": "https://picsum.photos/seed/yohaku-grid2/400/300", "altText": "", "width": 400, "height": 300 }] }] }
+          }
+        ]
+      },
+      { "type": "footnote-section", "version": 1, "definitions": { "1": "脚注正文：余白不是空白，而是让文字呼吸的那一部分。", "2": "第二条脚注，由行内第二个引用编号。" } }
     ]
   }
 }

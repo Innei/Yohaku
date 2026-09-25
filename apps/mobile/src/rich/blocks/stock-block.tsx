@@ -15,7 +15,7 @@ import { type BlockProps, num, str } from './types'
 const CHART_HEIGHT = 226
 const FOOTER = '数据来自 Polygon.io · 区间结束后固定'
 
-function rangeOf(node: BlockProps['node']): StockRange | null {
+export function rangeOf(node: BlockProps['node']): StockRange | null {
   const raw = node.range
   if (!raw || typeof raw !== 'object') return null
   const value = raw as Record<string, unknown>
@@ -27,7 +27,7 @@ function rangeOf(node: BlockProps['node']): StockRange | null {
   return range.from && range.to && range.interval ? range : null
 }
 
-function emaPeriods(node: BlockProps['node']): number[] {
+export function emaPeriods(node: BlockProps['node']): number[] {
   if (node.ema === false) return []
   if (!Array.isArray(node.ema)) return [5, 20]
   return node.ema.flatMap((value) => num(value) ?? [])

@@ -52,37 +52,3 @@ export function nativeSerifFontFamily(
     }
   }
 }
-
-export function webviewSerifFontFamily(
-  locale: Locale,
-  koreanSerifReady: boolean,
-): string {
-  const native = nativeSerifFontFamily(locale, koreanSerifReady)
-  return native === 'NotoSerifSC_500Medium'
-    ? WEBVIEW_FONT_FAMILY.serif
-    : native
-}
-
-export interface WebviewFontFaceSpec {
-  family: string
-  native: NativeFontName
-  weight: number
-}
-
-export const webviewFontFaceSpecs: readonly WebviewFontFaceSpec[] = [
-  {
-    family: WEBVIEW_FONT_FAMILY.serif,
-    native: 'NotoSerifSC_500Medium',
-    weight: 500,
-  },
-  {
-    family: WEBVIEW_FONT_FAMILY.mono,
-    native: 'CascadiaCodePL_400Regular',
-    weight: 400,
-  },
-  {
-    family: WEBVIEW_FONT_FAMILY.mono,
-    native: 'CascadiaCodePL_600SemiBold',
-    weight: 600,
-  },
-]

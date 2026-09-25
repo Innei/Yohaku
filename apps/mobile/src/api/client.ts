@@ -445,6 +445,7 @@ export const api = {
         body: { optionIds },
       }),
     ),
+  dynamicCatalog: () => fetchRawJson('/s/dynamic-widgets-catalog'),
   stockBars: (params: {
     from: string
     interval: string

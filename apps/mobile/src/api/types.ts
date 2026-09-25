@@ -204,7 +204,7 @@ export interface ApiEnrichment {
   category?: string
   color?: string
   description?: string
-  image?: ApiEnrichmentImage
+  previewImage?: ApiEnrichmentImage
   publishedAt?: string
   subtype?: string
   thumbnailImage?: ApiEnrichmentImage

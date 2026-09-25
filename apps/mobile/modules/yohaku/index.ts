@@ -20,6 +20,17 @@ type NativeEvents = TtsEvents & {
   onMeTabLongPress: () => void
 }
 
+export interface RichPrintPayload {
+  exportPdf?: boolean
+  items: unknown[]
+  jobName: string
+  klineColors: Record<'down' | 'grid' | 'label' | 'up' | 'volume', string>
+  masthead: { meta: string; title: string; url: string }
+  referer?: string
+  siteName: string
+  typography: Record<string, unknown>
+}
+
 interface YohakuNativeModule {
   addListener<K extends keyof NativeEvents>(
     eventName: K,
@@ -51,6 +62,7 @@ interface YohakuNativeModule {
   preloadTts(url: string): Promise<void>
   prepareNoteHeroTransition(noteId: string): void
   presentSafari(url: string): Promise<void>
+  printRichDocument(payload: RichPrintPayload): Promise<string>
   rasterizeSvg(payload: {
     bg: string
     height: number
@@ -251,6 +263,33 @@ type YohakuKlineProps = ViewProps & {
   upColor?: ColorValue
   volumeColor?: ColorValue
 }
+
+type YohakuWebEmbedProps = ViewProps & {
+  baseUrl: string
+  initialHeight: number
+  props: Record<string, unknown>
+  theme: 'dark' | 'light'
+  url: string
+  onContentHeight?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  onEmbedError?: () => void
+  onEmbedLink?: (event: NativeSyntheticEvent<{ url: string }>) => void
+}
+
+export const YohakuWebEmbed: ComponentType<YohakuWebEmbedProps> =
+  requireNativeViewManager('Yohaku', 'YohakuWebEmbed')
+
+type YohakuMathProps = ViewProps & {
+  color?: ColorValue
+  fontSize?: number
+  latex: string
+  onContentSize?: (
+    event: NativeSyntheticEvent<{ height: number; width: number }>,
+  ) => void
+  onMathError?: () => void
+}
+
+export const YohakuMath: ComponentType<YohakuMathProps> =
+  requireNativeViewManager('Yohaku', 'YohakuMath')
 
 export const YohakuKline: ComponentType<YohakuKlineProps> =
   requireNativeViewManager('Yohaku', 'YohakuKline')

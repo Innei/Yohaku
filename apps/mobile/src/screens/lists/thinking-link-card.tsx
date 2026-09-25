@@ -17,7 +17,7 @@ export function ThinkingLinkCard({
   const palette = usePalette()
   const router = useRouter()
   const poster = isPosterEnrichment(enrichment)
-  const image = enrichment.thumbnailImage ?? enrichment.image
+  const image = enrichment.thumbnailImage ?? enrichment.previewImage
   const rating = ratingLabel(enrichment)
   const host = hostOf(enrichment.url)
 

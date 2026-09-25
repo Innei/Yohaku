@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard'
-import { useState } from 'react'
+import { type ReactNode, useState } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 
 import { AppText, NativePressable } from '@/components/ui'
@@ -8,11 +8,15 @@ import { usePalette } from '@/theme/palette'
 
 import { type BlockProps, str } from './types'
 
-export function CodeBlock({ node }: BlockProps) {
+export function CodeCard({
+  code,
+  header,
+}: {
+  code: string
+  header: ReactNode
+}) {
   const palette = usePalette()
   const [copied, setCopied] = useState(false)
-  const code = str(node.code)
-  const language = str(node.language)
 
   return (
     <View
@@ -25,9 +29,7 @@ export function CodeBlock({ node }: BlockProps) {
       ]}
     >
       <View style={[styles.header, { borderBottomColor: palette.neutral[3] }]}>
-        <AppText color={palette.neutral[6]} variant="meta">
-          {language || 'code'}
-        </AppText>
+        <View style={styles.headerLead}>{header}</View>
         <NativePressable
           onPress={() => {
             void Clipboard.setStringAsync(code)
@@ -52,6 +54,21 @@ export function CodeBlock({ node }: BlockProps) {
   )
 }
 
+export function CodeBlock({ node }: BlockProps) {
+  const palette = usePalette()
+  const language = str(node.language)
+  return (
+    <CodeCard
+      code={str(node.code)}
+      header={
+        <AppText color={palette.neutral[6]} variant="meta">
+          {language || 'code'}
+        </AppText>
+      }
+    />
+  )
+}
+
 // ponytail: plain monospace text; shiki token colouring comes with the code
 // highlighter shim once native bundling of the grammar set is sorted out.
 const styles = StyleSheet.create({
@@ -62,11 +79,13 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   header: {
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
+  headerLead: { flex: 1, flexDirection: 'row' },
   code: { fontSize: 13, lineHeight: 20, padding: 12 },
 })

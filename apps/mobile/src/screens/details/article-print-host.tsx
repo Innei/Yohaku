@@ -1,26 +1,32 @@
-import { requireNativeModule } from 'expo-modules-core'
-import { useCallback, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { YohakuNative } from '@modules/yohaku'
+import { useRef } from 'react'
 
-import { apiBaseUrl } from '@/api/base-url'
-import RichBody from '@/components/dom/rich-body'
-import { useRichBodyLabels } from '@/components/dom/use-rich-body-labels'
+import { api } from '@/api/client'
 import { useLocale } from '@/i18n'
+import { renderInsightsMermaid } from '@/lib/insights-mermaid'
 import { getSiteUrl } from '@/lib/site-url'
-import { useWebviewSerifFontFamily } from '@/theme/serif-font'
-import { useWebviewFontFaces } from '@/theme/webview-fonts'
+import { afilmorySource, albumTiles } from '@/rich/blocks/afilmory'
+import { fetchAlbum } from '@/rich/blocks/afilmory-album'
+import { fetchTrack, track } from '@/rich/blocks/map-block'
+import { emaSeries } from '@/rich/blocks/stock'
+import { emaPeriods, rangeOf } from '@/rich/blocks/stock-block'
+import { num, str } from '@/rich/blocks/types'
+import { footnoteNumbers } from '@/rich/lexical/footnotes'
+import {
+  type PrintContext,
+  printItems,
+  printScaled,
+} from '@/rich/print/print-items'
+import { useSegmentProbe } from '@/rich/print/segment-probe'
+import { richTypography } from '@/rich/typography'
+import { palettes } from '@/theme/palette'
 
+import { parseState } from './article-body'
 import {
   buildPrintMasthead,
   formatPrintDate,
   printJobName,
-  type PrintMasthead,
 } from './article-print'
-
-const DomWebViewModule = requireNativeModule<{
-  exportTargetWebViewToPDF: (siteName: string, jobName: string) => Promise<string>
-  printTargetWebView: (siteName: string, jobName: string) => Promise<void>
-}>('ExpoDomWebViewModule')
 
 export interface ArticlePrintJob {
   category: string
@@ -33,89 +39,121 @@ export interface ArticlePrintJob {
   variant: 'article' | 'note'
 }
 
-export function useArticlePrint() {
-  const [job, setJob] = useState<ArticlePrintJob | null>(null)
+const paper = palettes.light
+
+const ALBUM_LIMIT = 9
+
+type PrintNode = Parameters<PrintContext['fetchTrack']>[0]
+
+async function printTrack(node: PrintNode) {
+  const url = track(node)
+  if (!url) return null
+  return (await fetchTrack(url))?.polylines ?? null
+}
+
+async function printKline(node: PrintNode) {
+  const symbol = str(node.symbol)
+  const range = rangeOf(node)
+  if (node.variant !== 'kline' || !symbol || !range) return null
+  const { bars } = await api.stockBars({ symbol, ...range })
+  const closes = bars.map((bar) => bar.close)
+  const colors = [paper.accent, paper.neutral[5]]
   return {
-    host: job ? (
-      <ArticlePrintHost job={job} onDone={() => setJob(null)} />
-    ) : null,
-    print: setJob,
+    bars: bars.map((bar) => ({
+      c: bar.close,
+      h: bar.high,
+      l: bar.low,
+      o: bar.open,
+      t: bar.timestamp,
+      v: bar.volume ?? 0,
+    })),
+    ema: emaPeriods(node)
+      .slice(0, colors.length)
+      .map((period, index) => ({
+        color: colors[index]!,
+        period,
+        values: emaSeries(closes, period),
+      })),
   }
 }
 
-function ArticlePrintHost({
-  job,
-  onDone,
-}: {
-  job: ArticlePrintJob
-  onDone: () => void
-}) {
-  const locale = useLocale()
-  const labels = useRichBodyLabels()
-  const fontFaces = useWebviewFontFaces()
-  const serifFontFamily = useWebviewSerifFontFamily()
-  const masthead: PrintMasthead = buildPrintMasthead({
-    category: job.category,
-    dateLabel: formatPrintDate(job.createdAt, locale),
-    title: job.title,
-    url: job.url,
-  })
-
-  const handlePrintReady = useCallback(async () => {
-    const name = printJobName(job.title, job.siteName)
-    const exportPdf = DomWebViewModule.exportTargetWebViewToPDF
-    const print = DomWebViewModule.printTargetWebView
-    try {
-      if (job.exportPdf) {
-        if (typeof exportPdf !== 'function') return false
-        const path = await exportPdf(job.siteName, name)
-        return Boolean(path)
-      }
-      if (typeof print !== 'function') return false
-      await print(job.siteName, name)
-    } finally {
-      onDone()
-    }
-    return true
-  }, [job.exportPdf, job.siteName, job.title, onDone])
-
-  return (
-    <View pointerEvents="none" style={styles.offscreen}>
-      <RichBody
-        apiBase={apiBaseUrl()}
-        content={job.content}
-        fontFaces={fontFaces}
-        labels={labels}
-        locale={locale}
-        printDocument={masthead}
-        serifFontFamily={serifFontFamily}
-        theme="light"
-        variant={job.variant}
-        webUrl={job.url}
-        dom={{
-          contentInsetAdjustmentBehavior: 'never',
-          matchContents: false,
-          printTarget: true,
-          scrollEnabled: false,
-          siteReferer: getSiteUrl(),
-        }}
-        onImagePress={async () => {}}
-        onLinkPress={async () => {}}
-        onPrintReady={handlePrintReady}
-        onScrollToAnchor={async () => {}}
-      />
-    </View>
-  )
+async function printAlbum(node: PrintNode) {
+  const baseUrl = str(node.baseUrl)
+  const source = afilmorySource(node)
+  if (!baseUrl || !source) return []
+  const cap = Math.min(num(node.limit) ?? ALBUM_LIMIT, ALBUM_LIMIT)
+  const { photos } = await fetchAlbum(baseUrl, source, cap)
+  return albumTiles(baseUrl, source, photos)
+    .slice(0, cap)
+    .flatMap((tile) => tile.thumb ?? tile.full ?? [])
 }
 
-const styles = StyleSheet.create({
-  offscreen: {
-    height: 1056,
-    left: -2000,
-    overflow: 'hidden',
-    position: 'absolute',
-    top: 0,
-    width: 680,
-    zIndex: -1,
-  },
-})
+async function renderPrintMermaid(diagram: string) {
+  const rendered = await renderInsightsMermaid(diagram, {
+    bg: '#ffffff',
+    fg: paper.neutral[9],
+  })
+  return rendered.src
+}
+
+export function useArticlePrint() {
+  const locale = useLocale()
+  const { probe, probes } = useSegmentProbe()
+  const busyRef = useRef(false)
+
+  const print = async (job: ArticlePrintJob) => {
+    const value = parseState(job.content)
+    if (!value || busyRef.current) return ''
+    busyRef.current = true
+    try {
+      return await runPrint(job, value)
+    } finally {
+      busyRef.current = false
+    }
+  }
+
+  const runPrint = async (
+    job: ArticlePrintJob,
+    value: NonNullable<ReturnType<typeof parseState>>,
+  ) => {
+    const items = await printItems(await probe(value), {
+      fetchAlbum: printAlbum,
+      fetchKline: printKline,
+      fetchTrack: printTrack,
+      footnotes: footnoteNumbers(value),
+      locale,
+      probe,
+      renderMermaid: renderPrintMermaid,
+    })
+    const masthead = buildPrintMasthead({
+      category: job.category,
+      dateLabel: formatPrintDate(job.createdAt, locale),
+      title: job.title,
+      url: job.url,
+    })
+    return YohakuNative.printRichDocument({
+      exportPdf: job.exportPdf,
+      items,
+      jobName: printJobName(job.title, job.siteName),
+      klineColors: {
+        down: paper.semantic.error,
+        grid: paper.neutral[3],
+        label: paper.neutral[6],
+        up: paper.semantic.success,
+        volume: paper.neutral[4],
+      },
+      masthead: {
+        meta: [masthead.category, masthead.dateLabel]
+          .filter(Boolean)
+          .join(' · '),
+        title: masthead.title,
+        url: masthead.url,
+      },
+      referer: getSiteUrl(),
+      siteName: job.siteName,
+      typography: printScaled(richTypography(job.variant, locale, paper)),
+    })
+  }
+
+  return { host: probes, print }
+}

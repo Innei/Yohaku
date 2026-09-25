@@ -25,7 +25,7 @@ interface Track {
   summary: TrackSummary
 }
 
-async function fetchTrack(url: string): Promise<Track | null> {
+export async function fetchTrack(url: string): Promise<Track | null> {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`${res.status}`)
   const json: unknown = await res.json()
@@ -34,7 +34,7 @@ async function fetchTrack(url: string): Promise<Track | null> {
   return { polylines, summary: trackSummary(json) }
 }
 
-function track(node: BlockProps['node']): string {
+export function track(node: BlockProps['node']): string {
   const value = node.track
   return value && typeof value === 'object'
     ? str((value as Record<string, unknown>).url)

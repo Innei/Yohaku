@@ -13,13 +13,15 @@ import {
   type RichDocumentHandlers,
   useRichDocument,
 } from './context'
+import { footnoteNumbers, numberFootnotes } from './footnotes'
 import { passthroughNodes } from './generic-node'
 import { groupSegments, type RichSegment } from './group'
 import { nativeBlockAnchor, nativeBuiltinOverrides } from './overrides'
 
-const extraNodes = passthroughNodes(allNodes)
+export const extraNodes = passthroughNodes(allNodes)
 
 export interface RichDocumentProps extends RichDocumentHandlers {
+  footnotes?: ReadonlyMap<string, number>
   nested?: boolean
   value: SerializedEditorState
 }
@@ -44,7 +46,7 @@ function TextSegment({ blocks }: { blocks: RichTextBlock[] }) {
       }}
     >
       <RichTextView
-        blocks={blocks}
+        blocks={doc.footnotes ? numberFootnotes(blocks, doc.footnotes) : blocks}
         highlights={doc.highlights}
         menuItems={doc.menuItems}
         variant={doc.variant}
@@ -120,14 +122,27 @@ function SegmentHost({ children }: { children?: ReactNode }) {
 }
 
 export function RichDocument({
+  footnotes: inheritedFootnotes,
   nested,
   value,
   ...handlers
 }: RichDocumentProps) {
+  const ownFootnotes = useMemo(
+    () => (inheritedFootnotes ? null : footnoteNumbers(value)),
+    [inheritedFootnotes, value],
+  )
+  const footnotes = inheritedFootnotes ?? ownFootnotes ?? undefined
   const context: RichDocumentContextValue = {
     ...handlers,
+    footnotes,
     renderNested: (state) => (
-      <RichDocument nested value={state} {...handlers} onSegments={undefined} />
+      <RichDocument
+        nested
+        footnotes={footnotes}
+        value={state}
+        {...handlers}
+        onSegments={undefined}
+      />
     ),
     renderSegments: (segments) => <SegmentList segments={segments} />,
   }

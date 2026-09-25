@@ -28,7 +28,7 @@ const MAX_TILES = 6
 const BODY_PADDING = 4
 const FILTER_BONE_RATIOS = [0.75, 1.25, 1, 1.4, 0.8, 1.1]
 
-async function fetchAlbum(
+export async function fetchAlbum(
   baseUrl: string,
   source: AfilmorySource,
   limit: number,

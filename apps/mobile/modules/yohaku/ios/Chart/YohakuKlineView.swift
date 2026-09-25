@@ -28,7 +28,7 @@ final class KlineModel: ObservableObject {
   @Published var volumeColor = Color.clear
 }
 
-private struct KlineChart: View {
+struct KlineChart: View {
   @ObservedObject var model: KlineModel
 
   private static let axisWidth: CGFloat = 40

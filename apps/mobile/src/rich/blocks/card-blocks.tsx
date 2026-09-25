@@ -1,22 +1,12 @@
-import { StyleSheet, View } from 'react-native'
-
 import { filePreviewKind } from '@/components/dom/file-preview'
-import { AppText, NativePressable, Paper, RemoteImage } from '@/components/ui'
 import { presentFilePreview } from '@/lib/file-preview'
 import { presentImagePreview } from '@/lib/image-cache'
 import { getSiteUrl } from '@/lib/site-url'
-import { usePalette } from '@/theme/palette'
 
 import { useRichDocument } from '../lexical/context'
+import { IndexCard } from './index-card'
+import { linkCardModel } from './link-card'
 import { type BlockProps, num, str } from './types'
-
-function hostOf(url: string): string {
-  try {
-    return new URL(url).host
-  } catch {
-    return url
-  }
-}
 
 function formatBytes(size: number | undefined): string {
   if (!size) return ''
@@ -25,65 +15,17 @@ function formatBytes(size: number | undefined): string {
   return `${(size / 1024 / 1024).toFixed(1)} MB`
 }
 
-function Card({
-  eyebrow,
-  image,
-  onPress,
-  subtitle,
-  title,
-}: {
-  eyebrow: string
-  image?: string
-  onPress?: () => void
-  subtitle?: string
-  title: string
-}) {
-  const palette = usePalette()
-  return (
-    <NativePressable disabled={!onPress} onPress={onPress}>
-      <Paper style={styles.card}>
-        <View style={styles.cardText}>
-          <AppText color={palette.neutral[6]} variant="eyebrow">
-            {eyebrow}
-          </AppText>
-          <AppText numberOfLines={2} variant="entryTitle">
-            {title}
-          </AppText>
-          {subtitle ? (
-            <AppText
-              color={palette.neutral[7]}
-              numberOfLines={2}
-              variant="secondary"
-            >
-              {subtitle}
-            </AppText>
-          ) : null}
-        </View>
-        {image ? (
-          <RemoteImage
-            contentFit="cover"
-            siteReferer={getSiteUrl()}
-            style={[styles.cardImage, { backgroundColor: palette.neutral[2] }]}
-            uri={image}
-          />
-        ) : null}
-      </Paper>
-    </NativePressable>
-  )
-}
-
 export function LinkCardBlock({ node }: BlockProps) {
   const doc = useRichDocument()
   const url = str(node.url)
-  const entry = url ? doc.enrichments?.[url] : undefined
-  const image =
-    entry?.thumbnailImage?.url ?? entry?.image?.url ?? str(node.image)
+  const model = linkCardModel(url, url ? doc.enrichments?.[url] : undefined, {
+    description: str(node.description),
+    image: str(node.image),
+    title: str(node.title),
+  })
   return (
-    <Card
-      eyebrow={(entry?.category ?? hostOf(url)).toUpperCase()}
-      image={image || undefined}
-      subtitle={entry?.description ?? str(node.description)}
-      title={entry?.title ?? (str(node.title) || url)}
+    <IndexCard
+      {...model}
       onPress={url ? () => doc.onLinkPress?.(url) : undefined}
     />
   )
@@ -121,9 +63,10 @@ export function FileBlock({ node }: BlockProps) {
     }
   }
   return (
-    <Card
-      eyebrow="FILE"
-      subtitle={meta}
+    <IndexCard
+      host="文件"
+      label={meta || null}
+      symbol="doc"
       title={name}
       onPress={src ? open : undefined}
     />
@@ -135,9 +78,10 @@ export function NestedDocBlock({ node }: BlockProps) {
   const content = node.content as { root?: unknown } | undefined
   const title = str(node.title) || '嵌入文档'
   return (
-    <Card
-      eyebrow="DOC"
-      subtitle="展开阅读"
+    <IndexCard
+      description="展开阅读"
+      host="嵌入文档"
+      symbol="doc.text"
       title={title}
       onPress={
         content?.root && doc.onNestedDocExpand
@@ -172,23 +116,12 @@ const LABELS: Record<string, string> = {
 export function UnsupportedBlock({ node }: BlockProps) {
   const doc = useRichDocument()
   return (
-    <Card
-      eyebrow={LABELS[node.type] ?? node.type}
-      subtitle={doc.webUrl ? '在网页中查看' : undefined}
+    <IndexCard
+      description={doc.webUrl ? '在网页中查看' : undefined}
+      host={LABELS[node.type] ?? node.type}
+      symbol="square.dashed"
       title="此内容暂不支持原生显示"
       onPress={doc.webUrl ? () => doc.onLinkPress?.(doc.webUrl!) : undefined}
     />
   )
 }
-
-const styles = StyleSheet.create({
-  card: {
-    marginVertical: 12,
-    padding: 14,
-    gap: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  cardText: { flex: 1, gap: 4 },
-  cardImage: { width: 64, height: 64, borderRadius: 8, overflow: 'hidden' },
-})
