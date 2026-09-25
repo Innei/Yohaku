@@ -156,9 +156,31 @@ extension UIColor {
   }
 }
 
+// Offsets crossing the bridge count each inline formula at its LaTeX length, while the
+// text storage holds it as a single attachment character.
 struct BlockRange {
   let id: String
   let range: NSRange
+  var collapsed: [(offset: Int, sourceLength: Int)] = []
+
+  var sourceLength: Int {
+    collapsed.reduce(range.length) { $0 + $1.sourceLength - 1 }
+  }
+
+  func rendered(fromSource offset: Int, roundUp: Bool) -> Int {
+    var shift = 0
+    for item in collapsed {
+      let sourceStart = item.offset + shift
+      if offset <= sourceStart { break }
+      if offset < sourceStart + item.sourceLength { return item.offset + (roundUp ? 1 : 0) }
+      shift += item.sourceLength - 1
+    }
+    return offset - shift
+  }
+
+  func source(fromRendered offset: Int) -> Int {
+    collapsed.reduce(offset) { $1.offset < offset ? $0 + $1.sourceLength - 1 : $0 }
+  }
 }
 
 final class RichLayoutManager: NSLayoutManager {
@@ -342,8 +364,8 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
             let start = highlight["start"] as? Int,
             let end = highlight["end"] as? Int,
             let block = ranges.first(where: { $0.id == blockId }) else { continue }
-      let clampedStart = max(0, min(start, block.range.length))
-      let clampedEnd = max(clampedStart, min(end, block.range.length))
+      let clampedStart = block.rendered(fromSource: max(0, min(start, block.sourceLength)), roundUp: false)
+      let clampedEnd = max(clampedStart, block.rendered(fromSource: max(0, min(end, block.sourceLength)), roundUp: true))
       let range = NSRange(location: block.range.location + clampedStart, length: clampedEnd - clampedStart)
       guard range.length > 0 else { continue }
       let kind = highlight["kind"] as? String ?? "comment"
@@ -369,7 +391,7 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
     for block in blockRanges {
       let end = block.range.location + block.range.length
       if location >= block.range.location && location <= end {
-        return ["blockId": block.id, "offset": location - block.range.location]
+        return ["blockId": block.id, "offset": block.source(fromRendered: location - block.range.location)]
       }
     }
     return ["blockId": "", "offset": 0]
@@ -542,6 +564,7 @@ enum RichAttributedBuilder {
         result.append(NSAttributedString(string: prefix, attributes: markerAttributes))
       }
       let textStart = result.length
+      var collapsed: [(offset: Int, sourceLength: Int)] = []
 
       if role == "hr" {
         result.append(NSAttributedString(string: "\u{00A0}", attributes: baseAttributes))
@@ -560,6 +583,7 @@ enum RichAttributedBuilder {
           mode: .text,
           attributes: baseAttributes
         ) {
+          collapsed.append((result.length - textStart, (text as NSString).length))
           result.append(math)
           continue
         }
@@ -621,7 +645,7 @@ enum RichAttributedBuilder {
       }
 
       let textRange = NSRange(location: textStart, length: result.length - textStart)
-      ranges.append(BlockRange(id: id, range: textRange))
+      ranges.append(BlockRange(id: id, range: textRange, collapsed: collapsed))
 
       if blockIndex < blocks.count - 1 {
         result.append(NSAttributedString(string: "\n", attributes: baseAttributes))
