@@ -364,6 +364,51 @@ public class YohakuModule: Module {
       }
     }
 
+    View(YohakuCodeView.self) {
+      ViewName("YohakuCode")
+      Events("onContentSize")
+
+      Prop("code") { (view: YohakuCodeView, value: String) in
+        view.code = value
+      }
+
+      Prop("language") { (view: YohakuCodeView, value: String?) in
+        view.language = value ?? ""
+      }
+
+      Prop("fontFamily") { (view: YohakuCodeView, value: String?) in
+        view.fontFamily = value
+      }
+
+      Prop("fontSize") { (view: YohakuCodeView, value: Double) in
+        view.fontSize = CGFloat(value)
+      }
+
+      Prop("lineHeight") { (view: YohakuCodeView, value: Double) in
+        view.lineHeight = CGFloat(value)
+      }
+
+      Prop("padding") { (view: YohakuCodeView, value: Double) in
+        view.padding = CGFloat(value)
+      }
+
+      Prop("paddingTop") { (view: YohakuCodeView, value: Double?) in
+        view.paddingTop = value.map { CGFloat($0) }
+      }
+
+      Prop("boldFontFamily") { (view: YohakuCodeView, value: String?) in
+        view.boldFontFamily = value
+      }
+
+      Prop("color") { (view: YohakuCodeView, value: UIColor?) in
+        view.textColor = value ?? .label
+      }
+
+      OnViewDidUpdateProps { view in
+        view.update()
+      }
+    }
+
     View(YohakuKlineView.self) {
       ViewName("YohakuKline")
 

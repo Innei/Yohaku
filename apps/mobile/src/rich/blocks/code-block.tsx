@@ -1,91 +1,116 @@
+import { YohakuCode } from '@modules/yohaku'
+import { radius } from '@yohaku/design-system/tokens'
 import * as Clipboard from 'expo-clipboard'
 import { type ReactNode, useState } from 'react'
-import { ScrollView, StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
-import { AppText, NativePressable } from '@/components/ui'
+import { AppText, NativePressable, SlotText } from '@/components/ui'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { type BlockProps, str } from './types'
 
+const FONT_SIZE = 13
+const LINE_HEIGHT = 20
+const INSET = 16
+const CODE_TOP = 4
+
 export function CodeCard({
   code,
   header,
+  language,
 }: {
   code: string
-  header: ReactNode
+  header?: ReactNode
+  language?: string
 }) {
   const palette = usePalette()
   const [copied, setCopied] = useState(false)
+  const [height, setHeight] = useState(
+    () => code.split('\n').length * LINE_HEIGHT + CODE_TOP + INSET,
+  )
 
   return (
-    <View
-      style={[
-        styles.wrap,
-        {
-          backgroundColor: palette.neutral[1],
-          borderColor: palette.neutral[3],
-        },
-      ]}
-    >
-      <View style={[styles.header, { borderBottomColor: palette.neutral[3] }]}>
+    <View style={[styles.plate, { backgroundColor: palette.surface.well }]}>
+      <View style={styles.header}>
         <View style={styles.headerLead}>{header}</View>
         <NativePressable
+          accessibilityLabel={copied ? '已复制' : '复制'}
+          accessibilityRole="button"
+          hitSlop={{ bottom: 12, left: 16, right: 16, top: 12 }}
           onPress={() => {
             void Clipboard.setStringAsync(code)
             setCopied(true)
             setTimeout(() => setCopied(false), 1500)
           }}
         >
-          <AppText color={palette.neutral[6]} variant="meta">
-            {copied ? '已复制' : '复制'}
-          </AppText>
+          <SlotText
+            value={copied ? '已复制' : '复制'}
+            textStyle={{
+              ...styles.action,
+              color: palette.neutral[copied ? 8 : 6],
+            }}
+          />
         </NativePressable>
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <Text
-          selectable
-          style={[styles.code, fonts.mono, { color: palette.neutral[9] }]}
-        >
-          {code}
-        </Text>
-      </ScrollView>
+      <YohakuCode
+        boldFontFamily={fonts.monoSemiBold.fontFamily}
+        code={code}
+        color={palette.neutral[9]}
+        fontFamily={fonts.mono.fontFamily}
+        fontSize={FONT_SIZE}
+        language={language}
+        lineHeight={LINE_HEIGHT}
+        padding={INSET}
+        paddingTop={CODE_TOP}
+        style={{ height }}
+        onContentSize={(event) => setHeight(event.nativeEvent.height)}
+      />
     </View>
   )
 }
 
-export function CodeBlock({ node }: BlockProps) {
+export function CodeLanguageLabel({ language }: { language: string }) {
   const palette = usePalette()
+  if (!language) return null
+  return (
+    <AppText
+      color={palette.neutral[6]}
+      numberOfLines={1}
+      style={[styles.language, fonts.mono]}
+    >
+      {language.toUpperCase()}
+    </AppText>
+  )
+}
+
+export function CodeBlock({ node }: BlockProps) {
   const language = str(node.language)
   return (
     <CodeCard
       code={str(node.code)}
-      header={
-        <AppText color={palette.neutral[6]} variant="meta">
-          {language || 'code'}
-        </AppText>
-      }
+      header={<CodeLanguageLabel language={language} />}
+      language={language}
     />
   )
 }
 
-// ponytail: plain monospace text; shiki token colouring comes with the code
-// highlighter shim once native bundling of the grammar set is sorted out.
 const styles = StyleSheet.create({
-  wrap: {
+  plate: {
     marginVertical: 12,
-    borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.field,
+    borderCurve: 'continuous',
     overflow: 'hidden',
   },
   header: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+    minHeight: 34,
+    paddingHorizontal: INSET,
+    paddingTop: 8,
   },
   headerLead: { flex: 1, flexDirection: 'row' },
-  code: { fontSize: 13, lineHeight: 20, padding: 12 },
+  language: { fontSize: 11, lineHeight: 16, letterSpacing: 0.8 },
+  action: { fontSize: 12, lineHeight: 18 },
 })

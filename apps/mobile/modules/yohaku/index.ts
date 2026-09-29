@@ -278,6 +278,22 @@ type YohakuWebEmbedProps = ViewProps & {
 export const YohakuWebEmbed: ComponentType<YohakuWebEmbedProps> =
   requireNativeViewManager('Yohaku', 'YohakuWebEmbed')
 
+type YohakuCodeProps = ViewProps & {
+  boldFontFamily?: string
+  code: string
+  color?: ColorValue
+  fontFamily?: string
+  fontSize?: number
+  language?: string
+  lineHeight?: number
+  onContentSize?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  padding?: number
+  paddingTop?: number
+}
+
+export const YohakuCode: ComponentType<YohakuCodeProps> =
+  requireNativeViewManager('Yohaku', 'YohakuCode')
+
 type YohakuMathProps = ViewProps & {
   color?: ColorValue
   fontSize?: number

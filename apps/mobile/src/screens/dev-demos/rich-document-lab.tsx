@@ -9,14 +9,17 @@ import { openExternalUrl } from '@/lib/open-external'
 import { RichDocument } from '@/rich/lexical/rich-document'
 import { usePalette } from '@/theme/palette'
 
+import { codeHighlightSample } from './code-highlight-sample'
 import { LabScreen } from './lab-screen'
 
 const SAMPLES: Array<{
   id: string
   label: string
+  local?: SerializedEditorState
   note?: boolean
   only?: string
 }> = [
+  { id: 'code', label: '代码高亮', local: codeHighlightSample },
   { id: '180759007416291328', label: '链接卡/引用/对话/文件' },
   { id: '155012508522909696', label: 'mermaid/表格/alert' },
   { id: '170934497552896000', label: '列表/embed/自动链接' },
@@ -41,6 +44,7 @@ export function RichDocumentLab() {
   useEffect(() => {
     let cancelled = false
     setError('')
+    if (sample.local) return
     fetch(
       sample.note
         ? `https://mx.innei.in/api/v3/notes/nid/${sample.id}`
@@ -91,6 +95,15 @@ export function RichDocumentLab() {
     }
   }, [sample])
 
+  const shown = sample.local
+    ? {
+        enrichments: null,
+        id: sample.label,
+        value: sample.local,
+        webUrl: 'https://innei.in',
+      }
+    : state
+
   return (
     <LabScreen
       intro="生产文章的 lexical JSON → haklex override → 原生 segments。"
@@ -112,12 +125,12 @@ export function RichDocumentLab() {
           {error}
         </AppText>
       ) : null}
-      {state && state.id === sample.label ? (
+      {shown && shown.id === sample.label ? (
         <RichDocument
-          enrichments={state.enrichments}
+          enrichments={shown.enrichments}
           menuItems={[{ id: 'comment', label: '评论', icon: 'text.bubble' }]}
-          value={state.value}
-          webUrl={state.webUrl}
+          value={shown.value}
+          webUrl={shown.webUrl}
           onLinkPress={(href) => openExternalUrl(href)}
           onMenuAction={(event) =>
             Alert.alert(

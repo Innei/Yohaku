@@ -9,7 +9,7 @@ import { CodeCard } from './code-block'
 import { snippetFiles } from './code-snippet'
 import type { BlockProps } from './types'
 
-// ponytail: highlightLines is ignored until code blocks get syntax colouring.
+// ponytail: highlightLines is ignored; tint lines in YohakuCodeView once a post uses it.
 export function CodeSnippetBlock({ node }: BlockProps) {
   const palette = usePalette()
   const files = snippetFiles(node)
@@ -21,6 +21,7 @@ export function CodeSnippetBlock({ node }: BlockProps) {
     return (
       <CodeCard
         code={file.code}
+        language={file.language}
         header={
           <AppText color={palette.neutral[6]} variant="meta">
             {file.filename}
@@ -33,6 +34,7 @@ export function CodeSnippetBlock({ node }: BlockProps) {
   return (
     <CodeCard
       code={file.code}
+      language={file.language}
       header={
         <View style={styles.tabs}>
           {files.map((entry, index) => {
