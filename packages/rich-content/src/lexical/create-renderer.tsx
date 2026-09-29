@@ -31,6 +31,7 @@ import {
   VideoRenderer,
 } from '@haklex/rich-compose/modules/video'
 import type { RichEditorVariant } from '@haklex/rich-editor'
+import { KaTeXRenderer } from '@haklex/rich-editor/renderers'
 import { allNodes } from '@haklex/rich-editor/static'
 import { NESTED_DOC_NODE_KEY } from '@haklex/rich-ext-nested-doc'
 import type { LexicalNodeConfig, SerializedEditorState } from 'lexical'
@@ -60,6 +61,7 @@ import {
   configuredDynamicModule,
   setDynamicCatalogHost,
 } from './dynamic-catalog'
+import { yohakuFileModule } from './file-module'
 import {
   CodeBlockOverride,
   lexicalAutolinkOverride,
@@ -74,7 +76,6 @@ import { LexicalDetailsOverride } from './overrides/details'
 import { lexicalHeadingOverride } from './overrides/heading'
 import { LexicalListItemOverride } from './overrides/list-item'
 import { lexicalTableOverrides } from './overrides/table'
-import { yohakuFileModule } from './file-module'
 import { yohakuChatModule } from './portable/chat-module'
 import { YohakuCodeSnippet } from './portable/code-snippet'
 import { staticExcalidrawModule } from './portable/excalidraw'
@@ -182,6 +183,10 @@ const lexicalCodeBlockModule: RichRendererModule = {
   name: 'code-block',
   renderers: { CodeBlock: CodeBlockOverride },
 }
+const katexModule: RichRendererModule = {
+  name: 'katex',
+  renderers: { KaTeX: KaTeXRenderer },
+}
 // Drops the upstream module's `lazyRenderers` entry: keeping it alongside a
 // local `renderers` override leaves the block empty on the SSR pass.
 const lexicalCodeSnippetModule: RichRendererModule = {
@@ -237,6 +242,7 @@ const modules: RichRendererModule[] = [
   boundedStockModule,
   lexicalLinkCardModule,
   lexicalCodeBlockModule,
+  katexModule,
 ]
 
 const RichContent = composeRenderer({
