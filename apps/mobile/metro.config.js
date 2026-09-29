@@ -53,14 +53,6 @@ config.resolver.sourceExts.push('sql')
 const BARREL_SHIMS = {
   '@icons-pack/react-simple-icons': './shims/react-simple-icons.ts',
   'lucide-react': './shims/lucide-react.ts',
-  // Same problem, different shape: @haklex's renderers pull shiki/bundle/full
-  // (242 grammars + all 65 themes) and there is no way to narrow it from the
-  // call site, so the whole bundle module is swapped for a curated one.
-  // shiki's own main entry re-exports that same full bundle — @streamdown/code
-  // reaches it that way — so the bare specifier maps here too. Subpaths stay
-  // untouched: the shim itself loads shiki/engine/oniguruma and shiki/wasm.
-  shiki: './shims/shiki-bundle-full.ts',
-  'shiki/bundle/full': './shims/shiki-bundle-full.ts',
   // @better-auth/expo hard-imports expo-web-browser for social sign-in with
   // no override hook; the shim serves the auth session from YohakuKit instead.
   'expo-web-browser': './shims/expo-web-browser.ts',

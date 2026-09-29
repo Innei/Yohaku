@@ -5,8 +5,6 @@ import { createHighlighterCore } from 'shiki/core'
 import { createOnigurumaEngine } from 'shiki/engine/oniguruma'
 
 import {
-  bundledThemes,
-  LANGUAGE_ALIASES,
   LANGUAGE_IDS,
   LANGUAGE_LOADERS,
   type LanguageId,
@@ -15,41 +13,10 @@ import {
 } from './shiki-catalog'
 
 export type { LanguageId }
-export { bundledThemes, LANGUAGE_IDS, resolveLanguage, THEMES }
-
-// Mirrors the shape of shiki/bundle/*, so a host can alias the upstream bundle
-// to this catalog and keep every consumer — including @haklex's own code-block
-// renderers — on the curated set. Alias keys are folded in the way shiki does
-// it, since createBundledHighlighter resolves a fence tag straight off this map.
-export const bundledLanguages: Record<
-  string,
-  (typeof LANGUAGE_LOADERS)[LanguageId]
-> = {
-  ...LANGUAGE_LOADERS,
-  ...Object.fromEntries(
-    Object.entries(LANGUAGE_ALIASES).map(([alias, id]) => [
-      alias,
-      LANGUAGE_LOADERS[id],
-    ]),
-  ),
-}
-
-export const bundledLanguagesInfo = LANGUAGE_IDS.map((id) => ({
-  id,
-  name: id,
-  aliases: Object.entries(LANGUAGE_ALIASES)
-    .filter(([, target]) => target === id)
-    .map(([alias]) => alias),
-}))
-
-export const bundledThemesInfo = [
-  { id: 'github-dark', displayName: 'GitHub Dark', type: 'dark' as const },
-  { id: 'github-light', displayName: 'GitHub Light', type: 'light' as const },
-]
+export { LANGUAGE_IDS, resolveLanguage, THEMES }
 
 let corePromise: Promise<HighlighterCore> | null = null
 const pendingLanguages = new Map<LanguageId, Promise<void>>()
-
 
 function getCore(): Promise<HighlighterCore> {
   corePromise ??= createHighlighterCore({

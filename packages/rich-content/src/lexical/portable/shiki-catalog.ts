@@ -94,11 +94,6 @@ export const LANGUAGE_ALIASES: Record<string, LanguageId> = {
 
 export const THEMES = { dark: 'github-dark', light: 'github-light' } as const
 
-export const bundledThemes = {
-  'github-dark': () => import('@shikijs/themes/github-dark'),
-  'github-light': () => import('@shikijs/themes/github-light'),
-}
-
 export function resolveLanguage(
   language: string | undefined,
 ): LanguageId | null {
