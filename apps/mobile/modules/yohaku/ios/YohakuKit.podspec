@@ -12,6 +12,10 @@ Pod::Spec.new do |s|
   s.dependency 'ExpoModulesCore'
   s.dependency 'BeautifulMermaid'
   s.dependency 'SwiftMath'
+  s.dependency 'SwiftTreeSitterLayer'
+  Dir[File.join(__dir__, 'Vendor/TreeSitter/TreeSitter?*.podspec')].each do |spec|
+    s.dependency File.basename(spec, '.podspec')
+  end
 
   s.pod_target_xcconfig = {
     'DEFINES_MODULE' => 'YES',
@@ -20,4 +24,6 @@ Pod::Spec.new do |s|
   install_modules_dependencies(s)
 
   s.source_files = '**/*.{h,m,mm,swift}'
+  s.exclude_files = 'Code/Package.swift', 'Code/Tests/**/*', 'Code/.build/**/*'
+  s.resource_bundles = { 'YohakuCodeQueries' => ['Code/Core/Queries/*.scm'] }
 end

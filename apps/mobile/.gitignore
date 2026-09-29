@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+/modules/yohaku/ios/Code/.build
+/modules/yohaku/ios/Code/Package.resolved
+/modules/yohaku/ios/Code/.grammars

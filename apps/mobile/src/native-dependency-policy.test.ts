@@ -67,14 +67,14 @@ describe('native dependency policy', () => {
       path.join(mobileRoot, 'app.config.ts'),
       'utf8',
     )
-    expect(appConfig).toContain('./plugins/with-ios-mermaid-pods.cjs')
+    expect(appConfig).toContain('./plugins/with-ios-vendored-pods.cjs')
 
-    const plugin = readFileSync(
-      path.join(mobileRoot, 'plugins/with-ios-mermaid-pods.cjs'),
-      'utf8',
-    )
-    expect(plugin).toContain("pod 'ElkSwift'")
-    expect(plugin).toContain("pod 'BeautifulMermaid'")
+    const { vendoredPods } = require('../plugins/with-ios-vendored-pods.cjs') as {
+      vendoredPods: () => Array<[string, string]>
+    }
+    const pods = vendoredPods().map(([name]) => name)
+    expect(pods).toContain('ElkSwift')
+    expect(pods).toContain('BeautifulMermaid')
 
     const elk = readFileSync(
       path.join(mobileRoot, 'modules/yohaku/ios/Vendor/ElkSwift.podspec'),
