@@ -20,6 +20,9 @@ import { nativeBlockAnchor, nativeBuiltinOverrides } from './overrides'
 
 export const extraNodes = passthroughNodes(allNodes)
 
+// Horizontal padding of the post/note screens; bleeding blocks scroll into it.
+const PAGE_GUTTER = 20
+
 export interface RichDocumentProps extends RichDocumentHandlers {
   footnotes?: ReadonlyMap<string, number>
   nested?: boolean
@@ -134,6 +137,7 @@ export function RichDocument({
   const footnotes = inheritedFootnotes ?? ownFootnotes ?? undefined
   const context: RichDocumentContextValue = {
     ...handlers,
+    bleed: nested ? 0 : PAGE_GUTTER,
     footnotes,
     renderNested: (state) => (
       <RichDocument
@@ -144,7 +148,11 @@ export function RichDocument({
         onSegments={undefined}
       />
     ),
-    renderSegments: (segments) => <SegmentList segments={segments} />,
+    renderSegments: (segments) => (
+      <RichDocumentContext value={{ ...context, bleed: 0 }}>
+        <SegmentList segments={segments} />
+      </RichDocumentContext>
+    ),
   }
 
   return (

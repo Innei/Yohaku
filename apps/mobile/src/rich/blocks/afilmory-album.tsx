@@ -19,6 +19,7 @@ import {
   summarizeSource,
 } from './afilmory'
 import { AfilmoryMark } from './afilmory-polaroid'
+import { MEDIA_RADIUS, MediaCaption } from './media-caption'
 import { MediaCarousel } from './media-carousel'
 import { useBoneColor } from './skeleton'
 
@@ -194,7 +195,7 @@ export function AfilmoryAlbum({
       <MediaCarousel
         bleed={BODY_PADDING}
         items={carouselItems}
-        radius={0}
+        radius={MEDIA_RADIUS}
         renderItem={(index) => <Tile fulls={fulls} tile={tiles[index]!} />}
       />
     )
@@ -211,6 +212,7 @@ export function AfilmoryAlbum({
           <View style={styles.headerText}>
             {title ? (
               <AppText
+                color={palette.neutral[9]}
                 numberOfLines={1}
                 style={styles.title}
                 variant="secondary"
@@ -228,7 +230,6 @@ export function AfilmoryAlbum({
                 : ''}
             </AppText>
           </View>
-          <AfilmoryMark label="AFILMORY" />
           <NativePressable
             haptic={false}
             style={styles.viewAll}
@@ -246,16 +247,11 @@ export function AfilmoryAlbum({
           </NativePressable>
         </View>
         <View style={styles.body}>{body}</View>
+        <View style={styles.mark}>
+          <AfilmoryMark label="AFILMORY" />
+        </View>
       </Paper>
-      {caption ? (
-        <AppText
-          color={palette.neutral[6]}
-          style={styles.caption}
-          variant="meta"
-        >
-          {caption}
-        </AppText>
-      ) : null}
+      {caption ? <MediaCaption>{caption}</MediaCaption> : null}
     </View>
   )
 }
@@ -272,10 +268,11 @@ const styles = StyleSheet.create({
     paddingRight: 14,
   },
   headerText: { flex: 1, gap: 2, minWidth: 0, paddingVertical: 10 },
-  title: { ...fonts.sansSemiBold },
+  title: { ...fonts.sansSemiBold, fontSize: 14, lineHeight: 20 },
   summary: { ...fonts.mono, fontSize: 10.5, lineHeight: 14 },
   viewAll: { justifyContent: 'center', minHeight: 44 },
   body: { padding: BODY_PADDING },
+  mark: { alignItems: 'flex-end', paddingBottom: 10, paddingHorizontal: 14, paddingTop: 6 },
   masonry: { flexDirection: 'row', gap: 4 },
   column: { flex: 1, gap: 4, minWidth: 0 },
   masonryTile: { overflow: 'hidden', width: '100%' },
@@ -288,5 +285,4 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 8,
   },
-  caption: { textAlign: 'center' },
 })

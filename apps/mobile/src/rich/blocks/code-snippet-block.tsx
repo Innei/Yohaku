@@ -1,3 +1,4 @@
+import { SymbolView } from 'expo-symbols'
 import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
@@ -23,9 +24,16 @@ export function CodeSnippetBlock({ node }: BlockProps) {
         code={file.code}
         language={file.language}
         header={
-          <AppText color={palette.neutral[6]} variant="meta">
-            {file.filename}
-          </AppText>
+          <View style={styles.title}>
+            <SymbolView
+              name="doc.text"
+              size={14}
+              tintColor={palette.neutral[6]}
+            />
+            <AppText numberOfLines={1} style={styles.name}>
+              {file.filename}
+            </AppText>
+          </View>
         }
       />
     )
@@ -33,10 +41,11 @@ export function CodeSnippetBlock({ node }: BlockProps) {
 
   return (
     <CodeCard
+      divided
       code={file.code}
       language={file.language}
       header={
-        <View style={styles.tabs}>
+        <View accessibilityRole="tablist" style={styles.tabs}>
           {files.map((entry, index) => {
             const selected = entry === file
             return (
@@ -50,13 +59,10 @@ export function CodeSnippetBlock({ node }: BlockProps) {
               >
                 <AppText
                   color={selected ? palette.neutral[9] : palette.neutral[6]}
-                  variant="meta"
                   style={[
                     styles.tab,
                     fonts.mono,
-                    selected && {
-                      borderBottomColor: palette.accent,
-                    },
+                    selected && { borderBottomColor: palette.neutral[9] },
                   ]}
                 >
                   {entry.filename}
@@ -71,14 +77,24 @@ export function CodeSnippetBlock({ node }: BlockProps) {
 }
 
 const styles = StyleSheet.create({
+  title: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexShrink: 1,
+    gap: 8,
+  },
+  name: { flexShrink: 1, fontSize: 13, fontWeight: '600', lineHeight: 18 },
   tabs: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 14,
+    gap: 16,
   },
   tab: {
     borderBottomColor: 'transparent',
     borderBottomWidth: 2,
-    paddingBottom: 2,
+    fontSize: 12,
+    lineHeight: 18,
+    paddingBottom: 6,
+    paddingTop: 6,
   },
 })

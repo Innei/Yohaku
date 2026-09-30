@@ -17,6 +17,8 @@ import { AppText, RemoteImage } from '@/components/ui'
 import { reactToSvg } from '@/rich/svg-markup'
 import { usePalette } from '@/theme/palette'
 
+import { DiagramPlate } from './diagram-plate'
+import { useBoneColor } from './skeleton'
 import { type BlockProps, str } from './types'
 
 type Loaded =
@@ -46,7 +48,8 @@ export function ExcalidrawBlock({ node }: BlockProps) {
   const snapshot = str(node.snapshot)
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   const targetWidth = Math.round(Math.max(320, windowWidth - 40 - 16))
-  const bg = palette.surface.paper
+  const bone = useBoneColor()
+  const bg = palette.neutral[1]
   const theme = palette.theme
 
   useEffect(() => {
@@ -83,11 +86,7 @@ export function ExcalidrawBlock({ node }: BlockProps) {
   }, [bg, snapshot, targetWidth, theme])
 
   if (!loaded) {
-    return (
-      <View
-        style={[styles.placeholder, { backgroundColor: palette.neutral[2] }]}
-      />
-    )
+    return <View style={[styles.placeholder, { backgroundColor: bone }]} />
   }
   if (loaded.kind === 'error') {
     return (
@@ -97,12 +96,7 @@ export function ExcalidrawBlock({ node }: BlockProps) {
     )
   }
   return (
-    <View
-      style={[
-        styles.frame,
-        { backgroundColor: bg, borderColor: palette.neutral[3] },
-      ]}
-    >
+    <DiagramPlate label="excalidraw">
       <RemoteImage
         contentFit="contain"
         images={[loaded.uri]}
@@ -110,17 +104,10 @@ export function ExcalidrawBlock({ node }: BlockProps) {
         style={{ width: '100%', aspectRatio: loaded.width / loaded.height }}
         uri={loaded.uri}
       />
-    </View>
+    </DiagramPlate>
   )
 }
 
 const styles = StyleSheet.create({
-  placeholder: { height: 200, borderRadius: 8, marginVertical: 12 },
-  frame: {
-    marginVertical: 12,
-    borderRadius: 8,
-    borderWidth: StyleSheet.hairlineWidth,
-    overflow: 'hidden',
-    padding: 8,
-  },
+  placeholder: { height: 200, borderRadius: 12, marginVertical: 12 },
 })

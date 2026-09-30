@@ -62,3 +62,17 @@ export function optimisticVote(
     userVote: optionIds,
   }
 }
+
+interface PollStatus {
+  closed: boolean
+  hasVoted: boolean
+}
+
+export function pollEyebrowSuffix({ hasVoted }: PollStatus): string {
+  return hasVoted ? ' · 已投' : ''
+}
+
+export function pollFooter({ closed, hasVoted }: PollStatus): string | null {
+  if (hasVoted) return null
+  return closed ? '投票已结束' : '点选即投 · 投后显示结果'
+}

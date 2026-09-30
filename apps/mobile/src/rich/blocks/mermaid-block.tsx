@@ -8,17 +8,20 @@ import {
 } from '@/lib/insights-mermaid'
 import { usePalette } from '@/theme/palette'
 
+import { DiagramPlate } from './diagram-plate'
+import { useBoneColor } from './skeleton'
 import { type BlockProps, str } from './types'
 
 export function MermaidBlock({ node }: BlockProps) {
   const palette = usePalette()
+  const bone = useBoneColor()
   const diagram = str(node.diagram)
   const [rendered, setRendered] = useState<InsightsMermaidRender | null>(null)
 
   useEffect(() => {
     let cancelled = false
     void renderInsightsMermaid(diagram, {
-      bg: palette.surface.desk,
+      bg: palette.neutral[1],
       fg: palette.neutral[9],
     }).then((next) => {
       if (!cancelled) setRendered(next)
@@ -26,10 +29,12 @@ export function MermaidBlock({ node }: BlockProps) {
     return () => {
       cancelled = true
     }
-  }, [diagram, palette.neutral, palette.surface.desk])
+  }, [diagram, palette.neutral])
 
   if (!rendered?.src) {
-    if (!rendered?.error) return <View style={styles.placeholder} />
+    if (!rendered?.error) {
+      return <View style={[styles.placeholder, { backgroundColor: bone }]} />
+    }
     return (
       <AppText color={palette.neutral[7]} variant="secondary">
         {rendered.error}
@@ -39,17 +44,18 @@ export function MermaidBlock({ node }: BlockProps) {
   const ratio =
     rendered.width && rendered.height ? rendered.width / rendered.height : 2
   return (
-    <RemoteImage
-      contentFit="contain"
-      images={[rendered.src]}
-      index={0}
-      style={[styles.image, { aspectRatio: ratio }]}
-      uri={rendered.src}
-    />
+    <DiagramPlate label="mermaid">
+      <RemoteImage
+        contentFit="contain"
+        images={[rendered.src]}
+        index={0}
+        style={{ aspectRatio: ratio, width: '100%' }}
+        uri={rendered.src}
+      />
+    </DiagramPlate>
   )
 }
 
 const styles = StyleSheet.create({
-  placeholder: { height: 120, marginVertical: 12 },
-  image: { width: '100%', marginVertical: 12 },
+  placeholder: { borderRadius: 12, height: 120, marginVertical: 12 },
 })

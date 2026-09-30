@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 
 import { SlotText } from '@/components/ui'
+import { fonts } from '@/theme/fonts'
 
 import {
   CAROUSEL_GAP,
@@ -13,8 +14,9 @@ import {
 } from './media-carousel-layout'
 
 const COUNTER_TEXT = {
+  ...fonts.mono,
   color: '#fdfcf9',
-  fontSize: 12,
+  fontSize: 11,
   lineHeight: 16,
 }
 
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     position: 'absolute',
-    right: 8,
+    left: 8,
     top: 8,
   },
   counterTotal: { fontVariant: ['tabular-nums'] },

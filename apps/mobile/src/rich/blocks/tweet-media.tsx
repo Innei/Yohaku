@@ -7,8 +7,8 @@ import { RemoteImage } from '@/components/ui'
 import { MediaCarousel } from './media-carousel'
 import { singleMediaRatio } from './media-carousel-layout'
 import type { TweetMedia } from './tweet'
+import { MEDIA_RADIUS } from './media-caption'
 
-const MEDIA_RADIUS = 12
 const VIDEO_BACKDROP = neutral.light[10]
 
 function MediaTile({

@@ -145,7 +145,7 @@ export function TweetFooter({
   return (
     <View style={styles.footer}>
       <View style={styles.stats}>
-        <AppText color={palette.neutral[6]} style={styles.nums} variant="meta">
+        <AppText color={palette.neutral[6]} style={[styles.date, fonts.mono]}>
           {formatTweetDate(tweet.createdAt)}
         </AppText>
         {stat('heart', tweet.likes)}
@@ -165,7 +165,7 @@ export function TweetFooter({
 }
 
 const styles = StyleSheet.create({
-  text: { lineHeight: 24 },
+  text: { fontSize: 15, lineHeight: 24 },
   shrink: { flexShrink: 1 },
   name: { ...fonts.sansSemiBold, flexShrink: 1 },
   headerText: { flex: 1, gap: 1, minWidth: 0 },
@@ -184,5 +184,6 @@ const styles = StyleSheet.create({
   stats: { alignItems: 'center', flexDirection: 'row', gap: 12 },
   stat: { alignItems: 'center', flexDirection: 'row', gap: 4 },
   nums: { fontVariant: ['tabular-nums'] },
+  date: { fontSize: 11, lineHeight: 16 },
   viewOnX: { minHeight: 44, justifyContent: 'center' },
 })

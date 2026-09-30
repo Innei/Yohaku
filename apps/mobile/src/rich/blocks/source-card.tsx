@@ -158,19 +158,34 @@ function LoadedSource(props: SourceCardProps & { files: SourceFile[] }) {
       ) : (
         <CodeCard bare code={folded.code} language={file.language} />
       )}
+      {collapsible && !expanded ? (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.fade,
+            {
+              experimental_backgroundImage: `linear-gradient(to bottom, ${palette.neutral[1]}00, ${palette.neutral[1]} 85%)`,
+            },
+          ]}
+        />
+      ) : null}
       {collapsible ? (
         <NativePressable
           haptic={false}
           onPress={() => setExpanded((value) => !value)}
         >
-          <View style={[styles.expand, { borderTopColor: palette.neutral[3] }]}>
+          <View style={styles.expand}>
             <AppText color={palette.neutral[7]} variant="secondary">
-              {expanded
-                ? '收起'
-                : previewing
-                  ? '展开全部'
-                  : `展开全部 · ${folded.total} 行`}
+              {expanded ? '收起' : '展开全部'}
             </AppText>
+            {expanded || previewing ? null : (
+              <AppText
+                color={palette.neutral[5]}
+                style={[styles.count, fonts.mono]}
+              >
+                {`${folded.total} 行`}
+              </AppText>
+            )}
             <SymbolView
               name={expanded ? 'chevron.up' : 'chevron.down'}
               size={10}
@@ -339,9 +354,10 @@ const styles = StyleSheet.create({
     paddingTop: 12,
   },
   skeleton: { borderRadius: 8, height: 12 * 21, margin: 12 },
+  fade: { height: 63, marginTop: -63 },
+  count: { fontSize: 11, lineHeight: 16 },
   expand: {
     alignItems: 'center',
-    borderTopWidth: 1,
     flexDirection: 'row',
     gap: 6,
     justifyContent: 'center',

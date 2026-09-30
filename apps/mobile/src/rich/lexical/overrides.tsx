@@ -74,41 +74,41 @@ const inlineText =
   ): BuiltinNodeRenderer =>
   (node, key) => <RunMarker key={key} run={{ ...patch, text: toText(node) }} />
 
-// Block decorators (excalidraw, images) can sit inside a paragraph; they are
-// hoisted out as sibling blocks so the segment grouping sees them.
-function splitHoisted(children: ReactNode): {
-  hoisted: ReactNode[]
-  inline: ReactNode[]
-} {
-  const hoisted: ReactNode[] = []
-  const inline: ReactNode[] = []
-  Children.forEach(children, (child) => {
-    if (isValidElement(child) && child.type === ViewBlockMarker)
-      hoisted.push(child)
-    else inline.push(child)
-  })
-  return { hoisted, inline }
-}
-
+// Block decorators (excalidraw, images) can sit inside a paragraph; the text is
+// cut at each one so the image keeps its place in the reading order. The pieces
+// become `id~n` blocks, which anchors fold back into one paragraph.
 const textBlock =
   (
     role: RichTextBlock['role'],
     extra?: (node: any) => Partial<RichTextBlock>,
   ): BuiltinNodeRenderer =>
   (node, key, children) => {
-    const { hoisted, inline } = splitHoisted(children)
-    const runs = collectRuns(inline)
-    const block =
-      runs.some((run) => run.text.trim()) || hoisted.length === 0 ? (
-        <TextBlockMarker block={{ role, runs, ...extra?.(node) }} key={key} />
-      ) : null
-    if (hoisted.length === 0) return block
-    return (
-      <Fragment key={key}>
-        {block}
-        {hoisted}
-      </Fragment>
-    )
+    const parts: ReactNode[] = []
+    let inline: ReactNode[] = []
+    const flush = (keepEmpty: boolean) => {
+      const runs = collectRuns(inline)
+      inline = []
+      if (!keepEmpty && !runs.some((run) => run.text.trim())) return
+      parts.push(
+        <TextBlockMarker
+          block={{ role, runs, ...extra?.(node) }}
+          key={`t${parts.length}`}
+        />,
+      )
+    }
+    Children.forEach(children, (child) => {
+      if (isValidElement(child) && child.type === ViewBlockMarker) {
+        flush(false)
+        parts.push(child)
+      } else {
+        inline.push(child)
+      }
+    })
+    flush(parts.length === 0)
+    if (parts.length === 1 && isValidElement(parts[0])) {
+      return cloneElement(parts[0], { key })
+    }
+    return <Fragment key={key}>{parts}</Fragment>
   }
 
 const viewBlock: BuiltinNodeRenderer = (node, key, children) => (
@@ -228,11 +228,18 @@ export const nativeBuiltinOverrides: Record<string, BuiltinNodeRenderer> = {
   link: inline((node) => ({ href: String(node.url ?? '') })),
   autolink: inline((node) => ({ href: String(node.url ?? '') })),
   spoiler: inline(() => ({ spoiler: true })),
-  ruby: inline(() => ({})),
+  ruby: (node, key, children) => (
+    <InlineMarker
+      key={key}
+      patch={node.reading ? { ruby: String(node.reading), rubyId: key } : {}}
+    >
+      {children}
+    </InlineMarker>
+  ),
   mention: inlineText((node) => `@${node.displayName || node.handle || ''}`, {
-    bold: true,
+    mention: true,
   }),
-  tag: inlineText((node) => `#${node.text ?? ''}`, { code: true }),
+  tag: inlineText((node) => `#${node.text ?? ''}`, { tag: true }),
   footnote: (node, key) => {
     const identifier = String(node.identifier ?? '')
     return (

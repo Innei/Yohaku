@@ -4,6 +4,7 @@ import { presentImagePreview } from '@/lib/image-cache'
 import { getSiteUrl } from '@/lib/site-url'
 
 import { useRichDocument } from '../lexical/context'
+import { FileCard, NestedDocCard, UnsupportedCard } from './doc-cards'
 import { IndexCard } from './index-card'
 import { linkCardModel } from './link-card'
 import { type BlockProps, num, str } from './types'
@@ -41,9 +42,6 @@ export function FileBlock({ node }: BlockProps) {
     mimeType,
     name,
   })
-  const meta = [str(node.ext).toUpperCase(), formatBytes(num(node.size))]
-    .filter(Boolean)
-    .join(' · ')
   const open = () => {
     if (kind === 'image') {
       void presentImagePreview({
@@ -63,11 +61,11 @@ export function FileBlock({ node }: BlockProps) {
     }
   }
   return (
-    <IndexCard
-      host="文件"
-      label={meta || null}
-      symbol="doc"
-      title={name}
+    <FileCard
+      ext={str(node.ext).toUpperCase()}
+      name={name}
+      preview={Boolean(kind)}
+      size={formatBytes(num(node.size))}
       onPress={src ? open : undefined}
     />
   )
@@ -78,10 +76,7 @@ export function NestedDocBlock({ node }: BlockProps) {
   const content = node.content as { root?: unknown } | undefined
   const title = str(node.title) || '嵌入文档'
   return (
-    <IndexCard
-      description="展开阅读"
-      host="嵌入文档"
-      symbol="doc.text"
+    <NestedDocCard
       title={title}
       onPress={
         content?.root && doc.onNestedDocExpand
@@ -116,11 +111,8 @@ const LABELS: Record<string, string> = {
 export function UnsupportedBlock({ node }: BlockProps) {
   const doc = useRichDocument()
   return (
-    <IndexCard
-      description={doc.webUrl ? '在网页中查看' : undefined}
-      host={LABELS[node.type] ?? node.type}
-      symbol="square.dashed"
-      title="此内容暂不支持原生显示"
+    <UnsupportedCard
+      label={LABELS[node.type] ?? node.type}
       onPress={doc.webUrl ? () => doc.onLinkPress?.(doc.webUrl!) : undefined}
     />
   )

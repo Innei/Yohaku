@@ -157,3 +157,24 @@ describe('native anchors', () => {
     expect(highlights.map((h) => h.kind)).toEqual(['block-active'])
   })
 })
+
+describe('paragraph split around a block image', () => {
+  it('indexes the text after the image as a continuation of the paragraph', () => {
+    const map = indexNativeBlocks([
+      {
+        kind: 'text',
+        blocks: [{ id: 'p1', role: 'paragraph', runs: [{ text: 'before' }] }],
+      },
+      {
+        kind: 'text',
+        blocks: [{ id: 'p1~2', role: 'paragraph', runs: [{ text: 'after' }] }],
+      },
+    ])
+    expect(map.get('p1~2')).toEqual({
+      baseId: 'p1',
+      id: 'p1~2',
+      length: 5,
+      prefixLength: 6,
+    })
+  })
+})

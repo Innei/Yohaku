@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { ApiPollState } from '@/api/types'
 
-import { optimisticVote, pollRows } from './poll'
+import { optimisticVote, pollEyebrowSuffix, pollFooter, pollRows } from './poll'
 
 const options = [
   { id: 'o_1', label: 'A' },
@@ -82,5 +82,21 @@ describe('optimisticVote', () => {
     expect(next.totalVotes).toBe(1)
     expect(next.userVote).toEqual(['o_1', 'o_2'])
     expect(next.canVote).toBe(false)
+  })
+})
+
+describe('poll captions', () => {
+  it('moves the voted state into the eyebrow and drops the footer', () => {
+    expect(pollEyebrowSuffix({ closed: false, hasVoted: true })).toBe(' · 已投')
+    expect(pollFooter({ closed: false, hasVoted: true })).toBeNull()
+  })
+
+  it('tells an open voter how voting works', () => {
+    expect(pollEyebrowSuffix({ closed: false, hasVoted: false })).toBe('')
+    expect(pollFooter({ closed: false, hasVoted: false })).toBe('点选即投 · 投后显示结果')
+  })
+
+  it('marks a closed poll in the footer', () => {
+    expect(pollFooter({ closed: true, hasVoted: false })).toBe('投票已结束')
   })
 })

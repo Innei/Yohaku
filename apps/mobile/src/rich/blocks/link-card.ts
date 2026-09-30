@@ -14,6 +14,7 @@ export interface LinkCardMeta {
   symbol?: string
   text: string
   tone?: MetaTone
+  toneDot?: boolean
 }
 
 export type LinkCardImageShape = 'avatar' | 'poster' | 'square' | 'thumb'
@@ -73,6 +74,12 @@ const STATE_TONES: Record<string, MetaTone> = {
   closed: 'error',
 }
 
+const STATE_LABELS: Record<string, string> = {
+  open: '进行中',
+  merged: '已合并',
+  closed: '已关闭',
+}
+
 const DIFFICULTY_TONES: Record<string, MetaTone> = {
   easy: 'success',
   medium: 'warning',
@@ -85,12 +92,21 @@ const count = (value: string) => {
 }
 
 const META_RULES: Array<[string, (value: string) => LinkCardMeta]> = [
-  ['state', (v) => ({ text: v, tone: STATE_TONES[v.toLowerCase()] })],
+  [
+    'state',
+    (v) => {
+      const state = v.toLowerCase()
+      const tone = STATE_TONES[state]
+      return tone
+        ? { text: STATE_LABELS[state] ?? v, tone, toneDot: true }
+        : { text: v }
+    },
+  ],
   [
     'difficulty',
     (v) => ({ text: v, tone: DIFFICULTY_TONES[v.toLowerCase()] }),
   ],
-  ['rating', (v) => ({ symbol: 'star.fill', text: v })],
+  ['rating', (v) => ({ symbol: 'star.fill', text: v, tone: 'warning' })],
   ['stars', (v) => ({ symbol: 'star', text: count(v) })],
   ['forks', (v) => ({ symbol: 'arrow.triangle.branch', text: count(v) })],
   [

@@ -103,7 +103,7 @@ export function TweetBlock({ blockId, node }: BlockProps) {
         <Image
           accessibilityLabel="X"
           source={X_LOGO}
-          style={[styles.xLogo, { tintColor: palette.neutral[9] }]}
+          style={[styles.xLogo, { tintColor: palette.neutral[5] }]}
         />
       </View>
       {replyTo ? (
@@ -143,8 +143,8 @@ const styles = StyleSheet.create({
   avatar: { width: 40, height: 40, borderRadius: 20 },
   headerText: { flex: 1, gap: 1, minWidth: 0 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  name: { ...fonts.sansSemiBold, flexShrink: 1 },
-  xLogo: { width: 16, height: 16 },
+  name: { ...fonts.sansSemiBold, flexShrink: 1, fontSize: 14, lineHeight: 20 },
+  xLogo: { width: 13, height: 13 },
   replyLine: {
     alignItems: 'center',
     flexDirection: 'row',

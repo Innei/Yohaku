@@ -1,17 +1,18 @@
 import { Fragment } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, useWindowDimensions, View } from 'react-native'
 
 import { AppText } from '@/components/ui'
 import { usePalette } from '@/theme/palette'
-import { useNativeSerifFontStyle } from '@/theme/serif-font'
+import { fonts } from '@/theme/fonts'
 
+import { bodyMetrics } from '../body-scale'
 import { useRichDocument } from '../lexical/context'
 import { gridCells, isMediaGrid } from './grid'
 import { type BlockProps, num } from './types'
 
 export function GridBlock({ node }: BlockProps) {
   const palette = usePalette()
-  const serif = useNativeSerifFontStyle()
+  const { fontScale } = useWindowDimensions()
   const doc = useRichDocument()
   const cells = gridCells(node)
   if (cells.length === 0) return null
@@ -46,8 +47,18 @@ export function GridBlock({ node }: BlockProps) {
             />
           ) : null}
           <View style={styles.entry}>
-            <AppText color={palette.neutral[6]} style={[styles.number, serif]}>
-              {index + 1}
+            <AppText
+              color={palette.neutral[5]}
+              style={[
+                styles.number,
+                fonts.mono,
+                {
+                  lineHeight: bodyMetrics(doc.variant ?? 'article', fontScale)
+                    .lineHeight,
+                },
+              ]}
+            >
+              {String(index + 1).padStart(2, '0')}
             </AppText>
             <View style={styles.body}>{doc.renderNested(cell)}</View>
           </View>
@@ -74,14 +85,12 @@ const styles = StyleSheet.create({
   },
   entry: {
     flexDirection: 'row',
-    gap: 20,
+    gap: 16,
     paddingVertical: 12,
   },
   number: {
-    fontSize: 15,
-    lineHeight: 28,
-    textAlign: 'right',
-    width: 18,
+    fontSize: 11,
+    width: 22,
   },
   body: {
     flex: 1,

@@ -14,7 +14,7 @@ import { type BlockProps, str } from './types'
 
 const INSET = 16
 const TOP = 14
-const HEADER_TOP = 4
+const HEADER_TOP = 10
 const LABEL_ROOM = 12
 
 export function CopyCodeButton({ code }: { code: string }) {
@@ -44,18 +44,20 @@ export function CopyCodeButton({ code }: { code: string }) {
 export function CodeCard({
   bare,
   code,
+  divided,
   header,
   language,
 }: {
   bare?: boolean
   code: string
+  divided?: boolean
   header?: ReactNode
   language?: string
 }) {
   const palette = usePalette()
   const { fontScale } = useWindowDimensions()
   const { fontSize, lineHeight } = codeMetrics(fontScale)
-  const top = header ? HEADER_TOP : bare ? 12 : TOP
+  const top = header ? (divided ? 12 : HEADER_TOP) : bare ? 12 : TOP
   const [height, setHeight] = useState<number | null>(null)
   const label = !bare && !header && language ? language : null
 
@@ -75,7 +77,12 @@ export function CodeCard({
       }
     >
       {header ? (
-        <View style={styles.header}>
+        <View
+          style={[
+            styles.header,
+            divided && [styles.divided, { borderBottomColor: palette.neutral[3] }],
+          ]}
+        >
           <View style={styles.headerLead}>{header}</View>
           <CopyCodeButton code={code} />
         </View>
@@ -128,11 +135,17 @@ const styles = StyleSheet.create({
   header: {
     alignItems: 'center',
     flexDirection: 'row',
+    gap: 8,
     justifyContent: 'space-between',
     minHeight: 34,
-    paddingLeft: INSET,
+    paddingLeft: 14,
     paddingRight: 6,
     paddingTop: 6,
+  },
+  divided: {
+    alignItems: 'flex-end',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingTop: 4,
   },
   headerLead: { flex: 1, flexDirection: 'row' },
   copy: {

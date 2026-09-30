@@ -28,7 +28,7 @@ export function collectRuns(
       return
     }
     if (child.type === LineBreakMarker) {
-      out.push({ text: '\n' })
+      out.push({ lineBreak: true, text: '\n' })
       return
     }
     if (child.type === TextBlockMarker) {

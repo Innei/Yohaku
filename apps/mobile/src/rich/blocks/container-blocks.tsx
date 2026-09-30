@@ -1,43 +1,41 @@
+import { radius } from '@yohaku/design-system/tokens'
 import { SymbolView } from 'expo-symbols'
 import { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { AppText, NativePressable } from '@/components/ui'
 import { usePalette } from '@/theme/palette'
+import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { useRichDocument } from '../lexical/context'
 import { groupSegments } from '../lexical/group'
+import { calloutKind } from './callout'
 import { type BlockProps, str } from './types'
-
-const CALLOUT_LABEL: Record<string, string> = {
-  note: '注',
-  tip: '提示',
-  important: '重要',
-  warning: '注意',
-  caution: '警告',
-  info: '信息',
-  success: '完成',
-  error: '错误',
-}
 
 export function CalloutBlock({ node }: BlockProps) {
   const palette = usePalette()
+  const serif = useNativeSerifFontStyle()
   const doc = useRichDocument()
-  const kind = str(node.alertType) || str(node.bannerType) || 'note'
+  const kind = calloutKind(str(node.alertType) || str(node.bannerType))
+  const tone = kind.tone === 'accent' ? palette.accent : palette.semantic[kind.tone]
   const content = node.content as { root?: unknown } | undefined
   return (
     <View
       style={[
         styles.callout,
-        {
-          borderLeftColor: palette.accent,
-          backgroundColor: palette.neutral[1],
-        },
+        { backgroundColor: palette.neutral[1], borderColor: palette.neutral[3] },
       ]}
     >
-      <AppText color={palette.accent} variant="eyebrow">
-        {CALLOUT_LABEL[kind] ?? kind.toUpperCase()}
-      </AppText>
+      <View style={styles.head}>
+        <View style={[styles.seal, { borderColor: tone }]}>
+          <AppText color={tone} style={[styles.glyph, serif]}>
+            {kind.glyph}
+          </AppText>
+        </View>
+        <AppText color={tone} style={styles.label}>
+          {kind.label}
+        </AppText>
+      </View>
       {content?.root ? doc.renderNested(content as never) : null}
     </View>
   )
@@ -50,16 +48,21 @@ export function DetailsBlock({ children, node }: BlockProps) {
   return (
     <View style={[styles.details, { borderColor: palette.neutral[3] }]}>
       <NativePressable
+        accessibilityRole="button"
+        accessibilityState={{ expanded: open }}
         haptic={false}
         onPress={() => setOpen((value) => !value)}
       >
         <View style={styles.summary}>
           <SymbolView
             name={open ? 'chevron.down' : 'chevron.right'}
-            size={13}
-            tintColor={palette.neutral[6]}
+            size={12}
+            tintColor={palette.neutral[5]}
+            weight="semibold"
           />
-          <AppText variant="body">{str(node.summary) || '详情'}</AppText>
+          <AppText style={styles.summaryText}>
+            {str(node.summary) || '详情'}
+          </AppText>
         </View>
       </NativePressable>
       {open ? (
@@ -75,25 +78,37 @@ export function DetailsBlock({ children, node }: BlockProps) {
 
 const styles = StyleSheet.create({
   callout: {
+    borderCurve: 'continuous',
+    borderRadius: radius.field,
+    borderWidth: 1,
+    gap: 8,
     marginVertical: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderLeftWidth: 3,
-    borderRadius: 4,
-    gap: 6,
+    paddingBottom: 14,
+    paddingHorizontal: 16,
+    paddingTop: 14,
   },
+  head: { alignItems: 'center', flexDirection: 'row', gap: 8 },
+  seal: {
+    alignItems: 'center',
+    borderRadius: 4,
+    borderWidth: 1.2,
+    height: 18,
+    justifyContent: 'center',
+    width: 18,
+  },
+  glyph: { fontSize: 11, lineHeight: 14 },
+  label: { fontSize: 12, fontWeight: '600', lineHeight: 16 },
   details: {
+    borderBottomWidth: 1,
+    borderTopWidth: 1,
     marginVertical: 12,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 8,
-    overflow: 'hidden',
   },
   summary: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    flexDirection: 'row',
+    gap: 10,
+    minHeight: 48,
   },
-  detailsBody: { paddingHorizontal: 12, paddingBottom: 12 },
+  summaryText: { flex: 1, fontSize: 15, fontWeight: '500', lineHeight: 22 },
+  detailsBody: { paddingBottom: 16, paddingLeft: 22 },
 })

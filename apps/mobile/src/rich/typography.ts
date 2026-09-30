@@ -6,28 +6,55 @@ import { bodyMetrics } from './body-scale'
 
 export type RichVariant = 'article' | 'note'
 
-// Mirrors the web article variant (haklex article.css + Yohaku heading
-// override): headings scale by em, margins collapse against the 24px
-// paragraph gap, so only the excess becomes spacingBefore.
-const HEADING_SCALE = [2, 1.5, 1.25, 1.125, 1, 0.875]
+// Headings step down from the body in em; margins collapse against the paragraph
+// gap, so only the excess becomes spacingBefore.
+const HEADING_SCALE = [1.75, 1.4, 1.13, 1, 1, 0.88]
+const HEADING_LINE = [1.32, 1.42, 1.42, 1.47, 1.47, 1.55]
 const HEADING_MARGIN_TOP = [1.5, 1.4, 1.3, 1.2, 1.1, 1]
 
-function headings(base: number, paragraphGap: number) {
-  const out: Record<string, Record<string, number | string>> = {}
+// Noto Serif SC ships one weight, so a bold trait would be faked with a stroke.
+function headings(
+  base: number,
+  paragraphGap: number,
+  serif: string,
+  isNote: boolean,
+  palette: Palette,
+) {
+  const out: Record<string, HeadingSpec> = {}
   HEADING_SCALE.forEach((scale, index) => {
     const size = Math.round(base * scale)
+    const display = index < 2
     out[String(index + 1)] = {
       size,
-      lineHeight: Math.round(size * 1.25),
+      lineHeight: Math.round(size * HEADING_LINE[index]!),
       spacingBefore: Math.max(
         0,
         Math.round(size * HEADING_MARGIN_TOP[index]!) - paragraphGap,
       ),
       spacingAfter: paragraphGap,
-      weight: index < 2 ? 'bold' : 'semibold',
+      fontFamily: display || isNote ? serif : undefined,
+      weight: display || isNote ? 'regular' : 'semibold',
+      color:
+        index === 4
+          ? palette.neutral[7]
+          : index === 5
+            ? palette.neutral[6]
+            : display
+              ? palette.neutral[10]
+              : palette.neutral[9],
     }
   })
   return out
+}
+
+interface HeadingSpec {
+  color: string
+  fontFamily?: string
+  lineHeight: number
+  size: number
+  spacingAfter: number
+  spacingBefore: number
+  weight: 'regular' | 'semibold'
 }
 
 export function richTypography(
@@ -39,7 +66,6 @@ export function richTypography(
   const serif = nativeSerifFontFamily(locale, false)
   const isNote = variant === 'note'
   const { fontSize, lineHeight, paragraphGap } = bodyMetrics(variant, fontScale)
-  const quoteScale = fontSize / bodyMetrics(variant, 1).fontSize
   return {
     fontFamily: isNote ? serif : undefined,
     fallbackFontFamily: fonts.serif.fontFamily,
@@ -47,22 +73,26 @@ export function richTypography(
     fontSize,
     lineHeight,
     paragraphGap,
-    headings: headings(fontSize, paragraphGap),
+    headings: headings(fontSize, paragraphGap, serif, isNote, palette),
     quote: {
       fontFamily: serif,
-      fontSize: Math.round(15 * quoteScale),
-      lineHeight: Math.round(24 * quoteScale),
+      fontSize,
+      lineHeight,
       indent: 28,
-      gap: paragraphGap,
-      italic: true,
+      gap: Math.round(paragraphGap / 2),
+      italic: false,
+      color: palette.neutral[7],
+      barColor: palette.neutral[4],
     },
     list: { indent: 24, markerInset: 10, textInset: 36, itemGap: 12 },
     hrGap: 56,
     color: palette.neutral[9],
     secondaryColor: palette.neutral[6],
+    mutedColor: palette.neutral[5],
+    paperColor: palette.surface.paper,
     linkColor: palette.accent,
     accentColor: palette.accent,
-    highlightColor: `${palette.accent}33`,
+    highlightColor: `${palette.accent}3d`,
     activeHighlightColor: `${palette.accent}17`,
     codeBackground: palette.neutral[2],
   }

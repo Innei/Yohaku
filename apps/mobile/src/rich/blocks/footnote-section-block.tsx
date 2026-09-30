@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native'
 
 import { AppText } from '@/components/ui'
 import { usePalette } from '@/theme/palette'
-import { useNativeSerifFontStyle } from '@/theme/serif-font'
+import { fonts } from '@/theme/fonts'
 
 import { useRichDocument } from '../lexical/context'
 import { footnoteEntries } from '../lexical/footnotes'
@@ -10,7 +10,6 @@ import type { BlockProps } from './types'
 
 export function FootnoteSectionBlock({ node }: BlockProps) {
   const palette = usePalette()
-  const serif = useNativeSerifFontStyle()
   const doc = useRichDocument()
   const definitions =
     node.definitions && typeof node.definitions === 'object'
@@ -21,12 +20,12 @@ export function FootnoteSectionBlock({ node }: BlockProps) {
 
   return (
     <View style={styles.wrap}>
-      <View style={[styles.rule, { backgroundColor: palette.neutral[3] }]} />
+      <View style={[styles.rule, { backgroundColor: palette.neutral[4] }]} />
       {entries.map((entry) => (
         <View key={entry.id} style={styles.row}>
           <AppText
-            color={palette.neutral[6]}
-            style={[styles.label, serif]}
+            color={palette.accent}
+            style={[styles.label, fonts.mono]}
             variant="secondary"
           >
             {entry.label}
@@ -51,18 +50,19 @@ const styles = StyleSheet.create({
     marginTop: 24,
   },
   rule: {
-    height: StyleSheet.hairlineWidth,
-    marginBottom: 4,
+    height: 1,
+    marginBottom: 6,
+    width: 32,
   },
   row: {
     flexDirection: 'row',
-    gap: 14,
+    gap: 12,
   },
   label: {
-    fontSize: 13,
+    fontSize: 11,
     lineHeight: 21,
     textAlign: 'right',
-    width: 16,
+    width: 14,
   },
   text: {
     flex: 1,

@@ -27,6 +27,7 @@ export interface RichDocumentHandlers {
 }
 
 export interface RichDocumentContextValue extends RichDocumentHandlers {
+  bleed: number
   footnotes?: ReadonlyMap<string, number>
   renderNested: (state: SerializedEditorState) => ReactNode
   renderSegments: (segments: RichSegment[]) => ReactNode

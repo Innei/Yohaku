@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native'
 
 import { AppText, MarkdownBody } from '@/components/ui'
+import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { useRichDocument } from '../lexical/context'
@@ -21,13 +22,13 @@ interface Message {
 function Turn({
   align,
   content,
+  dot,
   name,
-  tone,
 }: {
   align: 'left' | 'right'
   content: string
+  dot?: boolean
   name?: string
-  tone: 'accent' | 'neutral'
 }) {
   const palette = usePalette()
   const doc = useRichDocument()
@@ -36,29 +37,24 @@ function Turn({
     <View style={[styles.turn, right && styles.turnRight]}>
       {name ? (
         <View style={styles.name}>
-          <View
-            style={[
-              styles.dot,
-              {
-                backgroundColor:
-                  tone === 'accent' ? palette.accent : palette.neutral[6],
-              },
-            ]}
-          />
-          <AppText color={palette.neutral[6]} variant="eyebrow">
+          {dot ? (
+            <View style={[styles.dot, { backgroundColor: palette.accent }]} />
+          ) : null}
+          <AppText color={palette.neutral[6]} style={[styles.nameText, fonts.mono]}>
             {name}
           </AppText>
         </View>
       ) : null}
       <View
-        style={[
-          styles.body,
-          right && !name && { backgroundColor: `${palette.accent}24` },
-        ]}
+        style={
+          right
+            ? [styles.bubble, { backgroundColor: palette.neutral[2] }]
+            : styles.body
+        }
       >
         <MarkdownBody
           fontSize={15}
-          lineHeight={25}
+          lineHeight={right ? 24 : 25}
           markdown={content}
           onLinkPress={(url) => {
             doc.onLinkPress?.(url)
@@ -94,21 +90,16 @@ export function ChatBlock({ node }: BlockProps) {
           if (participant?.kind === 'agent') {
             return (
               <Turn
+                dot
                 align="left"
                 content={message.content}
                 key={message.id}
                 name={participant.name ?? 'Assistant'}
-                tone="accent"
               />
             )
           }
           return (
-            <Turn
-              align="right"
-              content={message.content}
-              key={message.id}
-              tone="accent"
-            />
+            <Turn align="right" content={message.content} key={message.id} />
           )
         }
         const right =
@@ -120,7 +111,6 @@ export function ChatBlock({ node }: BlockProps) {
             align={right ? 'right' : 'left'}
             content={message.content}
             key={message.id}
-            tone={right ? 'accent' : 'neutral'}
             name={
               participant?.name ??
               (participant?.kind === 'agent' ? 'Assistant' : 'User')
@@ -138,6 +128,14 @@ const styles = StyleSheet.create({
   turnRight: { alignItems: 'flex-end' },
   name: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   dot: { width: 5, height: 5, borderRadius: 3 },
-  body: { maxWidth: '100%', borderRadius: 4, paddingHorizontal: 2 },
+  nameText: { fontSize: 10, letterSpacing: 1.2, lineHeight: 14 },
+  body: { maxWidth: '100%' },
+  bubble: {
+    borderCurve: 'continuous',
+    borderRadius: 14,
+    maxWidth: '85%',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
   empty: { paddingVertical: 8, fontStyle: 'italic' },
 })

@@ -1,4 +1,3 @@
-import { radius } from '@yohaku/design-system/tokens'
 import {
   Image,
   StyleSheet,
@@ -13,6 +12,7 @@ import { usePalette } from '@/theme/palette'
 
 import { UnsupportedBlock } from './card-blocks'
 import { galleryImages, type GridImage, gridRows } from './image-grid'
+import { MEDIA_RADIUS, MediaCaption } from './media-caption'
 import type { BlockProps } from './types'
 
 const MOCKUP_CONTENT_WIDTH = 350
@@ -103,7 +103,6 @@ function ImageGrid({
   caption?: string
   images: GridImage[]
 }) {
-  const palette = usePalette()
   const contentWidth = useContentWidth()
   const scale = contentWidth / MOCKUP_CONTENT_WIDTH
 
@@ -119,10 +118,10 @@ function ImageGrid({
         height={contentWidth / ratioOf(images[0]!)}
         image={images[0]!}
         index={0}
-        style={{ borderRadius: radius.control, width: '100%' }}
+        style={{ borderRadius: MEDIA_RADIUS, width: '100%' }}
       />
     ) : (
-      <View style={[styles.grid, { borderRadius: radius.control }]}>
+      <View style={[styles.grid, { borderRadius: MEDIA_RADIUS }]}>
         {rows.map((row, rowIndex) => (
           <View key={rowIndex} style={styles.row}>
             {row.map((index) => {
@@ -148,15 +147,7 @@ function ImageGrid({
   return (
     <View style={styles.wrap}>
       {grid}
-      {caption ? (
-        <AppText
-          color={palette.neutral[6]}
-          style={styles.caption}
-          variant="meta"
-        >
-          {caption}
-        </AppText>
-      ) : null}
+      {caption ? <MediaCaption>{caption}</MediaCaption> : null}
     </View>
   )
 }
@@ -170,7 +161,6 @@ export function GalleryBlock({ blockId, node }: BlockProps) {
 }
 
 const styles = StyleSheet.create({
-  caption: { textAlign: 'center' },
   grid: { gap: 4, overflow: 'hidden' },
   overflowPill: {
     backgroundColor: 'rgba(20,19,18,0.62)',

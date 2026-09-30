@@ -128,8 +128,8 @@ describe('searchBody', () => {
 
 describe('summarizeSource', () => {
   it('counts photos for a list', () => {
-    expect(summarizeSource({ items: [], kind: 'list' }, 1)).toBe('1 photo')
-    expect(summarizeSource({ items: [], kind: 'list' }, 8)).toBe('8 photos')
+    expect(summarizeSource({ items: [], kind: 'list' }, 1)).toBe('1 张')
+    expect(summarizeSource({ items: [], kind: 'list' }, 8)).toBe('8 张')
   })
 
   it('appends filter facets', () => {
@@ -146,7 +146,7 @@ describe('summarizeSource', () => {
         },
         12,
       ),
-    ).toBe('12 photos · #tokyo ∧ #night · 📷 X-T5 · ∞ → 2026-06-30')
+    ).toBe('12 张 · #tokyo ∧ #night · X-T5 · ∞ → 2026-06-30')
   })
 })
 

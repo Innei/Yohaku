@@ -90,11 +90,22 @@ enum RichMath {
 
   static func plainText(of text: NSAttributedString) -> String {
     let result = NSMutableString(string: text.string)
-    text.enumerateAttribute(.richMath, in: NSRange(location: 0, length: text.length), options: .reverse) { value, range, _ in
-      guard let key = value as? String, let box = registry[key] else { return }
-      result.replaceCharacters(in: range, with: String(repeating: box.latex, count: range.length))
+    let whole = NSRange(location: 0, length: text.length)
+    // Code runs swap spaces for no-break spaces to stay on one line; copy gets the spaces back.
+    text.enumerateAttribute(.richCode, in: whole) { value, range, _ in
+      guard value != nil else { return }
+      result.replaceOccurrences(of: "\u{00A0}", with: " ", options: [], range: range)
     }
-    return result as String
+    text.enumerateAttribute(.attachment, in: whole, options: .reverse) { value, range, _ in
+      guard value != nil else { return }
+      if let key = text.attribute(.richMath, at: range.location, effectiveRange: nil) as? String,
+         let box = registry[key] {
+        result.replaceCharacters(in: range, with: String(repeating: box.latex, count: range.length))
+      } else {
+        result.replaceCharacters(in: range, with: String(repeating: "•", count: range.length))
+      }
+    }
+    return (result as String).replacingOccurrences(of: "\u{2028}", with: "\n")
   }
 
   // SwiftMath lays out in a y-up space from the box's bottom-left corner.

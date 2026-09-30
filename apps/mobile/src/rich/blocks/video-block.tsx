@@ -1,9 +1,10 @@
 import { YohakuVideo } from '@modules/yohaku'
-import { neutral, radius } from '@yohaku/design-system/tokens'
+import { neutral } from '@yohaku/design-system/tokens'
 import { useState } from 'react'
 import { StyleSheet } from 'react-native'
 
 import { UnsupportedBlock } from './card-blocks'
+import { MEDIA_RADIUS } from './media-caption'
 import { type BlockProps, str } from './types'
 
 const RESERVED_RATIO = 16 / 9
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
   video: {
     width: '100%',
     marginVertical: 12,
-    borderRadius: radius.control,
+    borderRadius: MEDIA_RADIUS,
     overflow: 'hidden',
   },
 })

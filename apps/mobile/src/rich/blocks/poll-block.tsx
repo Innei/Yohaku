@@ -12,7 +12,13 @@ import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
 import { UnsupportedBlock } from './card-blocks'
-import { optimisticVote, type PollOption, pollRows } from './poll'
+import {
+  optimisticVote,
+  pollEyebrowSuffix,
+  pollFooter,
+  type PollOption,
+  pollRows,
+} from './poll'
 import { useBoneColor } from './skeleton'
 import { type BlockProps, str } from './types'
 
@@ -131,11 +137,7 @@ export function PollBlock({ blockId, node }: BlockProps) {
     vote.mutate(pickedLocal)
   }
 
-  const footerLabel = hasVoted
-    ? '已投票'
-    : state.closed
-      ? '投票已结束'
-      : '点选一项即投票 · 投票后显示结果'
+  const footerLabel = pollFooter({ closed: state.closed, hasVoted })
 
   return (
     <Paper accessibilityLabel="投票" style={styles.card}>
@@ -154,29 +156,23 @@ export function PollBlock({ blockId, node }: BlockProps) {
             }}
           />
           <AppText color={palette.neutral[6]} variant="meta">
-            {' 人参与'}
+            {` 人参与${pollEyebrowSuffix({ closed: state.closed, hasVoted })}`}
           </AppText>
         </View>
         <AppText variant="entryTitle">{question}</AppText>
       </View>
       <View style={styles.optionCol}>
         {rows.map((row) => {
-          const selected = showResults
-            ? row.mine
-            : multiple && pickedLocal.includes(row.id)
+          const picked = multiple && pickedLocal.includes(row.id)
           const rowDisabled = !state.canVote || hasVoted || vote.isPending
           return (
             <NativePressable
               accessibilityLabel={`${row.label}${showResults ? `，${row.pct}%` : ''}`}
+              accessibilityRole={multiple ? 'checkbox' : 'radio'}
+              accessibilityState={{ checked: showResults ? row.mine : picked }}
               disabled={rowDisabled}
               key={row.id}
-              style={[
-                styles.row,
-                {
-                  backgroundColor: palette.surface.desk,
-                  borderColor: selected ? palette.accent : 'transparent',
-                },
-              ]}
+              style={[styles.row, { backgroundColor: palette.surface.desk }]}
               onPress={
                 multiple ? () => toggleLocal(row.id) : () => pickSingle(row.id)
               }
@@ -187,27 +183,47 @@ export function PollBlock({ blockId, node }: BlockProps) {
                     styles.fill,
                     {
                       backgroundColor: row.mine
-                        ? `${palette.accent}33`
-                        : `${palette.neutral[10]}0f`,
+                        ? `${palette.accent}29`
+                        : `${palette.neutral[10]}0d`,
                       width: `${row.pct}%`,
                     },
                   ]}
                 />
               ) : null}
+              {showResults && !row.mine ? (
+                <View style={styles.mark} />
+              ) : (
+                <View
+                  style={[
+                    styles.mark,
+                    multiple ? styles.box : styles.ring,
+                    row.mine || picked
+                      ? {
+                          backgroundColor: palette.accent,
+                          borderColor: palette.accent,
+                        }
+                      : { borderColor: palette.neutral[4] },
+                  ]}
+                >
+                  {row.mine || picked ? (
+                    <SymbolView
+                      name="checkmark"
+                      size={10}
+                      tintColor={palette.surface.paper}
+                      weight="bold"
+                    />
+                  ) : null}
+                </View>
+              )}
               <AppText
+                color={
+                  showResults && !row.mine ? palette.neutral[7] : undefined
+                }
                 numberOfLines={2}
                 style={styles.optionLabel}
-                variant="body"
               >
                 {row.label}
               </AppText>
-              {selected ? (
-                <SymbolView
-                  name="checkmark"
-                  size={16}
-                  tintColor={palette.accent}
-                />
-              ) : null}
               {showResults ? (
                 <View style={styles.percent}>
                   <SlotText
@@ -216,7 +232,7 @@ export function PollBlock({ blockId, node }: BlockProps) {
                       ...fonts.mono,
                       fontSize: 13,
                       lineHeight: 20,
-                      color: palette.neutral[7],
+                      color: row.mine ? palette.neutral[9] : palette.neutral[6],
                     }}
                   />
                 </View>
@@ -241,11 +257,11 @@ export function PollBlock({ blockId, node }: BlockProps) {
             投票
           </AppText>
         </NativePressable>
-      ) : (
+      ) : footerLabel ? (
         <AppText color={palette.neutral[6]} variant="meta">
           {footerLabel}
         </AppText>
-      )}
+      ) : null}
     </Paper>
   )
 }
@@ -254,7 +270,6 @@ const styles = StyleSheet.create({
   card: { gap: 14, marginVertical: 12, padding: 16 },
   eyebrowRow: { alignItems: 'baseline', flexDirection: 'row' },
   fill: {
-    borderRadius: ROW_RADIUS,
     bottom: 0,
     left: 0,
     position: 'absolute',
@@ -262,14 +277,21 @@ const styles = StyleSheet.create({
   },
   headerCol: { gap: 6 },
   optionCol: { gap: 8 },
-  optionLabel: { flex: 1 },
+  optionLabel: { flex: 1, fontSize: 15, lineHeight: 22 },
+  mark: {
+    alignItems: 'center',
+    height: 18,
+    justifyContent: 'center',
+    width: 18,
+  },
+  ring: { borderRadius: 9, borderWidth: 1.5 },
+  box: { borderRadius: 5, borderWidth: 1.5 },
   percent: { alignItems: 'flex-end', minWidth: 36 },
   row: {
     alignItems: 'center',
     borderRadius: ROW_RADIUS,
-    borderWidth: 1.5,
     flexDirection: 'row',
-    gap: 10,
+    gap: 12,
     minHeight: 48,
     overflow: 'hidden',
     paddingHorizontal: 14,

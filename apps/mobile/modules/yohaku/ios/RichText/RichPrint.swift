@@ -444,8 +444,7 @@ final class RichPrintPageRenderer: UIPrintPageRenderer {
     footerColor = typography.secondaryColor
     super.init()
     layout.usesFontLeading = false
-    layout.quoteColor = typography.secondaryColor.withAlphaComponent(0.5)
-    layout.ruleColor = typography.secondaryColor.withAlphaComponent(0.3)
+    layout.apply(typography)
     storage.addLayoutManager(layout)
     headerHeight = RichPrintMetrics.headerHeight
     footerHeight = RichPrintMetrics.footerHeight

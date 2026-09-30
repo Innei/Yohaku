@@ -149,7 +149,7 @@ export function polaroidRatio(width: number, height: number): number {
 }
 
 export function summarizeSource(source: AfilmorySource, total: number): string {
-  const count = `${total} ${total === 1 ? 'photo' : 'photos'}`
+  const count = `${total} 张`
   if (source.kind === 'list') return count
   const { filter } = source
   const parts: string[] = [count]
@@ -157,8 +157,8 @@ export function summarizeSource(source: AfilmorySource, total: number): string {
     const separator = filter.tagMode === 'intersection' ? ' ∧ ' : ', '
     parts.push(filter.tags.map((tag) => `#${tag}`).join(separator))
   }
-  if (filter.cameras?.length) parts.push(`📷 ${filter.cameras.join(', ')}`)
-  if (filter.lenses?.length) parts.push(`🔭 ${filter.lenses.join(', ')}`)
+  if (filter.cameras?.length) parts.push(filter.cameras.join(', '))
+  if (filter.lenses?.length) parts.push(filter.lenses.join(', '))
   if (filter.dateFrom || filter.dateTo) {
     parts.push(`${filter.dateFrom ?? '∞'} → ${filter.dateTo ?? '∞'}`)
   }

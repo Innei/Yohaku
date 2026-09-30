@@ -24,7 +24,7 @@ describe('collectRuns', () => {
       { text: 'plain' },
       { text: 'link', bold: true, href: 'https://x.y' },
       { text: 'hidden', href: 'https://x.y', spoiler: true },
-      { text: '\n' },
+      { lineBreak: true, text: '\n' },
     ])
   })
 })

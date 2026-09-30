@@ -62,7 +62,7 @@ describe('linkCardModel', () => {
       imageShape: 'poster',
       image: 'https://img.example/poster.jpg',
       meta: [
-        { symbol: 'star.fill', text: '8.1' },
+        { symbol: 'star.fill', text: '8.1', tone: 'warning' },
         { text: 'Drama' },
       ],
     })
@@ -84,7 +84,7 @@ describe('linkCardModel', () => {
       {},
     )
     expect(model.meta).toEqual([
-      { text: 'closed', tone: 'error' },
+      { text: '已关闭', tone: 'error', toneDot: true },
       { symbol: 'bubble.left', text: '4' },
     ])
   })

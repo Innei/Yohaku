@@ -1,6 +1,7 @@
 import { YohakuMath } from '@modules/yohaku'
+import { SymbolView } from 'expo-symbols'
 import { useState } from 'react'
-import { ScrollView, StyleSheet } from 'react-native'
+import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { AppText } from '@/components/ui'
 import { usePalette } from '@/theme/palette'
@@ -23,9 +24,16 @@ export function MathBlock({ node }: BlockProps) {
       <CodeCard
         code={latex}
         header={
-          <AppText color={palette.neutral[6]} variant="meta">
-            公式 · 无法排版，显示原文
-          </AppText>
+          <View style={styles.failed}>
+            <SymbolView
+              name="exclamationmark.triangle"
+              size={12}
+              tintColor={palette.semantic.warning}
+            />
+            <AppText color={palette.semantic.warning} variant="meta">
+              公式未能排版
+            </AppText>
+          </View>
         }
       />
     )
@@ -54,6 +62,7 @@ export function MathBlock({ node }: BlockProps) {
 }
 
 const styles = StyleSheet.create({
+  failed: { alignItems: 'center', flexDirection: 'row', gap: 6 },
   wrap: {
     marginVertical: 12,
   },

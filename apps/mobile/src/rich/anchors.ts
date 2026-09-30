@@ -33,7 +33,7 @@ export function indexNativeBlocks(segments: RichSegment[]): NativeBlockMap {
   for (const segment of segments) {
     if (segment.kind !== 'text') continue
     for (const block of segment.blocks) {
-      const baseId = block.id.split('#')[0] ?? block.id
+      const baseId = block.id.split(/[#~]/)[0] ?? block.id
       const prefixLength = prefixByBase.get(baseId) ?? 0
       const length = runsText(block.runs).length
       map.set(block.id, { id: block.id, baseId, length, prefixLength })

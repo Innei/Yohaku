@@ -65,7 +65,7 @@ export function DynamicBlock(props: BlockProps) {
 
 const styles = StyleSheet.create({
   wrap: {
-    borderRadius: 10,
+    borderRadius: 12,
     marginVertical: 12,
     overflow: 'hidden',
   },
