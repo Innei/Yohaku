@@ -2,21 +2,13 @@ import { YohakuStudyShell } from '@modules/yohaku'
 import { useQuery } from '@tanstack/react-query'
 import { Image } from 'expo-image'
 import * as Linking from 'expo-linking'
-import { useRouter } from 'expo-router'
-import type { ReactNode } from 'react'
+import { Stack, useRouter } from 'expo-router'
 import { useState } from 'react'
-import type { AccessibilityActionEvent, NativeSyntheticEvent } from 'react-native'
 import { StyleSheet, View } from 'react-native'
-import Animated, {
-  Extrapolation,
-  interpolate,
-  type SharedValue,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated'
 
 import { api } from '@/api/client'
-import { useSession } from '@/auth/session-store'
+import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
+import { usesPaperNavigationControls } from '@/components/navigation/platform'
 import type { GroupedListRow } from '@/components/ui'
 import { AppText, GroupedList, SinkPressable, SlotText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
@@ -29,12 +21,10 @@ import { usePalette } from '@/theme/palette'
 
 import { MeAmbienceGrain, MeAmbienceWash } from '../me/me-ambience'
 import { DeskCard } from './desk-card'
-import { accountAvatarUri } from './guest-card'
-import { ReaderScreen } from './reader-screen'
 
 const AVATAR_COLLAPSE_DISTANCE = 120
 
-function OwnerHero({ pageIndicator }: { pageIndicator: ReactNode }) {
+function OwnerHero() {
   const owner = useOwner()
 
   return (
@@ -49,7 +39,6 @@ function OwnerHero({ pageIndicator }: { pageIndicator: ReactNode }) {
       ) : null}
       <WritingStats />
       <SocialRow />
-      {pageIndicator}
     </View>
   )
 }
@@ -72,7 +61,11 @@ function WritingStats() {
     ? Math.floor((now - new Date(data.firstPublishDate).getTime()) / 86_400_000)
     : 0
   const stats = [
-    { key: 'posts', value: (data?.postCount ?? 0) + (data?.noteCount ?? 0), label: t('statPosts') },
+    {
+      key: 'posts',
+      value: (data?.postCount ?? 0) + (data?.noteCount ?? 0),
+      label: t('statPosts'),
+    },
     { key: 'words', value: words, label: t('statWordsUnit') },
     { key: 'days', value: days, label: t('statDays') },
   ]
@@ -135,7 +128,7 @@ function SocialRow() {
   )
 }
 
-function OwnerStudyPage({ pageIndicator }: { pageIndicator: ReactNode }) {
+function OwnerStudyPage() {
   const t = useTranslations('me')
   const router = useRouter()
   const owner = useOwner()
@@ -162,7 +155,7 @@ function OwnerStudyPage({ pageIndicator }: { pageIndicator: ReactNode }) {
 
   return (
     <View style={styles.pageContent}>
-      <OwnerHero pageIndicator={pageIndicator} />
+      <OwnerHero />
       <DeskCard />
       {siteRows.length > 0 ? (
         <GroupedList rows={siteRows} style={styles.blog} />
@@ -171,144 +164,43 @@ function OwnerStudyPage({ pageIndicator }: { pageIndicator: ReactNode }) {
   )
 }
 
-function PageIndicator({
-  activePage,
-  labels,
-  onSelectPage,
-  progress,
-}: {
-  activePage: number
-  labels: [string, string]
-  onSelectPage: (page: number) => void
-  progress: SharedValue<number>
-}) {
-  const palette = usePalette()
-  const firstStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      progress.value,
-      [0, 1],
-      [1, 0.28],
-      Extrapolation.CLAMP,
-    ),
-    transform: [
-      {
-        scaleX: interpolate(
-          progress.value,
-          [0, 1],
-          [1, 0.55],
-          Extrapolation.CLAMP,
-        ),
-      },
-    ],
-  }))
-  const secondStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(
-      progress.value,
-      [0, 1],
-      [0.28, 1],
-      Extrapolation.CLAMP,
-    ),
-    transform: [
-      {
-        scaleX: interpolate(
-          progress.value,
-          [0, 1],
-          [0.55, 1],
-          Extrapolation.CLAMP,
-        ),
-      },
-    ],
-  }))
-
-  const handleAccessibilityAction = (event: AccessibilityActionEvent) => {
-    if (event.nativeEvent.actionName === 'increment') onSelectPage(1)
-    if (event.nativeEvent.actionName === 'decrement') onSelectPage(0)
-  }
-
-  return (
-    <View
-      accessible
-      accessibilityActions={[{ name: 'decrement' }, { name: 'increment' }]}
-      accessibilityLabel={labels[activePage]}
-      accessibilityRole="adjustable"
-      style={styles.pageIndicator}
-      accessibilityValue={{
-        max: 2,
-        min: 1,
-        now: activePage + 1,
-        text: labels[activePage],
-      }}
-      onAccessibilityAction={handleAccessibilityAction}
-    >
-      <Animated.View
-        style={[
-          styles.pageIndicatorMark,
-          { backgroundColor: palette.neutral[8] },
-          firstStyle,
-        ]}
-      />
-      <Animated.View
-        style={[
-          styles.pageIndicatorMark,
-          { backgroundColor: palette.neutral[8] },
-          secondStyle,
-        ]}
-      />
-    </View>
-  )
-}
-
 export function StudyScreen() {
   const palette = usePalette()
   const owner = useOwner()
-  const session = useSession()
+  const router = useRouter()
   const t = useTranslations('study')
-  const progress = useSharedValue(0)
-  const [activePage, setActivePage] = useState(0)
-  const labels: [string, string] = [
-    owner?.name || owner?.siteHost || t('tabFallback'),
-    session?.role === 'owner' ? t('account') : t('me'),
-  ]
-  const selectPage = (page: number) => {
-    setActivePage(page)
-  }
-  const indicator = (
-    <PageIndicator
-      activePage={activePage}
-      labels={labels}
-      progress={progress}
-      onSelectPage={selectPage}
-    />
-  )
+  const openAccount = () => router.push('/reader')
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
+      {usesPaperNavigationControls ? (
+        <Stack.Toolbar asChild placement="right">
+          <PaperNavigationControl
+            accessibilityLabel={t('account')}
+            icon="person.crop.circle"
+            identifier="study-account"
+            onPress={openAccount}
+          />
+        </Stack.Toolbar>
+      ) : (
+        <Stack.Toolbar placement="right">
+          <Stack.Toolbar.Button
+            accessibilityLabel={t('account')}
+            icon="person.crop.circle"
+            tintColor={palette.neutral[9]}
+            onPress={openAccount}
+          />
+        </Stack.Toolbar>
+      )}
       <MeAmbienceWash />
       <YohakuStudyShell
-        accountImageUri={accountAvatarUri(session, owner) ?? ''}
         collapseDistance={AVATAR_COLLAPSE_DISTANCE}
         ownerImageUri={owner?.avatarUrl ?? ''}
-        page={activePage}
         ringColor={palette.neutral[4]}
-        style={styles.pager}
-        onPageScroll={(event: NativeSyntheticEvent<{ progress: number }>) => {
-          progress.set(event.nativeEvent.progress)
-        }}
-        onPageSelected={(event: NativeSyntheticEvent<{ page: number }>) => {
-          setActivePage(event.nativeEvent.page)
-        }}
+        style={styles.scroll}
       >
-        <View
-          accessibilityElementsHidden={activePage !== 0}
-          collapsable={false}
-        >
-          <OwnerStudyPage pageIndicator={indicator} />
-        </View>
-        <View
-          accessibilityElementsHidden={activePage !== 1}
-          collapsable={false}
-        >
-          <ReaderScreen pageIndicator={indicator} />
+        <View collapsable={false}>
+          <OwnerStudyPage />
         </View>
       </YohakuStudyShell>
       <MeAmbienceGrain />
@@ -321,27 +213,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  pager: {
+  scroll: {
     flex: 1,
   },
   pageContent: {
     gap: 16,
     paddingBottom: 24,
     paddingHorizontal: 20,
-  },
-  pageIndicator: {
-    alignItems: 'center',
-    alignSelf: 'center',
-    flexDirection: 'row',
-    gap: 5,
-    height: 18,
-    justifyContent: 'center',
-    marginTop: 2,
-  },
-  pageIndicatorMark: {
-    borderRadius: 1,
-    height: 2,
-    width: 18,
   },
   hero: {
     alignItems: 'center',

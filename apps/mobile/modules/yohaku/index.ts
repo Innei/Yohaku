@@ -311,13 +311,9 @@ export const YohakuKline: ComponentType<YohakuKlineProps> =
   requireNativeViewManager('Yohaku', 'YohakuKline')
 
 type YohakuStudyShellProps = ViewProps & {
-  accountImageUri?: string
   collapseDistance?: number
   ownerImageUri?: string
-  page?: number
   ringColor?: string
-  onPageScroll?: (event: NativeSyntheticEvent<{ progress: number }>) => void
-  onPageSelected?: (event: NativeSyntheticEvent<{ page: number }>) => void
 }
 
 export const YohakuStudyShell: ComponentType<YohakuStudyShellProps> =

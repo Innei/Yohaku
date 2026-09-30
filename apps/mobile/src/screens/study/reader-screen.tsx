@@ -2,11 +2,12 @@ import { YohakuNative } from '@modules/yohaku'
 import { desc } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import Constants from 'expo-constants'
+import { Image } from 'expo-image'
 import { Link, useFocusEffect, useRouter } from 'expo-router'
+import { SymbolView } from 'expo-symbols'
 import * as Updates from 'expo-updates'
-import type { ReactNode } from 'react'
 import { useCallback, useState } from 'react'
-import { Alert, StyleSheet, View } from 'react-native'
+import { Alert, ScrollView, StyleSheet, View } from 'react-native'
 
 import { deleteAccount, refreshSession, signOut } from '@/auth/session'
 import type { SessionUser } from '@/auth/session-store'
@@ -94,9 +95,27 @@ function ProfileHero() {
   const t = useTranslations('auth')
   const router = useRouter()
   const session = useSession()
+  const palette = usePalette()
 
   return (
     <View style={styles.hero}>
+      {session?.image ? (
+        <Image source={session.image} style={styles.avatar} />
+      ) : (
+        <View
+          style={[
+            styles.avatar,
+            styles.avatarPlaceholder,
+            { backgroundColor: palette.neutral[3] },
+          ]}
+        >
+          <SymbolView
+            name="person.crop.circle"
+            size={36}
+            tintColor={palette.neutral[6]}
+          />
+        </View>
+      )}
       <View style={styles.heroText}>
         <AppText variant="entryTitleSans">
           {session ? (session.name ?? t('anonymous')) : t('signedOut')}
@@ -120,12 +139,13 @@ function ProfileHero() {
   )
 }
 
-export function ReaderScreen({ pageIndicator }: { pageIndicator: ReactNode }) {
+export function ReaderScreen() {
   const t = useTranslations('me')
   const ta = useTranslations('auth')
   const tc = useTranslations('common')
   const locale = useLocale()
   const session = useSession()
+  const palette = usePalette()
   const version = Constants.expoConfig?.version ?? '—'
   const versionLabel = Updates.isEmbeddedLaunch
     ? t('versionEmbedded', { version })
@@ -253,42 +273,43 @@ export function ReaderScreen({ pageIndicator }: { pageIndicator: ReactNode }) {
   ]
 
   return (
-    <View style={styles.pageContent}>
+    <ScrollView
+      contentContainerStyle={styles.pageContent}
+      contentInsetAdjustmentBehavior="automatic"
+      style={{ backgroundColor: palette.surface.desk }}
+    >
       <View style={styles.heroBlock}>
         <ProfileHero />
-        {pageIndicator}
       </View>
-        <MembershipBanner />
-        <ActivityStats
-          commentsCount={commentsCount ?? 0}
-          likedCount={likedCount}
-          readingCount={readingCount}
-          showComments={commentsVisible}
-        />
+      <MembershipBanner />
+      <ActivityStats
+        commentsCount={commentsCount ?? 0}
+        likedCount={likedCount}
+        readingCount={readingCount}
+        showComments={commentsVisible}
+      />
+      <GroupedList
+        header={t('sectionGeneral')}
+        rows={generalRows}
+        style={styles.sectionList}
+      />
+      {pushConfigured ? <NotificationSettings /> : null}
+      {accountRows.length > 0 ? (
         <GroupedList
-          header={t('sectionGeneral')}
-          rows={generalRows}
+          header={t('sectionAccount')}
+          rows={accountRows}
           style={styles.sectionList}
         />
-        {pushConfigured ? <NotificationSettings /> : null}
-        {accountRows.length > 0 ? (
-          <GroupedList
-            header={t('sectionAccount')}
-            rows={accountRows}
-            style={styles.sectionList}
-          />
-        ) : null}
-        {__DEV__ ? (
-          <Link asChild href="/dev-demos">
-            <SinkPressable style={styles.dev}>
-              <AppText variant="entryTitleSans">
-                {t('componentGallery')}
-              </AppText>
-              <AppText variant="body">{t('componentGalleryHint')}</AppText>
-            </SinkPressable>
-          </Link>
-        ) : null}
-    </View>
+      ) : null}
+      {__DEV__ ? (
+        <Link asChild href="/dev-demos">
+          <SinkPressable style={styles.dev}>
+            <AppText variant="entryTitleSans">{t('componentGallery')}</AppText>
+            <AppText variant="body">{t('componentGalleryHint')}</AppText>
+          </SinkPressable>
+        </Link>
+      ) : null}
+    </ScrollView>
   )
 }
 
@@ -297,6 +318,17 @@ const styles = StyleSheet.create({
     gap: 28,
     paddingBottom: 24,
     paddingHorizontal: 20,
+    paddingTop: 24,
+  },
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    overflow: 'hidden',
+  },
+  avatarPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   hero: {
     alignItems: 'center',

@@ -133,6 +133,16 @@ export default function RootLayout() {
             <Stack screenOptions={getStackScreenOptions(palette.surface.desk)}>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen
+                name="reader"
+                options={{
+                  headerTransparent: false,
+                  headerStyle: { backgroundColor: palette.surface.desk },
+                  presentation: 'formSheet',
+                  sheetAllowedDetents: [1],
+                  sheetGrabberVisible: true,
+                }}
+              />
+              <Stack.Screen
                 name="search"
                 options={{
                   animation: 'fade',

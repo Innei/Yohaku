@@ -55,8 +55,13 @@ private final class YohakuStudyPage {
   func applyInsets(safeArea: UIEdgeInsets) {
     let bottom = max(safeArea.bottom, collapseDistance)
     let inset = UIEdgeInsets(top: safeArea.top, left: 0, bottom: bottom, right: 0)
+    let displacement = scroll.contentOffset.y + scroll.contentInset.top
+    let topChanged = scroll.contentInset.top != inset.top
     scroll.contentInset = inset
     scroll.verticalScrollIndicatorInsets = inset
+    if topChanged {
+      scroll.contentOffset.y = displacement - inset.top
+    }
   }
 
   func layout(in bounds: CGRect) {
@@ -90,7 +95,8 @@ private final class YohakuStudyPage {
       child.frame = CGRect(x: 0, y: 0, width: width, height: childHeight)
     }
 
-    let minHeight = max(0, height - scroll.contentInset.top - scroll.contentInset.bottom)
+    // Keep enough vertical travel for the avatar collapse on short pages.
+    let minHeight = max(0, height - scroll.contentInset.top + collapseDistance)
     scroll.contentSize = CGSize(
       width: width,
       height: max(contentHost.frame.maxY, minHeight)
@@ -98,106 +104,53 @@ private final class YohakuStudyPage {
   }
 }
 
-final class YohakuStudyShellView: ExpoView, UIScrollViewDelegate {
-  let onPageScroll = EventDispatcher()
-  let onPageSelected = EventDispatcher()
-
-  private let pager = UIScrollView()
-  private var pages: [YohakuStudyPage] = []
-  private var page = 0
-  private var lastReportedPage = 0
-  private var lastReportedProgress: CGFloat = -1
-  private var collapseDistance: CGFloat = 120
+final class YohakuStudyShellView: ExpoView {
+  private let page: YohakuStudyPage
 
   required init(appContext: AppContext? = nil) {
+    page = YohakuStudyPage(appContext: appContext)
     super.init(appContext: appContext)
 
     clipsToBounds = true
     backgroundColor = .clear
-    pager.isPagingEnabled = true
-    pager.bounces = false
-    pager.alwaysBounceHorizontal = false
-    pager.alwaysBounceVertical = false
-    pager.isDirectionalLockEnabled = true
-    pager.showsHorizontalScrollIndicator = false
-    pager.showsVerticalScrollIndicator = false
-    pager.contentInsetAdjustmentBehavior = .never
-    pager.contentInset = .zero
-    pager.delegate = self
-    pager.backgroundColor = .clear
-    addSubview(pager)
-
-    pages = [
-      YohakuStudyPage(appContext: appContext),
-      YohakuStudyPage(appContext: appContext),
-    ]
-    for (index, item) in pages.enumerated() {
-      item.contentHost.onChildLayout = { [weak self] in
-        self?.layoutPages()
-      }
-      item.setCollapseDistance(collapseDistance)
-      pager.addSubview(item.scroll)
-      item.scroll.scrollsToTop = index == 0
+    addSubview(page.scroll)
+    page.contentHost.onChildLayout = { [weak self] in
+      self?.layoutPage()
     }
-    pages[0].avatar.setActive(true)
-    pages[1].avatar.setActive(false)
-  }
-
-  func setPage(_ value: Double) {
-    let clamped = clampPage(Int(value.rounded()))
-    let animated =
-      window != nil && lastReportedPage != clamped && bounds.width > 0 && !pager.isDragging
-      && !pager.isDecelerating
-    page = clamped
-    updateActiveAvatars()
-    scrollToCurrentPage(animated: animated)
   }
 
   func setOwnerImageUri(_ value: String) {
-    pages[0].setImageUri(value)
-  }
-
-  func setAccountImageUri(_ value: String) {
-    pages[1].setImageUri(value)
+    page.setImageUri(value)
   }
 
   func setRingColor(_ color: UIColor?) {
-    for item in pages {
-      item.avatar.setRingColor(color)
-      item.placeholder.backgroundColor = color?.withAlphaComponent(0.18)
-    }
+    page.avatar.setRingColor(color)
+    page.placeholder.backgroundColor = color?.withAlphaComponent(0.18)
   }
 
   func setCollapseDistance(_ value: Double) {
-    collapseDistance = CGFloat(value)
-    for item in pages {
-      item.setCollapseDistance(collapseDistance)
-    }
-    applyInsets()
+    page.setCollapseDistance(CGFloat(value))
+    layoutPage()
   }
 
   override func didMoveToWindow() {
     super.didMoveToWindow()
     guard window != nil else { return }
-    applyInsets()
-    layoutPages()
+    layoutPage()
   }
 
   override func safeAreaInsetsDidChange() {
     super.safeAreaInsetsDidChange()
-    applyInsets()
-    layoutPages()
+    layoutPage()
   }
 
   override func layoutSubviews() {
     super.layoutSubviews()
-    applyInsets()
-    layoutPages()
+    layoutPage()
   }
 
   override func mountChildComponentView(_ childComponentView: UIView, index: Int) {
-    let pageIndex = min(max(index, 0), pages.count - 1)
-    pages[pageIndex].contentHost.addSubview(childComponentView)
+    page.contentHost.addSubview(childComponentView)
     setNeedsLayout()
     layoutIfNeeded()
   }
@@ -207,100 +160,8 @@ final class YohakuStudyShellView: ExpoView, UIScrollViewDelegate {
     setNeedsLayout()
   }
 
-  func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    guard scrollView === pager else { return }
-    emitProgress()
-  }
-
-  func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-    guard scrollView === pager else { return }
-    emitSelected()
-  }
-
-  func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-    guard scrollView === pager else { return }
-    if !decelerate {
-      emitSelected()
-    }
-  }
-
-  func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
-    guard scrollView === pager else { return }
-    emitSelected()
-  }
-
-  private func applyInsets() {
-    let insets = safeAreaInsets
-    for item in pages {
-      item.applyInsets(safeArea: insets)
-    }
-  }
-
-  private func layoutPages() {
-    let width = bounds.width
-    let height = bounds.height
-    guard width > 0, height > 0 else { return }
-    pager.frame = bounds
-    pager.contentSize = CGSize(width: width * CGFloat(pages.count), height: height)
-    for (index, item) in pages.enumerated() {
-      item.layout(in: CGRect(x: CGFloat(index) * width, y: 0, width: width, height: height))
-    }
-    page = clampPage(page)
-    if !pager.isDragging, !pager.isDecelerating {
-      scrollToCurrentPage(animated: false)
-    }
-  }
-
-  private func scrollToCurrentPage(animated: Bool) {
-    guard bounds.width > 0 else { return }
-    let offset = CGPoint(x: CGFloat(page) * bounds.width, y: 0)
-    guard abs(pager.contentOffset.x - offset.x) > 0.5 else { return }
-    if animated {
-      pager.setContentOffset(offset, animated: true)
-    } else {
-      pager.contentOffset = offset
-    }
-  }
-
-  private func updateActiveAvatars() {
-    for (index, item) in pages.enumerated() {
-      item.avatar.setActive(index == page)
-      item.scroll.scrollsToTop = index == page
-    }
-  }
-
-  private func emitOnMain(_ work: @escaping () -> Void) {
-    if Thread.isMainThread {
-      work()
-    } else {
-      DispatchQueue.main.async(execute: work)
-    }
-  }
-
-  private func emitProgress() {
-    emitOnMain { [weak self] in
-      guard let self, self.window != nil, self.bounds.width > 0 else { return }
-      let maxProgress = max(0, CGFloat(self.pages.count) - 1)
-      let progress = min(maxProgress, max(0, self.pager.contentOffset.x / self.bounds.width))
-      if abs(progress - self.lastReportedProgress) < 0.001 { return }
-      self.lastReportedProgress = progress
-      self.onPageScroll(["progress": progress])
-    }
-  }
-
-  private func emitSelected() {
-    emitOnMain { [weak self] in
-      guard let self, self.window != nil else { return }
-      let next = self.clampPage(Int((self.pager.contentOffset.x / self.bounds.width).rounded()))
-      self.page = next
-      self.updateActiveAvatars()
-      guard self.lastReportedPage != next else { return }
-      self.lastReportedPage = next
-      self.onPageSelected(["page": next])
-    }
-  }
-
-  private func clampPage(_ value: Int) -> Int {
-    min(max(value, 0), max(pages.count - 1, 0))
+  private func layoutPage() {
+    page.applyInsets(safeArea: safeAreaInsets)
+    page.layout(in: bounds)
   }
 }
