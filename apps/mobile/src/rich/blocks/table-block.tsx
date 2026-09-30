@@ -177,43 +177,17 @@ function Table({ bleed, rows }: { bleed: number; rows: Cell[][] }) {
                   },
                 ]}
               >
-                {row.map((cell, cellIndex) => {
-                  const content = (
+                {row.map((cell, cellIndex) => (
+                  <View
+                    key={cellIndex}
+                    style={[styles.cell, { width: widths?.[cellIndex] }]}
+                  >
                     <CellText
                       cell={cell}
                       numeric={numeric[cellIndex] ?? false}
                     />
-                  )
-                  const style = [styles.cell, { width: widths?.[cellIndex] }]
-                  // The first column rides the scroll offset so row labels stay in view.
-                  return cellIndex === 0 && overflow > 0 ? (
-                    <Animated.View
-                      key={cellIndex}
-                      style={[
-                        style,
-                        styles.sticky,
-                        {
-                          backgroundColor: palette.surface.desk,
-                          transform: [
-                            {
-                              translateX: scrollX.interpolate({
-                                extrapolate: 'clamp',
-                                inputRange: [0, overflow],
-                                outputRange: [0, overflow],
-                              }),
-                            },
-                          ],
-                        },
-                      ]}
-                    >
-                      {content}
-                    </Animated.View>
-                  ) : (
-                    <View key={cellIndex} style={style}>
-                      {content}
-                    </View>
-                  )
-                })}
+                  </View>
+                ))}
               </View>
             )
           })}
@@ -259,10 +233,13 @@ const styles = StyleSheet.create({
   pending: { opacity: 0 },
   row: { flexDirection: 'row' },
   cell: { paddingHorizontal: 10, paddingVertical: 9 },
-  sticky: { zIndex: 1 },
   fade: { bottom: 0, position: 'absolute', top: 0, width: 36 },
   measureClip: { height: 0, overflow: 'hidden' },
-  measureLayer: { alignItems: 'flex-start', position: 'absolute', width: 10000 },
+  measureLayer: {
+    alignItems: 'flex-start',
+    position: 'absolute',
+    width: 10000,
+  },
   header: { fontSize: 12, fontWeight: '600', lineHeight: 18 },
   text: { fontSize: 15, lineHeight: 22 },
   numeric: { fontSize: 13, fontVariant: ['tabular-nums'], textAlign: 'right' },
