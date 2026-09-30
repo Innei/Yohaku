@@ -115,6 +115,7 @@ function LoadedSource(props: SourceCardProps & { files: SourceFile[] }) {
                 onPress={() => {
                   setActive(index)
                   setExpanded(false)
+                  setPreviewHeight(0)
                 }}
               >
                 <AppText
@@ -140,9 +141,12 @@ function LoadedSource(props: SourceCardProps & { files: SourceFile[] }) {
           ]}
         >
           <View
-            onLayout={(event) =>
-              setPreviewHeight(event.nativeEvent.layout.height)
-            }
+            onLayout={(event) => {
+              const { height } = event.nativeEvent.layout
+              // The native markdown view measures against the maxHeight it
+              // is clamped to; a clamped reading would unclamp it and loop.
+              setPreviewHeight((current) => Math.max(current, height))
+            }}
           >
             <MarkdownBody
               fontSize={14}
