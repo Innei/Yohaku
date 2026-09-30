@@ -32,9 +32,10 @@ export interface RichTextBlock {
 
 export interface RichTextHighlight {
   blockId: string
+  count?: number
   end: number
   id: string
-  kind: 'active' | 'block' | 'comment'
+  kind: 'active' | 'block' | 'block-active' | 'comment'
   start: number
 }
 

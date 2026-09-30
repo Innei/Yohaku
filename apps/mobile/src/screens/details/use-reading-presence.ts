@@ -17,6 +17,7 @@ import {
 import { readPercent } from '@/socket/read-percent'
 import { currentPresenceVisitor } from '@/socket/visitor'
 
+import { otherReaderPositions } from './presence-map'
 import { derivePresenceMarks } from './presence-marks'
 
 const REPORT_WAIT_MS = 1000
@@ -86,6 +87,11 @@ export function useReadingPresence({
     () => derivePresenceMarks(roomPresence, currentPresenceVisitor().identity),
     [roomPresence],
   )
+  const readers = useMemo(
+    () => otherReaderPositions(roomPresence, currentPresenceVisitor().identity),
+    [roomPresence],
+  )
+  const contentHeightRef = useRef(0)
 
   useEffect(() => {
     if (!roomName || !appActive) return
@@ -135,6 +141,7 @@ export function useReadingPresence({
       y: number
     }) => {
       if (!roomName) return
+      contentHeightRef.current = contentHeight
       schedule(
         readPercent({
           bodyHeight: contentHeight,
@@ -147,5 +154,19 @@ export function useReadingPresence({
     [roomName, schedule],
   )
 
-  return { marks, onScrollMetrics: roomName ? onScrollMetrics : undefined }
+  const snapshot = useCallback(
+    () => ({
+      contentHeight: contentHeightRef.current,
+      readers,
+      self: lastPercentRef.current,
+    }),
+    [readers],
+  )
+
+  return {
+    marks,
+    onScrollMetrics: roomName ? onScrollMetrics : undefined,
+    presenceSnapshot: snapshot,
+    readerCount: readers.length,
+  }
 }

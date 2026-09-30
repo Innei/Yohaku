@@ -1,16 +1,20 @@
-import { useEffect } from 'react'
-import { StyleSheet, useWindowDimensions, View } from 'react-native'
+import { useEffect, useState } from 'react'
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native'
 import type { SharedValue } from 'react-native-reanimated'
 import Animated, {
   FadeIn,
   FadeOut,
+  interpolateColor,
   useAnimatedProps,
   useAnimatedStyle,
   useSharedValue,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated'
 
-import { timings } from '@/theme/motion'
+import { SlotText } from '@/components/ui'
+import { fonts } from '@/theme/fonts'
+import { springs, timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
 
 import { NavigationHeaderTitle } from '../../../modules/yohaku'
@@ -33,6 +37,9 @@ const INK_WIDTH = 88
 const INK_GAP = 4
 const INK_HEIGHT = 2
 const TICK_HEIGHT = 4
+const TICK_DROP = 3
+const TICK_LEAVE_MS = 400
+const TICK_SETTLE_MS = 1200
 const AnimatedNavigationHeaderTitle = Animated.createAnimatedComponent(
   NavigationHeaderTitle,
 )
@@ -40,7 +47,9 @@ const AnimatedNavigationHeaderTitle = Animated.createAnimatedComponent(
 export function CollapsingHeaderTitle({
   leadingInset = 0,
   marks,
+  onPress,
   progress,
+  readerCount = 0,
   readPercent,
   reserveBackClearance = true,
   rise,
@@ -54,7 +63,9 @@ export function CollapsingHeaderTitle({
 }: {
   leadingInset?: number
   marks?: InkMark[]
+  onPress?: () => void
   progress: SharedValue<number>
+  readerCount?: number
   readPercent?: SharedValue<number>
   reserveBackClearance?: boolean
   rise?: SharedValue<number>
@@ -68,18 +79,37 @@ export function CollapsingHeaderTitle({
 }) {
   const { width } = useWindowDimensions()
   const palette = usePalette()
+  const hasMarks = Boolean(marks && marks.length > 0)
+  const [known] = useState(
+    () => new Set((marks ?? []).map((mark) => mark.identity)),
+  )
+  const [hadMarks, setHadMarks] = useState(hasMarks)
+  const [lingering, setLingering] = useState(false)
+  if (hadMarks !== hasMarks) {
+    setHadMarks(hasMarks)
+    setLingering(!hasMarks)
+  }
+  useEffect(() => {
+    if (!lingering) return
+    const timer = setTimeout(() => setLingering(false), TICK_LEAVE_MS)
+    return () => clearTimeout(timer)
+  }, [lingering])
   const ink =
-    marks && marks.length > 0 && readPercent ? { marks, readPercent } : null
+    readPercent && (hasMarks || lingering)
+      ? { marks: marks ?? [], readPercent }
+      : null
 
   const titleAnimatedProps = useAnimatedProps(() => ({
     scrollVelocity: scrollVelocity ? scrollVelocity.value : 0,
     titleVisible: (visible ? visible.value : progress.value > 0.5) ? 1 : 0,
   }))
 
+  const Frame = onPress ? Pressable : View
   return (
     // RNSScreenStackHeaderSubview lays out its child with no intrinsic
     // constraints, so a bare Text collapses to zero size and never appears.
-    <View
+    <Frame
+      accessibilityRole={onPress ? 'button' : undefined}
       style={[
         styles.frame,
         {
@@ -89,6 +119,7 @@ export function CollapsingHeaderTitle({
           width: reserveBackClearance ? width - BACK_BUTTON_CLEARANCE : width,
         },
       ]}
+      onPress={onPress}
     >
       <AnimatedNavigationHeaderTitle
         animatedProps={titleAnimatedProps}
@@ -106,28 +137,47 @@ export function CollapsingHeaderTitle({
       />
       {ink ? (
         <TitleInk
+          count={readerCount > 0 ? readerCount + 1 : null}
+          known={known}
           marks={ink.marks}
           progress={progress}
           readPercent={ink.readPercent}
           rise={rise}
         />
       ) : null}
-    </View>
+    </Frame>
   )
 }
 
 function TitleInk({
+  count,
+  known,
   marks,
   progress,
   readPercent,
   rise,
 }: {
+  count: number | null
+  known: Set<string>
   marks: InkMark[]
   progress: SharedValue<number>
   readPercent: SharedValue<number>
   rise?: SharedValue<number>
 }) {
   const palette = usePalette()
+  const [shownCount, setShownCount] = useState(count)
+  const [flash, setFlash] = useState(false)
+  if (shownCount !== count) {
+    setShownCount(count)
+    if (count !== null && shownCount !== null && count > shownCount) {
+      setFlash(true)
+    }
+  }
+  useEffect(() => {
+    if (!flash) return
+    const timer = setTimeout(() => setFlash(false), TICK_SETTLE_MS)
+    return () => clearTimeout(timer)
+  }, [flash])
 
   const revealStyle = useAnimatedStyle(() => ({
     opacity: Math.min(1, Math.max(0, progress.value)),
@@ -153,31 +203,63 @@ function TitleInk({
       />
       {marks.map((mark) => (
         <InkTick
+          accent={`${palette.accent}99`}
           color={palette.neutral[6]}
+          fresh={!known.has(mark.identity)}
           key={mark.identity}
           position={mark.position}
         />
       ))}
+      {count === null ? null : (
+        <View style={styles.count}>
+          <SlotText
+            value={count}
+            textStyle={{
+              ...styles.countText,
+              color: flash ? palette.accent : palette.neutral[5],
+            }}
+          />
+        </View>
+      )}
     </Animated.View>
   )
 }
 
-function InkTick({ color, position }: { color: string; position: number }) {
+function InkTick({
+  accent,
+  color,
+  fresh,
+  position,
+}: {
+  accent: string
+  color: string
+  fresh: boolean
+  position: number
+}) {
   const left = useSharedValue(position)
+  const tint = useSharedValue(fresh ? 1 : 0)
+  const drop = useSharedValue(fresh ? -TICK_DROP : 0)
+
+  useEffect(() => {
+    tint.set(withTiming(0, { duration: TICK_SETTLE_MS }))
+    drop.set(withSpring(0, springs.settle))
+  }, [drop, tint])
 
   useEffect(() => {
     left.set(withTiming(position, timings.drift))
   }, [left, position])
 
   const style = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(tint.value, [0, 1], [color, accent]),
     left: (left.value / 100) * INK_WIDTH - 1,
+    transform: [{ translateY: drop.value }],
   }))
 
   return (
     <Animated.View
       entering={FadeIn.duration(timings.emerge.duration)}
-      exiting={FadeOut.duration(timings.emerge.duration)}
-      style={[styles.tick, { backgroundColor: color }, style]}
+      exiting={FadeOut.duration(TICK_LEAVE_MS)}
+      style={[styles.tick, style]}
     />
   )
 }
@@ -213,6 +295,16 @@ const styles = StyleSheet.create({
     left: 0,
     opacity: 0.7,
     position: 'absolute',
+  },
+  count: {
+    left: INK_WIDTH + 6,
+    position: 'absolute',
+    top: -4,
+  },
+  countText: {
+    ...fonts.mono,
+    fontSize: 10,
+    lineHeight: 12,
   },
   tick: {
     borderRadius: 1,

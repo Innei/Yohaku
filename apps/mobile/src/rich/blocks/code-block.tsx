@@ -1,98 +1,120 @@
 import { YohakuCode } from '@modules/yohaku'
 import { radius } from '@yohaku/design-system/tokens'
 import * as Clipboard from 'expo-clipboard'
+import { SymbolView } from 'expo-symbols'
 import { type ReactNode, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, useWindowDimensions, View } from 'react-native'
 
-import { AppText, NativePressable, SlotText } from '@/components/ui'
+import { AppText, NativePressable } from '@/components/ui'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 
+import { codeMetrics } from '../body-scale'
 import { type BlockProps, str } from './types'
 
-const FONT_SIZE = 13
-const LINE_HEIGHT = 20
 const INSET = 16
-const CODE_TOP = 4
+const TOP = 14
+const HEADER_TOP = 4
+const LABEL_ROOM = 12
+
+export function CopyCodeButton({ code }: { code: string }) {
+  const palette = usePalette()
+  const [copied, setCopied] = useState(false)
+  return (
+    <NativePressable
+      accessibilityLabel={copied ? '已复制' : '复制代码'}
+      accessibilityRole="button"
+      hitSlop={8}
+      style={styles.copy}
+      onPress={() => {
+        void Clipboard.setStringAsync(code)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1500)
+      }}
+    >
+      <SymbolView
+        name={copied ? 'checkmark' : 'doc.on.doc'}
+        size={14}
+        tintColor={palette.neutral[copied ? 8 : 6]}
+      />
+    </NativePressable>
+  )
+}
 
 export function CodeCard({
+  bare,
   code,
   header,
   language,
 }: {
+  bare?: boolean
   code: string
   header?: ReactNode
   language?: string
 }) {
   const palette = usePalette()
-  const [copied, setCopied] = useState(false)
-  const [height, setHeight] = useState(
-    () => code.split('\n').length * LINE_HEIGHT + CODE_TOP + INSET,
-  )
+  const { fontScale } = useWindowDimensions()
+  const { fontSize, lineHeight } = codeMetrics(fontScale)
+  const top = header ? HEADER_TOP : bare ? 12 : TOP
+  const [height, setHeight] = useState<number | null>(null)
+  const label = !bare && !header && language ? language : null
 
   return (
-    <View style={[styles.plate, { backgroundColor: palette.surface.well }]}>
-      <View style={styles.header}>
-        <View style={styles.headerLead}>{header}</View>
-        <NativePressable
-          accessibilityLabel={copied ? '已复制' : '复制'}
-          accessibilityRole="button"
-          hitSlop={{ bottom: 12, left: 16, right: 16, top: 12 }}
-          onPress={() => {
-            void Clipboard.setStringAsync(code)
-            setCopied(true)
-            setTimeout(() => setCopied(false), 1500)
-          }}
-        >
-          <SlotText
-            value={copied ? '已复制' : '复制'}
-            textStyle={{
-              ...styles.action,
-              color: palette.neutral[copied ? 8 : 6],
-            }}
-          />
-        </NativePressable>
-      </View>
+    <View
+      style={
+        bare
+          ? null
+          : [
+              styles.plate,
+              {
+                backgroundColor: palette.neutral[1],
+                borderColor: palette.neutral[3],
+              },
+              label ? { paddingBottom: LABEL_ROOM } : null,
+            ]
+      }
+    >
+      {header ? (
+        <View style={styles.header}>
+          <View style={styles.headerLead}>{header}</View>
+          <CopyCodeButton code={code} />
+        </View>
+      ) : null}
       <YohakuCode
         boldFontFamily={fonts.monoSemiBold.fontFamily}
         code={code}
-        color={palette.neutral[9]}
+        color={palette.neutral[8]}
         fontFamily={fonts.mono.fontFamily}
-        fontSize={FONT_SIZE}
+        fontSize={fontSize}
         language={language}
-        lineHeight={LINE_HEIGHT}
-        padding={INSET}
-        paddingTop={CODE_TOP}
-        style={{ height }}
+        lineHeight={lineHeight}
+        padding={bare ? 14 : INSET}
+        paddingTop={top}
+        style={{
+          height: height ?? code.split('\n').length * lineHeight + top + INSET,
+        }}
         onContentSize={(event) => setHeight(event.nativeEvent.height)}
       />
+      {!bare && !header ? (
+        <View style={styles.floatingCopy}>
+          <CopyCodeButton code={code} />
+        </View>
+      ) : null}
+      {label ? (
+        <AppText
+          color={palette.neutral[5]}
+          numberOfLines={1}
+          style={[styles.language, fonts.mono]}
+        >
+          {label}
+        </AppText>
+      ) : null}
     </View>
   )
 }
 
-export function CodeLanguageLabel({ language }: { language: string }) {
-  const palette = usePalette()
-  if (!language) return null
-  return (
-    <AppText
-      color={palette.neutral[6]}
-      numberOfLines={1}
-      style={[styles.language, fonts.mono]}
-    >
-      {language.toUpperCase()}
-    </AppText>
-  )
-}
-
 export function CodeBlock({ node }: BlockProps) {
-  const language = str(node.language)
-  return (
-    <CodeCard
-      code={str(node.code)}
-      header={<CodeLanguageLabel language={language} />}
-      language={language}
-    />
-  )
+  return <CodeCard code={str(node.code)} language={str(node.language)} />
 }
 
 const styles = StyleSheet.create({
@@ -100,6 +122,7 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     borderRadius: radius.field,
     borderCurve: 'continuous',
+    borderWidth: 1,
     overflow: 'hidden',
   },
   header: {
@@ -107,10 +130,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     minHeight: 34,
-    paddingHorizontal: INSET,
-    paddingTop: 8,
+    paddingLeft: INSET,
+    paddingRight: 6,
+    paddingTop: 6,
   },
   headerLead: { flex: 1, flexDirection: 'row' },
-  language: { fontSize: 11, lineHeight: 16, letterSpacing: 0.8 },
-  action: { fontSize: 12, lineHeight: 18 },
+  copy: {
+    alignItems: 'center',
+    height: 30,
+    justifyContent: 'center',
+    width: 30,
+  },
+  floatingCopy: { position: 'absolute', right: 6, top: 6 },
+  language: {
+    bottom: 7,
+    fontSize: 10,
+    lineHeight: 14,
+    position: 'absolute',
+    right: 14,
+  },
 })

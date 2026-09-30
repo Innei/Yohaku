@@ -21,7 +21,7 @@ import type { ApiEnrichment, CommentRefType } from '@/api/types'
 import { extractBlockInfos } from '@/components/dom/anchor-utils'
 import { AppText } from '@/components/ui'
 import { useTranslations } from '@/i18n'
-import { subscribeTocJump } from '@/lib/article-toc'
+import { registerTocOffsets, subscribeTocJump } from '@/lib/article-toc'
 import { hrefForExternalUrl } from '@/lib/link-router'
 import { openExternalUrl } from '@/lib/open-external'
 import {
@@ -32,7 +32,6 @@ import {
 } from '@/rich/anchors'
 import { FOOTNOTE_SCHEME } from '@/rich/lexical/footnotes'
 import { RichDocument } from '@/rich/lexical/rich-document'
-import { SelectionCommentSheet } from '@/screens/comments/selection-comment-sheet'
 import { usePalette } from '@/theme/palette'
 
 import { useReservedBodyHeight } from './body-slot'
@@ -94,14 +93,17 @@ export function ArticleBody({
   const [blockMap, setBlockMap] = useState<NativeBlockMap>(() => new Map())
   const {
     blockComments,
-    closeSelectionSheet,
     handleSelectionMessage,
     rangeComments,
     selectionBlockTitle,
     selectionCommentTitle,
     selectionSheet,
-    threadRoots,
-  } = useArticleSelection(refId, queriesEnabled)
+  } = useArticleSelection({
+    onPresent: (blockId) => scrollToBlock(blockId, 0.12),
+    queriesEnabled,
+    refId,
+    refType,
+  })
   const reservedHeight = useReservedBodyHeight(slotTop)
 
   const value = useMemo(() => parseState(content), [content])
@@ -162,6 +164,16 @@ export function ArticleBody({
   useEffect(
     () => subscribeTocJump((blockId) => scrollToBlock(blockId, 0.12)),
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  )
+
+  useEffect(
+    () =>
+      registerTocOffsets((blockId) => {
+        const rect = rectForBlock(blockId)
+        return rect ? bodyTopRef.current + rect.y : null
+      }),
+     
     [],
   )
 
@@ -293,13 +305,6 @@ export function ArticleBody({
           </ScrollView>
         </View>
       </Modal>
-      <SelectionCommentSheet
-        refId={refId}
-        refType={refType}
-        roots={threadRoots}
-        state={selectionSheet}
-        onClose={closeSelectionSheet}
-      />
     </View>
   )
 }

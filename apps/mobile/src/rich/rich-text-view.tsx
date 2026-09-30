@@ -1,5 +1,9 @@
 import { useState } from 'react'
-import type { StyleProp, ViewStyle } from 'react-native'
+import {
+  type StyleProp,
+  useWindowDimensions,
+  type ViewStyle,
+} from 'react-native'
 
 import { useLocale } from '@/i18n'
 import { noteTypography } from '@/theme/note-typography'
@@ -56,9 +60,15 @@ export function RichTextView({
 }: RichTextViewProps) {
   const palette = usePalette()
   const locale = useLocale()
+  const { fontScale } = useWindowDimensions()
   const [height, setHeight] = useState<number | null>(null)
 
-  const typography = richTypography(variant ?? 'article', locale, palette)
+  const typography = richTypography(
+    variant ?? 'article',
+    locale,
+    palette,
+    fontScale,
+  )
 
   return (
     <RichTextNativeView

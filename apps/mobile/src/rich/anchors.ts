@@ -103,6 +103,21 @@ export function buildHighlights({
     const entry = map.get(start.id)!
     const end = Math.min(resolved.endOffset - entry.prefixLength, entry.length)
     if (end <= start.offset) return
+    if (kind === 'comment') {
+      const same = out.find(
+        (h) =>
+          h.kind === 'comment' &&
+          h.blockId === start.id &&
+          h.start === start.offset &&
+          h.end === end,
+      )
+      if (same) {
+        same.count = (same.count ?? 1) + 1
+        return
+      }
+      out.push({ id, blockId: start.id, start: start.offset, end, kind, count: 1 })
+      return
+    }
     out.push({ id, blockId: start.id, start: start.offset, end, kind })
   }
 
@@ -126,7 +141,7 @@ export function buildHighlights({
   if (highlightBlockId) pushBlock('tts', highlightBlockId, 'block')
   if (activeAnchor) {
     if (isRangeAnchor(activeAnchor)) pushRange('active', activeAnchor, 'active')
-    else pushBlock('active', activeAnchor.blockId, 'active')
+    else pushBlock('active', activeAnchor.blockId, 'block-active')
   }
   return out
 }

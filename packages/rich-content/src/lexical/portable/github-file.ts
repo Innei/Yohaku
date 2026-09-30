@@ -53,7 +53,7 @@ const EXT_TO_LANG: Record<string, string> = {
   '.zsh': 'bash',
 }
 
-function languageFromPath(path: string): string {
+export function languageFromPath(path: string): string {
   const dot = path.lastIndexOf('.')
   if (dot === -1) return 'text'
   return EXT_TO_LANG[path.slice(dot).toLowerCase()] || 'text'

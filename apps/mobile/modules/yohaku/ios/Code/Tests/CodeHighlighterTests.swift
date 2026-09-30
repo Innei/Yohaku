@@ -141,17 +141,25 @@ final class CodeHighlighterTests: XCTestCase {
 }
 
 final class CodeThemeTests: XCTestCase {
-  func testMatchesGithubColorsWithPrefixFallback() {
-    XCTAssertEqual(CodeTheme.style(for: "keyword", dark: false)?.color, 0xD73A49)
-    XCTAssertEqual(CodeTheme.style(for: "keyword.function", dark: true)?.color, 0xF97583)
-    XCTAssertEqual(CodeTheme.style(for: "function.method.builtin", dark: false)?.color, 0x6F42C1)
-    XCTAssertEqual(CodeTheme.style(for: "string.regexp", dark: true)?.color, 0xDBEDFF)
-    XCTAssertEqual(CodeTheme.style(for: "comment", dark: true)?.color, 0x6A737D)
+  func testMapsYohakuInkColorsWithPrefixFallback() {
+    XCTAssertEqual(CodeTheme.style(for: "keyword", dark: false)?.color, 0xA8505F)
+    XCTAssertEqual(CodeTheme.style(for: "keyword.function", dark: true)?.color, 0xD98A98)
+    XCTAssertEqual(CodeTheme.style(for: "type.builtin", dark: false)?.color, 0x3D6896)
+    XCTAssertEqual(CodeTheme.style(for: "string.regexp", dark: true)?.color, 0x8CBEA3)
+    XCTAssertEqual(CodeTheme.style(for: "number", dark: false)?.color, 0xA87A3D)
+  }
+
+  func testCommentsAreQuietItalic() {
+    XCTAssertEqual(CodeTheme.style(for: "comment", dark: false), CodeStyle(color: 0xA8A69F, italic: true))
+    XCTAssertEqual(CodeTheme.style(for: "comment.line", dark: true), CodeStyle(color: 0x787878, italic: true))
   }
 
   func testUnmappedCapturesUseDefaultForeground() {
     XCTAssertNil(CodeTheme.style(for: "punctuation.bracket", dark: false))
     XCTAssertNil(CodeTheme.style(for: "variable", dark: true))
+    XCTAssertNil(CodeTheme.style(for: "function.method", dark: false))
+    XCTAssertNil(CodeTheme.style(for: "property", dark: false))
+    XCTAssertNil(CodeTheme.style(for: "operator", dark: false))
   }
 
   func testMarkupEmphasisIsStyledNotColored() {

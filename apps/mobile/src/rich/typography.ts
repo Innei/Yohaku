@@ -1,7 +1,8 @@
 import type { Locale } from '@/i18n/config'
 import { fonts, nativeSerifFontFamily } from '@/theme/font-faces'
-import { noteTypography } from '@/theme/note-typography'
 import type { Palette } from '@/theme/palette'
+
+import { bodyMetrics } from './body-scale'
 
 export type RichVariant = 'article' | 'note'
 
@@ -33,23 +34,24 @@ export function richTypography(
   variant: RichVariant,
   locale: Locale,
   palette: Palette,
+  fontScale = 1,
 ) {
   const serif = nativeSerifFontFamily(locale, false)
   const isNote = variant === 'note'
-  const fontSize = isNote ? noteTypography.fontSize : 16
-  const paragraphGap = isNote ? noteTypography.paragraphGap : 24
+  const { fontSize, lineHeight, paragraphGap } = bodyMetrics(variant, fontScale)
+  const quoteScale = fontSize / bodyMetrics(variant, 1).fontSize
   return {
     fontFamily: isNote ? serif : undefined,
     fallbackFontFamily: fonts.serif.fontFamily,
     codeFontFamily: fonts.mono.fontFamily,
     fontSize,
-    lineHeight: 28,
+    lineHeight,
     paragraphGap,
     headings: headings(fontSize, paragraphGap),
     quote: {
       fontFamily: serif,
-      fontSize: 15,
-      lineHeight: 24,
+      fontSize: Math.round(15 * quoteScale),
+      lineHeight: Math.round(24 * quoteScale),
       indent: 28,
       gap: paragraphGap,
       italic: true,
@@ -61,7 +63,7 @@ export function richTypography(
     linkColor: palette.accent,
     accentColor: palette.accent,
     highlightColor: `${palette.accent}33`,
-    activeHighlightColor: `${palette.accent}66`,
+    activeHighlightColor: `${palette.accent}17`,
     codeBackground: palette.neutral[2],
   }
 }

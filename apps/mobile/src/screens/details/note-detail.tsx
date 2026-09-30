@@ -4,11 +4,11 @@ import {
   YohakuStretchCoverHost,
 } from '@modules/yohaku'
 import { and, eq } from 'drizzle-orm'
-import { Stack, useNavigation, useRouter } from 'expo-router'
+import { Stack, useNavigation } from 'expo-router'
 import { useHeaderHeight } from 'expo-router/react-navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
-import { Dimensions, StyleSheet, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import { translatedBodyNeedsRefresh } from '@/api/article-meta'
 import { api } from '@/api/client'
@@ -19,7 +19,6 @@ import { notes, topics } from '@/db/schema'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
-import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
 import { openExternalUrl } from '@/lib/open-external'
@@ -57,6 +56,7 @@ import { BodyLoadingIndicator, useReservedBodyHeight } from './body-slot'
 import { NoteCoverBleed } from './note-cover-bleed'
 import { NoteTopicBlock } from './note-topic-block'
 import { useCollapsingTitle } from './use-collapsing-title'
+import { useOpenArticleToc } from './use-open-article-toc'
 import { useReadingPresence } from './use-reading-presence'
 import { useRetryableBodyRefresh } from './use-retryable-body-refresh'
 
@@ -71,7 +71,6 @@ export function NoteDetailScreen({
   nid: number
   sharedHero?: boolean
 }) {
-  const router = useRouter()
   const navigation = useNavigation() as unknown as TransitionStartNavigation
   const locale = useLocale()
   const t = useTranslations('detail')
@@ -187,13 +186,19 @@ export function NoteDetailScreen({
     note?.contentFormat === 'lexical' && note.content ? note.content : null
   const headings = useMemo(() => extractHeadings(body ?? ''), [body])
 
-  const { marks, onScrollMetrics } = useReadingPresence({
-    articleId: note?.id,
-    enabled: updatesEnabled,
-    openOnWeb,
-  })
+  const { marks, onScrollMetrics, presenceSnapshot, readerCount } =
+    useReadingPresence({
+      articleId: note?.id,
+      enabled: updatesEnabled,
+      openOnWeb,
+    })
+  const openToc = useOpenArticleToc(headings, presenceSnapshot)
   const { headerTitleProgress, headerOptions, onScroll, onTitleLayout } =
-    useCollapsingTitle(note?.title, tt('notes'), onScrollMetrics, marks)
+    useCollapsingTitle(note?.title, tt('notes'), onScrollMetrics, marks, {
+      onTitlePress:
+        headings.length > 0 || readerCount > 0 ? openToc : undefined,
+      readerCount,
+    })
   const tts = useTtsSession({
     articleId: note?.id,
     available: note?.articleMeta?.tts?.available === true,
@@ -230,6 +235,7 @@ export function NoteDetailScreen({
         tocAvailable={headings.length > 0}
         url={webUrl}
         onListen={tts.start}
+        onToc={openToc}
         onPrint={
           note && body
             ? () =>
@@ -244,10 +250,6 @@ export function NoteDetailScreen({
                 })
             : undefined
         }
-        onToc={() => {
-          presentArticleToc(headings, Dimensions.get('window').height)
-          router.push(tocHref())
-        }}
       />
       {note ? (
         <CommentComposeHost

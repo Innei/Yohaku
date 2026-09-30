@@ -1,30 +1,46 @@
-import { useState } from 'react'
+import { type Href, useRouter } from 'expo-router'
 import { Alert } from 'react-native'
 
+import type { CommentRefType } from '@/api/types'
 import { useTranslations } from '@/i18n'
 import {
   blockCommentsFromRoots,
   isBlockAnchor,
   isRangeAnchor,
   rangeCommentsFromRoots,
-  rootsForBlock,
-  rootsForRange,
 } from '@/lib/comment-anchor'
-import type { SelectionSheetState } from '@/screens/comments/selection-comment-sheet'
+import {
+  presentSelectionComment,
+  type SelectionSheetState,
+  useSelectionCommentSession,
+} from '@/lib/selection-comment-session'
 import { useCommentAnchorsQuery } from '@/screens/comments/use-comments'
 
-export function useArticleSelection(refId: string, queriesEnabled = true) {
+export function useArticleSelection({
+  onPresent,
+  queriesEnabled = true,
+  refId,
+  refType,
+}: {
+  onPresent: (blockId: string) => void
+  queriesEnabled?: boolean
+  refId: string
+  refType: CommentRefType
+}) {
   const tComment = useTranslations('comment')
-  const [selectionSheet, setSelectionSheet] =
-    useState<SelectionSheetState | null>(null)
+  const router = useRouter()
+  const session = useSelectionCommentSession()
+  const selectionSheet = session?.refId === refId ? session.state : null
   const anchorsQuery = useCommentAnchorsQuery(refId, queriesEnabled)
   const rangeComments = rangeCommentsFromRoots(anchorsQuery.data?.data)
   const blockComments = blockCommentsFromRoots(anchorsQuery.data?.data)
-  const threadRoots = selectionSheet
-    ? isRangeAnchor(selectionSheet.anchor)
-      ? rootsForRange(anchorsQuery.data?.data, selectionSheet.anchor)
-      : rootsForBlock(anchorsQuery.data?.data, selectionSheet.anchor)
-    : []
+
+  const setSelectionSheet = (state: SelectionSheetState) => {
+    onPresent(state.anchor.blockId)
+    if (presentSelectionComment({ refId, refType, state }) === 'push') {
+      router.push('/selection-comment' as Href)
+    }
+  }
 
   const handleSelectionMessage = (payload: {
     anchor?: unknown
@@ -83,8 +99,6 @@ export function useArticleSelection(refId: string, queriesEnabled = true) {
     selectionBlockTitle: tComment('blockAction'),
     selectionCommentTitle: tComment('selectionAction'),
     selectionSheet,
-    threadRoots,
-    closeSelectionSheet: () => setSelectionSheet(null),
     handleSelectionMessage,
   }
 }

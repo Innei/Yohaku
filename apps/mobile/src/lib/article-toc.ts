@@ -1,6 +1,7 @@
 import type { Href } from 'expo-router'
 
 import type { LexicalHeading } from '@/lib/lexical-headings'
+import type { TocPresence } from '@/screens/details/presence-map'
 
 export const TOC_SHEET = {
   bottom: 36,
@@ -20,12 +21,15 @@ export type TocSection = {
 type TocSession = {
   detents: number[]
   headings: LexicalHeading[]
+  presence?: TocPresence
 }
 
 type TocJump = (blockId: string) => void
+type TocOffset = (blockId: string) => number | null
 
 let session: TocSession | null = null
 const jumpListeners = new Set<TocJump>()
+const offsetProviders: TocOffset[] = []
 
 export function groupTocSections(headings: LexicalHeading[]): TocSection[] {
   const minLevel = headings.reduce(
@@ -38,7 +42,7 @@ export function groupTocSections(headings: LexicalHeading[]): TocSection[] {
       sections.push({ children: [], root: heading })
       continue
     }
-    sections[sections.length - 1]?.children.push(heading)
+    sections.at(-1)?.children.push(heading)
   }
   return sections
 }
@@ -72,11 +76,25 @@ export function estimateTocSheetDetents(
 export function presentArticleToc(
   headings: LexicalHeading[],
   windowHeight: number,
+  presence?: TocPresence,
 ) {
   session = {
     detents: estimateTocSheetDetents(headings, windowHeight),
     headings,
+    presence,
   }
+}
+
+export function registerTocOffsets(provider: TocOffset) {
+  offsetProviders.push(provider)
+  return () => {
+    const index = offsetProviders.lastIndexOf(provider)
+    if (index !== -1) offsetProviders.splice(index, 1)
+  }
+}
+
+export function tocHeadingOffset(blockId: string) {
+  return offsetProviders.at(-1)?.(blockId) ?? null
 }
 
 export function parseTocDetents(params: unknown): number[] {

@@ -16,7 +16,9 @@ export function ArticleTocSheet() {
   const palette = usePalette()
   const router = useRouter()
   const t = useTranslations('common')
-  const headings = peekTocSession()?.headings ?? []
+  const tocSession = peekTocSession()
+  const headings = tocSession?.headings ?? []
+  const presence = tocSession?.presence
   const sections = groupTocSections(headings)
   const minLevel = headings.reduce(
     (lowest, heading) => Math.min(lowest, heading.level),
@@ -34,9 +36,16 @@ export function ArticleTocSheet() {
       style={{ backgroundColor: palette.surface.desk }}
     >
       <View style={styles.head}>
-        <AppText color={palette.neutral[6]} variant="eyebrow">
-          {t('toc')}
-        </AppText>
+        <View style={styles.headRow}>
+          <AppText color={palette.neutral[6]} variant="eyebrow">
+            {t('toc')}
+          </AppText>
+          {presence?.total ? (
+            <AppText color={palette.neutral[6]} variant="meta">
+              {t('readingNow', { count: presence.total })}
+            </AppText>
+          ) : null}
+        </View>
         <View style={[styles.rule, { backgroundColor: palette.neutral[4] }]} />
       </View>
       <View style={styles.outline}>
@@ -59,6 +68,10 @@ export function ArticleTocSheet() {
                 >
                   {section.root.text}
                 </AppText>
+                <SectionReaders
+                  count={presence?.perSection?.[index] ?? 0}
+                  self={presence?.selfSection === index}
+                />
               </SinkPressable>
               {section.children.map((child) => (
                 <SinkPressable
@@ -93,6 +106,29 @@ export function ArticleTocSheet() {
   )
 }
 
+const MAX_READER_DOTS = 5
+
+function SectionReaders({ count, self }: { count: number; self: boolean }) {
+  const palette = usePalette()
+  const t = useTranslations('common')
+  if (count === 0 && !self) return null
+  return (
+    <View style={styles.readers}>
+      {Array.from({ length: Math.min(count, MAX_READER_DOTS) }, (_, i) => (
+        <View
+          key={i}
+          style={[styles.readerDot, { backgroundColor: palette.neutral[6] }]}
+        />
+      ))}
+      {self ? (
+        <AppText color={palette.accent} style={styles.readerSelf}>
+          {t('readingYou')}
+        </AppText>
+      ) : null}
+    </View>
+  )
+}
+
 const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 22,
@@ -102,6 +138,28 @@ const styles = StyleSheet.create({
   },
   head: {
     gap: 12,
+  },
+  headRow: {
+    alignItems: 'baseline',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  readers: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 4,
+    paddingTop: 7,
+  },
+  readerDot: {
+    borderRadius: 3,
+    height: 6,
+    opacity: 0.5,
+    width: 6,
+  },
+  readerSelf: {
+    fontSize: 11,
+    fontWeight: '600',
+    lineHeight: 16,
   },
   rule: {
     height: StyleSheet.hairlineWidth,

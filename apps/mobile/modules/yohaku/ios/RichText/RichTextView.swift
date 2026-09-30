@@ -7,6 +7,8 @@ extension NSAttributedString.Key {
   static let richSpoiler = NSAttributedString.Key("YohakuRichSpoiler")
   static let richQuote = NSAttributedString.Key("YohakuRichQuote")
   static let richRule = NSAttributedString.Key("YohakuRichRule")
+  static let richMark = NSAttributedString.Key("YohakuRichMark")
+  static let richMarkCount = NSAttributedString.Key("YohakuRichMarkCount")
 }
 
 struct HeadingSpec {
@@ -186,6 +188,8 @@ struct BlockRange {
 final class RichLayoutManager: NSLayoutManager {
   var quoteColor = UIColor.secondaryLabel
   var ruleColor = UIColor.separator
+  var markColor = UIColor.tintColor
+  static let markCountFont = UIFont.monospacedDigitSystemFont(ofSize: 9, weight: .medium)
 
   override func drawBackground(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
     super.drawBackground(forGlyphRange: glyphsToShow, at: origin)
@@ -209,12 +213,49 @@ final class RichLayoutManager: NSLayoutManager {
         context.fill(CGRect(x: origin.x, y: rect.midY + origin.y, width: container.size.width, height: 1))
       }
     }
+
+    storage.enumerateAttribute(.richMark, in: characters) { value, range, _ in
+      guard let thickness = (value as? NSNumber).map({ CGFloat($0.doubleValue) }) else { return }
+      let glyphs = self.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
+      context.setFillColor(self.markColor.cgColor)
+      self.enumerateLineFragments(forGlyphRange: glyphs) { rect, _, container, lineGlyphs, _ in
+        let segment = NSIntersectionRange(glyphs, lineGlyphs)
+        guard segment.length > 0 else { return }
+        let bounds = self.boundingRect(forGlyphRange: segment, in: container)
+        let lastCharacter = self.characterIndexForGlyph(at: NSMaxRange(segment) - 1)
+        let reserved = storage.attribute(.richMarkCount, at: lastCharacter, effectiveRange: nil) == nil
+          ? 0
+          : CGFloat((storage.attribute(.kern, at: lastCharacter, effectiveRange: nil) as? NSNumber)?.doubleValue ?? 0)
+        let font = storage.attribute(.font, at: range.location, effectiveRange: nil) as? UIFont
+        let baseline = rect.minY + self.location(forGlyphAt: segment.location).y
+        context.fill(CGRect(
+          x: origin.x + bounds.minX,
+          y: origin.y + baseline + round((font?.pointSize ?? 15) / 3),
+          width: bounds.width - reserved,
+          height: thickness
+        ))
+      }
+    }
   }
 
   override func drawGlyphs(forGlyphRange glyphsToShow: NSRange, at origin: CGPoint) {
     super.drawGlyphs(forGlyphRange: glyphsToShow, at: origin)
     guard let storage = textStorage, let context = UIGraphicsGetCurrentContext() else { return }
     let characters = characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
+    storage.enumerateAttribute(.richMarkCount, in: characters) { value, range, _ in
+      guard let label = value as? String,
+            let container = self.textContainer(forGlyphAt: self.glyphIndexForCharacter(at: range.location), effectiveRange: nil)
+      else { return }
+      let glyph = self.glyphIndexForCharacter(at: range.location)
+      let box = self.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: container)
+      let kern = CGFloat((storage.attribute(.kern, at: range.location, effectiveRange: nil) as? NSNumber)?.doubleValue ?? 0)
+      let body = (storage.attribute(.font, at: range.location, effectiveRange: nil) as? UIFont)?.pointSize ?? 15
+      let baseline = self.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil).minY + self.location(forGlyphAt: glyph).y
+      (label as NSString).draw(
+        at: CGPoint(x: origin.x + box.maxX - kern + 1, y: origin.y + baseline - body * 0.8),
+        withAttributes: [.font: Self.markCountFont, .foregroundColor: self.markColor]
+      )
+    }
     storage.enumerateAttribute(.richMath, in: characters) { value, range, _ in
       guard let key = value as? String, let box = RichMath.box(forKey: key) else { return }
       let scale = CGFloat((storage.attribute(.richMathScale, at: range.location, effectiveRange: nil) as? NSNumber)?.doubleValue ?? 1)
@@ -317,6 +358,7 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
     ]
     layoutManager.quoteColor = typography.secondaryColor.withAlphaComponent(0.5)
     layoutManager.ruleColor = typography.secondaryColor.withAlphaComponent(0.3)
+    layoutManager.markColor = typography.accentColor
     rebuild()
   }
 
@@ -368,14 +410,26 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
       let clampedEnd = max(clampedStart, block.rendered(fromSource: max(0, min(end, block.sourceLength)), roundUp: true))
       let range = NSRange(location: block.range.location + clampedStart, length: clampedEnd - clampedStart)
       guard range.length > 0 else { continue }
-      let kind = highlight["kind"] as? String ?? "comment"
-      let color: UIColor
-      switch kind {
-      case "active": color = typography.activeHighlightColor
-      case "block": color = typography.accentColor.withAlphaComponent(0.08)
-      default: color = typography.highlightColor
+      switch highlight["kind"] as? String ?? "comment" {
+      case "active":
+        result.addAttribute(.backgroundColor, value: typography.activeHighlightColor, range: range)
+        result.addAttribute(.richMark, value: 2.0, range: range)
+      case "block-active":
+        result.addAttribute(.backgroundColor, value: typography.activeHighlightColor, range: range)
+      case "block":
+        result.addAttribute(.backgroundColor, value: typography.accentColor.withAlphaComponent(0.05), range: range)
+      default:
+        result.addAttribute(.richMark, value: 1.5, range: range)
+        if let count = highlight["count"] as? Int, count > 0 {
+          // The count is painted, never inserted, so anchor offsets stay valid;
+          // kern on the last character reserves its width in the line.
+          let label = String(count)
+          let width = ceil((label as NSString).size(withAttributes: [.font: RichLayoutManager.markCountFont]).width) + 2
+          let last = NSRange(location: NSMaxRange(range) - 1, length: 1)
+          result.addAttribute(.kern, value: width, range: last)
+          result.addAttribute(.richMarkCount, value: label, range: last)
+        }
       }
-      result.addAttribute(.backgroundColor, value: color, range: range)
       if let id = highlight["id"] as? String {
         result.addAttribute(.richHighlightId, value: id, range: range)
       }

@@ -38,6 +38,8 @@ export function useCollapsingTitle(
   options?: {
     alwaysVisible?: boolean
     leadingInset?: number
+    onTitlePress?: () => void
+    readerCount?: number
     reserveBackClearance?: boolean
     systemAdaptiveTitleColor?: boolean
     titleFontSize?: number
@@ -49,6 +51,10 @@ export function useCollapsingTitle(
   const reserveBackClearance = options?.reserveBackClearance !== false
   const titleFontSize = options?.titleFontSize
   const titleFontWeight = options?.titleFontWeight
+  const readerCount = options?.readerCount ?? 0
+  const titlePressRef = useRef(options?.onTitlePress)
+  titlePressRef.current = options?.onTitlePress
+  const hasTitlePress = options?.onTitlePress !== undefined
   const headerHeight = useHeaderHeight()
   const progress = useSharedValue(alwaysVisible ? 1 : 0)
   const rise = useSharedValue(alwaysVisible ? 1 : 0)
@@ -217,6 +223,7 @@ export function useCollapsingTitle(
             marks={presenceMarks}
             progress={progress}
             readPercent={readPercent}
+            readerCount={readerCount}
             reserveBackClearance={reserveBackClearance}
             rise={rise}
             scrollVelocity={velocity}
@@ -226,6 +233,7 @@ export function useCollapsingTitle(
             titleFontSize={titleFontSize}
             titleFontWeight={titleFontWeight}
             visible={titleVisible}
+            onPress={hasTitlePress ? () => titlePressRef.current?.() : undefined}
           />
         ) : null,
       // Keep UIKit's semantic title available for the long-press back-history
@@ -238,8 +246,10 @@ export function useCollapsingTitle(
         : collapsingTitleScrollEdgeEffects,
     }),
     [
+      hasTitlePress,
       leadingInset,
       presenceMarks,
+      readerCount,
       progress,
       readPercent,
       reserveBackClearance,

@@ -202,6 +202,16 @@ export default function RootLayout() {
                 }}
               />
               <Stack.Screen
+                name="selection-comment"
+                options={{
+                  headerShown: false,
+                  presentation: 'formSheet',
+                  sheetAllowedDetents: [0.5, 1],
+                  sheetGrabberVisible: true,
+                  sheetLargestUndimmedDetentIndex: 0,
+                }}
+              />
+              <Stack.Screen
                 name="toc"
                 options={({ route }) => ({
                   headerShown: false,

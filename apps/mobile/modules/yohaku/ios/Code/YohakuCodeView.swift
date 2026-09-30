@@ -1,7 +1,7 @@
 import ExpoModulesCore
 import UIKit
 
-final class YohakuCodeView: ExpoView {
+final class YohakuCodeView: ExpoView, UIScrollViewDelegate {
   let onContentSize = EventDispatcher()
 
   var code = ""
@@ -27,7 +27,10 @@ final class YohakuCodeView: ExpoView {
 
   private static let queue = DispatchQueue(label: "in.innei.yohaku.code-highlight", qos: .userInitiated)
 
+  private static let fadeWidth: CGFloat = 48
+
   private let scrollView = UIScrollView()
+  private let fade = CAGradientLayer()
   private let textView: UITextView
   private let layoutManager: NSLayoutManager
   private var rendered: Layout?
@@ -63,7 +66,11 @@ final class YohakuCodeView: ExpoView {
     scrollView.showsVerticalScrollIndicator = false
     scrollView.alwaysBounceVertical = false
     scrollView.contentInsetAdjustmentBehavior = .never
+    scrollView.delegate = self
     scrollView.addSubview(textView)
+    fade.startPoint = CGPoint(x: 0, y: 0.5)
+    fade.endPoint = CGPoint(x: 1, y: 0.5)
+    fade.colors = [UIColor.black.cgColor, UIColor.black.cgColor, UIColor.clear.cgColor]
     addSubview(scrollView)
 
     registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (view: YohakuCodeView, _) in
@@ -165,6 +172,27 @@ final class YohakuCodeView: ExpoView {
     let width = max(contentSize.width, bounds.width)
     textView.frame = CGRect(origin: .zero, size: CGSize(width: width, height: contentSize.height))
     scrollView.contentSize = CGSize(width: width, height: bounds.height)
+    updateFade()
+  }
+
+  func scrollViewDidScroll(_ scrollView: UIScrollView) {
+    updateFade()
+  }
+
+  private func updateFade() {
+    let overflow = scrollView.contentSize.width - bounds.width
+    let hidden = overflow <= 1 || scrollView.contentOffset.x >= overflow - 1
+    CATransaction.begin()
+    CATransaction.setDisableActions(true)
+    if hidden {
+      layer.mask = nil
+    } else {
+      fade.frame = bounds
+      let start = max(0, 1 - Self.fadeWidth / max(bounds.width, 1))
+      fade.locations = [0, NSNumber(value: Double(start)), 1]
+      layer.mask = fade
+    }
+    CATransaction.commit()
   }
 }
 
