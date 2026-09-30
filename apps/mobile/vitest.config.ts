@@ -15,7 +15,8 @@ const { findWorkspaceRoot, overlayFiles, resolveOverlayDir } =
   }
 
 const mobileRoot = import.meta.dirname
-const overlayDir = resolveOverlayDir(findWorkspaceRoot(mobileRoot))
+const workspaceRoot = findWorkspaceRoot(mobileRoot)
+const overlayDir = resolveOverlayDir(workspaceRoot)
 const overlaySite =
   overlayDir && overlayFiles(overlayDir).siteTs
     ? overlayFiles(overlayDir).siteTs
@@ -23,6 +24,9 @@ const overlaySite =
 const overlayBundledAssets = path.resolve(mobileRoot, 'src/bundled-assets.stub.ts')
 
 export default defineConfig({
+  // Overlay tests live outside this package. Vitest 5 imports anything
+  // outside `root` as a `/@fs/` id, which Node then fails to load.
+  root: workspaceRoot,
   resolve: {
     alias: {
       '@': path.resolve(mobileRoot, 'src'),
@@ -34,9 +38,9 @@ export default defineConfig({
   test: {
     environment: 'happy-dom',
     include: [
-      'src/**/*.test.ts',
-      'src/**/*.test.tsx',
-      'plugins/**/*.test.ts',
+      path.join(mobileRoot, 'src/**/*.test.ts'),
+      path.join(mobileRoot, 'src/**/*.test.tsx'),
+      path.join(mobileRoot, 'plugins/**/*.test.ts'),
       ...(overlayDir ? [path.join(overlayDir, '**/*.test.ts')] : []),
     ],
   },

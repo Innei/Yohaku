@@ -39,7 +39,7 @@ diff --git a/build/link/LinkWithPreview.js b/build/link/LinkWithPreview.js
 diff --git a/ios/LinkPreview/LinkPreviewNativeView.swift b/ios/LinkPreview/LinkPreviewNativeView.swift
 --- a/ios/LinkPreview/LinkPreviewNativeView.swift
 +++ b/ios/LinkPreview/LinkPreviewNativeView.swift
-@@ -105,6 +105,7 @@ class NativeLinkPreviewView: RouterViewWithLogger, UIContextMenuInteractionDeleg
+@@ -101,6 +101,7 @@
            }
          }
          super.unmountChildComponentView(child, index: index)
