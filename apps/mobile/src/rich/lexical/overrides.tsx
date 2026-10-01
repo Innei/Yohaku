@@ -111,6 +111,25 @@ const textBlock =
     return <Fragment key={key}>{parts}</Fragment>
   }
 
+// rich-compose strips child node fields (only `type` survives), so the url and
+// label are read back from the rendered link runs.
+function bareLinkUrl(node: any, children: ReactNode): string | null {
+  const only = node.children?.length === 1 ? node.children[0] : null
+  if (!only || (only.type !== 'autolink' && only.type !== 'link')) return null
+  const runs = collectRuns(children)
+  const url = runs[0]?.href
+  if (!url || url.startsWith('#')) return null
+  if (runs.some((run) => run.href !== url)) return null
+  if (only.type === 'link' && runsText(runs).trim() !== url) return null
+  return url
+}
+
+const paragraph: BuiltinNodeRenderer = (node, key, children, fallback) => {
+  const url = bareLinkUrl(node, children)
+  if (!url) return textBlock('paragraph')(node, key, children, fallback)
+  return <ViewBlockMarker key={key} node={{ type: 'link-card', url }} />
+}
+
 const viewBlock: BuiltinNodeRenderer = (node, key, children) => (
   <ViewBlockMarker key={key} node={node}>
     {children}
@@ -254,7 +273,7 @@ export const nativeBuiltinOverrides: Record<string, BuiltinNodeRenderer> = {
   }),
   comment: () => null,
   'code-highlight': inlineText((node) => String(node.text ?? '')),
-  paragraph: textBlock('paragraph'),
+  paragraph,
   heading: textBlock('heading', (node) => ({
     level: Number(String(node.tag ?? 'h2').slice(1)) || 2,
   })),

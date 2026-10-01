@@ -5,14 +5,15 @@ import { AppText, NativePressable, RemoteImage } from '@/components/ui'
 import { getSiteUrl } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 import { useNativeSerifFontStyle } from '@/theme/serif-font'
+import { shadow } from '@/theme/surfaces'
 
 import type { LinkCardImageShape, LinkCardMeta } from './link-card'
 
 export interface IndexCardProps {
-  description?: string
   host: string
   image?: string
   imageShape?: LinkCardImageShape
+  internal?: boolean
   label?: string | null
   meta?: LinkCardMeta[]
   onPress?: () => void
@@ -21,10 +22,10 @@ export interface IndexCardProps {
 }
 
 export function IndexCard({
-  description,
   host,
   image,
   imageShape = 'thumb',
+  internal,
   label,
   meta = [],
   onPress,
@@ -33,19 +34,8 @@ export function IndexCard({
 }: IndexCardProps) {
   const palette = usePalette()
   const serif = useNativeSerifFontStyle()
-  const leading = image && (imageShape === 'poster' || imageShape === 'square')
-  const media = image ? (
-    <RemoteImage
-      contentFit="cover"
-      siteReferer={getSiteUrl()}
-      style={[
-        styles[imageShape],
-        leading && styles.cover,
-        { backgroundColor: palette.neutral[2] },
-      ]}
-      uri={image}
-    />
-  ) : null
+  const state = meta.find((item) => item.toneDot && item.tone)
+  const stateColor = state?.tone ? palette.semantic[state.tone] : undefined
 
   return (
     <NativePressable
@@ -53,74 +43,86 @@ export function IndexCard({
       style={[
         styles.card,
         {
-          alignItems: leading || imageShape === 'avatar' ? 'center' : 'flex-start',
           backgroundColor: palette.surface.paper,
-          borderColor: palette.neutral[3],
+          boxShadow: shadow.paperSmall[palette.theme],
         },
       ]}
       onPress={onPress}
     >
-      {leading ? media : null}
-      <View style={styles.copy}>
-        <View style={styles.source}>
-          <SymbolView
-            name={symbol as SymbolViewProps['name']}
-            size={12}
-            tintColor={palette.neutral[6]}
-          />
-          <AppText numberOfLines={1} style={styles.sourceText} variant="meta">
-            {label ? `${host} · ${label}` : host}
-          </AppText>
-        </View>
-        <AppText
-          numberOfLines={2}
-          style={leading ? [styles.workTitle, serif] : styles.title}
-          variant="body"
+      {image ? (
+        <RemoteImage
+          contentFit="cover"
+          siteReferer={getSiteUrl()}
+          style={[styles.media, styles[imageShape], { backgroundColor: palette.neutral[2] }]}
+          uri={image}
+        />
+      ) : (
+        <View
+          style={[
+            styles.media,
+            styles.tile,
+            {
+              backgroundColor: stateColor
+                ? `${stateColor}1f`
+                : palette.surface.well,
+            },
+          ]}
         >
+          {internal ? (
+            <AppText style={[styles.monogram, serif]} variant="body">
+              白
+            </AppText>
+          ) : (
+            <SymbolView
+              name={symbol as SymbolViewProps['name']}
+              size={20}
+              tintColor={stateColor ?? palette.neutral[7]}
+            />
+          )}
+        </View>
+      )}
+      <View style={styles.copy}>
+        <AppText numberOfLines={1} style={styles.title} variant="body">
           {title}
         </AppText>
-        {description ? (
-          <AppText numberOfLines={2} variant="secondary">
-            {description}
+        <View style={styles.sub}>
+          <AppText numberOfLines={1} style={styles.subText} variant="meta">
+            {label ?? host}
           </AppText>
-        ) : null}
-        {meta.length ? (
-          <View style={styles.meta}>
-            {meta.map((item) => {
-              const color = item.tone
-                ? palette.semantic[item.tone]
-                : palette.neutral[6]
-              return (
-                <View key={item.text} style={styles.metaItem}>
-                  {item.symbol ? (
-                    <SymbolView
-                      name={item.symbol as SymbolViewProps['name']}
-                      size={11}
-                      tintColor={color}
-                    />
-                  ) : null}
-                  {item.dot === undefined && !item.toneDot ? null : (
-                    <View
-                      style={[
-                        styles.dot,
-                        {
-                          backgroundColor: item.toneDot
-                            ? color
-                            : (item.dot ?? palette.neutral[5]),
-                        },
-                      ]}
-                    />
-                  )}
-                  <AppText color={color} style={styles.metaText} variant="meta">
-                    {item.text}
-                  </AppText>
-                </View>
-              )
-            })}
-          </View>
-        ) : null}
+          {meta.map((item) => {
+            const color = item.tone
+              ? palette.semantic[item.tone]
+              : palette.neutral[6]
+            return (
+              <View key={item.text} style={styles.metaItem}>
+                {item.symbol ? (
+                  <SymbolView
+                    name={item.symbol as SymbolViewProps['name']}
+                    size={10}
+                    tintColor={color}
+                  />
+                ) : null}
+                {item.dot === undefined || item.toneDot ? null : (
+                  <View
+                    style={[
+                      styles.dot,
+                      { backgroundColor: item.dot ?? palette.neutral[5] },
+                    ]}
+                  />
+                )}
+                <AppText color={color} style={styles.metaText} variant="meta">
+                  {item.text}
+                </AppText>
+              </View>
+            )
+          })}
+        </View>
       </View>
-      {leading ? null : media}
+      <SymbolView
+        name={internal ? 'chevron.right' : 'arrow.up.right'}
+        size={13}
+        tintColor={palette.neutral[5]}
+      />
     </NativePressable>
   )
 }
@@ -128,47 +130,42 @@ export function IndexCard({
 const styles = StyleSheet.create({
   card: {
     marginVertical: 12,
-    padding: 14,
-    gap: 14,
+    height: 64,
+    paddingLeft: 10,
+    paddingRight: 14,
+    gap: 12,
     flexDirection: 'row',
+    alignItems: 'center',
     borderRadius: 12,
     borderCurve: 'continuous',
-    borderWidth: StyleSheet.hairlineWidth,
   },
-  copy: { flex: 1, minWidth: 0, gap: 4 },
-  source: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  sourceText: { flexShrink: 1 },
-  title: { fontWeight: '600', fontSize: 15, lineHeight: 22 },
-  workTitle: { fontSize: 17, lineHeight: 24 },
-  meta: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    columnGap: 12,
-    rowGap: 4,
-    marginTop: 4,
-  },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  metaText: { fontVariant: ['tabular-nums'] },
-  dot: { width: 7, height: 7, borderRadius: 3.5 },
-  thumb: {
-    width: 48,
-    height: 48,
+  media: {
+    width: 44,
+    height: 44,
     borderRadius: 8,
     borderCurve: 'continuous',
   },
-  avatar: { width: 44, height: 44, borderRadius: 22 },
-  cover: { boxShadow: '0 1px 2px rgba(20,19,18,0.12)' },
-  poster: {
-    width: 56,
-    height: 84,
-    borderRadius: 4,
-    borderCurve: 'continuous',
+  thumb: {},
+  square: { borderRadius: 6 },
+  avatar: { borderRadius: 22 },
+  poster: { width: 38, height: 56, borderRadius: 4 },
+  tile: { alignItems: 'center', justifyContent: 'center' },
+  monogram: { fontSize: 22, lineHeight: 28 },
+  copy: { flex: 1, minWidth: 0, gap: 2 },
+  title: { fontWeight: '500', fontSize: 15, lineHeight: 21 },
+  sub: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    overflow: 'hidden',
   },
-  square: {
-    width: 56,
-    height: 56,
-    borderRadius: 4,
-    borderCurve: 'continuous',
+  subText: { flexShrink: 1 },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    flexShrink: 0,
   },
+  metaText: { fontVariant: ['tabular-nums'] },
+  dot: { width: 6, height: 6, borderRadius: 3 },
 })

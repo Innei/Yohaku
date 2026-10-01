@@ -24,6 +24,7 @@ export interface LinkCardModel {
   host: string
   image?: string
   imageShape: LinkCardImageShape
+  internal: boolean
   label: string | null
   meta: LinkCardMeta[]
   symbol: string
@@ -53,6 +54,11 @@ const KIND_LABELS: Record<string, string> = {
 
 const KIND_SYMBOLS: Record<string, string> = {
   github: 'chevron.left.forwardslash.chevron.right',
+  pr: 'arrow.triangle.pull',
+  'pull-request': 'arrow.triangle.pull',
+  issue: 'smallcircle.filled.circle',
+  discussion: 'bubble.left.and.bubble.right',
+  commit: 'point.topleft.down.to.point.bottomright.curvepath',
   movie: 'film',
   tv: 'tv',
   book: 'book.closed',
@@ -67,6 +73,13 @@ const KIND_SYMBOLS: Record<string, string> = {
 const POSTER_KINDS = new Set(['movie', 'tv', 'book'])
 const SQUARE_KINDS = new Set(['album', 'song', 'music'])
 const AVATAR_KINDS = new Set(['user', 'self'])
+const SYMBOL_TILE_KINDS = new Set([
+  'pr',
+  'pull-request',
+  'issue',
+  'discussion',
+  'commit',
+])
 
 const STATE_TONES: Record<string, MetaTone> = {
   open: 'success',
@@ -150,6 +163,7 @@ export function linkCardModel(
       host,
       image: fallback.image || undefined,
       imageShape: 'thumb',
+      internal: false,
       label: null,
       meta: [],
       symbol: 'globe',
@@ -174,11 +188,13 @@ export function linkCardModel(
   return {
     description: entry.description || fallback.description || undefined,
     host,
-    image:
-      entry.thumbnailImage?.url ??
-      entry.previewImage?.url ??
-      (fallback.image || undefined),
+    image: SYMBOL_TILE_KINDS.has(kind)
+      ? undefined
+      : (entry.thumbnailImage?.url ??
+        entry.previewImage?.url ??
+        (fallback.image || undefined)),
     imageShape,
+    internal: category === 'self',
     label,
     meta: metaOf(entry),
     symbol: KIND_SYMBOLS[kind] ?? KIND_SYMBOLS[category] ?? 'globe',

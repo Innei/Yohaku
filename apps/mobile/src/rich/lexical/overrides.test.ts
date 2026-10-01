@@ -28,6 +28,35 @@ describe('inline entity runs', () => {
   })
 })
 
+describe('paragraph holding only a link', () => {
+  const render = (type: 'autolink' | 'link', url: string, text: string) => {
+    const linkNode = { type, url, children: [{ type: 'text', text }] }
+    const linkElement = nativeBuiltinOverrides[type]!(linkNode, 'l', [
+      createElement(RunMarker, { key: 't', run: { text } }),
+    ], () => null)
+    return nativeBuiltinOverrides.paragraph!(
+      { children: [{ type }] },
+      'p',
+      [linkElement],
+      () => null,
+    ) as React.ReactElement<{ node?: unknown }>
+  }
+
+  it('becomes a link card when the text is the bare url', () => {
+    const element = render('link', 'https://a.dev', 'https://a.dev')
+    expect(element.type).toBe(ViewBlockMarker)
+    expect(element.props.node).toEqual({ type: 'link-card', url: 'https://a.dev' })
+    expect(render('autolink', 'https://b.dev', 'https://b.dev').props.node).toEqual({
+      type: 'link-card',
+      url: 'https://b.dev',
+    })
+  })
+
+  it('stays text when the link has its own label', () => {
+    expect(render('link', 'https://a.dev', '这里').type).toBe(TextBlockMarker)
+  })
+})
+
 describe('paragraph with a block image inside', () => {
   it('splits the text at the image so reading order holds', () => {
     const element = nativeBuiltinOverrides.paragraph!({}, 'p', [

@@ -80,9 +80,12 @@ describe('linkCardModel', () => {
           { key: 'comments', value: 4, label: 'Comments' },
           { key: 'state', value: 'closed', label: 'State' },
         ],
+        thumbnailImage: { url: 'https://avatars.example/author.png' },
       },
       {},
     )
+    expect(model.image).toBeUndefined()
+    expect(model.symbol).toBe('smallcircle.filled.circle')
     expect(model.meta).toEqual([
       { text: '已关闭', tone: 'error', toneDot: true },
       { symbol: 'bubble.left', text: '4' },
