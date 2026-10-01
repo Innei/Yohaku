@@ -7,11 +7,9 @@ extension NSAttributedString.Key {
   static let richQuote = NSAttributedString.Key("YohakuRichQuote")
   static let richRule = NSAttributedString.Key("YohakuRichRule")
   static let richMark = NSAttributedString.Key("YohakuRichMark")
-  static let richMarkCount = NSAttributedString.Key("YohakuRichMarkCount")
   static let richRuby = NSAttributedString.Key("YohakuRichRuby")
   static let richCode = NSAttributedString.Key("YohakuRichCode")
   static let richHighlight = NSAttributedString.Key("YohakuRichHighlight")
-  static let richActive = NSAttributedString.Key("YohakuRichActive")
   static let richSpoilerMask = NSAttributedString.Key("YohakuRichSpoilerMask")
 }
 
@@ -29,6 +27,59 @@ enum RichRuby {
   }
 }
 
+enum RichMarkStyle {
+  static let dotted = "dotted"
+  static let solid = "solid"
+}
+
+struct RichTabMark {
+  let range: NSRange
+  let count: Int
+  let active: Bool
+}
+
+final class RichTabRail: UIView {
+  struct Tab {
+    var y: CGFloat
+    var count: Int
+    var active: Bool
+  }
+
+  static let width: CGFloat = 36
+  var tabs: [Tab] = [] { didSet { setNeedsDisplay() } }
+  var color = UIColor.tintColor { didSet { setNeedsDisplay() } }
+  var inkColor = UIColor.systemBackground { didSet { setNeedsDisplay() } }
+
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    isOpaque = false
+    backgroundColor = .clear
+    isUserInteractionEnabled = false
+    contentMode = .redraw
+  }
+
+  required init?(coder: NSCoder) { nil }
+
+  override func draw(_ rect: CGRect) {
+    guard let context = UIGraphicsGetCurrentContext() else { return }
+    for tab in tabs {
+      let label = tab.count > 0 ? String(tab.count) : ""
+      let attributes: [NSAttributedString.Key: Any] = [.font: RichLayoutManager.markCountFont, .foregroundColor: inkColor]
+      let size = (label as NSString).size(withAttributes: attributes)
+      let width = max(15, ceil(size.width) + 8)
+      let frame = CGRect(x: bounds.maxX - width, y: tab.y - 8, width: width, height: 16)
+      context.saveGState()
+      if tab.active {
+        context.setShadow(offset: CGSize(width: 0, height: 2), blur: 6, color: UIColor.black.withAlphaComponent(0.2).cgColor)
+      }
+      (tab.active ? color : color.withAlphaComponent(0.6)).setFill()
+      UIBezierPath(roundedRect: frame, byRoundingCorners: [.topLeft, .bottomLeft], cornerRadii: CGSize(width: 3, height: 3)).fill()
+      context.restoreGState()
+      (label as NSString).draw(at: CGPoint(x: frame.minX + 4, y: frame.midY - size.height / 2), withAttributes: attributes)
+    }
+  }
+}
+
 struct RichInkSegment {
   let rect: CGRect
   let baseline: CGFloat
@@ -42,7 +93,6 @@ final class RichLayoutManager: NSLayoutManager {
   var rubyColor = UIColor.secondaryLabel
   var codeColor = UIColor.secondarySystemFill
   var highlightColor = UIColor.systemYellow.withAlphaComponent(0.35)
-  var activeColor = UIColor.systemYellow.withAlphaComponent(0.2)
   var spoilerColor = UIColor.label
   static let markCountFont = UIFont.monospacedDigitSystemFont(ofSize: 9, weight: .medium)
   static let codeGap: CGFloat = 5
@@ -54,7 +104,6 @@ final class RichLayoutManager: NSLayoutManager {
     rubyColor = typography.secondaryColor
     codeColor = typography.codeBackground
     highlightColor = typography.highlightColor
-    activeColor = typography.activeHighlightColor
     spoilerColor = typography.color
   }
 
@@ -149,14 +198,6 @@ final class RichLayoutManager: NSLayoutManager {
       }
     }
 
-    storage.enumerateAttribute(.richActive, in: characters) { value, range, _ in
-      guard value != nil else { return }
-      self.activeColor.setFill()
-      for ink in self.inkSegments(for: range, in: storage, at: origin) {
-        UIBezierPath(rect: ink.rect).fill()
-      }
-    }
-
     storage.enumerateAttribute(.richSpoilerMask, in: characters) { value, range, _ in
       guard value != nil else { return }
       for ink in self.inkSegments(for: range, in: storage, at: origin) {
@@ -181,25 +222,20 @@ final class RichLayoutManager: NSLayoutManager {
     }
 
     storage.enumerateAttribute(.richMark, in: characters) { value, range, _ in
-      guard let thickness = (value as? NSNumber).map({ CGFloat($0.doubleValue) }) else { return }
-      let glyphs = self.glyphRange(forCharacterRange: range, actualCharacterRange: nil)
-      context.setFillColor(self.markColor.cgColor)
-      self.enumerateLineFragments(forGlyphRange: glyphs) { rect, _, container, lineGlyphs, _ in
-        let segment = NSIntersectionRange(glyphs, lineGlyphs)
-        guard segment.length > 0 else { return }
-        let bounds = self.boundingRect(forGlyphRange: segment, in: container)
-        let lastCharacter = self.characterIndexForGlyph(at: NSMaxRange(segment) - 1)
-        let reserved = storage.attribute(.richMarkCount, at: lastCharacter, effectiveRange: nil) == nil
-          ? 0
-          : CGFloat((storage.attribute(.kern, at: lastCharacter, effectiveRange: nil) as? NSNumber)?.doubleValue ?? 0)
-        let font = storage.attribute(.font, at: range.location, effectiveRange: nil) as? UIFont
-        let baseline = rect.minY + self.location(forGlyphAt: segment.location).y
-        context.fill(CGRect(
-          x: origin.x + bounds.minX,
-          y: origin.y + baseline + round((font?.pointSize ?? 15) / 3),
-          width: bounds.width - reserved,
-          height: thickness
-        ))
+      guard let style = value as? String else { return }
+      let solid = style == RichMarkStyle.solid
+      context.setFillColor((solid ? self.markColor : self.markColor.withAlphaComponent(0.6)).cgColor)
+      for ink in self.inkSegments(for: range, in: storage, at: origin) {
+        let y = ink.baseline + round(ink.font.pointSize / 3)
+        if solid {
+          context.fill(CGRect(x: ink.rect.minX, y: y, width: ink.rect.width, height: 1.5))
+          continue
+        }
+        var x = ink.rect.minX
+        while x + 1.5 <= ink.rect.maxX {
+          context.fillEllipse(in: CGRect(x: x, y: y, width: 1.5, height: 1.5))
+          x += 3.5
+        }
       }
     }
   }
@@ -208,20 +244,6 @@ final class RichLayoutManager: NSLayoutManager {
     super.drawGlyphs(forGlyphRange: glyphsToShow, at: origin)
     guard let storage = textStorage, let context = UIGraphicsGetCurrentContext() else { return }
     let characters = characterRange(forGlyphRange: glyphsToShow, actualGlyphRange: nil)
-    storage.enumerateAttribute(.richMarkCount, in: characters) { value, range, _ in
-      guard let label = value as? String,
-            let container = self.textContainer(forGlyphAt: self.glyphIndexForCharacter(at: range.location), effectiveRange: nil)
-      else { return }
-      let glyph = self.glyphIndexForCharacter(at: range.location)
-      let box = self.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: container)
-      let kern = CGFloat((storage.attribute(.kern, at: range.location, effectiveRange: nil) as? NSNumber)?.doubleValue ?? 0)
-      let body = (storage.attribute(.font, at: range.location, effectiveRange: nil) as? UIFont)?.pointSize ?? 15
-      let baseline = self.lineFragmentRect(forGlyphAt: glyph, effectiveRange: nil).minY + self.location(forGlyphAt: glyph).y
-      (label as NSString).draw(
-        at: CGPoint(x: origin.x + box.maxX - kern + 1, y: origin.y + baseline - body * 0.8),
-        withAttributes: [.font: Self.markCountFont, .foregroundColor: self.markColor]
-      )
-    }
     storage.enumerateAttribute(.richRuby, in: characters) { value, range, _ in
       guard let reading = RichRuby.reading(of: value), !reading.isEmpty else { return }
       var full = NSRange()

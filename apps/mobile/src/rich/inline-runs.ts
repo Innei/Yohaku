@@ -40,7 +40,7 @@ export interface RichTextHighlight {
   count?: number
   end: number
   id: string
-  kind: 'active' | 'block' | 'block-active' | 'comment'
+  kind: 'active' | 'block' | 'block-active' | 'comment' | 'reading'
   start: number
 }
 

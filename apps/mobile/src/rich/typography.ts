@@ -93,7 +93,6 @@ export function richTypography(
     linkColor: palette.accent,
     accentColor: palette.accent,
     highlightColor: `${palette.accent}3d`,
-    activeHighlightColor: `${palette.accent}17`,
     codeBackground: palette.neutral[2],
   }
 }

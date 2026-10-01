@@ -26,6 +26,8 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
   private var menuItems: [[String: Any]] = []
   private var typography = RichTypography([:])
   private var blockRanges: [BlockRange] = []
+  private var tabMarks: [RichTabMark] = []
+  private let tabRail = RichTabRail()
   private var reportedHeight: CGFloat = -1
   private var layoutWidth: CGFloat = -1
 
@@ -54,6 +56,7 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
     textView.delegate = self
     textView.contentInsetAdjustmentBehavior = .never
     addSubview(textView)
+    addSubview(tabRail)
 
     let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap(_:)))
     tap.delegate = self
@@ -80,12 +83,17 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
     // Underlines belong to comment marks; links are told apart by color alone.
     textView.linkTextAttributes = [.foregroundColor: typography.linkColor]
     layoutManager.apply(typography)
+    tabRail.color = typography.accentColor
+    tabRail.inkColor = typography.paperColor
     rebuild()
   }
 
   override func layoutSubviews() {
     super.layoutSubviews()
     textView.frame = bounds
+    // Tabs hang off the screen edge, past the page gutter this view sits inside.
+    let edge = window.map { convert(CGPoint(x: $0.bounds.maxX, y: 0), from: $0).x } ?? bounds.maxX
+    tabRail.frame = CGRect(x: max(edge, bounds.maxX) - RichTabRail.width, y: 0, width: RichTabRail.width, height: bounds.height)
     if bounds.width != layoutWidth {
       layoutWidth = bounds.width
       reportHeight()
@@ -101,6 +109,7 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
       onContentHeight(["height": height])
     }
     reportBlockRects()
+    placeTabs()
   }
 
   private func reportBlockRects() {
@@ -115,6 +124,24 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
     onBlockRects(["rects": rects])
   }
 
+  override func didMoveToWindow() {
+    super.didMoveToWindow()
+    setNeedsLayout()
+  }
+
+  private func placeTabs() {
+    var tabs: [CGFloat: RichTabRail.Tab] = [:]
+    for mark in tabMarks {
+      guard let ink = layoutManager.inkSegments(for: mark.range, in: textView.textStorage, at: .zero).first else { continue }
+      let y = ink.rect.midY.rounded()
+      var tab = tabs[y] ?? RichTabRail.Tab(y: y, count: 0, active: false)
+      tab.count += mark.count
+      tab.active = tab.active || mark.active
+      tabs[y] = tab
+    }
+    tabRail.tabs = Array(tabs.values)
+  }
+
   private func rebuild() {
     let (result, ranges) = RichAttributedBuilder.build(
       blocks: blocks,
@@ -122,6 +149,7 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
       revealedSpoilers: textView.revealedSpoilers
     )
 
+    var marks: [RichTabMark] = []
     for highlight in highlights {
       guard let blockId = highlight["blockId"] as? String,
             let start = highlight["start"] as? Int,
@@ -132,24 +160,18 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
       let range = NSRange(location: block.range.location + clampedStart, length: clampedEnd - clampedStart)
       guard range.length > 0 else { continue }
       switch highlight["kind"] as? String ?? "comment" {
-      case "active":
-        result.addAttribute(.richActive, value: true, range: range)
-        result.addAttribute(.richMark, value: 2.0, range: range)
-      case "block-active":
-        result.addAttribute(.backgroundColor, value: typography.activeHighlightColor, range: range)
-      case "block":
+      case "reading":
         result.addAttribute(.backgroundColor, value: typography.accentColor.withAlphaComponent(0.05), range: range)
+      case "active":
+        result.addAttribute(.richMark, value: RichMarkStyle.solid, range: range)
+        marks.append(RichTabMark(range: range, count: 0, active: true))
+      case "block-active":
+        marks.append(RichTabMark(range: range, count: 0, active: true))
+      case "block":
+        marks.append(RichTabMark(range: range, count: 1, active: false))
       default:
-        result.addAttribute(.richMark, value: 1.5, range: range)
-        if let count = highlight["count"] as? Int, count > 0 {
-          // The count is painted, never inserted, so anchor offsets stay valid;
-          // kern on the last character reserves its width in the line.
-          let label = String(count)
-          let width = ceil((label as NSString).size(withAttributes: [.font: RichLayoutManager.markCountFont]).width) + 2
-          let last = NSRange(location: NSMaxRange(range) - 1, length: 1)
-          result.addAttribute(.kern, value: width, range: last)
-          result.addAttribute(.richMarkCount, value: label, range: last)
-        }
+        result.addAttribute(.richMark, value: RichMarkStyle.dotted, range: range)
+        marks.append(RichTabMark(range: range, count: highlight["count"] as? Int ?? 1, active: false))
       }
       if let id = highlight["id"] as? String {
         result.addAttribute(.richHighlightId, value: id, range: range)
@@ -157,6 +179,7 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
     }
 
     blockRanges = ranges
+    tabMarks = marks
     textView.attributedText = result
     reportedHeight = -1
     reportHeight()

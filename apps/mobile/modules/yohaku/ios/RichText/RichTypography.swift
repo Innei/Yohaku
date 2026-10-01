@@ -48,7 +48,6 @@ struct RichTypography {
   var linkColor = UIColor.link
   var accentColor = UIColor.tintColor
   var highlightColor = UIColor.systemYellow.withAlphaComponent(0.35)
-  var activeHighlightColor = UIColor.systemYellow.withAlphaComponent(0.7)
   var codeBackground = UIColor.secondarySystemFill
 
   init(_ dict: [String: Any]) {
@@ -87,9 +86,6 @@ struct RichTypography {
     if let v = dict["linkColor"] as? String, let c = UIColor(richHex: v) { linkColor = c }
     if let v = dict["accentColor"] as? String, let c = UIColor(richHex: v) { accentColor = c }
     if let v = dict["highlightColor"] as? String, let c = UIColor(richHex: v) { highlightColor = c }
-    if let v = dict["activeHighlightColor"] as? String, let c = UIColor(richHex: v) {
-      activeHighlightColor = c
-    }
     if let v = dict["codeBackground"] as? String, let c = UIColor(richHex: v) { codeBackground = c }
   }
 

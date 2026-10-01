@@ -138,7 +138,7 @@ export function buildHighlights({
   for (const comment of rangeComments) {
     pushRange(comment.id, comment.anchor, 'comment')
   }
-  if (highlightBlockId) pushBlock('tts', highlightBlockId, 'block')
+  if (highlightBlockId) pushBlock('tts', highlightBlockId, 'reading')
   if (activeAnchor) {
     if (isRangeAnchor(activeAnchor)) pushRange('active', activeAnchor, 'active')
     else pushBlock('active', activeAnchor.blockId, 'block-active')

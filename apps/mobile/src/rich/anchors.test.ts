@@ -105,7 +105,7 @@ describe('native anchors', () => {
         kind: 'comment',
         count: 1,
       },
-      { id: 'tts', blockId: 'p1', start: 0, end: 11, kind: 'block' },
+      { id: 'tts', blockId: 'p1', start: 0, end: 11, kind: 'reading' },
     ])
   })
 
