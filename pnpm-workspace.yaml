@@ -18,6 +18,33 @@ overrides:
   # expo lists this so autolinking ships ExpoFileSystem.framework; Yohaku
   # never calls FileSystem APIs. Drop the package so it cannot re-enter the IPA.
   expo-file-system: '-'
+  # Editor stack tracks a single lexical runtime copy; keep in lockstep with
+  # the @haklex/* peer floor (^0.52 as of @haklex 0.46.0).
+  lexical: 0.52.0
+  "@lexical/a11y": 0.52.0
+  "@lexical/clipboard": 0.52.0
+  "@lexical/code-core": 0.52.0
+  "@lexical/devtools-core": 0.52.0
+  "@lexical/dragon": 0.52.0
+  "@lexical/extension": 0.52.0
+  "@lexical/hashtag": 0.52.0
+  "@lexical/headless": 0.52.0
+  "@lexical/history": 0.52.0
+  "@lexical/html": 0.52.0
+  "@lexical/internal": 0.52.0
+  "@lexical/link": 0.52.0
+  "@lexical/list": 0.52.0
+  "@lexical/mark": 0.52.0
+  "@lexical/markdown": 0.52.0
+  "@lexical/overflow": 0.52.0
+  "@lexical/plain-text": 0.52.0
+  "@lexical/react": 0.52.0
+  "@lexical/rich-text": 0.52.0
+  "@lexical/selection": 0.52.0
+  "@lexical/table": 0.52.0
+  "@lexical/text": 0.52.0
+  "@lexical/utils": 0.52.0
+  "@lexical/yjs": 0.52.0
 
 patchedDependencies:
   expo-image@57.0.2: patches/expo-image@57.0.2.patch
