@@ -67,7 +67,6 @@ export function needsListBody(row: {
   hasPassword?: boolean | null
   modifiedAt: Date | string | null
 }) {
-  if (row.contentFormat === 'markdown') return false
   if (row.hasPassword) return false
   return bodyIsStale(row)
 }
@@ -85,7 +84,7 @@ export type ListBodyPatch =
   | {
       kind: 'body'
       bodyVersion: number | null
-      content: string
+      content: string | null
       contentFormat: string
       text: string
     }
@@ -93,7 +92,9 @@ export type ListBodyPatch =
 export function listBodyPatchFromLine(line: ArticleBodyLine): ListBodyPatch {
   if ('missing' in line || 'unchanged' in line) return { kind: 'skip' }
   if ('hasPassword' in line) return { kind: 'password' }
-  if (!isArticleBodyPayload(line) || !line.content) return { kind: 'skip' }
+  if (!isArticleBodyPayload(line)) return { kind: 'skip' }
+  const body = line.contentFormat === 'markdown' ? line.text : line.content
+  if (!body) return { kind: 'skip' }
   return {
     kind: 'body',
     bodyVersion: line.locked ? null : contentVersion(line),

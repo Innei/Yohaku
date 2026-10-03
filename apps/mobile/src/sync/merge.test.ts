@@ -200,7 +200,38 @@ describe('listBodyPatchFromLine', () => {
     })
   })
 
-  it('skips markdown and password notes for list ingest', () => {
+  it('persists a markdown body from its text when the line has no content', () => {
+    expect(
+      listBodyPatchFromLine({
+        id: 'p1',
+        kind: 'post',
+        content: null,
+        contentFormat: 'markdown',
+        createdAt: created,
+        modifiedAt: modified,
+        text: '# hello',
+      }),
+    ).toEqual({
+      kind: 'body',
+      bodyVersion: new Date(modified).getTime(),
+      content: null,
+      contentFormat: 'markdown',
+      text: '# hello',
+    })
+    expect(
+      listBodyPatchFromLine({
+        id: 'p1',
+        kind: 'post',
+        content: null,
+        contentFormat: 'markdown',
+        createdAt: created,
+        modifiedAt: modified,
+        text: '',
+      }),
+    ).toEqual({ kind: 'skip' })
+  })
+
+  it('ingests stale markdown rows and skips password notes', () => {
     expect(
       needsListBody({
         bodyVersion: null,
@@ -208,7 +239,7 @@ describe('listBodyPatchFromLine', () => {
         createdAt: created,
         modifiedAt: null,
       }),
-    ).toBe(false)
+    ).toBe(true)
     expect(
       needsListBody({
         bodyVersion: null,

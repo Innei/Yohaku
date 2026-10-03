@@ -11,6 +11,11 @@ import {
   useListBodyIngest,
 } from './use-list-body-ingest'
 
+const native = vi.hoisted(
+  (): { parseMarkdown?: () => string } => ({}),
+)
+
+vi.mock('@modules/yohaku', () => ({ YohakuNative: native }))
 vi.mock('./engine', () => ({
   ingestArticleBodies: vi.fn().mockResolvedValue(undefined),
 }))
@@ -90,7 +95,22 @@ describe('visible list body fetching', () => {
     )
   })
 
-  it('skips cached, protected and markdown bodies; clears pending work for an empty window', async () => {
+  it('ingests markdown bodies when the binary can render them', async () => {
+    native.parseMarkdown = () => '{}'
+    const items = candidates.map((item, index) => ({
+      ...item,
+      ...(index === 2 ? { contentFormat: 'markdown' } : {}),
+    }))
+    render([2], items)
+    await settle()
+    delete native.parseMarkdown
+    expect(vi.mocked(ingestArticleBodies).mock.calls[0][0]).toContainEqual({
+      id: 'post-2',
+      kind: 'post',
+    })
+  })
+
+  it('skips cached, protected and web-only markdown bodies; clears pending work for an empty window', async () => {
     const items = candidates.map((item, index) => ({
       ...item,
       ...(index === 0 ? { bodyVersion: Date.parse('2026-01-01') } : {}),

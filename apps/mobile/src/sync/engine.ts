@@ -22,6 +22,7 @@ import type { Locale } from '@/i18n/config'
 import { getLocale } from '@/i18n/locale-store'
 import { prefetchImages } from '@/lib/image-cache'
 import { getSiteUrl } from '@/lib/site-url'
+import { markdownOpensOnWeb } from '@/rich/markdown/support'
 import { noteListPageSize } from '@/screens/lists/note-timeline'
 import { postListPageSize } from '@/screens/lists/post-list'
 
@@ -481,13 +482,13 @@ async function prefetchBodies() {
     (row) =>
       bodyIsStale(row) &&
       Boolean(row.categorySlug) &&
-      row.contentFormat !== 'markdown',
+      !markdownOpensOnWeb(row.contentFormat),
   )
   const staleNotes = recentNotes.filter(
     (row) =>
       bodyIsStale(row) &&
       !row.hasPassword &&
-      row.contentFormat !== 'markdown',
+      !markdownOpensOnWeb(row.contentFormat),
   )
   await ingestArticleBodies(
     [
