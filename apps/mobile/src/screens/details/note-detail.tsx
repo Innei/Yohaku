@@ -24,6 +24,8 @@ import { extractHeadings } from '@/lib/lexical-headings'
 import { openExternalUrl } from '@/lib/open-external'
 import { siteHref } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
+import { markdownArticle } from '@/rich/markdown/parse'
+import { markdownOpensOnWeb } from '@/rich/markdown/support'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import {
   NOTE_LATEST_HERO_HEIGHT,
@@ -108,9 +110,9 @@ export function NoteDetailScreen({
   const coverPlaceholderUri = noteCoverPlaceholderUri(note?.coverThumbhash)
   const noteId = note?.id
   const bodyVersion = note?.bodyVersion
-  const isMarkdown = note?.contentFormat === 'markdown'
+  const webOnly = markdownOpensOnWeb(note?.contentFormat)
   const isLocked = Boolean(note?.hasPassword)
-  const openOnWeb = isLocked || isMarkdown
+  const openOnWeb = isLocked || webOnly
   const webUrl = siteHref(`/notes/${nid}`)
 
   useEffect(() => {
@@ -141,7 +143,7 @@ export function NoteDetailScreen({
     if (!updatesEnabled) return
     let cancelled = false
     const load = async () => {
-      if (note?.hasPassword || note?.contentFormat === 'markdown') return
+      if (note?.hasPassword || markdownOpensOnWeb(note?.contentFormat)) return
       if (note && !bodyIsStale(note)) {
         if (decorationIsStale(note)) void refreshNoteBody(note)
         return
@@ -184,7 +186,20 @@ export function NoteDetailScreen({
 
   const body =
     note?.contentFormat === 'lexical' && note.content ? note.content : null
-  const headings = useMemo(() => extractHeadings(body ?? ''), [body])
+  const markdownSource =
+    note?.contentFormat === 'markdown' &&
+    !note.hasPassword &&
+    note.bodyVersion !== null
+      ? note.text
+      : null
+  const markdown = useMemo(
+    () => (markdownSource ? markdownArticle(markdownSource) : null),
+    [markdownSource],
+  )
+  const headings = useMemo(
+    () => markdown?.headings ?? extractHeadings(body ?? ''),
+    [body, markdown],
+  )
 
   const { marks, onScrollMetrics, presenceSnapshot, readerCount } =
     useReadingPresence({
@@ -230,18 +245,19 @@ export function NoteDetailScreen({
       <ArticleMore
         listenAvailable={tts.available}
         listening={tts.isNarrating}
-        printAvailable={Boolean(body) && !isLocked}
+        printAvailable={Boolean(body || markdown) && !isLocked}
         title={note?.title}
         tocAvailable={headings.length > 0}
         url={webUrl}
         onListen={tts.start}
         onToc={openToc}
         onPrint={
-          note && body
+          note && (body || markdown)
             ? () =>
                 print({
                   category: tt('notes'),
-                  content: body,
+                  content: body ?? '',
+                  markdown,
                   createdAt: new Date(note.createdAt),
                   siteName: owner?.name || tp('site'),
                   title: note.title,
@@ -332,7 +348,7 @@ export function NoteDetailScreen({
                       {t('passwordHint')}
                     </AppText>
                   </View>
-                ) : isMarkdown ? (
+                ) : webOnly || (markdownSource && !markdown) ? (
                   <View style={{ minHeight: reservedBodyHeight }}>
                     <AppText
                       style={styles.placeholder}
@@ -342,12 +358,13 @@ export function NoteDetailScreen({
                       {tc('openInBrowser')}
                     </AppText>
                   </View>
-                ) : body ? (
+                ) : body || markdown ? (
                   <ArticleBody
                     autoFollow={tts.autoFollow}
-                    content={body}
+                    content={body ?? ''}
                     enrichments={note?.enrichments ?? null}
                     highlightBlockId={tts.activeBlockId}
+                    markdown={markdown}
                     queriesEnabled={updatesEnabled}
                     refId={note.id}
                     refType="note"

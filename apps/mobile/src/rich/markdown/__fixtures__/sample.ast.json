@@ -1,0 +1,290 @@
+{
+ "type": "document",
+ "children": [
+  {
+   "type": "heading",
+   "attributes": {
+    "level": "1"
+   },
+   "children": [
+    {
+     "type": "text",
+     "content": "Title"
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "children": [
+    {
+     "type": "text",
+     "content": "A "
+    },
+    {
+     "type": "strong",
+     "children": [
+      {
+       "type": "text",
+       "content": "bold"
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "content": " & "
+    },
+    {
+     "type": "code",
+     "children": [
+      {
+       "type": "text",
+       "content": "code"
+      }
+     ]
+    },
+    {
+     "type": "text",
+     "content": " {GH@Innei} line"
+    },
+    {
+     "type": "softBreak"
+    },
+    {
+     "type": "text",
+     "content": "中文"
+    },
+    {
+     "type": "softBreak"
+    },
+    {
+     "type": "text",
+     "content": "换行"
+    }
+   ]
+  },
+  {
+   "type": "blockquote",
+   "children": [
+    {
+     "type": "paragraph",
+     "children": [
+      {
+       "type": "text",
+       "content": "[!NOTE]"
+      },
+      {
+       "type": "softBreak"
+      },
+      {
+       "type": "text",
+       "content": "careful"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "orderedList",
+   "children": [
+    {
+     "type": "listItem",
+     "children": [
+      {
+       "type": "paragraph",
+       "children": [
+        {
+         "type": "text",
+         "content": "one"
+        }
+       ]
+      },
+      {
+       "type": "codeBlock",
+       "attributes": {
+        "fenceChar": "`",
+        "language": "sh"
+       },
+       "children": [
+        {
+         "type": "text",
+         "content": "npm i\n"
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "listItem",
+     "children": [
+      {
+       "type": "paragraph",
+       "children": [
+        {
+         "type": "text",
+         "content": "two"
+        }
+       ]
+      },
+      {
+       "type": "unorderedList",
+       "children": [
+        {
+         "type": "listItem",
+         "attributes": {
+          "taskChecked": "true",
+          "isTask": "true"
+         },
+         "children": [
+          {
+           "type": "paragraph",
+           "attributes": {
+            "tight": "true"
+           },
+           "children": [
+            {
+             "type": "text",
+             "content": "done"
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "table",
+   "attributes": {
+    "bodyRowCount": "1",
+    "headRowCount": "1",
+    "colCount": "2"
+   },
+   "children": [
+    {
+     "type": "tableHead",
+     "children": [
+      {
+       "type": "tableRow",
+       "children": [
+        {
+         "type": "tableHeaderCell",
+         "attributes": {
+          "align": "default"
+         },
+         "children": [
+          {
+           "type": "text",
+           "content": "a"
+          }
+         ]
+        },
+        {
+         "type": "tableHeaderCell",
+         "attributes": {
+          "align": "right"
+         },
+         "children": [
+          {
+           "type": "text",
+           "content": "b"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "tableBody",
+     "children": [
+      {
+       "type": "tableRow",
+       "children": [
+        {
+         "type": "tableCell",
+         "attributes": {
+          "align": "default"
+         },
+         "children": [
+          {
+           "type": "text",
+           "content": "1"
+          }
+         ]
+        },
+        {
+         "type": "tableCell",
+         "attributes": {
+          "align": "right"
+         },
+         "children": [
+          {
+           "type": "text",
+           "content": "2"
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "latexMathDisplay",
+   "children": [
+    {
+     "type": "text",
+     "content": " x^2 "
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "children": [
+    {
+     "type": "image",
+     "attributes": {
+      "title": "cap",
+      "url": "https://a/i.png"
+     },
+     "children": [
+      {
+       "type": "text",
+       "content": "alt"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "children": [
+    {
+     "type": "link",
+     "attributes": {
+      "url": "https://example.com/x"
+     },
+     "children": [
+      {
+       "type": "text",
+       "content": "https://example.com/x"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "paragraph",
+   "children": [
+    {
+     "type": "text",
+     "content": "<details>raw</details>"
+    }
+   ]
+  }
+ ]
+}

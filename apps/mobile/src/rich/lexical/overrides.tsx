@@ -7,6 +7,7 @@ import {
   cloneElement,
   Fragment,
   isValidElement,
+  type ReactElement,
   type ReactNode,
 } from 'react'
 
@@ -77,39 +78,49 @@ const inlineText =
 // Block decorators (excalidraw, images) can sit inside a paragraph; the text is
 // cut at each one so the image keeps its place in the reading order. The pieces
 // become `id~n` blocks, which anchors fold back into one paragraph.
+export function textBlockParts(
+  block: Omit<RichTextBlock, 'id' | 'runs'>,
+  children: ReactNode,
+): ReactElement[] {
+  const parts: ReactElement[] = []
+  let inline: ReactNode[] = []
+  const flush = (keepEmpty: boolean) => {
+    const runs = collectRuns(inline)
+    inline = []
+    if (!keepEmpty && !runs.some((run) => run.text.trim())) return
+    parts.push(
+      <TextBlockMarker block={{ ...block, runs }} key={`t${parts.length}`} />,
+    )
+  }
+  Children.forEach(children, (child) => {
+    if (isValidElement(child) && child.type === ViewBlockMarker) {
+      flush(false)
+      parts.push(child)
+    } else {
+      inline.push(child)
+    }
+  })
+  flush(parts.length === 0)
+  return parts
+}
+
+export function textBlockElement(
+  block: Omit<RichTextBlock, 'id' | 'runs'>,
+  key: string,
+  children: ReactNode,
+): ReactNode {
+  const parts = textBlockParts(block, children)
+  if (parts.length === 1) return cloneElement(parts[0]!, { key })
+  return <Fragment key={key}>{parts}</Fragment>
+}
+
 const textBlock =
   (
     role: RichTextBlock['role'],
     extra?: (node: any) => Partial<RichTextBlock>,
   ): BuiltinNodeRenderer =>
-  (node, key, children) => {
-    const parts: ReactNode[] = []
-    let inline: ReactNode[] = []
-    const flush = (keepEmpty: boolean) => {
-      const runs = collectRuns(inline)
-      inline = []
-      if (!keepEmpty && !runs.some((run) => run.text.trim())) return
-      parts.push(
-        <TextBlockMarker
-          block={{ role, runs, ...extra?.(node) }}
-          key={`t${parts.length}`}
-        />,
-      )
-    }
-    Children.forEach(children, (child) => {
-      if (isValidElement(child) && child.type === ViewBlockMarker) {
-        flush(false)
-        parts.push(child)
-      } else {
-        inline.push(child)
-      }
-    })
-    flush(parts.length === 0)
-    if (parts.length === 1 && isValidElement(parts[0])) {
-      return cloneElement(parts[0], { key })
-    }
-    return <Fragment key={key}>{parts}</Fragment>
-  }
+  (node, key, children) =>
+    textBlockElement({ role, ...extra?.(node) }, key, children)
 
 // rich-compose strips child node fields (only `type` survives), so the url and
 // label are read back from the rendered link runs.

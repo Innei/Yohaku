@@ -30,8 +30,11 @@ import {
   type NativeBlockMap,
   selectionMessageFromMenuAction,
 } from '@/rich/anchors'
+import type { RichDocumentHandlers } from '@/rich/lexical/context'
 import { FOOTNOTE_SCHEME } from '@/rich/lexical/footnotes'
 import { RichDocument } from '@/rich/lexical/rich-document'
+import type { MarkdownArticle } from '@/rich/markdown/article'
+import { MarkdownDocument } from '@/rich/markdown/markdown-document'
 import { usePalette } from '@/theme/palette'
 
 import { useReservedBodyHeight } from './body-slot'
@@ -58,6 +61,7 @@ export function ArticleBody({
   content,
   enrichments,
   highlightBlockId = null,
+  markdown = null,
   queriesEnabled = true,
   refId,
   refType,
@@ -69,6 +73,7 @@ export function ArticleBody({
   content: string
   enrichments?: Record<string, ApiEnrichment> | null
   highlightBlockId?: string | null
+  markdown?: MarkdownArticle | null
   queriesEnabled?: boolean
   refId: string
   refType: CommentRefType
@@ -100,14 +105,20 @@ export function ArticleBody({
     selectionSheet,
   } = useArticleSelection({
     onPresent: (blockId) => scrollToBlock(blockId, 0.12),
-    queriesEnabled,
+    queriesEnabled: queriesEnabled && !markdown,
     refId,
     refType,
   })
   const reservedHeight = useReservedBodyHeight(slotTop)
 
-  const value = useMemo(() => parseState(content), [content])
-  const blockInfos = useMemo(() => extractBlockInfos(content), [content])
+  const value = useMemo(
+    () => (markdown ? null : parseState(content)),
+    [content, markdown],
+  )
+  const blockInfos = useMemo(
+    () => (markdown ? [] : extractBlockInfos(content)),
+    [content, markdown],
+  )
   const activeAnchor = selectionSheet?.anchor ?? null
   const highlights = useMemo(
     () =>
@@ -221,6 +232,28 @@ export function ArticleBody({
     }
   }
 
+  const documentHandlers: RichDocumentHandlers = {
+    enrichments,
+    highlights,
+    variant,
+    webUrl,
+    onHighlightPress: handleHighlightPress,
+    onLinkPress: handleLinkPress,
+    onSelectionActive: handleSelectionActive,
+    onBlockLayout: (blockId, y, height) => {
+      blockRectsRef.current[blockId] = { y, height }
+    },
+    onSegments: (segments) => {
+      footnoteSectionRef.current =
+        segments.flatMap((segment) =>
+          segment.kind === 'view' && segment.node.type === 'footnote-section'
+            ? [segment.blockId]
+            : [],
+        )[0] ?? null
+      setBlockMap(indexNativeBlocks(segments))
+    },
+  }
+
   return (
     <View
       style={[styles.bodySlot, { minHeight: reservedHeight }]}
@@ -230,13 +263,12 @@ export function ArticleBody({
         setSlotTop(y)
       }}
     >
-      {value ? (
+      {markdown ? (
+        <MarkdownDocument article={markdown} {...documentHandlers} />
+      ) : value ? (
         <RichDocument
-          enrichments={enrichments}
-          highlights={highlights}
           value={value}
-          variant={variant}
-          webUrl={webUrl}
+          {...documentHandlers}
           menuItems={[
             {
               id: 'comment',
@@ -249,28 +281,12 @@ export function ArticleBody({
               icon: 'text.quote',
             },
           ]}
-          onHighlightPress={handleHighlightPress}
-          onLinkPress={handleLinkPress}
           onNestedDocExpand={setNestedDoc}
-          onSelectionActive={handleSelectionActive}
-          onBlockLayout={(blockId, y, height) => {
-            blockRectsRef.current[blockId] = { y, height }
-          }}
           onMenuAction={(event) =>
             handleSelectionMessage(
               selectionMessageFromMenuAction(event, blockInfos, blockMap),
             )
           }
-          onSegments={(segments) => {
-            footnoteSectionRef.current =
-              segments.flatMap((segment) =>
-                segment.kind === 'view' &&
-                segment.node.type === 'footnote-section'
-                  ? [segment.blockId]
-                  : [],
-              )[0] ?? null
-            setBlockMap(indexNativeBlocks(segments))
-          }}
         />
       ) : null}
       <Modal

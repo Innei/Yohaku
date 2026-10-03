@@ -57,6 +57,7 @@ interface YohakuNativeModule {
     url: string,
     scheme: string,
   ): Promise<{ type: 'cancel' } | { type: 'success'; url: string }>
+  parseMarkdown(markdown: string): string
   pauseTts(): Promise<void>
   playTts(): Promise<void>
   preloadTts(url: string): Promise<void>

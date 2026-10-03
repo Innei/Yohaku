@@ -12,6 +12,8 @@ import { emaSeries } from '@/rich/blocks/stock'
 import { emaPeriods, rangeOf } from '@/rich/blocks/stock-block'
 import { num, str } from '@/rich/blocks/types'
 import { footnoteNumbers } from '@/rich/lexical/footnotes'
+import type { RichSegment } from '@/rich/lexical/group'
+import type { MarkdownArticle } from '@/rich/markdown/article'
 import {
   type PrintContext,
   printItems,
@@ -33,6 +35,7 @@ export interface ArticlePrintJob {
   content: string
   createdAt: Date
   exportPdf?: boolean
+  markdown?: MarkdownArticle | null
   siteName: string
   title: string
   url: string
@@ -101,12 +104,19 @@ export function useArticlePrint() {
   const { probe, probes } = useSegmentProbe()
   const busyRef = useRef(false)
 
+  const lexicalSource = async (content: string) => {
+    const value = parseState(content)
+    return value
+      ? { footnotes: footnoteNumbers(value), segments: await probe(value) }
+      : null
+  }
+
   const print = async (job: ArticlePrintJob) => {
-    const value = parseState(job.content)
-    if (!value || busyRef.current) return ''
+    if (busyRef.current) return ''
     busyRef.current = true
     try {
-      return await runPrint(job, value)
+      const source = job.markdown ?? (await lexicalSource(job.content))
+      return source ? await runPrint(job, source) : ''
     } finally {
       busyRef.current = false
     }
@@ -114,13 +124,16 @@ export function useArticlePrint() {
 
   const runPrint = async (
     job: ArticlePrintJob,
-    value: NonNullable<ReturnType<typeof parseState>>,
+    source: {
+      footnotes: ReadonlyMap<string, number>
+      segments: RichSegment[]
+    },
   ) => {
-    const items = await printItems(await probe(value), {
+    const items = await printItems(source.segments, {
       fetchAlbum: printAlbum,
       fetchKline: printKline,
       fetchTrack: printTrack,
-      footnotes: footnoteNumbers(value),
+      footnotes: source.footnotes,
       locale,
       probe,
       renderMermaid: renderPrintMermaid,

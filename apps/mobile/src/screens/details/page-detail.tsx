@@ -15,6 +15,8 @@ import { extractHeadings } from '@/lib/lexical-headings'
 import { openExternalUrl } from '@/lib/open-external'
 import { siteHref } from '@/lib/site-url'
 import { useOwner } from '@/owner/store'
+import { markdownArticle } from '@/rich/markdown/parse'
+import { markdownOpensOnWeb } from '@/rich/markdown/support'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import { CommentSection } from '@/screens/comments/comment-section'
 import { usePalette } from '@/theme/palette'
@@ -48,14 +50,23 @@ export function PageDetailScreen({ slug }: { slug: string }) {
   const page = query.data?.data
   const enrichments = query.data?.enrichments ?? null
   const webUrl = siteHref(`/${slug}`)
-  const isMarkdown = page?.contentFormat === 'markdown'
+  const webOnly = markdownOpensOnWeb(page?.contentFormat)
   const body =
     page?.contentFormat === 'lexical' && page.content ? page.content : null
-  const headings = useMemo(() => extractHeadings(body ?? ''), [body])
+  const markdownSource =
+    page?.contentFormat === 'markdown' ? page.text : null
+  const markdown = useMemo(
+    () => (markdownSource ? markdownArticle(markdownSource) : null),
+    [markdownSource],
+  )
+  const headings = useMemo(
+    () => markdown?.headings ?? extractHeadings(body ?? ''),
+    [body, markdown],
+  )
 
   useEffect(() => {
-    if (isMarkdown) void openExternalUrl(webUrl)
-  }, [isMarkdown, webUrl])
+    if (webOnly) void openExternalUrl(webUrl)
+  }, [webOnly, webUrl])
 
   const { headerTitleProgress, headerOptions, onScroll, onTitleLayout } =
     useCollapsingTitle(page?.title, page?.subtitle ?? '')
@@ -85,16 +96,17 @@ export function PageDetailScreen({ slug }: { slug: string }) {
       {printHost}
       <Stack.Screen options={headerOptions} />
       <ArticleMore
-        printAvailable={Boolean(body)}
+        printAvailable={Boolean(body || markdown)}
         title={page?.title}
         tocAvailable={headings.length > 0}
         url={webUrl}
         onPrint={
-          page && body
+          page && (body || markdown)
             ? () =>
                 print({
                   category: tm('pages'),
-                  content: body,
+                  content: body ?? '',
+                  markdown,
                   createdAt: new Date(page.createdAt),
                   siteName: owner?.name || tp('site'),
                   title: page.title,
@@ -125,7 +137,7 @@ export function PageDetailScreen({ slug }: { slug: string }) {
                   ) : null}
                   <ArticleMetaLine parts={metaParts} />
                 </View>
-                {isMarkdown ? (
+                {webOnly || (markdownSource && !markdown) ? (
                   <View style={{ minHeight: reservedBodyHeight }}>
                     <AppText
                       style={styles.placeholder}
@@ -135,10 +147,11 @@ export function PageDetailScreen({ slug }: { slug: string }) {
                       {tc('openInBrowser')}
                     </AppText>
                   </View>
-                ) : body ? (
+                ) : body || markdown ? (
                   <ArticleBody
-                    content={body}
+                    content={body ?? ''}
                     enrichments={enrichments}
+                    markdown={markdown}
                     refId={page.id}
                     refType="page"
                     scrollRef={scrollRef}

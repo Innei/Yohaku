@@ -13,6 +13,7 @@ export function ImageBlock({ gallery, node }: BlockProps) {
   const src = str(node.src)
   const width = num(node.width)
   const height = num(node.height)
+  // ponytail: Markdown images carry no size, so they letterbox in a 4:3 frame; store the API's image meta if exact ratios matter.
   const ratio = width && height ? width / height : 4 / 3
   const caption = str(node.caption) || str(node.altText)
   const placeholder = noteCoverPlaceholderUri(str(node.thumbhash))
@@ -34,7 +35,7 @@ export function ImageBlock({ gallery, node }: BlockProps) {
         ) : null}
         <RemoteImage
           accessibilityLabel={caption}
-          contentFit="cover"
+          contentFit={width && height ? 'cover' : 'contain'}
           images={images}
           index={Math.max(0, images.indexOf(src))}
           siteReferer={getSiteUrl()}

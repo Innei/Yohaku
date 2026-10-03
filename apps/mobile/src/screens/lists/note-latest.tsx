@@ -5,6 +5,8 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native'
 import { AppText, NativePressable } from '@/components/ui'
 import type { NoteRow, TopicRow } from '@/db/schema'
 import { useTranslations } from '@/i18n'
+import { markdownArticle } from '@/rich/markdown/parse'
+import { markdownOpensOnWeb } from '@/rich/markdown/support'
 import { refreshNoteBody } from '@/sync/engine'
 import { bodyIsStale } from '@/sync/merge'
 import { usePalette } from '@/theme/palette'
@@ -12,7 +14,7 @@ import { useNativeSerifFontStyle } from '@/theme/serif-font'
 
 import { TopicChip } from '../topics/topic-chip'
 import { NotePreview } from './note-preview'
-import { parseNotePreview } from './note-preview-model'
+import { parseNotePreview, segmentsNotePreview } from './note-preview-model'
 import { noteShowsInlineBody } from './note-timeline'
 
 function deskFadeWash(hex: string) {
@@ -53,11 +55,24 @@ export function NoteLatest({
     previewMinHeight,
     Math.round(windowHeight * previewViewportRatio),
   )
-  const inline = noteShowsInlineBody(note)
+  const markdownSource =
+    note.contentFormat === 'markdown' &&
+    !note.hasPassword &&
+    note.bodyVersion !== null
+      ? note.text
+      : null
+  const markdown = useMemo(
+    () => (markdownSource ? markdownArticle(markdownSource) : null),
+    [markdownSource],
+  )
+  const inline = noteShowsInlineBody(note) || Boolean(markdown)
   const noteId = note.id
   const preview = useMemo(
-    () => parseNotePreview(note.content ?? ''),
-    [note.content],
+    () =>
+      markdown
+        ? segmentsNotePreview(markdown.segments)
+        : parseNotePreview(note.content ?? ''),
+    [markdown, note.content],
   )
   const contentHeight = measured.id === noteId ? measured.height : 0
   const visuallyClipped = contentHeight >= cap
@@ -68,7 +83,7 @@ export function NoteLatest({
   useEffect(() => {
     let cancelled = false
     const load = async () => {
-      if (note.hasPassword || note.contentFormat === 'markdown') return
+      if (note.hasPassword || markdownOpensOnWeb(note.contentFormat)) return
       if (!bodyIsStale(note)) return
       try {
         await refreshNoteBody(note)
@@ -130,7 +145,8 @@ export function NoteLatest({
             <AppText style={styles.fallback} variant="secondary">
               {td('passwordHint')}
             </AppText>
-          ) : note.contentFormat === 'markdown' ? (
+          ) : markdownOpensOnWeb(note.contentFormat) ||
+            (markdownSource && !markdown) ? (
             <AppText style={styles.fallback} variant="secondary">
               {tc('openInBrowser')}
             </AppText>

@@ -194,7 +194,9 @@ async function viewItems(
     }
     case 'alert-quote':
     case 'banner': {
-      return nestedItems(node.content, ctx)
+      return node.content
+        ? nestedItems(node.content, ctx)
+        : printItems(groupSegments(segment.children, `${blockId}.`), ctx)
     }
     case 'nested-doc': {
       const title = str(node.title)

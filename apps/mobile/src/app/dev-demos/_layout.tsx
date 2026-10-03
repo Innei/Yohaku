@@ -9,6 +9,10 @@ export default function DevDemosLayout() {
     <Stack screenOptions={getStackScreenOptions(palette.surface.desk)}>
       <Stack.Screen name="index" options={{ headerBackVisible: false }} />
       <Stack.Screen name="markdown" options={{ headerBackVisible: true }} />
+      <Stack.Screen
+        name="markdown-article"
+        options={{ headerBackVisible: true }}
+      />
       <Stack.Screen name="print" options={{ headerBackVisible: true }} />
       <Stack.Screen name="rich-text" options={{ headerBackVisible: true }} />
       <Stack.Screen

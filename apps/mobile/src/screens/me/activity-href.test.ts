@@ -1,8 +1,17 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import type { NoteRow, PostRow, ThinkingRow } from '@/db/schema'
 
 import { commentHref, likedHref, readingHref } from './activity-href'
+
+const native = vi.hoisted(
+  (): { parseMarkdown?: () => string } => ({}),
+)
+vi.mock('@modules/yohaku', () => ({ YohakuNative: native }))
+
+afterEach(() => {
+  delete native.parseMarkdown
+})
 
 const createdAt = new Date('2026-07-01T00:00:00.000Z')
 
@@ -92,7 +101,7 @@ describe('likedHref', () => {
     })
   })
 
-  it('opens markdown posts in the browser', () => {
+  it('opens markdown posts in the browser when the binary cannot parse them', () => {
     expect(
       likedHref({
         kind: 'post',
@@ -100,6 +109,17 @@ describe('likedHref', () => {
         post: post({ contentFormat: 'markdown' }),
       })?.browser,
     ).toBe(true)
+  })
+
+  it('opens markdown posts in the app when the binary can parse them', () => {
+    native.parseMarkdown = () => '{}'
+    expect(
+      likedHref({
+        kind: 'post',
+        likedAt: createdAt,
+        post: post({ contentFormat: 'markdown' }),
+      })?.browser,
+    ).toBe(false)
   })
 
   it('returns null when a post has no category', () => {

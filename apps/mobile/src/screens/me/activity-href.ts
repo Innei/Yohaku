@@ -2,6 +2,7 @@ import type { Href } from 'expo-router'
 
 import type { NoteRow, PostRow } from '@/db/schema'
 import { siteHref } from '@/lib/site-url'
+import { markdownOpensOnWeb } from '@/rich/markdown/support'
 
 import type { LikedListItem } from './liked-list-model'
 import type { MyCommentDestination } from './my-comments-destination'
@@ -17,7 +18,7 @@ export type ActivityHref = {
 function postHref(row: PostRow): ActivityHref | null {
   if (!row.categorySlug) return null
   return {
-    browser: row.contentFormat === 'markdown',
+    browser: markdownOpensOnWeb(row.contentFormat),
     href: {
       pathname: '/posts/[category]/[slug]',
       params: {
@@ -33,7 +34,7 @@ function postHref(row: PostRow): ActivityHref | null {
 
 function noteHref(row: NoteRow): ActivityHref {
   return {
-    browser: Boolean(row.hasPassword || row.contentFormat === 'markdown'),
+    browser: Boolean(row.hasPassword || markdownOpensOnWeb(row.contentFormat)),
     href: { pathname: '/notes/[nid]', params: { nid: String(row.nid) } },
     title: row.title,
     webUrl: siteHref(`/notes/${row.nid}`),

@@ -38,7 +38,7 @@ overrides:
 patchedDependencies:
   expo-image@57.0.2: 8739abd05ab425830d00487dac11600c8b7d37b8c96cb41ab0debc54a235b194
   expo-router@57.0.24: 1d3030293745490d213a8e4f3d1f46b706373b34270b0a221966e38bf6a302e7
-  react-native-enriched-markdown@1.0.2: 6fe44c98a1d2bd9b1c95fb01204e2f817ffe190d635e191f6163b0aa5a0e8536
+  react-native-enriched-markdown@1.0.2: d3db73a1d0df6c2e88a6391395823c2e19378f2d96fd05f56bfc7f63cae204cf
   react-native-screens@4.26.2: 6c8045b4274d914df3de68d5a2669ca9c53bbe828a5ce3b8fb6adf93c478bc1a
 
 importers:
@@ -202,7 +202,7 @@ importers:
         version: 0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.3.0)(react@19.2.3)
       react-native-enriched-markdown:
         specifier: ^1.0.2
-        version: 1.0.2(patch_hash=6fe44c98a1d2bd9b1c95fb01204e2f817ffe190d635e191f6163b0aa5a0e8536)(katex@0.18.9)(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.3.0)(react@19.2.3))(react@19.2.3)
+        version: 1.0.2(patch_hash=d3db73a1d0df6c2e88a6391395823c2e19378f2d96fd05f56bfc7f63cae204cf)(katex@0.18.9)(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.3.0)(react@19.2.3))(react@19.2.3)
       react-native-gesture-handler:
         specifier: ~2.32.0
         version: 2.32.0(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.3.0)(react@19.2.3))(react@19.2.3)
@@ -15141,7 +15141,7 @@ snapshots:
       react-native-reanimated: 4.5.3(react-native-worklets@0.10.1(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.3.0)(react@19.2.3))(react@19.2.3))(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.3.0)(react@19.2.3))(react@19.2.3)
       use-latest-callback: 0.2.6(react@19.2.3)
 
-  react-native-enriched-markdown@1.0.2(patch_hash=6fe44c98a1d2bd9b1c95fb01204e2f817ffe190d635e191f6163b0aa5a0e8536)(katex@0.18.9)(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.3.0)(react@19.2.3))(react@19.2.3):
+  react-native-enriched-markdown@1.0.2(patch_hash=d3db73a1d0df6c2e88a6391395823c2e19378f2d96fd05f56bfc7f63cae204cf)(katex@0.18.9)(react-native@0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.3.0)(react@19.2.3))(react@19.2.3):
     dependencies:
       react: 19.2.3
       react-native: 0.86.3(@babel/core@7.29.7)(@react-native/metro-config@0.86.3(@babel/core@7.29.7))(@types/react@19.3.0)(react@19.2.3)

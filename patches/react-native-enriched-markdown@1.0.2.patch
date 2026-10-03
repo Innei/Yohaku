@@ -163,3 +163,213 @@ diff --git a/ios/views/TableContainerView.m b/ios/views/TableContainerView.m
          [rowCells addObject:cell];
        }
        colCount = MAX(colCount, rowCells.count);
+diff --git a/cpp/parser/MD4CParser.cpp b/cpp/parser/MD4CParser.cpp
+index 4653212..36d1127 100644
+--- a/cpp/parser/MD4CParser.cpp
++++ b/cpp/parser/MD4CParser.cpp
+@@ -1,10 +1,56 @@
+ #include "MD4CParser.hpp"
+ #include "../md4c/md4c.h"
++#include <cstdlib>
+ #include <cstring>
+ #include <vector>
+ 
+ namespace Markdown {
+ 
++namespace {
++
++void appendUtf8(std::string &out, unsigned long codePoint) {
++  if (codePoint < 0x80) {
++    out += static_cast<char>(codePoint);
++  } else if (codePoint < 0x800) {
++    out += static_cast<char>(0xC0 | (codePoint >> 6));
++    out += static_cast<char>(0x80 | (codePoint & 0x3F));
++  } else if (codePoint < 0x10000) {
++    out += static_cast<char>(0xE0 | (codePoint >> 12));
++    out += static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F));
++    out += static_cast<char>(0x80 | (codePoint & 0x3F));
++  } else {
++    out += static_cast<char>(0xF0 | (codePoint >> 18));
++    out += static_cast<char>(0x80 | ((codePoint >> 12) & 0x3F));
++    out += static_cast<char>(0x80 | ((codePoint >> 6) & 0x3F));
++    out += static_cast<char>(0x80 | (codePoint & 0x3F));
++  }
++}
++
++void appendEntity(std::string &out, const char *text, size_t size) {
++  std::string entity(text, size);
++  if (size > 3 && entity[1] == '#') {
++    bool hex = entity[2] == 'x' || entity[2] == 'X';
++    char *end = nullptr;
++    unsigned long codePoint = std::strtoul(entity.c_str() + (hex ? 3 : 2), &end, hex ? 16 : 10);
++    if (end && *end == ';' && codePoint > 0 && codePoint <= 0x10FFFF) {
++      appendUtf8(out, codePoint);
++      return;
++    }
++  }
++  static const char *const named[][2] = {
++      {"&amp;", "&"}, {"&lt;", "<"}, {"&gt;", ">"}, {"&quot;", "\""}, {"&apos;", "'"}, {"&nbsp;", "\xC2\xA0"},
++  };
++  for (const auto &pair : named) {
++    if (entity == pair[0]) {
++      out += pair[1];
++      return;
++    }
++  }
++  out += entity;
++}
++
++} // namespace
++
+ class MD4CParser::Impl {
+ public:
+   std::shared_ptr<MarkdownASTNode> root;
+@@ -364,6 +410,11 @@ public:
+       return 0;
+     }
+ 
++    if (type == MD_TEXT_ENTITY) {
++      appendEntity(impl->currentText, text, size);
++      return 0;
++    }
++
+     // Handle text content (normal text, code text, LaTeX math, etc.)
+     if (type == MD_TEXT_NORMAL || type == MD_TEXT_CODE || type == MD_TEXT_LATEXMATH) {
+       impl->currentText.append(text, size);
+diff --git a/ios/parser/ENRMMarkdownASTExport.h b/ios/parser/ENRMMarkdownASTExport.h
+new file mode 100644
+index 0000000..ab197b7
+--- /dev/null
++++ b/ios/parser/ENRMMarkdownASTExport.h
+@@ -0,0 +1,7 @@
++#import <Foundation/Foundation.h>
++
++@interface ENRMMarkdownASTExport : NSObject
++
+++ (NSString *)jsonForMarkdown:(NSString *)markdown;
++
++@end
+diff --git a/ios/parser/ENRMMarkdownASTExport.mm b/ios/parser/ENRMMarkdownASTExport.mm
+new file mode 100644
+index 0000000..156cd7c
+--- /dev/null
++++ b/ios/parser/ENRMMarkdownASTExport.mm
+@@ -0,0 +1,118 @@
++#import "ENRMMarkdownASTExport.h"
++#include "MD4CParser.hpp"
++#include "MarkdownASTNode.hpp"
++
++static NSString *ENRMNodeTypeName(Markdown::NodeType type)
++{
++  switch (type) {
++    case Markdown::NodeType::Document:
++      return @"document";
++    case Markdown::NodeType::Paragraph:
++      return @"paragraph";
++    case Markdown::NodeType::Text:
++      return @"text";
++    case Markdown::NodeType::Link:
++      return @"link";
++    case Markdown::NodeType::Heading:
++      return @"heading";
++    case Markdown::NodeType::LineBreak:
++      return @"lineBreak";
++    case Markdown::NodeType::Strong:
++      return @"strong";
++    case Markdown::NodeType::Emphasis:
++      return @"emphasis";
++    case Markdown::NodeType::Strikethrough:
++      return @"strikethrough";
++    case Markdown::NodeType::Underline:
++      return @"underline";
++    case Markdown::NodeType::Code:
++      return @"code";
++    case Markdown::NodeType::Image:
++      return @"image";
++    case Markdown::NodeType::Blockquote:
++      return @"blockquote";
++    case Markdown::NodeType::UnorderedList:
++      return @"unorderedList";
++    case Markdown::NodeType::OrderedList:
++      return @"orderedList";
++    case Markdown::NodeType::ListItem:
++      return @"listItem";
++    case Markdown::NodeType::CodeBlock:
++      return @"codeBlock";
++    case Markdown::NodeType::ThematicBreak:
++      return @"thematicBreak";
++    case Markdown::NodeType::Table:
++      return @"table";
++    case Markdown::NodeType::TableHead:
++      return @"tableHead";
++    case Markdown::NodeType::TableBody:
++      return @"tableBody";
++    case Markdown::NodeType::TableRow:
++      return @"tableRow";
++    case Markdown::NodeType::TableHeaderCell:
++      return @"tableHeaderCell";
++    case Markdown::NodeType::TableCell:
++      return @"tableCell";
++    case Markdown::NodeType::LatexMathInline:
++      return @"latexMathInline";
++    case Markdown::NodeType::LatexMathDisplay:
++      return @"latexMathDisplay";
++    case Markdown::NodeType::Spoiler:
++      return @"spoiler";
++    case Markdown::NodeType::Superscript:
++      return @"superscript";
++    case Markdown::NodeType::Subscript:
++      return @"subscript";
++    case Markdown::NodeType::Highlight:
++      return @"highlight";
++    case Markdown::NodeType::SoftBreak:
++      return @"softBreak";
++  }
++  return @"text";
++}
++
++static NSString *ENRMString(const std::string &value)
++{
++  return [NSString stringWithUTF8String:value.c_str()] ?: @"";
++}
++
++static NSDictionary *ENRMExportNode(const Markdown::MarkdownASTNode &node)
++{
++  NSMutableDictionary *out = [NSMutableDictionary dictionaryWithObject:ENRMNodeTypeName(node.type) forKey:@"type"];
++  if (!node.content.empty()) {
++    out[@"content"] = ENRMString(node.content);
++  }
++  if (!node.attributes.empty()) {
++    NSMutableDictionary *attributes = [NSMutableDictionary dictionaryWithCapacity:node.attributes.size()];
++    for (const auto &entry : node.attributes) {
++      attributes[ENRMString(entry.first)] = ENRMString(entry.second);
++    }
++    out[@"attributes"] = attributes;
++  }
++  if (!node.children.empty()) {
++    NSMutableArray *children = [NSMutableArray arrayWithCapacity:node.children.size()];
++    for (const auto &child : node.children) {
++      if (child) {
++        [children addObject:ENRMExportNode(*child)];
++      }
++    }
++    out[@"children"] = children;
++  }
++  return out;
++}
++
++@implementation ENRMMarkdownASTExport
++
+++ (NSString *)jsonForMarkdown:(NSString *)markdown
++{
++  const char *utf8 = markdown.UTF8String;
++  Markdown::Md4cFlags flags;
++  flags.highlight = true;
++  Markdown::MD4CParser parser;
++  auto root = parser.parse(utf8 ? std::string(utf8) : std::string(), flags);
++  NSData *data = root ? [NSJSONSerialization dataWithJSONObject:ENRMExportNode(*root) options:0 error:nil] : nil;
++  NSString *json = data ? [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding] : nil;
++  return json ?: @"{\"type\":\"document\"}";
++}
++
++@end

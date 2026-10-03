@@ -66,7 +66,7 @@ function TextSegment({ blocks }: { blocks: RichTextBlock[] }) {
   )
 }
 
-function SegmentList({ segments }: { segments: RichSegment[] }) {
+export function SegmentList({ segments }: { segments: RichSegment[] }) {
   const doc = useRichDocument()
   const gallery = segments.flatMap((segment) =>
     segment.kind === 'view' &&
@@ -124,17 +124,11 @@ function SegmentHost({ children }: { children?: ReactNode }) {
   return <SegmentList segments={segments} />
 }
 
-export function RichDocument({
-  footnotes: inheritedFootnotes,
-  nested,
-  value,
-  ...handlers
-}: RichDocumentProps) {
-  const ownFootnotes = useMemo(
-    () => (inheritedFootnotes ? null : footnoteNumbers(value)),
-    [inheritedFootnotes, value],
-  )
-  const footnotes = inheritedFootnotes ?? ownFootnotes ?? undefined
+export function documentContext(
+  handlers: RichDocumentHandlers,
+  footnotes: ReadonlyMap<string, number> | undefined,
+  nested: boolean | undefined,
+): RichDocumentContextValue {
   const context: RichDocumentContextValue = {
     ...handlers,
     bleed: nested ? 0 : PAGE_GUTTER,
@@ -154,9 +148,23 @@ export function RichDocument({
       </RichDocumentContext>
     ),
   }
+  return context
+}
+
+export function RichDocument({
+  footnotes: inheritedFootnotes,
+  nested,
+  value,
+  ...handlers
+}: RichDocumentProps) {
+  const ownFootnotes = useMemo(
+    () => (inheritedFootnotes ? null : footnoteNumbers(value)),
+    [inheritedFootnotes, value],
+  )
+  const footnotes = inheritedFootnotes ?? ownFootnotes ?? undefined
 
   return (
-    <RichDocumentContext value={context}>
+    <RichDocumentContext value={documentContext(handlers, footnotes, nested)}>
       <RichRenderer
         as={SegmentHost}
         blockAnchor={nativeBlockAnchor}

@@ -1,3 +1,6 @@
+import type { InlineRun } from '@/rich/inline-runs'
+import type { RichSegment } from '@/rich/lexical/group'
+
 const PREVIEW_MIN_NODES = 4
 const PREVIEW_MAX_NODES = 8
 const PREVIEW_MIN_TEXT_LENGTH = 220
@@ -181,5 +184,52 @@ export function parseNotePreview(content: string): NotePreviewResult {
     .filter((node): node is LexNode => node !== null)
     .map(walkBlock)
     .filter((block): block is PreviewBlock => block !== null)
+  return takePreview(blocks)
+}
+
+function runInline(run: InlineRun): PreviewInline {
+  if (run.lineBreak) return { break: true }
+  return {
+    text: run.text,
+    ...(run.bold ? { bold: true as const } : null),
+    ...(run.code ? { code: true as const } : null),
+    ...(run.href ? { href: run.href } : null),
+    ...(run.italic ? { italic: true as const } : null),
+    ...(run.strike ? { strike: true as const } : null),
+    ...(run.underline ? { underline: true as const } : null),
+  }
+}
+
+export function segmentsNotePreview(segments: RichSegment[]): NotePreviewResult {
+  const blocks: PreviewBlock[] = []
+  for (const segment of segments) {
+    if (segment.kind === 'view') {
+      const { altText, src, type } = segment.node
+      if (type === 'image' && typeof src === 'string') {
+        blocks.push({
+          alt: typeof altText === 'string' ? altText : '',
+          src,
+          type: 'image',
+        })
+      }
+      continue
+    }
+    for (const block of segment.blocks) {
+      const inlines = block.runs.map(runInline)
+      if (block.role === 'listItem') {
+        const ordered = block.listType === 'number'
+        const last = blocks.at(-1)
+        if (last?.type === 'list' && last.ordered === ordered) {
+          last.items.push(inlines)
+        } else {
+          blocks.push({ items: [inlines], ordered, type: 'list' })
+        }
+      } else if (block.role === 'heading') {
+        blocks.push({ inlines, level: block.level ?? 2, type: 'heading' })
+      } else if (block.role === 'quote' || block.role === 'paragraph') {
+        blocks.push({ inlines, type: block.role })
+      }
+    }
+  }
   return takePreview(blocks)
 }

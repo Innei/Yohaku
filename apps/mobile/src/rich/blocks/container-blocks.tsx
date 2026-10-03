@@ -12,7 +12,7 @@ import { groupSegments } from '../lexical/group'
 import { calloutKind } from './callout'
 import { type BlockProps, str } from './types'
 
-export function CalloutBlock({ node }: BlockProps) {
+export function CalloutBlock({ blockId, children, node }: BlockProps) {
   const palette = usePalette()
   const serif = useNativeSerifFontStyle()
   const doc = useRichDocument()
@@ -36,7 +36,11 @@ export function CalloutBlock({ node }: BlockProps) {
           {kind.label}
         </AppText>
       </View>
-      {content?.root ? doc.renderNested(content as never) : null}
+      {content?.root
+        ? doc.renderNested(content as never)
+        : children
+          ? doc.renderSegments(groupSegments(children, `${blockId}.`))
+          : null}
     </View>
   )
 }

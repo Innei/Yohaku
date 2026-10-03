@@ -120,6 +120,10 @@ public class YohakuModule: Module {
       SecretStore.delete(key)
     }
 
+    Function("parseMarkdown") { (markdown: String) -> String in
+      try MarkdownAST.json(for: markdown)
+    }
+
     Function("showToast") { (message: String) in
       if Thread.isMainThread {
         YohakuToastOverlay.shared.show(message: message)

@@ -267,6 +267,12 @@ export function DevDemos() {
             href="/dev-demos/markdown"
             title="评论正文渲染"
           />
+          <LabEntry
+            chevronColor={palette.neutral[5]}
+            hint="md4c AST 经 markdown renderers 渲染成原生 segments"
+            href="/dev-demos/markdown-article"
+            title="Markdown 文章"
+          />
         </Section>
 
         <Section title="SPLASH">
