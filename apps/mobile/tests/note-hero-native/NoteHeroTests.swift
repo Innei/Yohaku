@@ -74,6 +74,7 @@ final class NoteHeroTests: XCTestCase {
     XCTAssertEqual(hero.frame.minY, -80)
 
     // A subsequent real detail host must still be able to own a push.
+    fixture.update(.list, y: 124)
     fixture.coordinator.prepareTransition(noteID: "test")
     let transition = fixture.transition(from: fixture.list, to: fixture.detail)
     fixture.update(.detail, y: 20)
@@ -117,8 +118,57 @@ final class NoteHeroTests: XCTestCase {
     checkPop(cancelled: true)
   }
 
+  func testPushUsesDestinationInsetSettledBeforeAnimationWithoutCompletionJump() {
+    let fixture = HeroFixture()
+    fixture.update(.list, y: 124)
+    let hero = fixture.listSlot.subviews.first!
+    fixture.coordinator.prepareTransition(noteID: "test")
+    fixture.detail.view.transform = CGAffineTransform(translationX: 402, y: 0)
+    let transition = fixture.transition(from: fixture.list, to: fixture.detail)
+    // The detail slot first mounts before UIKit applies the navigation inset.
+    transition.beforeAnimation = { fixture.update(.detail, y: 124) }
+    fixture.update(.detail, y: 0)
+    let animatedFrame = hero.frame
+    XCTAssertEqual(animatedFrame.minX, 0)
+    XCTAssertEqual(animatedFrame.minY, 174)
+    transition.finish(cancelled: false)
+    fixture.detail.view.transform = .identity
+    XCTAssertEqual(hero.convert(hero.bounds, to: fixture.container), animatedFrame)
+  }
+
   func testCompletedPopReturnsHeroToListAndResumesScrolling() {
     checkPop(cancelled: false)
+  }
+
+  func testHiddenListTitleStaysInNativeScreenDuringPushAndPop() {
+    for listY: CGFloat in [-140, -48, 80] {
+      for pushing in [true, false] {
+        for cancelled in [true, false] {
+          let fixture = HeroFixture()
+          fixture.list.additionalSafeAreaInsets.top = 116
+          fixture.container.layoutIfNeeded()
+          let fromRole: YohakuNoteHeroSlotRole = pushing ? .list : .detail
+          let toRole: YohakuNoteHeroSlotRole = pushing ? .detail : .list
+          fixture.update(fromRole, y: pushing ? listY : 20)
+          let hero = (pushing ? fixture.listSlot : fixture.detailSlot).subviews.first!
+          fixture.coordinator.prepareTransition(noteID: "test")
+          let transition = fixture.transition(
+            from: pushing ? fixture.list : fixture.detail,
+            to: pushing ? fixture.detail : fixture.list
+          )
+          fixture.update(toRole, y: pushing ? 20 : listY)
+          // The detail title travels with the native screen instead of flying
+          // through navigation chrome from/to the hidden list title.
+          XCTAssertTrue(hero.superview === fixture.detailSlot)
+          transition.finish(cancelled: cancelled)
+          let role = cancelled ? fromRole : toRole
+          let slot = role == .list ? fixture.listSlot : fixture.detailSlot
+          XCTAssertTrue(hero.superview === slot)
+          fixture.update(role, y: 124)
+          XCTAssertEqual(hero.frame.minY, 124)
+        }
+      }
+    }
   }
 
   private func checkPop(cancelled: Bool) {
@@ -199,6 +249,7 @@ private final class TestTransition: NSObject, UIViewControllerTransitionCoordina
   let to: UIViewController
   let containerView: UIView
   var completion: ((UIViewControllerTransitionCoordinatorContext) -> Void)?
+  var beforeAnimation: (() -> Void)?
   let isAnimated = true
   let presentationStyle = UIModalPresentationStyle.none
   let initiallyInteractive = true
@@ -228,6 +279,7 @@ private final class TestTransition: NSObject, UIViewControllerTransitionCoordina
     completion: ((UIViewControllerTransitionCoordinatorContext) -> Void)?
   ) -> Bool {
     self.completion = completion
+    beforeAnimation?()
     animation?(self)
     return true
   }

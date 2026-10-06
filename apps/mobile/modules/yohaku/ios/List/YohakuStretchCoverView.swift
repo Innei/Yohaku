@@ -177,6 +177,15 @@ final class YohakuNoteHeroView: UIView {
     metaLabel.isAccessibilityElement = detail
   }
 
+  func isTitleVisible(in frame: CGRect, within visibleBounds: CGRect) -> Bool {
+    layoutIfNeeded()
+    let titleFrame = titleLabel.frame.offsetBy(
+      dx: frame.minX,
+      dy: frame.minY + (hasCover ? frame.height - bounds.height : 0)
+    )
+    return visibleBounds.contains(titleFrame)
+  }
+
   private func setPlaceholder(_ uri: String?) {
     guard uri != placeholderUri else { return }
     placeholderUri = uri
@@ -510,25 +519,42 @@ final class YohakuSharedNoteHeroCoordinator {
     // content container instead of depending on the navigation bar's parent.
     let container = transition.containerView
     let startFrame = entry.hero.convert(entry.hero.bounds, to: container)
-    // The destination controller may still be translated offscreen for a push.
-    // Both navigation screens fill the content container. Convert through the
-    // destination's local coordinates, excluding its temporary push transform.
-    let localFrame = to.view!.convert(to.frame, to: toController.view)
-    let endFrame = localFrame.offsetBy(
-      dx: container.bounds.minX - toController.view.bounds.minX,
-      dy: container.bounds.minY - toController.view.bounds.minY
+    let fromVisible = entry.hero.isTitleVisible(
+      in: from.frame, within: from.view!.bounds.inset(by: from.view!.safeAreaInsets)
     )
+    let sharesHero = fromVisible && (toRole != .list || entry.hero.isTitleVisible(
+      in: to.frame, within: to.view!.bounds.inset(by: to.view!.safeAreaInsets)
+    ))
+    let nativeRole = fromVisible ? fromRole : toRole
     entry.handledTransition = transitionID
     entry.transitioning = true
-    entry.hero.removeFromSuperview()
-    entry.hero.frame = startFrame
-    entry.hero.setBlurOpacity(from.blur)
-    entry.hero.setRole(toRole)
-    container.addSubview(entry.hero)
-    entry.hero.layoutIfNeeded()
+    if sharesHero {
+      entry.hero.removeFromSuperview()
+      entry.hero.frame = startFrame
+      entry.hero.setBlurOpacity(from.blur)
+      entry.hero.setRole(toRole)
+      container.addSubview(entry.hero)
+      entry.hero.layoutIfNeeded()
+    } else {
+      // A hidden title stays in its native screen, under navigation chrome.
+      attach(entry, to: nativeRole)
+    }
 
     let started = transition.animate(
       alongsideTransition: { _ in
+        // UIKit settles the destination's automatic scroll inset before this
+        // callback. Read its latest slot geometry, not the first mount's frame.
+        toController.view.layoutIfNeeded()
+        guard sharesHero else {
+          UIView.performWithoutAnimation { self.attach(entry, to: nativeRole) }
+          return
+        }
+        // Exclude the incoming screen's temporary push translation.
+        let localFrame = to.view!.convert(to.frame, to: toController.view)
+        let endFrame = localFrame.offsetBy(
+          dx: container.bounds.minX - toController.view.bounds.minX,
+          dy: container.bounds.minY - toController.view.bounds.minY
+        )
         container.bringSubviewToFront(entry.hero)
         entry.hero.frame = endFrame
         entry.hero.setBlurOpacity(to.blur)
