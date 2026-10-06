@@ -3,6 +3,37 @@ import XCTest
 
 @MainActor
 final class NoteHeroTests: XCTestCase {
+  func testMeasuredTextFitsSingleAndWrappedTitlesWithoutTrailingSpace() {
+    for title in ["Rain, Then Sun", "A longer note title that wraps onto another line"] {
+      for meta in ["", "Today · Happy"] {
+        let hero = YohakuNoteHeroView()
+        var spec = YohakuNoteHeroSpec()
+        spec.title = title
+        spec.meta = meta
+        hero.update(spec: spec, titleColor: nil, metaColor: nil)
+        let size = hero.sizeThatFits(CGSize(width: 320, height: 0))
+        hero.frame = CGRect(origin: .zero, size: size)
+        hero.layoutIfNeeded()
+        let labels = hero.subviews.compactMap { $0 as? UILabel }
+        let last = meta.isEmpty ? labels[0] : labels[1]
+        XCTAssertEqual(last.frame.maxY, hero.bounds.height)
+        XCTAssertLessThanOrEqual(labels[0].frame.height, 72)
+        XCTAssertGreaterThan(size.height, 0)
+        if title == "Rain, Then Sun" {
+          XCTAssertLessThan(size.height, 98)
+        } else {
+          XCTAssertGreaterThan(labels[0].frame.height, 36)
+        }
+
+        spec.coverUri = "https://example.invalid/cover.jpg"
+        hero.update(spec: spec, titleColor: nil, metaColor: nil)
+        hero.frame.size.height = 248
+        hero.layoutIfNeeded()
+        XCTAssertEqual(labels[1].frame.maxY, 248 - 18)
+      }
+    }
+  }
+
   func testListCoverIsSharpAtRestWithAutomaticTopInset() {
     let restingY: CGFloat = 8 + 116
     let layout = YohakuNoteHeroLayout.frame(

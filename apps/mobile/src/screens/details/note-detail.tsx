@@ -8,7 +8,7 @@ import { Stack, useNavigation } from 'expo-router'
 import { useHeaderHeight } from 'expo-router/react-navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollView } from 'react-native'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, useWindowDimensions, View } from 'react-native'
 
 import { translatedBodyNeedsRefresh } from '@/api/article-meta'
 import { api } from '@/api/client'
@@ -29,7 +29,6 @@ import { markdownOpensOnWeb } from '@/rich/markdown/support'
 import { CommentComposeHost } from '@/screens/comments/comment-compose-provider'
 import {
   NOTE_LATEST_HERO_HEIGHT,
-  NOTE_LATEST_TEXT_HERO_HEIGHT,
   noteCoverPlaceholderUri,
   noteCoverUrl,
   noteDetailCoverAnchorY,
@@ -84,6 +83,7 @@ export function NoteDetailScreen({
   const palette = usePalette()
   const reservedBodyHeight = useReservedBodyHeight()
   const headerHeight = useHeaderHeight()
+  const { width } = useWindowDimensions()
   const scrollRef = useRef<ScrollView>(null)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
@@ -234,9 +234,15 @@ export function NoteDetailScreen({
     aiGen: note?.articleMeta?.aiGen,
     parts: metaParts,
   })
-  const heroHeight = coverUrl
-    ? NOTE_LATEST_HERO_HEIGHT
-    : NOTE_LATEST_TEXT_HERO_HEIGHT
+  const heroHeight = useMemo(
+    () =>
+      coverUrl
+        ? NOTE_LATEST_HERO_HEIGHT
+        : sharedHero
+          ? YohakuNative.measureNoteHeroText(note?.title ?? '', heroMeta, width)
+          : 0,
+    [coverUrl, sharedHero, note?.title, heroMeta, width],
+  )
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
@@ -409,6 +415,9 @@ export function NoteDetailScreen({
                     noteHeroTitle={note.title}
                     noteHeroTitleColor={palette.neutral[10]}
                     style={styles.screen}
+                    noteHeroContentInsetTop={
+                      coverUrl ? 0 : styles.content.paddingTop
+                    }
                   >
                     {scroll}
                   </YohakuNoteHeroHost>

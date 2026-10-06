@@ -53,6 +53,7 @@ interface YohakuNativeModule {
     title: string
     url: string
   }): Promise<void>
+  measureNoteHeroText(title: string, meta: string, width: number): number
   openAuthSession(
     url: string,
     scheme: string,

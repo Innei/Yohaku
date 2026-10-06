@@ -149,9 +149,9 @@ final class YohakuNoteHeroHostView: ExpoView, YohakuNativeScrollConsumer {
       noteHero.coverUri?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
       == false
     let laid = YohakuNoteHeroLayout.frame(
-      cellY: noteHeroRole == .list
+      cellY: noteHeroRole == .list || !hasCover
         ? noteHeroContentInsetTop - offsetY
-        : (hasCover ? -topInset - offsetY : -offsetY),
+        : -topInset - offsetY,
       heroHeight: CGFloat(noteHero.height),
       width: bounds.width,
       stretches: hasCover,

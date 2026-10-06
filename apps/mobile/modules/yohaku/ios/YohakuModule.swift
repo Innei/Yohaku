@@ -98,6 +98,18 @@ public class YohakuModule: Module {
       Double(sqliteDatabaseBytes())
     }
 
+    Function("measureNoteHeroText") { (title: String, meta: String, width: Double) -> Double in
+      let measure = {
+        var spec = YohakuNoteHeroSpec()
+        spec.title = title
+        spec.meta = meta
+        let hero = YohakuNoteHeroView()
+        hero.update(spec: spec, titleColor: nil, metaColor: nil)
+        return Double(hero.sizeThatFits(CGSize(width: width, height: 0)).height)
+      }
+      return Thread.isMainThread ? measure() : DispatchQueue.main.sync(execute: measure)
+    }
+
     Function("prepareNoteHeroTransition") { (noteID: String) in
       if Thread.isMainThread {
         YohakuSharedNoteHeroCoordinator.shared.prepareTransition(noteID: noteID)

@@ -94,14 +94,8 @@ final class YohakuNoteHeroView: UIView {
     fatalError("init(coder:) has not been implemented")
   }
 
-  override func layoutSubviews() {
-    super.layoutSubviews()
-    imageView.frame = bounds
-    blurView.frame = bounds
-    gradient.frame = bounds
-
-    let horizontal: CGFloat = 20
-    let textWidth = max(0, bounds.width - horizontal * 2)
+  private func copyLayout(width: CGFloat) -> (title: CGFloat, gap: CGFloat, meta: CGFloat) {
+    let textWidth = max(0, width - 40)
     let titleHeight = min(
       72,
       ceil(
@@ -111,6 +105,23 @@ final class YohakuNoteHeroView: UIView {
     )
     let metaHeight: CGFloat = metaLabel.text?.isEmpty == false ? 18 : 0
     let gap: CGFloat = metaHeight > 0 ? 8 : 0
+    return (titleHeight, gap, metaHeight)
+  }
+
+  override func sizeThatFits(_ size: CGSize) -> CGSize {
+    let copy = copyLayout(width: size.width)
+    return CGSize(width: size.width, height: copy.title + copy.gap + copy.meta)
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+    imageView.frame = bounds
+    blurView.frame = bounds
+    gradient.frame = bounds
+
+    let horizontal: CGFloat = 20
+    let textWidth = max(0, bounds.width - horizontal * 2)
+    let (titleHeight, gap, metaHeight) = copyLayout(width: bounds.width)
     let copyHeight = titleHeight + gap + metaHeight
     let copyY = hasCover ? max(0, bounds.height - 18 - copyHeight) : 0
     titleLabel.frame = CGRect(
