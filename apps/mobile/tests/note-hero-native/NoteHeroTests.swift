@@ -45,6 +45,35 @@ final class NoteHeroTests: XCTestCase {
     XCTAssertEqual(layout.frame.maxY, 372)
   }
 
+  func testFirstCoveredPushMovesBeforeNavigationCompletes() async throws {
+    let fixture = HeroFixture()
+    fixture.update(.list, y: 0, covered: true, height: 372)
+    let hero = fixture.listSlot.subviews.first!
+    fixture.coordinator.prepareTransition(noteID: "test")
+    let transition = fixture.transition(from: fixture.list, to: fixture.detail)
+    transition.isAnimated = true
+    transition.initiallyInteractive = false
+    // Reproduce UIKit's paused auxiliary animation on the first Fabric mount.
+    transition.pausesAlongsideAnimations = true
+    fixture.update(.detail, y: 0, covered: true, height: 248)
+    try await Task.sleep(for: .milliseconds(180))
+    let visibleHeight = hero.layer.presentation()?.bounds.height ?? hero.bounds.height
+    XCTAssertLessThan(visibleHeight, 371, "The cover must move during the push, not jump on completion")
+    let gradient = try XCTUnwrap(
+      hero.layer.sublayers?.compactMap { $0 as? CAGradientLayer }.first
+        ?? hero.subviews.compactMap { $0.layer as? CAGradientLayer }.first
+    )
+    XCTAssertEqual(
+      gradient.presentation()?.bounds.height ?? gradient.bounds.height,
+      visibleHeight, accuracy: 1,
+      "The title's dark background must resize with the cover"
+    )
+    try await Task.sleep(for: .milliseconds(250))
+    transition.finish(cancelled: false)
+    XCTAssertTrue(hero.superview === fixture.detailSlot)
+    XCTAssertEqual(hero.bounds.height, 248)
+  }
+
   func testListCoverBlurTracksOnlyAdditionalPullAndClearsOnScroll() {
     let restingY: CGFloat = 124
     let pulled = YohakuNoteHeroLayout.frame(
@@ -224,14 +253,18 @@ private final class HeroFixture {
     detail.view.addSubview(detailSlot)
   }
 
-  func update(_ role: YohakuNoteHeroSlotRole, y: CGFloat, slot: UIView? = nil) {
+  func update(
+    _ role: YohakuNoteHeroSlotRole, y: CGFloat, slot: UIView? = nil,
+    covered: Bool = false, height: CGFloat = 98
+  ) {
     var spec = YohakuNoteHeroSpec()
     spec.id = "test"
     spec.title = "Shared note title"
+    spec.coverUri = covered ? "https://example.invalid/cover.jpg" : nil
     coordinator.update(
       slot: slot ?? (role == .list ? listSlot : detailSlot),
       role: role, spec: spec, titleColor: nil, metaColor: nil,
-      frame: CGRect(x: 0, y: y, width: 402, height: 98), blur: 0
+      frame: CGRect(x: 0, y: y, width: 402, height: height), blur: 0
     )
   }
 
@@ -250,9 +283,11 @@ private final class TestTransition: NSObject, UIViewControllerTransitionCoordina
   let containerView: UIView
   var completion: ((UIViewControllerTransitionCoordinatorContext) -> Void)?
   var beforeAnimation: (() -> Void)?
-  let isAnimated = true
+  var pausesAlongsideAnimations = false
+  private var pausedAnimator: UIViewPropertyAnimator?
+  var isAnimated = false
   let presentationStyle = UIModalPresentationStyle.none
-  let initiallyInteractive = true
+  var initiallyInteractive = true
   let isInterruptible = true
   let isInteractive = true
   var isCancelled = false
@@ -280,7 +315,14 @@ private final class TestTransition: NSObject, UIViewControllerTransitionCoordina
   ) -> Bool {
     self.completion = completion
     beforeAnimation?()
-    animation?(self)
+    if pausesAlongsideAnimations {
+      let animator = UIViewPropertyAnimator(duration: transitionDuration, curve: .linear) { animation?(self) }
+      pausedAnimator = animator
+      animator.startAnimation()
+      if animator.state == .active { animator.pauseAnimation() }
+    } else {
+      animation?(self)
+    }
     return true
   }
   func animateAlongsideTransition(
@@ -293,6 +335,8 @@ private final class TestTransition: NSObject, UIViewControllerTransitionCoordina
   func notifyWhenInteractionChanges(_ handler: @escaping (UIViewControllerTransitionCoordinatorContext) -> Void) {}
   func finish(cancelled: Bool) {
     isCancelled = cancelled
+    if pausedAnimator?.state == .active { pausedAnimator?.stopAnimation(true) }
+    pausedAnimator = nil
     completion?(self)
     (from as? HeroController)?.testTransition = nil
     (to as? HeroController)?.testTransition = nil

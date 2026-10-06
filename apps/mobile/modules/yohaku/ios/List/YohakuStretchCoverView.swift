@@ -40,11 +40,16 @@ enum YohakuNoteHeroSlotRole {
   case list
 }
 
+private final class YohakuNoteHeroGradientView: UIView {
+  override class var layerClass: AnyClass { CAGradientLayer.self }
+}
+
 final class YohakuNoteHeroView: UIView {
   private static let imageCache = NSCache<NSURL, UIImage>()
 
   private let blurView = UIVisualEffectView(effect: UIBlurEffect(style: .regular))
-  private let gradient = CAGradientLayer()
+  private let gradientView = YohakuNoteHeroGradientView()
+  private var gradient: CAGradientLayer { gradientView.layer as! CAGradientLayer }
   private let imageView = UIImageView()
   private let metaLabel = UILabel()
   private let titleLabel = UILabel()
@@ -71,7 +76,6 @@ final class YohakuNoteHeroView: UIView {
       UIColor.black.withAlphaComponent(0.78).cgColor,
     ]
     gradient.locations = [0, 0.46, 1]
-    gradient.actions = ["bounds": NSNull(), "position": NSNull()]
 
     titleLabel.font =
       UIFont(name: "NotoSerifSC_500Medium", size: 28)
@@ -84,7 +88,7 @@ final class YohakuNoteHeroView: UIView {
 
     addSubview(imageView)
     addSubview(blurView)
-    layer.addSublayer(gradient)
+    addSubview(gradientView)
     addSubview(titleLabel)
     addSubview(metaLabel)
   }
@@ -117,7 +121,7 @@ final class YohakuNoteHeroView: UIView {
     super.layoutSubviews()
     imageView.frame = bounds
     blurView.frame = bounds
-    gradient.frame = bounds
+    gradientView.frame = bounds
 
     let horizontal: CGFloat = 20
     let textWidth = max(0, bounds.width - horizontal * 2)
@@ -160,7 +164,7 @@ final class YohakuNoteHeroView: UIView {
     hasCover = normalized(spec.coverUri) != nil
     imageView.isHidden = !hasCover
     blurView.isHidden = !hasCover
-    gradient.isHidden = !hasCover
+    gradientView.isHidden = !hasCover
     titleLabel.textColor = hasCover ? .white : textTitleColor
     metaLabel.textColor = hasCover ? .white : textMetaColor
     setNeedsLayout()
@@ -364,6 +368,7 @@ private final class YohakuSharedNoteHeroEntry {
   var ownerRole: YohakuNoteHeroSlotRole?
   var preparedRole: YohakuNoteHeroSlotRole?
   var transitioning = false
+  var animator: UIViewPropertyAnimator?
   var displayedSpec: YohakuNoteHeroSpec?
   var titleColor: UIColor?
   var metaColor: UIColor?
@@ -541,7 +546,7 @@ final class YohakuSharedNoteHeroCoordinator {
     }
 
     let started = transition.animate(
-      alongsideTransition: { _ in
+      alongsideTransition: { context in
         // UIKit settles the destination's automatic scroll inset before this
         // callback. Read its latest slot geometry, not the first mount's frame.
         toController.view.layoutIfNeeded()
@@ -556,18 +561,36 @@ final class YohakuSharedNoteHeroCoordinator {
           dy: container.bounds.minY - toController.view.bounds.minY
         )
         container.bringSubviewToFront(entry.hero)
-        entry.hero.frame = endFrame
-        entry.hero.setBlurOpacity(to.blur)
-        entry.hero.layoutIfNeeded()
+        let animations = {
+          entry.hero.frame = endFrame
+          entry.hero.setBlurOpacity(to.blur)
+          entry.hero.layoutIfNeeded()
+        }
+        if context.isAnimated && !context.initiallyInteractive {
+          // UIKit can leave late-mounted alongside layers paused on a push.
+          // An independent animator keeps these layers moving on the render thread.
+          let animator = UIViewPropertyAnimator(
+            duration: context.transitionDuration, curve: context.completionCurve,
+            animations: animations
+          )
+          entry.animator = animator
+          animator.startAnimation()
+        } else {
+          animations()
+        }
       },
       completion: { [weak self, weak entry] context in
         guard let self, let entry else { return }
+        entry.animator?.stopAnimation(true)
+        entry.animator = nil
         entry.transitioning = false
         entry.preparedRole = nil
         self.attach(entry, to: context.isCancelled ? fromRole : toRole)
       }
     )
     if !started {
+      entry.animator?.stopAnimation(true)
+      entry.animator = nil
       entry.transitioning = false
       entry.preparedRole = nil
       attach(entry, to: toRole)
