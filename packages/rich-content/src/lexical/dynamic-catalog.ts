@@ -1,4 +1,7 @@
+import type { RichRendererModule } from '@haklex/rich-compose'
 import { dynamicModule } from '@haklex/rich-compose/modules/dynamic'
+import type { ComponentType } from 'react'
+import { createElement, useSyncExternalStore } from 'react'
 
 import type { HostCapabilities } from '../host'
 
@@ -8,20 +11,13 @@ interface DynamicCatalogPayload {
   components?: { url: string }[]
 }
 
-const bridge: {
-  fetchJSON: HostCapabilities['fetchJSON'] | null
-} = { fetchJSON: null }
-
 const catalogUrls = new Set<string>()
+const listeners = new Set<() => void>()
 let catalogPromise: Promise<void> | null = null
+let catalogSettled = false
 
 export function setDynamicCatalogHost(host: HostCapabilities) {
-  bridge.fetchJSON = host.fetchJSON
-}
-
-function ensureDynamicCatalog(): Promise<void> {
-  const { fetchJSON } = bridge
-  if (!fetchJSON) return Promise.resolve()
+  const { fetchJSON } = host
   catalogPromise ??= fetchJSON<DynamicCatalogPayload>(
     `/${CATALOG_SNIPPET_PATH}?_t=${Date.now()}`,
   )
@@ -30,14 +26,53 @@ function ensureDynamicCatalog(): Promise<void> {
       for (const c of catalog?.components ?? []) catalogUrls.add(c.url)
     })
     .catch(() => {})
-  return catalogPromise
+    .finally(() => {
+      catalogSettled = true
+      for (const listener of listeners) listener()
+    })
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
+}
+
+function useCatalogSettled() {
+  return useSyncExternalStore(
+    subscribe,
+    () => catalogSettled,
+    () => false,
+  )
 }
 
 function isAllowedDynamicUrl(url: string): boolean {
-  void ensureDynamicCatalog()
   return catalogUrls.has(url)
 }
 
-export const configuredDynamicModule = dynamicModule.setup({
+// validateUrl is synchronous and the host renderer rejects once per mount, so
+// mounting before the allowlist arrives fails until the reader hits Retry.
+function gateOnCatalog(
+  Renderer: ComponentType<object>,
+): ComponentType<{ initialHeight?: number }> {
+  return function CatalogGatedRenderer(props) {
+    if (!useCatalogSettled())
+      return createElement('div', { style: { minHeight: props.initialHeight } })
+    return createElement(Renderer, props)
+  }
+}
+
+const baseDynamicModule = dynamicModule.setup({
   validateUrl: isAllowedDynamicUrl,
 })
+
+export const configuredDynamicModule: RichRendererModule = {
+  ...baseDynamicModule,
+  renderers: Object.fromEntries(
+    Object.entries(baseDynamicModule.renderers ?? {}).map(([key, Comp]) => [
+      key,
+      gateOnCatalog(Comp as ComponentType<object>),
+    ]),
+  ),
+}
