@@ -23,12 +23,12 @@ export function usePortablePollAdapter(): PollDataAdapter {
     () => ({
       usePollState: (pollId) => {
         const { data } = useResource(`poll:${pollId}`, () =>
-          host.fetchJSON<PollState>(`/proxy/polls/${pollId}`),
+          host.fetchJSON<PollState>(`/polls/${pollId}`),
         )
         return data ?? fallbackState
       },
       useSubmit: (pollId) => async (optionIds) => {
-        await host.fetchJSON<PollState>(`/proxy/polls/${pollId}/vote`, {
+        await host.fetchJSON<PollState>(`/polls/${pollId}/vote`, {
           body: JSON.stringify({ optionIds }),
           headers: { 'Content-Type': 'application/json' },
           method: 'POST',

@@ -163,7 +163,7 @@ describe('poll adapter wiring (I-1)', () => {
     const host: HostCapabilities = {
       ...mobileHost,
       fetchJSON: async (url) => {
-        if (String(url).includes('/proxy/polls/')) {
+        if (String(url).includes('/polls/')) {
           return {
             canVote: false,
             closed: false,
