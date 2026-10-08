@@ -8,6 +8,7 @@ import { useMemo } from 'react'
 
 import { useHost } from '../../../host'
 import { invalidateResource, useResource } from '../../../lib/use-resource'
+import { parsePollState } from './parse-state'
 
 const fallbackState: PollState = {
   canVote: false,
@@ -22,13 +23,13 @@ export function usePortablePollAdapter(): PollDataAdapter {
   return useMemo<PollDataAdapter>(
     () => ({
       usePollState: (pollId) => {
-        const { data } = useResource(`poll:${pollId}`, () =>
-          host.fetchJSON<PollState>(`/polls/${pollId}`),
+        const { data } = useResource(`poll:${pollId}`, async () =>
+          parsePollState(await host.fetchJSON<unknown>(`/polls/${pollId}`)),
         )
         return data ?? fallbackState
       },
       useSubmit: (pollId) => async (optionIds) => {
-        await host.fetchJSON<PollState>(`/polls/${pollId}/vote`, {
+        await host.fetchJSON<unknown>(`/polls/${pollId}/vote`, {
           body: JSON.stringify({ optionIds }),
           headers: { 'Content-Type': 'application/json' },
           method: 'POST',
