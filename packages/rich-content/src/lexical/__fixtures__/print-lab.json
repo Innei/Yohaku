@@ -220,6 +220,14 @@
           }
         ]
       },
+      {
+        "type": "steps",
+        "version": 1,
+        "steps": [
+          { "id": "s_print01", "title": "下载安装", "content": { "root": { "type": "root", "version": 1, "children": [{ "type": "paragraph", "version": 1, "children": [{ "type": "text", "version": 1, "text": "访问官网，下载对应平台的安装包。", "detail": 0, "format": 0, "mode": "normal", "style": "" }] }] } } },
+          { "id": "s_print02", "title": "填入密钥", "content": { "root": { "type": "root", "version": 1, "children": [{ "type": "paragraph", "version": 1, "children": [{ "type": "text", "version": 1, "text": "在设置中粘贴 API Key，保存即可。", "detail": 0, "format": 0, "mode": "normal", "style": "" }] }] } } }
+        ]
+      },
       { "type": "footnote-section", "version": 1, "definitions": { "1": "脚注正文：余白不是空白，而是让文字呼吸的那一部分。", "2": "第二条脚注，由行内第二个引用编号。" } }
     ]
   }

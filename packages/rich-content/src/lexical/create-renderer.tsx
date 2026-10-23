@@ -77,6 +77,7 @@ import { lexicalHeadingOverride } from './overrides/heading'
 import { LexicalListItemOverride } from './overrides/list-item'
 import { lexicalTableOverrides } from './overrides/table'
 import { yohakuChatModule } from './portable/chat-module'
+import { yohakuStepsModule } from './portable/steps-module'
 import { YohakuCodeSnippet } from './portable/code-snippet'
 import { staticExcalidrawModule } from './portable/excalidraw'
 import { LexicalImageOverride } from './portable/image'
@@ -226,6 +227,7 @@ const modules: RichRendererModule[] = [
   configuredNestedDocModule,
   staticExcalidrawModule,
   yohakuChatModule,
+  yohakuStepsModule,
   lexicalCodeSnippetModule,
   configuredGalleryModule,
   lexicalAlertModule,
