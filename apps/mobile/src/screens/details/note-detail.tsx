@@ -410,8 +410,6 @@ export function NoteDetailScreen({
                       likeCount={note.likeCount}
                       queriesEnabled={updatesEnabled}
                       refId={note.id}
-                      title={note.title}
-                      url={webUrl}
                     />
                   </EdgeEffectScrollView>
                 )

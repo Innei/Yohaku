@@ -403,8 +403,6 @@ export function PostDetailScreen({
                       likeCount={post.likeCount}
                       queriesEnabled={updatesEnabled}
                       refId={post.id}
-                      title={post.title}
-                      url={webUrl}
                     />
                   </EdgeEffectScrollView>
                   {tts.isNarrating && !compose.composing ? (
