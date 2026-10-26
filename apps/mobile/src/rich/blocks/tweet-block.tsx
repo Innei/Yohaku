@@ -43,14 +43,21 @@ function TweetSkeleton() {
     <Paper style={styles.card}>
       <View style={styles.header}>
         <View style={[styles.avatar, bone]} />
-        <View style={styles.headerText}>
-          <View style={[styles.skeletonLine, { width: '40%' }, bone]} />
-          <View style={[styles.skeletonLine, { width: '26%' }, bone]} />
+        <View style={styles.skeletonHeaderText}>
+          <View style={[styles.skeletonName, bone]} />
+          <View style={[styles.skeletonHandle, bone]} />
         </View>
       </View>
-      <View style={[styles.skeletonLine, { width: '100%' }, bone]} />
-      <View style={[styles.skeletonLine, { width: '84%' }, bone]} />
+      <View style={styles.skeletonLines}>
+        <View style={[styles.skeletonLine, { width: '100%' }, bone]} />
+        <View style={[styles.skeletonLine, { width: '94%' }, bone]} />
+        <View style={[styles.skeletonLine, { width: '58%' }, bone]} />
+      </View>
       <View style={[styles.skeletonMedia, bone]} />
+      <View style={styles.skeletonFooter}>
+        <View style={[styles.skeletonFooterBone, { width: 64 }, bone]} />
+        <View style={[styles.skeletonFooterBone, { width: 44 }, bone]} />
+      </View>
     </Paper>
   )
 }
@@ -152,6 +159,23 @@ const styles = StyleSheet.create({
     marginVertical: -12,
     minHeight: 44,
   },
-  skeletonLine: { height: 12, borderRadius: 6 },
-  skeletonMedia: { height: 150, borderRadius: 12 },
+  skeletonHeaderText: {
+    flex: 1,
+    height: 40,
+    justifyContent: 'center',
+    gap: 8,
+    minWidth: 0,
+  },
+  skeletonName: { width: '44%', height: 12, borderRadius: 6 },
+  skeletonHandle: { width: '30%', height: 9, borderRadius: 4.5 },
+  skeletonLines: { gap: 13 },
+  skeletonLine: { height: 11, borderRadius: 5.5 },
+  skeletonMedia: { width: '100%', aspectRatio: 16 / 9, borderRadius: 12 },
+  skeletonFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    height: 28,
+  },
+  skeletonFooterBone: { height: 10, borderRadius: 5 },
 })
