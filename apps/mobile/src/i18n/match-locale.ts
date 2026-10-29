@@ -42,6 +42,17 @@ function matchOne(candidate: SystemLocale): Locale | null {
   return isLocale(language) ? language : null
 }
 
+export function toAppLocale(tag: string | null | undefined): Locale | null {
+  if (!tag) return null
+  const [language, ...subtags] = tag.split(/[_-]/)
+  return matchOne({
+    languageTag: tag,
+    languageCode: language,
+    languageScriptCode: subtags.find((subtag) => subtag.length === 4),
+    regionCode: subtags.find((subtag) => subtag.length === 2),
+  })
+}
+
 export function matchLocale(candidates: SystemLocale[]): Locale {
   for (const candidate of candidates) {
     const matched = matchOne(candidate)

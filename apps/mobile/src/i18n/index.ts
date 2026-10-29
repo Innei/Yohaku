@@ -19,5 +19,6 @@ export function t<N extends Namespace>(
 export type { Locale } from './config'
 export { defaultLocale, isLocale, localeNames, locales } from './config'
 export { getLocale, setLocale, useLocale } from './locale-store'
+export { toAppLocale } from './match-locale'
 export type { Messages, Namespace, Translator, Vars } from './translate'
 export { getMessages, translate } from './translate'

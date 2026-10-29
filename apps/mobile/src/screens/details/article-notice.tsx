@@ -10,7 +10,7 @@ import {
   NoticeCard,
   SinkPressable,
 } from '@/components/ui'
-import { isLocale, useTranslations } from '@/i18n'
+import { toAppLocale, useTranslations } from '@/i18n'
 import { usePalette } from '@/theme/palette'
 
 import type { ArticleAiListen } from './article-ai-fold'
@@ -76,8 +76,9 @@ export function ArticleNotice({
   const rows: NoticeCardRow[] = []
 
   if (translation) {
-    const language = isLocale(translation.sourceLang)
-      ? tl(translation.sourceLang)
+    const sourceLocale = toAppLocale(translation.sourceLang)
+    const language = sourceLocale
+      ? tl(sourceLocale)
       : (translation.sourceLang ?? '')
     rows.push({
       key: 'translation',

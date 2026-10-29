@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { matchLocale } from './match-locale'
+import { matchLocale, toAppLocale } from './match-locale'
 
 describe('matchLocale', () => {
   it('takes an exact tag', () => {
@@ -57,5 +57,22 @@ describe('matchLocale', () => {
     )
     expect(matchLocale([])).toBe('zh')
     expect(matchLocale([{}])).toBe('zh')
+  })
+})
+
+describe('toAppLocale', () => {
+  it('maps canonical server tags onto app locales by language and script', () => {
+    expect(toAppLocale('zh')).toBe('zh')
+    expect(toAppLocale('zh-CN')).toBe('zh')
+    expect(toAppLocale('zh-TW')).toBe('zh-TW')
+    expect(toAppLocale('zh-HK')).toBe('zh-TW')
+    expect(toAppLocale('en-US')).toBe('en')
+    expect(toAppLocale('ja-JP')).toBe('ja')
+  })
+
+  it('returns null for unsupported or missing tags', () => {
+    expect(toAppLocale('pt-BR')).toBeNull()
+    expect(toAppLocale(null)).toBeNull()
+    expect(toAppLocale('')).toBeNull()
   })
 })
