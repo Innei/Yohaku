@@ -113,6 +113,18 @@ export function SegmentList({ segments }: { segments: RichSegment[] }) {
   )
 }
 
+function SegmentSurface({
+  document,
+}: {
+  document: { renderAll: () => ReactNode }
+}) {
+  return <SegmentHost>{document.renderAll()}</SegmentHost>
+}
+
+function PassthroughHost({ children }: { children?: ReactNode }) {
+  return children
+}
+
 function SegmentHost({ children }: { children?: ReactNode }) {
   const doc = useRichDocument()
   const segments = useMemo(() => groupSegments(children), [children])
@@ -166,11 +178,12 @@ export function RichDocument({
   return (
     <RichDocumentContext value={documentContext(handlers, footnotes, nested)}>
       <RichRenderer
-        as={SegmentHost}
+        as={PassthroughHost}
         blockAnchor={nativeBlockAnchor}
         builtinNodeOverrides={nativeBuiltinOverrides}
         extraNodes={extraNodes}
         nested={nested}
+        surface={SegmentSurface}
         value={value}
       />
     </RichDocumentContext>
