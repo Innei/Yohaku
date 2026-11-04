@@ -9,24 +9,15 @@ import { safeSessionCookie } from './session-cookie'
 
 type AuthClient = ReturnType<typeof buildClient>
 
-type ExpoClientPlugin = ReturnType<typeof expoClient>
-
 const AUTH_SCHEME = site.scheme
 const AUTH_ORIGIN = `${AUTH_SCHEME}://`
 
 function buildClient(baseURL: string) {
-  // better-auth 1.6.24+ ships a BetterFetch generic regression that makes the
-  // expo plugin's getActions fail the BetterAuthClientPlugin contract at type
-  // level (better-auth/better-auth#10515); runtime is unaffected. Widening
-  // only getActions' parameters keeps the rest of the plugin type intact so
-  // getCookie and route inference survive.
   const plugin = expoClient({
     scheme: AUTH_SCHEME,
     storagePrefix: 'yohaku',
     storage: secretStore,
-  }) as Omit<ExpoClientPlugin, 'getActions'> & {
-    getActions: (...args: any[]) => ReturnType<ExpoClientPlugin['getActions']>
-  }
+  })
 
   return createAuthClient({
     baseURL,
@@ -50,6 +41,6 @@ export function getAuthClient(): AuthClient {
   return cached.client
 }
 
-export function getSessionCookie(): string {
+export function getSessionCookie(): Promise<string> {
   return safeSessionCookie(() => getAuthClient().getCookie())
 }

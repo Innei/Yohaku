@@ -85,7 +85,7 @@ async function fetchRawJson(
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
   try {
-    const cookie = getSessionCookie()
+    const cookie = await getSessionCookie()
     const hasBody = init?.body !== undefined
     const res = await fetch(`${apiBaseUrl()}${path}${buildQuery(params)}`, {
       method: init?.method ?? 'GET',
@@ -197,7 +197,7 @@ async function streamArticleBodies(
   const onAbort = () => controller.abort()
   options?.signal?.addEventListener('abort', onAbort)
   try {
-    const cookie = getSessionCookie()
+    const cookie = await getSessionCookie()
     const res = await fetch(
       `${apiBaseUrl()}/articles/bodies${buildQuery({
         lang: options?.lang ?? getLocale(),
