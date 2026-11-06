@@ -17,9 +17,8 @@ export function parseYohakuRefUrl(
 }
 
 function stripInsightsMeta(markdown: string): string {
-  /* eslint-disable unicorn/better-regex -- [\s\S] is the portable any-char; better-regex and match-any fight */
+  // /* [\s\S] is the portable any-char; better-regex and match-any fight */
   return markdown.replaceAll(/<!--\s*insights-meta:[\s\S]*?-->/g, '')
-  /* eslint-enable unicorn/better-regex */
 }
 
 function attr(attrs: string, name: string): string {
@@ -39,12 +38,11 @@ function yohakuRefLink(quote: string, section: string): string {
 }
 
 function rewriteInsightsRefs(markdown: string): string {
-  /* eslint-disable unicorn/better-regex -- [\s\S] is the portable any-char; better-regex and match-any fight */
+  // [\s\S] is the portable any-char; better-regex and match-any fight.
   return markdown.replaceAll(
     /<ref\b([^>]*)(?:\/>|>[\s\S]*?<\/ref>)/gi,
     (_full, attrs: string) => yohakuRefLink(attr(attrs, 'quote'), attr(attrs, 'section')),
   )
-  /* eslint-enable unicorn/better-regex */
 }
 
 export function insightsBlocks(markdown: string): InsightsBlock[] {

@@ -4,10 +4,10 @@ import { type StyleProp, StyleSheet, type ViewStyle } from 'react-native'
 
 import { RemoteImage } from '@/components/ui'
 
+import { MEDIA_RADIUS } from './media-caption'
 import { MediaCarousel } from './media-carousel'
 import { singleMediaRatio } from './media-carousel-layout'
 import type { TweetMedia } from './tweet'
-import { MEDIA_RADIUS } from './media-caption'
 
 const VIDEO_BACKDROP = neutral.light[10]
 

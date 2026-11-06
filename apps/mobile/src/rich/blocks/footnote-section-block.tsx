@@ -1,8 +1,8 @@
 import { StyleSheet, View } from 'react-native'
 
 import { AppText } from '@/components/ui'
-import { usePalette } from '@/theme/palette'
 import { fonts } from '@/theme/fonts'
+import { usePalette } from '@/theme/palette'
 
 import { useRichDocument } from '../lexical/context'
 import { footnoteEntries } from '../lexical/footnotes'

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 const { spawnSync } = require('node:child_process')
 const { existsSync } = require('node:fs')
 const { getDefaultConfig } = require('expo/metro-config')

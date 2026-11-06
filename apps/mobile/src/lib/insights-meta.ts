@@ -30,9 +30,8 @@ const HAN_DIGIT = ['零', '一', '二', '三', '四', '五', '六', '七', '八'
 
 export function extractInsightsMeta(markdown: string): InsightsMeta | null {
   const trimmed = markdown.trimEnd()
-  /* eslint-disable unicorn/better-regex -- [\s\S] is the portable any-char; better-regex and match-any fight */
+  // /* [\s\S] is the portable any-char; better-regex and match-any fight */
   const globalRe = /<!--\s*insights-meta:\s*(\{(?:(?!-->)[\s\S])*\})\s*-->/g
-  /* eslint-enable unicorn/better-regex */
   let last: RegExpExecArray | null = null
   let match: RegExpExecArray | null
   while ((match = globalRe.exec(trimmed)) !== null) last = match

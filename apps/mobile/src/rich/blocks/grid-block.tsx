@@ -2,8 +2,8 @@ import { Fragment } from 'react'
 import { StyleSheet, useWindowDimensions, View } from 'react-native'
 
 import { AppText } from '@/components/ui'
-import { usePalette } from '@/theme/palette'
 import { fonts } from '@/theme/fonts'
+import { usePalette } from '@/theme/palette'
 
 import { bodyMetrics } from '../body-scale'
 import { useRichDocument } from '../lexical/context'

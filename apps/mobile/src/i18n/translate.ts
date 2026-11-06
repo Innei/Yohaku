@@ -24,7 +24,7 @@ export type Translator<N extends Namespace> = (
 
 function interpolate(template: string, vars?: Vars): string {
   if (!vars) return template
-  // eslint-disable-next-line unicorn/better-regex -- regexp/strict (error) requires the braces escaped; better-regex (warning) wants them bare
+  // regexp/strict (error) requires the braces escaped.
   return template.replaceAll(/\{(\w+)\}/g, (match, name: string) =>
     name in vars ? String(vars[name]) : match,
   )

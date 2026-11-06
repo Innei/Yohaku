@@ -42,14 +42,14 @@ export function RichDocumentLab() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    let cancelled = false
     setError('')
     if (sample.local) return
+    const controller = new AbortController()
     fetch(
       sample.note
         ? `https://mx.innei.in/api/v3/notes/nid/${sample.id}`
         : `https://mx.innei.in/api/v3/posts/${sample.id}`,
-      { headers: { 'accept-language': '' } },
+      { headers: { 'accept-language': '' }, signal: controller.signal },
     )
       .then((res) => res.json())
       .then(
@@ -64,7 +64,7 @@ export function RichDocumentLab() {
           }
           meta?: { enrichments?: Record<string, unknown> }
         }) => {
-          if (cancelled) return
+          if (controller.signal.aborted) return
           setState({
             enrichments: camelizeEnrichments(meta?.enrichments),
             id: sample.label,
@@ -88,10 +88,12 @@ export function RichDocumentLab() {
         },
       )
       .catch((err: Error) => {
-        if (!cancelled) setError(err.message)
+        // An aborted fetch rejects with AbortError; leaving the sample is not a
+        // load failure, so only surface errors while the effect is live.
+        if (!controller.signal.aborted) setError(err.message)
       })
     return () => {
-      cancelled = true
+      controller.abort()
     }
   }, [sample])
 
