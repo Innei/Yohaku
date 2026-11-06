@@ -7,8 +7,8 @@
     "prestart": "pnpm prebuild:css",
     "preios": "pnpm prebuild:css",
     "eas-build-post-install": "pnpm prebuild:css",
-    "start": "expo start --dev-client",
-    "ios": "expo run:ios",
+    "start": "NODE_OPTIONS=--disable-warning=ExperimentalWarning EXPO_NO_TYPESCRIPT_SETUP=1 expo start --dev-client",
+    "ios": "NODE_OPTIONS=--disable-warning=ExperimentalWarning EXPO_NO_TYPESCRIPT_SETUP=1 expo run:ios",
     "ota:update": "bun ../../../expo-ota/apps/easc/bin/easc.js update --channel production --non-interactive",
     "test": "vitest run"
   },
@@ -100,7 +100,6 @@
     "better-sqlite3": "^13.0.3",
     "drizzle-kit": "^0.31.11",
     "happy-dom": "^21.0.4",
-    "typescript": "~6.0.3",
     "vitest": "^5.1.0"
   },
   "private": true

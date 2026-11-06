@@ -56,6 +56,10 @@ minimumReleaseAgeExclude:
   - better-call@1.4.5
 
 overrides:
+  # No TypeScript compiler is installed: the app is checked with
+  # @typescript/native-preview from the parent workspace, and expo's config
+  # loader falls back to Node's type stripping for app.config.ts.
+  typescript: '-'
   '@expo/dom-webview': link:./packages/dom-webview
   react: 19.3.1
   react-dom: 19.3.1
