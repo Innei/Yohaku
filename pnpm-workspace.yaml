@@ -93,6 +93,6 @@ overrides:
 patchedDependencies:
   '@react-native-menu/menu@2.0.0': patches/@react-native-menu__menu@2.0.0.patch
   expo-image@58.0.16: patches/expo-image@58.0.16.patch
-  expo-router@58.0.24: patches/expo-router@58.0.24.patch
+  expo-router@58.0.30: patches/expo-router@58.0.30.patch
   react-native-enriched-markdown@1.0.2: patches/react-native-enriched-markdown@1.0.2.patch
-  react-native-screens@4.30.0: patches/react-native-screens@4.30.0.patch
+  react-native-screens@4.30.1: patches/react-native-screens@4.30.1.patch
