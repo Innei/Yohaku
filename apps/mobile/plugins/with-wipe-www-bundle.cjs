@@ -14,7 +14,7 @@ fi
 
 function phaseName(phase) {
   if (!phase || typeof phase.name !== 'string') return ''
-  return phase.name.replace(/^"|"$/g, '')
+  return phase.name.replaceAll(/^"|"$/g, '')
 }
 
 function decodePbxShellScript(raw) {
@@ -22,7 +22,7 @@ function decodePbxShellScript(raw) {
   const body = quoted ? raw.slice(1, -1) : raw
   const encoded = quoted && body.includes('\\n')
   const text = encoded
-    ? body.replace(/\\n/g, '\n').replace(/\\"/g, '"')
+    ? body.replaceAll('\\n', '\n').replaceAll('\\"', '"')
     : body
   return { encoded, quoted, text }
 }
@@ -30,7 +30,7 @@ function decodePbxShellScript(raw) {
 function encodePbxShellScript(text, { encoded, quoted }) {
   if (!quoted) return text
   if (!encoded) return `"${text}"`
-  return `"${text.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`
+  return `"${text.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"`
 }
 
 function injectWipeScript(raw) {
