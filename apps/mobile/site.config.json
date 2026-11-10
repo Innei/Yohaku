@@ -1,10 +1,10 @@
 {
-  "appName": "春雪日记dsh",
-  "androidPackage": "com.imikufans.chunxue",
+  "appName": "Yohaku",
+  "androidPackage": "dev.yohaku.android",
   "bundleId": "dev.yohaku.app",
   "scheme": "yohaku",
-  "siteUrl": "https://blog.imikufans.com",
-  "apiUrl": "https://blog.imikufans.com/api/v3",
+  "siteUrl": "",
+  "apiUrl": "",
   "privacyUrl": "",
-  "siteHosts": ["blog.imikufans.com"]
+  "siteHosts": []
 }

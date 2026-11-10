@@ -30,7 +30,21 @@ const PUBLIC_VERSION = '1.0.1'
 // next to the iOS bundle id instead of inside the overlay machinery.
 const ANDROID_PACKAGE = siteConfig.androidPackage
 const APP_DISPLAY_NAME = siteConfig.appName
-const SITE_HOST = new URL(siteConfig.siteUrl).hostname
+
+// The public tree leaves `siteUrl` empty on purpose; a fork fills it in. Without
+// a host there is no https intent filter to declare, so the app only answers to
+// its own scheme until the site is configured.
+function siteHostOf(url: string): string | null {
+  const trimmed = url.trim()
+  if (!trimmed) return null
+  try {
+    return new URL(trimmed).hostname || null
+  } catch {
+    return null
+  }
+}
+
+const SITE_HOST = siteHostOf(siteConfig.siteUrl)
 
 interface OverlayExpo {
   appleTeamId?: string
@@ -219,15 +233,18 @@ export function createAppConfig(): ExpoConfig {
       softwareKeyboardLayoutMode: 'resize',
       // Deep links for the site (https) and for the custom auth scheme. The
       // scheme entry is generated from `scheme` as well; the https filter is
-      // what lets a browser open a post inside the app.
-      intentFilters: [
-        {
-          action: 'VIEW',
-          autoVerify: true,
-          data: [{ scheme: 'https', host: SITE_HOST }],
-          category: ['BROWSABLE', 'DEFAULT'],
-        },
-      ],
+      // what lets a browser open a post inside the app. Skipped while the
+      // public tree has no site configured.
+      intentFilters: SITE_HOST
+        ? [
+            {
+              action: 'VIEW',
+              autoVerify: true,
+              data: [{ scheme: 'https', host: SITE_HOST }],
+              category: ['BROWSABLE', 'DEFAULT'],
+            },
+          ]
+        : [],
       permissions: ['INTERNET', 'VIBRATE', 'WAKE_LOCK', 'POST_NOTIFICATIONS'],
       // expo-audio and the dev client add permissions this reader never uses.
       blockedPermissions: [
