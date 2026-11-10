@@ -27,6 +27,7 @@ Yohaku 是一套面向个人写作的跨端出版产品。它以 [mx-core](https
 | ------------ | ------------------------------------------------------ | --------------------------------------------------------------------------------- |
 | **Web**      | 响应式个人站、长文阅读与完整内容体验                   | 闭源维护于 [Innei-dev/Yohaku](https://github.com/Innei-dev/Yohaku)，线上实例为 [innei.in](https://innei.in) |
 | **iOS**      | 面向单一站点的原生阅读客户端，支持 iOS 18 或以上       | 本仓库 [`apps/mobile/`](./apps/mobile/)，[MIT 开源](./apps/mobile/LICENSE)，可自行编译上架 |
+| **Android**  | 同一套客户端的 Android 版本，支持 Android 8.0 / API 26 或以上 | 同上，`apps/mobile/` 内通过 `Platform` 分支实现，见 [`README.android.md`](./apps/mobile/README.android.md) |
 | **设计系统** | 色彩、字体、间距、动效、模板与面向 AI 助手的 [AI Skill 契约](./design-system/SKILL.md) | [MIT 开源](./design-system)                                                       |
 | **内容服务** | 内容、评论、鉴权与实时数据                             | 基于 [mx-core](https://github.com/mx-space/core)，要求 v12 或以上                 |
 
