@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
 import { type as typeScale } from '@yohaku/design-system/tokens'
+import { useQuery } from '@tanstack/react-query'
 import { SymbolView } from 'expo-symbols'
 import { Fragment, type ReactNode, useMemo, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
@@ -9,11 +9,11 @@ import { formatApiErrorLine } from '@/api/errors'
 import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
 import { AppText, MarkdownBody } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
-import { insightsBlocks, parseYohakuRefUrl } from '@/lib/insights-markup'
 import {
   extractInsightsMeta,
   formatInsightsMetaLine,
 } from '@/lib/insights-meta'
+import { insightsBlocks, parseYohakuRefUrl } from '@/lib/insights-markup'
 import { fonts } from '@/theme/fonts'
 import { usePalette } from '@/theme/palette'
 

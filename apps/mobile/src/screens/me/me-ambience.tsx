@@ -34,12 +34,18 @@ export function MeAmbienceWash() {
 export function MeAmbienceGrain() {
   const palette = usePalette()
   const { width, height } = useWindowDimensions()
+  // The grain is a full-screen decoration: it must live inside a plain
+  // `pointerEvents="none"` host, because RN's Image does not reliably forward
+  // the prop on Android and the sheet would swallow every tap on the page.
   return (
-    <Image
-      resizeMode="repeat"
-      source={grainSource[palette.theme]}
-      style={[styles.grain, { width, height }, grainBlend[palette.theme]]}
-    />
+    <View pointerEvents="none" style={styles.grainLayer}>
+      <Image
+        pointerEvents="none"
+        resizeMode="repeat"
+        source={grainSource[palette.theme]}
+        style={[styles.grain, { width, height }, grainBlend[palette.theme]]}
+      />
+    </View>
   )
 }
 
@@ -51,11 +57,18 @@ const styles = StyleSheet.create({
     right: 0,
     height: 280,
   },
+  grainLayer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 10,
+  },
   grain: {
     position: 'absolute',
     top: 0,
     left: 0,
-    zIndex: 10,
     pointerEvents: 'none',
   },
 })

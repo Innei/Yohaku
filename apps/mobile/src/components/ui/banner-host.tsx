@@ -1,7 +1,7 @@
 import { YohakuNative } from '@modules/yohaku'
 import { GlassView, isGlassEffectAPIAvailable } from 'expo-glass-effect'
 import { SymbolView } from 'expo-symbols'
-import { PlatformColor, StyleSheet, View } from 'react-native'
+import { Platform, PlatformColor, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import {
@@ -19,8 +19,10 @@ import { NativePressable } from './native-pressable'
 
 const BANNER_TAB_GAP = 8
 const NATIVE_TAB_BAR_HEIGHT = 49
-const systemOrange = PlatformColor('systemOrange')
-const tertiaryLabel = PlatformColor('tertiaryLabel')
+const systemOrange =
+  Platform.OS === 'ios' ? PlatformColor('systemOrange') : '#e39a3b'
+const tertiaryLabel =
+  Platform.OS === 'ios' ? PlatformColor('tertiaryLabel') : '#8b8880'
 
 function bannerBottom(safeBottom: number) {
   if (YohakuNative.liquidGlassAvailable) {

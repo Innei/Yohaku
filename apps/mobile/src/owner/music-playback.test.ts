@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import {
-  type MusicLinking,
   musicPlaybackTarget,
   openMusicPlayback,
+  type MusicLinking,
 } from './music-playback'
 
 const QQ_HTTPS = 'https://y.qq.com/n/ryqq/songDetail/001lzbAN14boA4'

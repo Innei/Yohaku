@@ -1,3 +1,4 @@
+import { Toolbar } from '@/components/navigation/header-toolbar'
 import { type as typeScale } from '@yohaku/design-system/tokens'
 import { type Href, Link, Stack, useRouter } from 'expo-router'
 import { SymbolView } from 'expo-symbols'
@@ -93,25 +94,25 @@ function GalleryClose() {
 
   if (usesPaperNavigationControls) {
     return (
-      <Stack.Toolbar asChild placement="left">
+      <Toolbar asChild placement="left">
         <PaperNavigationControl
           accessibilityLabel={t('close')}
           icon="xmark"
           identifier="dev-demos-close"
           onPress={close}
         />
-      </Stack.Toolbar>
+      </Toolbar>
     )
   }
 
   return (
-    <Stack.Toolbar placement="left">
-      <Stack.Toolbar.Button
+    <Toolbar placement="left">
+      <Toolbar.Button
         accessibilityLabel={t('close')}
         icon="xmark"
         onPress={close}
       />
-    </Stack.Toolbar>
+    </Toolbar>
   )
 }
 

@@ -8,8 +8,8 @@ import {
   groupTocSections,
   parseTocDetents,
   presentArticleToc,
-  TOC_SHEET,
   tocHref,
+  TOC_SHEET,
 } from './article-toc'
 
 const heading = (

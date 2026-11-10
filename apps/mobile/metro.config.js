@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { spawnSync } = require('node:child_process')
 const { existsSync } = require('node:fs')
 const { getDefaultConfig } = require('expo/metro-config')
@@ -52,9 +53,6 @@ config.resolver.sourceExts.push('sql')
 const BARREL_SHIMS = {
   '@icons-pack/react-simple-icons': './shims/react-simple-icons.ts',
   'lucide-react': './shims/lucide-react.ts',
-  // @better-auth/expo hard-imports expo-web-browser for social sign-in with
-  // no override hook; the shim serves the auth session from YohakuKit instead.
-  'expo-web-browser': './shims/expo-web-browser.ts',
 }
 
 // Metro fails to resolve @base-ui/react's `#prehydration/*` subpath imports
@@ -76,11 +74,36 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
     }
   }
 
+  // iOS serves the auth session from YohakuKit (ASWebAuthenticationSession);
+  // Android uses the real expo-web-browser, whose Custom Tabs implementation
+  // is autolinked and present in the binary.
+  if (moduleName === 'expo-web-browser' && platform === 'ios') {
+    return {
+      type: 'sourceFile',
+      filePath: path.resolve(projectRoot, './shims/expo-web-browser.ts'),
+    }
+  }
+
   const shim = BARREL_SHIMS[moduleName]
   if (shim) {
     return {
       type: 'sourceFile',
       filePath: path.resolve(projectRoot, shim),
+    }
+  }
+
+  // iOS-only native UI packages get React Native implementations on Android.
+  const ANDROID_SHIMS = {
+    'expo-glass-effect': './shims/expo-glass-effect.tsx',
+    'expo-symbols': './shims/expo-symbols.tsx',
+  }
+  if (platform === 'android') {
+    const androidShim = ANDROID_SHIMS[moduleName]
+    if (androidShim) {
+      return {
+        type: 'sourceFile',
+        filePath: path.resolve(projectRoot, androidShim),
+      }
     }
   }
 

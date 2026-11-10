@@ -1,4 +1,4 @@
-// Expo loads local config plugins through CommonJS.
+/* eslint-disable @typescript-eslint/no-require-imports -- Expo loads local config plugins through CommonJS. */
 
 const { withXcodeProject } = require('expo/config-plugins')
 
@@ -14,7 +14,7 @@ fi
 
 function phaseName(phase) {
   if (!phase || typeof phase.name !== 'string') return ''
-  return phase.name.replaceAll(/^"|"$/g, '')
+  return phase.name.replace(/^"|"$/g, '')
 }
 
 function decodePbxShellScript(raw) {
@@ -22,7 +22,7 @@ function decodePbxShellScript(raw) {
   const body = quoted ? raw.slice(1, -1) : raw
   const encoded = quoted && body.includes('\\n')
   const text = encoded
-    ? body.replaceAll('\\n', '\n').replaceAll('\\"', '"')
+    ? body.replace(/\\n/g, '\n').replace(/\\"/g, '"')
     : body
   return { encoded, quoted, text }
 }
@@ -30,7 +30,7 @@ function decodePbxShellScript(raw) {
 function encodePbxShellScript(text, { encoded, quoted }) {
   if (!quoted) return text
   if (!encoded) return `"${text}"`
-  return `"${text.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"`
+  return `"${text.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`
 }
 
 function injectWipeScript(raw) {

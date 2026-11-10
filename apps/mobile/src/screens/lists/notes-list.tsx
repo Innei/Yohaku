@@ -1,3 +1,4 @@
+import { Toolbar } from '@/components/navigation/header-toolbar'
 import { YohakuNative } from '@modules/yohaku'
 import { desc, eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
@@ -95,11 +96,11 @@ function NotesTrailingToolbar() {
         />
       }
       trailingSystem={
-        <Stack.Toolbar.Menu accessibilityLabel={tc('more')} icon="ellipsis">
-          <Stack.Toolbar.MenuAction icon="square.stack" onPress={openSeries}>
+        <Toolbar.Menu accessibilityLabel={tc('more')} icon="ellipsis">
+          <Toolbar.MenuAction icon="square.stack" onPress={openSeries}>
             {t('indexTitle')}
-          </Stack.Toolbar.MenuAction>
-        </Stack.Toolbar.Menu>
+          </Toolbar.MenuAction>
+        </Toolbar.Menu>
       }
     />
   )

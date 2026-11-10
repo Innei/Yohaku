@@ -1,6 +1,7 @@
 import { api } from '@/api/client'
 
-import { getAuthClient } from './client'
+import { getAuthClient, clearRawSessionCookie } from './client'
+import { signOutDirect } from './direct-signout'
 import type { SessionUser } from './session-store'
 import { getSession, reduceSession, setSession } from './session-store'
 
@@ -35,8 +36,9 @@ export function refreshSession(): Promise<void> {
 
 export async function signOut(): Promise<void> {
   try {
-    await getAuthClient().signOut()
+    await signOutDirect()
   } finally {
+    clearRawSessionCookie()
     setSession(null)
   }
 }
@@ -49,5 +51,6 @@ export async function deleteAccount(): Promise<void> {
     throw new Error('deleteUser unavailable')
   }
   await client.deleteUser()
+  clearRawSessionCookie()
   setSession(null)
 }

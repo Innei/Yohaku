@@ -156,7 +156,7 @@ export function PostDetailScreen({
             data: detail,
             enrichments,
             meta,
-          } = await api.postDetail(categorySlug, slug, locale)
+          } = await api.postDetail(categorySlug, slug, locale, routePostId)
           await db
             .insert(posts)
             .values({
@@ -208,11 +208,17 @@ export function PostDetailScreen({
     })
   }, [postId, shouldUnlock, updatesEnabled])
 
-  const body =
-    post?.contentFormat === 'lexical' && post.content ? post.content : null
+  // Android renders posts from the markdown body the API always ships alongside
+  // the lexical document. The lexical renderer drops the entire document when it
+  // meets a node type it cannot build, which on device showed up as a completely
+  // blank article (the words line still rendered, the body did not). Markdown
+  // renders reliably, so it wins whenever the API has it; lexical is only the
+  // last resort for posts that have a lexical body but no markdown text.
   const markdownSource =
-    post?.contentFormat === 'markdown' && post.bodyVersion !== null
-      ? post.text
+    post && post.bodyVersion !== null && post.text ? post.text : null
+  const body =
+    !markdownSource && post?.contentFormat === 'lexical' && post.content
+      ? post.content
       : null
   const markdown = useMemo(
     () => (markdownSource ? markdownArticle(markdownSource) : null),
@@ -371,6 +377,7 @@ export function PostDetailScreen({
                     autoFollow={tts.autoFollow}
                     content={body ?? ''}
                     enrichments={post?.enrichments ?? null}
+                    fallbackText={post.text ?? null}
                     highlightBlockId={tts.activeBlockId}
                     markdown={markdown}
                     queriesEnabled={updatesEnabled}

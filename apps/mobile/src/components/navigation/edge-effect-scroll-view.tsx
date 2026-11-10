@@ -5,6 +5,7 @@ import {
 } from '@modules/yohaku'
 import { useHeaderHeight } from 'expo-router/react-navigation'
 import type { Ref } from 'react'
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
 import { useCallback, useRef } from 'react'
 import type {
   NativeScrollEvent,
@@ -12,7 +13,8 @@ import type {
   ScrollViewInstance,
   ScrollViewProps,
 } from 'react-native'
-import { Platform, StyleSheet } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Animated, {
   type SharedValue,
   useAnimatedProps,
@@ -20,7 +22,7 @@ import Animated, {
   useComposedEventHandler,
   useSharedValue,
 } from 'react-native-reanimated'
-import { ScrollViewMarker } from 'react-native-screens/experimental'
+import { ScrollViewMarkerCompat as ScrollViewMarker } from '@/components/navigation/scroll-view-marker'
 
 import { usePalette } from '@/theme/palette'
 
@@ -33,6 +35,12 @@ import { topBlurOverlayHeight } from './top-edge-blur'
 
 type ReanimatedScrollHandler = ReturnType<typeof useAnimatedScrollHandler>
 type EdgeEffectScrollViewProps = ScrollViewProps & {
+  /**
+   * Android keeps the transparent native header out of layout, so scroll
+   * content has to clear it manually. Cover/hero screens that intentionally
+   * bleed under the header opt out.
+   */
+  androidHeaderInset?: boolean
   headerTitleProgress?: SharedValue<number>
   ref?: Ref<ScrollViewInstance>
 }
@@ -60,6 +68,7 @@ export function scrollEdgeProgress(distance: number) {
 // dropped on re-push, so screens rested 44pt apart depending on navigation
 // history. Resting at the full header clearance is the consistent state.
 export function EdgeEffectScrollView({
+  androidHeaderInset = true,
   contentInset,
   headerTitleProgress,
   onContentSizeChange,
@@ -71,6 +80,7 @@ export function EdgeEffectScrollView({
   ...props
 }: EdgeEffectScrollViewProps) {
   const palette = usePalette()
+  const insets = useSafeAreaInsets()
   const headerHeight = useHeaderHeight()
   const paperTabBarInset = usePaperTabBarInset()
   const localBottomProgress = useSharedValue(1)
@@ -147,6 +157,24 @@ export function EdgeEffectScrollView({
         ...contentInset,
         bottom: (contentInset?.bottom ?? 0) + paperTabBarInset,
       }}
+      // `contentInset` is iOS-only: Android scroll views need the same space as
+      // real content padding or the tab bar covers the last paragraph.
+      contentContainerStyle={[
+        props.contentContainerStyle,
+        Platform.OS === 'android'
+          ? {
+              paddingBottom:
+                (contentInset?.bottom ?? 0) + paperTabBarInset,
+              paddingTop: androidHeaderInset
+                ? headerHeight +
+                  3 +
+                  (Number(
+                    StyleSheet.flatten(props.contentContainerStyle)?.paddingTop,
+                  ) || 0)
+                : undefined,
+            }
+          : null,
+      ]}
       scrollIndicatorInsets={{
         ...scrollIndicatorInsets,
         bottom: (scrollIndicatorInsets?.bottom ?? 0) + paperTabBarInset,
@@ -187,6 +215,43 @@ export function EdgeEffectScrollView({
     />
   ) : null
 
+  // Transparent native headers do not paint over scrolling content on Android,
+  // so the paper scrim has to cover the status bar + header band itself. The
+  // liquid-glass band is used on list screens only: inside this scroll view the
+  // backdrop capture blanks the whole screen on API 33+.
+  const androidScrimHeight = Math.max(headerHeight, insets.top + 56) + 12
+  const androidScrim =
+    Platform.OS === 'android' ? (
+      <View
+        pointerEvents="none"
+        style={[styles.topBlur, { height: androidScrimHeight }]}
+      >
+        <View
+          style={{
+            backgroundColor: palette.surface.desk,
+            height: Math.max(0, androidScrimHeight - 20),
+          }}
+        />
+        <Svg height={20} width="100%">
+          <Defs>
+            <LinearGradient id="scrim-fade" x1="0" x2="0" y1="0" y2="1">
+              <Stop
+                offset="0"
+                stopColor={palette.surface.desk}
+                stopOpacity={1}
+              />
+              <Stop
+                offset="1"
+                stopColor={palette.surface.desk}
+                stopOpacity={0}
+              />
+            </LinearGradient>
+          </Defs>
+          <Rect fill="url(#scrim-fade)" height={20} width="100%" />
+        </Svg>
+      </View>
+    ) : null
+
   return (
     <Animated.View style={styles.fill}>
       {usesLegacyScrollEdge ? (
@@ -208,6 +273,7 @@ export function EdgeEffectScrollView({
         markedScrollView
       )}
       {topBlur}
+      {androidScrim}
     </Animated.View>
   )
 }

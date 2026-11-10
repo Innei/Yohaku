@@ -11,6 +11,7 @@ import {
   Image,
   type ImageSourcePropType,
   PixelRatio,
+  Platform,
   useColorScheme,
 } from 'react-native'
 
@@ -43,11 +44,19 @@ const tabIcons = {
   },
 }
 
-const tabTint = DynamicColorIOS({ light: accent.light, dark: accent.dark })
-const tabInactiveTint = DynamicColorIOS({
-  light: neutral.light[6],
-  dark: neutral.dark[6],
-})
+// DynamicColorIOS throws on Android, so the native-tab tints only use it on
+// iOS; the paper tabs read concrete colours from the palette on both.
+const tabTint =
+  Platform.OS === 'ios'
+    ? DynamicColorIOS({ light: accent.light, dark: accent.dark })
+    : accent.light
+const tabInactiveTint =
+  Platform.OS === 'ios'
+    ? DynamicColorIOS({
+        light: neutral.light[6],
+        dark: neutral.dark[6],
+      })
+    : neutral.light[6]
 
 function tabAvatar(
   image: string | null | undefined,

@@ -231,6 +231,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: PAPER_TAB_BAR_CAPSULE_HEIGHT,
     justifyContent: 'center',
+    // Android draws the box-shadowed selection capsule above siblings without
+    // an explicit order, which hid the active glyph.
+    zIndex: 2,
   },
   icon: {
     height: 24,

@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
 
-import fixture from './__fixtures__/print-lab.json'
 import { withLexicalElementDefaults } from './element-defaults'
+import fixture from './__fixtures__/print-lab.json'
 
 it('gives list items a numeric indent', () => {
   const next = withLexicalElementDefaults(fixture) as {

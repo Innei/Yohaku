@@ -34,11 +34,6 @@ describe('notification localization catalog', () => {
       'PUSH_THINKING_FACT_BOOK',
       'PUSH_THINKING_FACT_ALBUM',
       'PUSH_THINKING_FACT_SONG',
-      'PUSH_REPLY_SUBTITLE',
-      'PUSH_POST_PUBLISHED_TITLE',
-      'PUSH_NOTE_PUBLISHED_TITLE',
-      'PUSH_TOKEN_IMAGE',
-      'PUSH_TOKEN_CODE',
     ]
     const removed = [
       'PUSH_CONTENT_POST_SUBTITLE',

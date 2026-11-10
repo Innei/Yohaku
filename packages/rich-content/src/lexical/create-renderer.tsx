@@ -279,7 +279,7 @@ export const REGISTERED_NODE_TYPES = new Set<string>([
 export interface YohakuRichContentProps {
   className?: string
   style?: CSSProperties
-  theme?: 'dark' | 'light'
+  theme: 'dark' | 'light'
   value: SerializedEditorState
   variant?: RichEditorVariant
 }

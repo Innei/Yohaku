@@ -1,0 +1,486 @@
+import {
+  type EventSubscription,
+  requireNativeModule,
+  requireNativeViewManager,
+} from 'expo-modules-core'
+import type { ComponentType } from 'react'
+import type { ColorValue, NativeSyntheticEvent, ViewProps } from 'react-native'
+
+export type TtsRemoteAction = 'pause' | 'play' | 'stop'
+
+type TtsEvents = {
+  onTtsEnded: () => void
+  onTtsError: (event: { message: string }) => void
+  onTtsInterrupted: (event: { shouldResume: boolean }) => void
+  onTtsRemote: (event: { action: TtsRemoteAction }) => void
+  onTtsTime: (event: { duration: number; elapsed: number }) => void
+}
+
+type NativeEvents = TtsEvents & {
+  onMeTabLongPress: () => void
+}
+
+export interface RichPrintPayload {
+  exportPdf?: boolean
+  items: unknown[]
+  jobName: string
+  klineColors: Record<'down' | 'grid' | 'label' | 'up' | 'volume', string>
+  masthead: { meta: string; title: string; url: string }
+  referer?: string
+  siteName: string
+  typography: Record<string, unknown>
+}
+
+interface YohakuNativeModule {
+  addListener<K extends keyof NativeEvents>(
+    eventName: K,
+    listener: NativeEvents[K],
+  ): EventSubscription
+  circularImageUri(url: string): Promise<{
+    height: number
+    scale: number
+    uri: string
+    width: number
+  }>
+  configureCompactNativeTabBar(): Promise<void>
+  databaseBytes(): number
+  dismissAuthSession(): Promise<void>
+  downloadSystemFont(postScriptName: string): Promise<boolean>
+  liquidGlassAvailable: boolean
+  loadTts(payload: {
+    artist: string
+    rate: number
+    title: string
+    url: string
+  }): Promise<void>
+  measureNoteHeroText(title: string, meta: string, width: number): number
+  openAuthSession(
+    url: string,
+    scheme: string,
+  ): Promise<{ type: 'cancel' } | { type: 'success'; url: string }>
+  parseMarkdown(markdown: string): string
+  pauseTts(): Promise<void>
+  playTts(): Promise<void>
+  preloadTts(url: string): Promise<void>
+  prepareNoteHeroTransition(noteId: string): void
+  presentSafari(url: string): Promise<void>
+  printRichDocument(payload: RichPrintPayload): Promise<string>
+  rasterizeSvg(payload: {
+    bg: string
+    height: number
+    svg: string
+    width: number
+  }): Promise<{ height: number; uri: string; width: number }>
+  renderMermaid(payload: {
+    bg: string
+    fg: string
+    source: string
+  }): Promise<{ height: number; uri: string; width: number }>
+  secretDelete(key: string): void
+  secretGet(key: string): string | null
+  secretSet(key: string, value: string): void
+  setRestorableRoute(routeURL: string): Promise<void>
+  setTtsRate(rate: number): Promise<void>
+  showToast(message: string): void
+  stopTts(): Promise<void>
+}
+
+export const YohakuNative = requireNativeModule<YohakuNativeModule>('Yohaku')
+
+type MembershipEvents = {
+  onMembershipTransaction: (event: {
+    productId: string
+    signedTransactionInfo: string
+  }) => void
+}
+
+type MembershipAccountPayload = {
+  appAccountToken: string
+  productIds: string[]
+}
+
+type MembershipStorePayload = MembershipAccountPayload & {
+  privacyUrl: string
+  termsUrl: string
+}
+
+interface YohakuMembershipNativeModule {
+  addListener<K extends keyof MembershipEvents>(
+    eventName: K,
+    listener: MembershipEvents[K],
+  ): EventSubscription
+  currentEntitlementJws(
+    appAccountToken: string,
+    productIds: string[],
+  ): Promise<string[]>
+  finishMembershipTransaction(signedTransactionInfo: string): Promise<void>
+  presentSubscriptionStore(
+    appAccountToken: string,
+    productIds: string[],
+    termsUrl: string,
+    privacyUrl: string,
+  ): Promise<
+    | { signedTransactionInfo: string; status: 'purchased' | 'restored' }
+    | { status: 'cancelled' }
+  >
+  showManageSubscriptions(): Promise<void>
+  unfinishedMembershipTransactionJws(
+    appAccountToken: string,
+    productIds: string[],
+  ): Promise<string[]>
+}
+
+const membership =
+  requireNativeModule<YohakuMembershipNativeModule>('YohakuMembership')
+
+export const YohakuMembershipNative = {
+  addListener: membership.addListener.bind(membership),
+  currentEntitlementJws: (payload: MembershipAccountPayload) =>
+    membership.currentEntitlementJws(
+      payload.appAccountToken,
+      payload.productIds,
+    ),
+  finishMembershipTransaction:
+    membership.finishMembershipTransaction.bind(membership),
+  presentSubscriptionStore: (payload: MembershipStorePayload) =>
+    membership.presentSubscriptionStore(
+      payload.appAccountToken,
+      payload.productIds,
+      payload.termsUrl,
+      payload.privacyUrl,
+    ),
+  showManageSubscriptions: membership.showManageSubscriptions.bind(membership),
+  unfinishedMembershipTransactionJws: (payload: MembershipAccountPayload) =>
+    membership.unfinishedMembershipTransactionJws(
+      payload.appAccountToken,
+      payload.productIds,
+    ),
+}
+
+type ScrollEdgeContainerProps = ViewProps & {
+  edge?: 'bottom' | 'top'
+}
+
+export const ScrollEdgeContainer: ComponentType<ScrollEdgeContainerProps> =
+  requireNativeViewManager('Yohaku')
+
+type LegacyScrollEdgeMaskProps = ViewProps & {
+  bottomEdgeHeight: number
+  bottomProgress: number
+  topEdgeHeight: number
+  topProgress: number
+}
+
+export const LegacyScrollEdgeMask: ComponentType<LegacyScrollEdgeMaskProps> =
+  requireNativeViewManager('Yohaku', 'LegacyScrollEdgeMask')
+
+type VariableBlurEdgeProps = ViewProps & {
+  navigationForegroundColor?: ColorValue
+  progress: number
+  readabilityColor: ColorValue
+}
+
+export const VariableBlurEdge: ComponentType<VariableBlurEdgeProps> =
+  requireNativeViewManager('Yohaku', 'VariableBlurEdge')
+
+type NavigationHeaderTitleProps = ViewProps & {
+  scrollVelocity: number
+  subtitle: string
+  subtitleColor: string
+  subtitleFontSize: number
+  title: string
+  titleColor?: string
+  titleFontSize: number
+  titleFontWeight?: 'bold' | 'heavy' | 'medium' | 'semibold'
+  titleVisible: number
+}
+
+export const NavigationHeaderTitle: ComponentType<NavigationHeaderTitleProps> =
+  requireNativeViewManager('Yohaku', 'NavigationHeaderTitle')
+
+type SettingsAvatarProps = ViewProps & {
+  active?: boolean
+  collapseDistance?: number
+  imageUri: string
+  ringColor?: string
+}
+
+export const SettingsAvatar: ComponentType<SettingsAvatarProps> =
+  requireNativeViewManager('Yohaku', 'SettingsAvatar')
+
+type YohakuPagerProps = ViewProps & {
+  page?: number
+  onPageScroll?: (event: NativeSyntheticEvent<{ progress: number }>) => void
+  onPageSelected?: (event: NativeSyntheticEvent<{ page: number }>) => void
+}
+
+export const YohakuPager: ComponentType<YohakuPagerProps> =
+  requireNativeViewManager('Yohaku', 'YohakuPager')
+
+type YohakuVideoProps = ViewProps & {
+  backdropColor?: ColorValue
+  loop?: boolean
+  onNaturalSize?: (
+    event: NativeSyntheticEvent<{ height: number; width: number }>,
+  ) => void
+  poster?: string
+  src: string
+}
+
+export const YohakuVideo: ComponentType<YohakuVideoProps> =
+  requireNativeViewManager('Yohaku', 'YohakuVideo')
+
+type YohakuTrackMapProps = ViewProps & {
+  accentColor?: ColorValue
+  interactive?: boolean
+  onNativePress?: (event: NativeSyntheticEvent<Record<string, never>>) => void
+  paperColor?: ColorValue
+  polylines: number[][][]
+}
+
+export const YohakuTrackMap: ComponentType<YohakuTrackMapProps> =
+  requireNativeViewManager('Yohaku', 'YohakuTrackMap')
+
+export type YohakuKlineBar = {
+  c: number
+  h: number
+  l: number
+  o: number
+  t: number
+  v: number
+}
+
+export type YohakuKlineEma = {
+  color: string
+  period: number
+  values: number[]
+}
+
+type YohakuKlineProps = ViewProps & {
+  bars: YohakuKlineBar[]
+  downColor?: ColorValue
+  ema: YohakuKlineEma[]
+  gridColor?: ColorValue
+  labelColor?: ColorValue
+  upColor?: ColorValue
+  volumeColor?: ColorValue
+}
+
+type YohakuWebEmbedProps = ViewProps & {
+  baseUrl: string
+  initialHeight: number
+  props: Record<string, unknown>
+  theme: 'dark' | 'light'
+  url: string
+  onContentHeight?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  onEmbedError?: () => void
+  onEmbedLink?: (event: NativeSyntheticEvent<{ url: string }>) => void
+}
+
+export const YohakuWebEmbed: ComponentType<YohakuWebEmbedProps> =
+  requireNativeViewManager('Yohaku', 'YohakuWebEmbed')
+
+type YohakuCodeProps = ViewProps & {
+  boldFontFamily?: string
+  code: string
+  color?: ColorValue
+  fontFamily?: string
+  fontSize?: number
+  language?: string
+  lineHeight?: number
+  onContentSize?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  padding?: number
+  paddingTop?: number
+}
+
+export const YohakuCode: ComponentType<YohakuCodeProps> =
+  requireNativeViewManager('Yohaku', 'YohakuCode')
+
+type YohakuMathProps = ViewProps & {
+  color?: ColorValue
+  fontSize?: number
+  latex: string
+  onContentSize?: (
+    event: NativeSyntheticEvent<{ height: number; width: number }>,
+  ) => void
+  onMathError?: () => void
+}
+
+export const YohakuMath: ComponentType<YohakuMathProps> =
+  requireNativeViewManager('Yohaku', 'YohakuMath')
+
+export const YohakuKline: ComponentType<YohakuKlineProps> =
+  requireNativeViewManager('Yohaku', 'YohakuKline')
+
+type YohakuStudyShellProps = ViewProps & {
+  collapseDistance?: number
+  ownerImageUri?: string
+  ringColor?: string
+}
+
+export const YohakuStudyShell: ComponentType<YohakuStudyShellProps> =
+  requireNativeViewManager('Yohaku', 'YohakuStudyShell')
+
+export type NavigationHeaderMenuItem = {
+  category?: string
+  hidden?: boolean
+  icon?: string
+  id: string
+  on?: boolean
+  title: string
+}
+
+type NavigationHeaderControlProps = ViewProps & {
+  controlIdentifier: string
+  controlKind: 'button' | 'menu'
+  controlLabel: string
+  cornerRadius: number
+  haptic: boolean
+  iconColor: string
+  iconName: string
+  menuItems: NavigationHeaderMenuItem[]
+  onMenuAction?: (event: NativeSyntheticEvent<{ id: string }>) => void
+  onNativePress?: (event: NativeSyntheticEvent<Record<string, never>>) => void
+  paperColor: string
+  ringColor: string
+  shadowOpacity: number
+}
+
+export const NavigationHeaderControl: ComponentType<NavigationHeaderControlProps> =
+  requireNativeViewManager('Yohaku', 'NavigationHeaderControl')
+
+type TextMenuButtonProps = ViewProps & {
+  controlLabel: string
+  disabled?: boolean
+  menuItems: NavigationHeaderMenuItem[]
+  onMenuAction?: (event: NativeSyntheticEvent<{ id: string }>) => void
+  title: string
+  titleColor: string
+  titleSize: number
+}
+
+export const TextMenuButton: ComponentType<TextMenuButtonProps> =
+  requireNativeViewManager('Yohaku', 'TextMenuButton')
+
+export type GroupedListNativeRow = {
+  chevron: boolean
+  danger: boolean
+  id: string
+  label: string
+  menu?: NavigationHeaderMenuItem[]
+  navigates: boolean
+  pressable: boolean
+  value?: string
+}
+
+type GroupedListViewProps = ViewProps & {
+  dangerColor: string
+  onNativeMetrics?: (
+    event: NativeSyntheticEvent<{ height: number; textLeading: number }>,
+  ) => void
+  onRowMenuAction?: (
+    event: NativeSyntheticEvent<{ id: string; item: string }>,
+  ) => void
+  onRowPress?: (event: NativeSyntheticEvent<{ id: string }>) => void
+  rows: GroupedListNativeRow[]
+}
+
+export const GroupedListView: ComponentType<GroupedListViewProps> =
+  requireNativeViewManager('Yohaku', 'GroupedList')
+
+export type YohakuNoteHeroSpec = {
+  coverPlaceholderUri?: string | null
+  coverUri?: string | null
+  height: number
+  id: string
+  meta: string
+  title: string
+}
+
+type YohakuNoteHeroHostProps = ViewProps & {
+  nativeTopBlurHeight?: number
+  nativeTopBlurReadabilityColor?: ColorValue
+  nativeTopBlurForegroundColor?: ColorValue
+  noteHeroRole?: 'list' | 'detail'
+  noteHeroContentInsetTop?: number
+  noteHeroCoverPlaceholderUri?: string | null
+  noteHeroCoverUri?: string | null
+  noteHeroHeight?: number
+  noteHeroId?: string
+  noteHeroMeta?: string
+  noteHeroMetaColor?: ColorValue
+  noteHeroTitle?: string
+  noteHeroTitleColor?: ColorValue
+}
+
+export const YohakuNoteHeroHost: ComponentType<YohakuNoteHeroHostProps> =
+  requireNativeViewManager('Yohaku', 'YohakuNoteHeroHost')
+
+export const YohakuScrollAttachment: ComponentType<ViewProps> =
+  requireNativeViewManager('Yohaku', 'YohakuScrollAttachment')
+
+type YohakuStretchCoverHostProps = ViewProps & {
+  stretchCoverAnchorY?: number
+  stretchCoverHeight?: number
+  stretchCoverPlaceholderUri?: string | null
+  stretchCoverUri?: string | null
+}
+
+export const YohakuStretchCoverHost: ComponentType<YohakuStretchCoverHostProps> =
+  requireNativeViewManager('Yohaku', 'YohakuStretchCoverHost')
+
+type NativePressViewProps = ViewProps & {
+  disabled: boolean
+  haptic: boolean
+  longPressEnabled: boolean
+  onNativeLongPress?: (
+    event: NativeSyntheticEvent<Record<string, never>>,
+  ) => void
+  onNativePress?: (event: NativeSyntheticEvent<Record<string, never>>) => void
+  pressScale: number
+  pressTranslateY: number
+}
+
+export const NativePressView: ComponentType<NativePressViewProps> =
+  requireNativeViewManager('Yohaku', 'NativePress')
+
+type TicketStubViewProps = ViewProps & {
+  cornerRadius: number
+  divisions: number
+  fillColor?: ColorValue
+  notchRadius: number
+  shadowColor?: string
+  shadowOffsetY?: number
+  shadowOpacity?: number
+  shadowRadius?: number
+}
+
+export const TicketStubView: ComponentType<TicketStubViewProps> =
+  requireNativeViewManager('Yohaku', 'TicketStub')
+
+type RichTextNativeProps = ViewProps & {
+  blocks: unknown[]
+  highlights: unknown[]
+  menuItems: unknown[]
+  onContentHeight?: (event: NativeSyntheticEvent<{ height: number }>) => void
+  onSelectionActive?: (event: NativeSyntheticEvent<{ active: boolean }>) => void
+  onBlockRects?: (
+    event: NativeSyntheticEvent<{
+      rects: Array<{ height: number; id: string; y: number }>
+    }>,
+  ) => void
+  onHighlightPress?: (event: NativeSyntheticEvent<{ id: string }>) => void
+  onLinkPress?: (event: NativeSyntheticEvent<{ href: string }>) => void
+  onMenuAction?: (
+    event: NativeSyntheticEvent<{
+      end: { blockId: string; offset: number }
+      id: string
+      start: { blockId: string; offset: number }
+      text: string
+    }>,
+  ) => void
+  typography: Record<string, unknown>
+}
+
+export const RichTextNativeView: ComponentType<RichTextNativeProps> =
+  requireNativeViewManager('Yohaku', 'RichText')

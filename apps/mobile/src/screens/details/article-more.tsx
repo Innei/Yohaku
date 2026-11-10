@@ -1,3 +1,4 @@
+import { Toolbar } from '@/components/navigation/header-toolbar'
 import { Stack, useRouter } from 'expo-router'
 import { useCallback, useMemo } from 'react'
 
@@ -129,16 +130,16 @@ export function ArticleMore({
     return (
       <>
         {router.canGoBack() ? (
-          <Stack.Toolbar asChild placement="left">
+          <Toolbar asChild placement="left">
             <PaperNavigationControl
               accessibilityLabel={t('back')}
               icon="arrow.left"
               identifier="paper-navigation-back"
               onPress={() => router.back()}
             />
-          </Stack.Toolbar>
+          </Toolbar>
         ) : null}
-        <Stack.Toolbar asChild placement="right">
+        <Toolbar asChild placement="right">
           <PaperNavigationControl
             accessibilityLabel={t('more')}
             icon="ellipsis"
@@ -146,32 +147,32 @@ export function ArticleMore({
             menuItems={paperMenuItems}
             onMenuAction={handlePaperMenuAction}
           />
-        </Stack.Toolbar>
+        </Toolbar>
       </>
     )
   }
 
   return (
-    <Stack.Toolbar placement="right">
-      <Stack.Toolbar.Menu accessibilityLabel={t('more')} icon="ellipsis">
+    <Toolbar placement="right">
+      <Toolbar.Menu accessibilityLabel={t('more')} icon="ellipsis">
         {menuGroups.map((group) => (
-          <Stack.Toolbar.Menu
+          <Toolbar.Menu
             inline
             key={group[0]?.category ?? group[0]?.id}
           >
             {group.map((item) => (
-              <Stack.Toolbar.MenuAction
+              <Toolbar.MenuAction
                 icon={item.icon}
                 key={item.id}
                 onPress={() => handlePaperMenuAction(item.id)}
               >
                 {item.title}
-              </Stack.Toolbar.MenuAction>
+              </Toolbar.MenuAction>
             ))}
-          </Stack.Toolbar.Menu>
+          </Toolbar.Menu>
         ))}
-      </Stack.Toolbar.Menu>
-    </Stack.Toolbar>
+      </Toolbar.Menu>
+    </Toolbar>
   )
 }
 

@@ -12,7 +12,6 @@ import {
 } from '@/owner/companion-presence'
 
 import { getAnonymousSessionId } from './anonymous-id'
-import { createCookieWebSocket } from './cookie-websocket'
 import { GATEWAY_EVENTS } from './events'
 import { socketGatewayConnectUrl, socketGatewayUrl } from './gateway-url'
 import {
@@ -55,10 +54,16 @@ const NativeWebSocket = WebSocket as unknown as new (
   options?: { headers?: Record<string, string> },
 ) => WebSocket
 
-const GatewayWebSocket = createCookieWebSocket(
-  NativeWebSocket,
-  getSessionCookie,
-)
+const GatewayWebSocket = class {
+  constructor(url: string) {
+    return new NativeWebSocket(url, null, {
+      headers: {
+        cookie: getSessionCookie(),
+        'user-agent': 'Yohaku-Mobile/1.0 (iOS)',
+      },
+    })
+  }
+} as unknown as typeof WebSocket
 
 export function subscribeGatewayConnect(listener: () => void) {
   connectListeners.add(listener)

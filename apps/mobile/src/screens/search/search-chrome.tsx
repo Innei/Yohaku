@@ -1,3 +1,4 @@
+import { Toolbar } from '@/components/navigation/header-toolbar'
 import { Stack, useRouter } from 'expo-router'
 import type { ReactNode } from 'react'
 import { StyleSheet, View } from 'react-native'
@@ -31,14 +32,14 @@ export function SearchChrome() {
         }}
       />
       {usesPaperNavigationControls && router.canGoBack() ? (
-        <Stack.Toolbar asChild placement="left">
+        <Toolbar asChild placement="left">
           <PaperNavigationControl
             accessibilityLabel={t('back')}
             icon="arrow.left"
             identifier="search-back"
             onPress={() => router.back()}
           />
-        </Stack.Toolbar>
+        </Toolbar>
       ) : null}
     </>
   )
@@ -94,7 +95,7 @@ function StackListSearchToolbar({
 
   if (usesPaperNavigationControls) {
     return (
-      <Stack.Toolbar asChild placement="right">
+      <Toolbar asChild placement="right">
         <View style={styles.paperCluster}>
           <PaperNavigationControl
             accessibilityLabel={t('entry')}
@@ -104,20 +105,20 @@ function StackListSearchToolbar({
           />
           {trailingPaper}
         </View>
-      </Stack.Toolbar>
+      </Toolbar>
     )
   }
 
   return (
-    <Stack.Toolbar placement="right">
-      <Stack.Toolbar.Button
+    <Toolbar placement="right">
+      <Toolbar.Button
         accessibilityLabel={t('entry')}
         icon="magnifyingglass"
         tintColor={systemAdaptiveTint ? undefined : palette.neutral[9]}
         onPress={open}
       />
       {trailingSystem}
-    </Stack.Toolbar>
+    </Toolbar>
   )
 }
 

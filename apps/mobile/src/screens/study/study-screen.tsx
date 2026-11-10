@@ -1,8 +1,10 @@
+import { Toolbar } from '@/components/navigation/header-toolbar'
 import { YohakuStudyShell } from '@modules/yohaku'
 import { isDuo } from '@modules/yohaku/duo-shell'
 import { Stack, useRouter } from 'expo-router'
+import { useHeaderHeight } from 'expo-router/react-navigation'
 import { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import {
@@ -81,6 +83,7 @@ export function StudyScreen() {
   const t = useTranslations('study')
   const inDuoStack = useInDuoStack()
   const insets = useSafeAreaInsets()
+  const headerHeight = useHeaderHeight()
   const [width, setWidth] = useState(0)
   const wide = isDuo && width >= DUO_PANES_MIN_WIDTH
   const openAccount = () => router.push('/reader')
@@ -95,23 +98,23 @@ export function StudyScreen() {
       {inDuoStack ? (
         <DuoAccountItem label={t('account')} onPress={openAccount} />
       ) : usesPaperNavigationControls ? (
-        <Stack.Toolbar asChild placement="right">
+        <Toolbar asChild placement="right">
           <PaperNavigationControl
             accessibilityLabel={t('account')}
             icon="person.crop.circle"
             identifier="study-account"
             onPress={openAccount}
           />
-        </Stack.Toolbar>
+        </Toolbar>
       ) : (
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
+        <Toolbar placement="right">
+          <Toolbar.Button
             accessibilityLabel={t('account')}
             icon="person.crop.circle"
             tintColor={palette.neutral[9]}
             onPress={openAccount}
           />
-        </Stack.Toolbar>
+        </Toolbar>
       )}
       <MeAmbienceWash />
       {wide ? (

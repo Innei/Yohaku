@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native'
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native'
 import type { SharedValue } from 'react-native-reanimated'
 import Animated, {
   FadeIn,
@@ -104,7 +111,29 @@ export function CollapsingHeaderTitle({
     titleVisible: (visible ? visible.value : progress.value > 0.5) ? 1 : 0,
   }))
 
+  // Android draws the header title with React Native text; the UIKit subview
+  // and its animated props only exist on iOS.
+  const androidTitleStyle = useAnimatedStyle(() => {
+    const shown = visible
+      ? visible.value
+        ? 1
+        : 0
+      : progress.value > 0.5
+        ? 1
+        : 0
+    const riseValue = rise ? rise.value : progress.value
+    return {
+      opacity: shown,
+      transform: [{ translateY: (1 - riseValue) * RISE }],
+    }
+  })
+
   const Frame = onPress ? Pressable : View
+  // Two stacked lines need room for the subtitle's descenders; the 40pt frame
+  // used to crop the bottom half of the kicker line on Android.
+  const frameHeight =
+    (subtitle ? TITLE_HEIGHT + SUBTITLE_SIZE + 6 : TITLE_HEIGHT) +
+    (ink ? INK_GAP + TICK_HEIGHT : 0)
   return (
     // RNSScreenStackHeaderSubview lays out its child with no intrinsic
     // constraints, so a bare Text collapses to zero size and never appears.
@@ -113,28 +142,80 @@ export function CollapsingHeaderTitle({
       style={[
         styles.frame,
         {
-          height: ink ? TITLE_HEIGHT + INK_GAP + TICK_HEIGHT : TITLE_HEIGHT,
-          paddingLeft: reserveBackClearance ? 0 : leadingInset,
-          paddingRight: reserveBackClearance ? 0 : ACTION_CLEARANCE,
-          width: reserveBackClearance ? width - BACK_BUTTON_CLEARANCE : width,
+          height: frameHeight,
+          // Android: the header lays this subview out from the back button's
+          // trailing edge (147px on a 1080px screen), so the width decides the
+          // optical centre. `width - 112dp` makes that centre land on the
+          // screen centre (529 -> 540) and stops the ellipsis at 933px, just
+          // before the action pill at 949px.
+          paddingLeft: Platform.OS === 'android' ? 0 : reserveBackClearance ? 0 : leadingInset,
+          paddingRight: Platform.OS === 'android' ? 0 : reserveBackClearance ? 0 : ACTION_CLEARANCE,
+          width: Platform.OS === 'android'
+            ? width - 112
+            : reserveBackClearance
+              ? width - BACK_BUTTON_CLEARANCE
+              : width,
         },
       ]}
       onPress={onPress}
     >
-      <AnimatedNavigationHeaderTitle
-        animatedProps={titleAnimatedProps}
-        scrollVelocity={0}
-        style={styles.nativeTitle}
-        subtitle={subtitle}
-        subtitleColor={palette.neutral[7]}
-        subtitleFontSize={SUBTITLE_SIZE}
-        testID="header-title-reveal"
-        title={title}
-        titleColor={systemAdaptiveTitleColor ? undefined : palette.neutral[10]}
-        titleFontSize={titleFontSize}
-        titleFontWeight={titleFontWeight}
-        titleVisible={0}
-      />
+      {Platform.OS === 'android' ? (
+        <Animated.View style={[styles.androidTitle, androidTitleStyle]}>
+          <Text
+            numberOfLines={1}
+            style={{
+              color: systemAdaptiveTitleColor
+                ? palette.neutral[10]
+                : palette.neutral[10],
+              fontFamily: fonts.serif.fontFamily,
+              fontSize: titleFontSize,
+              fontWeight:
+                titleFontWeight === 'bold' || titleFontWeight === 'heavy'
+                  ? '700'
+                  : titleFontWeight === 'medium'
+                    ? '500'
+                    : '600',
+              includeFontPadding: false,
+              lineHeight: titleFontSize + 4,
+              // The Text box spans the whole band; without this the ellipsised
+              // line hugs the left edge and reads as off-centre.
+              textAlign: 'center',
+            }}
+          >
+            {title}
+          </Text>
+          {subtitle ? (
+            <Text
+              numberOfLines={1}
+              style={{
+                color: palette.neutral[7],
+                fontSize: SUBTITLE_SIZE,
+                includeFontPadding: false,
+                lineHeight: SUBTITLE_SIZE + 4,
+                marginTop: 2,
+                textAlign: 'center',
+              }}
+            >
+              {subtitle}
+            </Text>
+          ) : null}
+        </Animated.View>
+      ) : (
+        <AnimatedNavigationHeaderTitle
+          animatedProps={titleAnimatedProps}
+          scrollVelocity={0}
+          style={styles.nativeTitle}
+          subtitle={subtitle}
+          subtitleColor={palette.neutral[7]}
+          subtitleFontSize={SUBTITLE_SIZE}
+          testID="header-title-reveal"
+          title={title}
+          titleColor={systemAdaptiveTitleColor ? undefined : palette.neutral[10]}
+          titleFontSize={titleFontSize}
+          titleFontWeight={titleFontWeight}
+          titleVisible={0}
+        />
+      )}
       {ink ? (
         <TitleInk
           count={readerCount > 0 ? readerCount + 1 : null}
@@ -265,6 +346,12 @@ function InkTick({
 }
 
 const styles = StyleSheet.create({
+  androidTitle: {
+    alignItems: 'center',
+    flex: 1,
+    justifyContent: 'center',
+    maxWidth: '100%',
+  },
   frame: {
     height: TITLE_HEIGHT,
   },

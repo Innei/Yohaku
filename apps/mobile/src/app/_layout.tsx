@@ -10,16 +10,19 @@ import {
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { useCallback, useEffect, useState } from 'react'
-import { LogBox, StyleSheet, useColorScheme, View } from 'react-native'
+import { LogBox, Platform, StyleSheet, useColorScheme, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { refreshSession } from '@/auth/session'
 import { useSession } from '@/auth/session-store'
+import { installSocialRedirectListener } from '@/auth/social-flow'
 import { DuoStack } from '@/components/navigation/duo/navigators'
 import { rootScreens } from '@/components/navigation/root-screens'
 import { RouteRestorationHost } from '@/components/navigation/route-restoration-host'
 import { getStackScreenOptions } from '@/components/navigation/stack-screen-options'
 import { SplashOverlay } from '@/components/splash/splash-overlay'
 import { AppText, BannerHost, Desk } from '@/components/ui'
+import { ImagePreviewHost } from '@/components/ui/image-preview-host'
 import { db } from '@/db'
 import { AppRecoveryScreen } from '@/errors/app-recovery-screen'
 import { FatalErrorHost } from '@/errors/fatal-error-host'
@@ -57,6 +60,9 @@ export const unstable_settings = {
 }
 
 export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
+  // Release builds do not show the LogBox stack; surface it in logcat so field
+  // failures from the Android port remain diagnosable.
+  console.error('Yohaku recovered from:', error?.message, error?.stack)
   return (
     <AppRecoveryScreen message={error.message} onRetry={() => void retry()} />
   )
@@ -85,6 +91,7 @@ export default function RootLayout() {
   useEffect(() => {
     void refreshSession()
     void refreshOwnerSnapshot()
+    installSocialRedirectListener()
   }, [])
 
   useEffect(() => {
@@ -188,3 +195,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
   },
 })
+
+/**
+ * Android draws scrolling content under the transparent status bar. A paper
+ * strip over the status bar keeps timestamps and glyphs legible on list screens
+ * without a native header.
+ */
+function AndroidStatusBarScrim() {
+  const insets = useSafeAreaInsets()
+  const palette = usePalette()
+  if (Platform.OS !== 'android' || insets.top <= 0) return null
+  return (
+    <View
+      pointerEvents="none"
+      style={{
+        backgroundColor: palette.surface.desk,
+        elevation: 40,
+        height: insets.top,
+        left: 0,
+        position: 'absolute',
+        right: 0,
+        top: 0,
+        zIndex: 9999,
+      }}
+    />
+  )
+}

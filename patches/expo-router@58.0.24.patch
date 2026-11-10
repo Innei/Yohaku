@@ -1,0 +1,55 @@
+diff --git a/build/link/LinkWithPreview.js b/build/link/LinkWithPreview.js
+index 50b62d1..da4f992 100644
+--- a/build/link/LinkWithPreview.js
++++ b/build/link/LinkWithPreview.js
+@@ -30,7 +30,9 @@ function _reactnative() {
+     };
+     return data;
+ }
++const _navigationRef = require("../global-state/navigationRef");
+ const _hooks = require("../hooks");
++const _navigationParams = require("../navigationParams");
+ const _children = require("../utils/children");
+ const _url = require("../utils/url");
+ const _BaseExpoRouterLink = require("./BaseExpoRouterLink");
+@@ -193,6 +195,28 @@ function LinkWithPreview({ children, ...rest }) {
+                 });
+             }
+         },
++        onPreviewTappedAnimationCompleted: ()=>{
++            if (!hasPreview) {
++                return;
++            }
++            const nextScreenId = preloadedScreenId.current;
++            let unsubscribe = ()=>{};
++            const clearPreviewNavigationAnimationState = ()=>{
++                const currentRoute = _navigationRef.navigationRef.current?.getCurrentRoute();
++                if (nextScreenId && currentRoute?.key !== nextScreenId) {
++                    return;
++                }
++                unsubscribe();
++                if ((0, _navigationParams.hasParam)(currentRoute?.params, _navigationParams.INTERNAL_EXPO_ROUTER_NO_ANIMATION_PARAM_NAME)) {
++                    _navigationRef.navigationRef.current?.replaceParams((0, _navigationParams.removeParams)(currentRoute?.params, [
++                        _navigationParams.INTERNAL_EXPO_ROUTER_NO_ANIMATION_PARAM_NAME
++                    ]));
++                }
++                setOpenPreviewKey(undefined);
++            };
++            unsubscribe = _navigationRef.navigationRef.addListener('state', clearPreviewNavigationAnimationState);
++            clearPreviewNavigationAnimationState();
++        },
+         style: {
+             display: 'contents'
+         },
+diff --git a/ios/LinkPreview/LinkPreviewNativeView.swift b/ios/LinkPreview/LinkPreviewNativeView.swift
+index 1b7d9be..717bb04 100644
+--- a/ios/LinkPreview/LinkPreviewNativeView.swift
++++ b/ios/LinkPreview/LinkPreviewNativeView.swift
+@@ -98,6 +98,7 @@ class NativeLinkPreviewView: RouterViewWithLogger, UIContextMenuInteractionDeleg
+           }
+         }
+         super.unmountChildComponentView(child, index: index)
++        self.directChild = nil
+       } else {
+         logger?.warn(
+           "[expo-router] No link child found to unmount. This is most likely a bug in expo-router."

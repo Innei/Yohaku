@@ -309,6 +309,7 @@ export function NoteDetailScreen({
               {(compose) => {
                 const scroll = (
                   <EdgeEffectScrollView
+                    androidHeaderInset={!coverUrl}
                     automaticallyAdjustKeyboardInsets={!compose.composing}
                     headerTitleProgress={headerTitleProgress}
                     ref={scrollRef}

@@ -1,4 +1,4 @@
-// Expo loads local config plugins through CommonJS.
+/* eslint-disable @typescript-eslint/no-require-imports -- Expo loads local config plugins through CommonJS. */
 
 // Expo's template SceneDelegate (an empty ExpoAppSceneDelegate subclass) does not
 // open a cold-start notification target or restore the last committed route, so

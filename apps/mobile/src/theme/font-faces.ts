@@ -1,3 +1,5 @@
+import { Platform } from 'react-native'
+
 import type { Locale } from '@/i18n/config'
 
 export type NativeFontName =
@@ -38,12 +40,15 @@ export function nativeSerifFontFamily(
 ): FontFamily {
   switch (locale) {
     case 'en': {
-      return 'Georgia'
+      return Platform.OS === 'android' ? 'NotoSerifSC_500Medium' : 'Georgia'
     }
     case 'ja': {
-      return 'Hiragino Mincho ProN'
+      return Platform.OS === 'android'
+        ? 'NotoSerifSC_500Medium'
+        : 'Hiragino Mincho ProN'
     }
     case 'ko': {
+      if (Platform.OS === 'android') return 'NotoSerifSC_500Medium'
       return koreanSerifReady ? 'AppleMyungjo' : 'Apple SD Gothic Neo'
     }
     case 'zh':

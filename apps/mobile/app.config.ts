@@ -9,10 +9,28 @@ import {
   resolveOverlayDir,
 } from './workspace-root.cjs'
 
-// Keep in lockstep with `publicSite` in src/site-config.ts.
-const PUBLIC_SCHEME = 'yohaku'
-const PUBLIC_BUNDLE_ID = 'dev.yohaku.app'
+// Keep in lockstep with `publicSite` in src/site-config.ts. Both read the same
+// `site.config.json`, which is the single file a fork edits to point the app at
+// its own blog.
+const siteConfig = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'site.config.json'), 'utf8'),
+) as {
+  androidPackage: string
+  appName: string
+  bundleId: string
+  scheme: string
+  siteUrl: string
+}
+
+const PUBLIC_SCHEME = siteConfig.scheme
+const PUBLIC_BUNDLE_ID = siteConfig.bundleId
 const PUBLIC_VERSION = '1.0.1'
+
+// Android identity. The Play Store package id is permanent, so it lives here
+// next to the iOS bundle id instead of inside the overlay machinery.
+const ANDROID_PACKAGE = siteConfig.androidPackage
+const APP_DISPLAY_NAME = siteConfig.appName
+const SITE_HOST = new URL(siteConfig.siteUrl).hostname
 
 interface OverlayExpo {
   appleTeamId?: string
@@ -136,14 +154,14 @@ export function createAppConfig(): ExpoConfig {
   const apns = apnsEnvironment()
 
   return {
-    name: 'Yohaku',
+    name: APP_DISPLAY_NAME,
     slug: 'yohaku',
     version: overlayExpo?.version ?? PUBLIC_VERSION,
     orientation: 'portrait',
     icon: overlayExpo?.icon ?? './assets/images/icon.png',
     scheme: site.scheme,
     userInterfaceStyle: 'automatic',
-    platforms: ['ios'],
+    platforms: ['ios', 'android'],
     locales: {
       'zh-Hans': './locales/zh-Hans.json',
       'zh-Hant': './locales/zh-Hant.json',
@@ -187,6 +205,38 @@ export function createAppConfig(): ExpoConfig {
         ? { appleTeamId: overlayExpo.appleTeamId }
         : {}),
     },
+    android: {
+      package: ANDROID_PACKAGE,
+      versionCode: 1,
+      icon: './assets/images/icon.png',
+      adaptiveIcon: {
+        backgroundColor: '#232323',
+        foregroundImage: './assets/images/android-icon-foreground.png',
+        monochromeImage: './assets/images/android-icon-monochrome.png',
+      },
+      // Android 16 makes edge-to-edge mandatory; Expo 58 rejects the old key.
+      predictiveBackGestureEnabled: true,
+      softwareKeyboardLayoutMode: 'resize',
+      // Deep links for the site (https) and for the custom auth scheme. The
+      // scheme entry is generated from `scheme` as well; the https filter is
+      // what lets a browser open a post inside the app.
+      intentFilters: [
+        {
+          action: 'VIEW',
+          autoVerify: true,
+          data: [{ scheme: 'https', host: SITE_HOST }],
+          category: ['BROWSABLE', 'DEFAULT'],
+        },
+      ],
+      permissions: ['INTERNET', 'VIBRATE', 'WAKE_LOCK', 'POST_NOTIFICATIONS'],
+      // expo-audio and the dev client add permissions this reader never uses.
+      blockedPermissions: [
+        'android.permission.RECORD_AUDIO',
+        'android.permission.SYSTEM_ALERT_WINDOW',
+        'android.permission.READ_EXTERNAL_STORAGE',
+        'android.permission.WRITE_EXTERNAL_STORAGE',
+      ],
+    },
     plugins: [
       'expo-router',
       ['expo-dev-client', { toolsButton: false }],
@@ -197,6 +247,7 @@ export function createAppConfig(): ExpoConfig {
       './plugins/with-ios-keychain-signing.cjs',
       './plugins/with-ios-vendored-pods.cjs',
       './plugins/with-duo-surfaces.cjs',
+      './plugins/with-android-gradle-properties.cjs',
       [
         'expo-splash-screen',
         {
@@ -215,10 +266,21 @@ export function createAppConfig(): ExpoConfig {
           ios: {
             deploymentTarget: '18.0',
           },
+          android: {
+            // expo-modules (58.1.x) AAR metadata requires API 37.
+            compileSdkVersion: 37,
+            minSdkVersion: 26,
+            targetSdkVersion: 36,
+            // R8 stays off until the port's reflection-heavy modules have
+            // verified keep rules; this only trades APK size for safety.
+            enableMinifyInReleaseBuilds: false,
+            enableShrinkResourcesInReleaseBuilds: false,
+          },
         },
       ],
       'expo-sqlite',
       'expo-localization',
+      'expo-web-browser',
       [
         'expo-notifications',
         {

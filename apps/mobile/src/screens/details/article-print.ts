@@ -34,40 +34,33 @@ export function printBlockFallback(
   locale: Locale,
 ): string {
   switch (kind) {
-    case 'poll': {
+    case 'poll':
       return translate(locale, 'print', 'poll', {
         count: fields.count ?? 0,
         question: fields.question ?? '',
       })
-    }
-    case 'map': {
+    case 'map':
       return translate(locale, 'print', 'map', {
         title: fields.title ?? '',
       })
-    }
-    case 'nestedDoc': {
+    case 'nestedDoc':
       return translate(locale, 'print', 'nestedDoc', {
         title: fields.title ?? '',
       })
-    }
-    case 'file': {
+    case 'file':
       return translate(locale, 'print', 'file', {
         name: fields.name ?? '',
       })
-    }
-    case 'stock': {
+    case 'stock':
       return translate(locale, 'print', 'stock', {
         symbol: fields.symbol ?? '',
       })
-    }
-    case 'afilmory': {
+    case 'afilmory':
       return translate(locale, 'print', 'afilmory', {
         title: fields.title ?? '',
       })
-    }
-    default: {
+    default:
       return translate(locale, 'print', kind)
-    }
   }
 }
 
@@ -80,8 +73,8 @@ export interface PrintMasthead {
 
 export function printJobName(title: string, fallback: string): string {
   const cleaned = title
-    .replaceAll(/[/\\:]+/g, '—')
-    .replaceAll(/\s+/g, ' ')
+    .replace(/[/\\:]+/g, '—')
+    .replace(/\s+/g, ' ')
     .trim()
   return cleaned || fallback.trim() || 'Yohaku'
 }

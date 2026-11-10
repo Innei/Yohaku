@@ -170,56 +170,6 @@
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "单曲 · %@" } },
         "zh-Hant": { "stringUnit": { "state": "translated", "value": "單曲 · %@" } }
       }
-    },
-    "PUSH_REPLY_SUBTITLE": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Replied to you · “%@”" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "返信 ·「%@」" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "답글 · “%@”" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "回复了你 · 《%@》" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "回覆了你 · 《%@》" } }
-      }
-    },
-    "PUSH_POST_PUBLISHED_TITLE": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "%@ published a new post" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "%@さんが新しい記事を公開しました" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "%@님이 새 글을 발행했습니다" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 发布了新文章" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 發佈了新文章" } }
-      }
-    },
-    "PUSH_NOTE_PUBLISHED_TITLE": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "%@ wrote a new note" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "%@さんが新しい手記を書きました" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "%@님이 새 노트를 남겼습니다" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 发布了新手记" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 發佈了新手記" } }
-      }
-    },
-    "PUSH_TOKEN_IMAGE": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "[Image]" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "[画像]" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "[이미지]" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "[图片]" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "[圖片]" } }
-      }
-    },
-    "PUSH_TOKEN_CODE": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "[Code]" } },
-        "ja": { "stringUnit": { "state": "translated", "value": "[コード]" } },
-        "ko": { "stringUnit": { "state": "translated", "value": "[코드]" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "[代码]" } },
-        "zh-Hant": { "stringUnit": { "state": "translated", "value": "[程式碼]" } }
-      }
     }
   },
   "version": "1.0"

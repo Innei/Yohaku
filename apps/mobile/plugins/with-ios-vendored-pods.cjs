@@ -1,4 +1,4 @@
-// Expo loads local config plugins through CommonJS.
+/* eslint-disable @typescript-eslint/no-require-imports -- Expo loads local config plugins through CommonJS. */
 
 const { withDangerousMod } = require('expo/config-plugins')
 
@@ -28,7 +28,7 @@ function patchPodfile(source, pods) {
   let src = source
     .replaceAll(/^\s*pod '(?:ElkSwift|BeautifulMermaid)',[^\n]*\n/gm, '')
     .replace(
-      // regexp/strict requires escaped literal braces and brackets.
+      // eslint-disable-next-line unicorn/better-regex -- regexp/strict requires escaped literal braces and brackets.
       /\n {4}\{\n {6}'ElkSwift' => 'ElkSwift',.*?build_config\.build_settings\['SWIFT_PACKAGE_NAME'\] = package_name\n {6}end\n {4}end\n/s,
       '\n',
     )

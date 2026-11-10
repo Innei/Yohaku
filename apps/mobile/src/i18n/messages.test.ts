@@ -36,7 +36,7 @@ describe('message catalogs', () => {
           Object.entries(messages).flatMap(([namespace, entries]) =>
             Object.entries(entries).map(([key, value]) => [
               `${namespace}.${key}`,
-              // see translate.ts
+              // eslint-disable-next-line unicorn/better-regex -- see translate.ts
               [...String(value).matchAll(/\{(\w+)\}/g)].map((m) => m[1]).sort(),
             ]),
           ),

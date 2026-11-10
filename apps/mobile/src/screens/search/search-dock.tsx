@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import {
   Keyboard,
+  Platform,
   StyleSheet,
   TextInput,
   View,
@@ -58,12 +59,16 @@ function Capsule({
 function useKeyboardHeight() {
   const [keyboardHeight, setKeyboardHeight] = useState(0)
   useEffect(() => {
-    const change = Keyboard.addListener('keyboardWillChangeFrame', (event) => {
-      setKeyboardHeight(Math.max(0, event.endCoordinates.height))
-    })
-    const hide = Keyboard.addListener('keyboardWillHide', () => {
-      setKeyboardHeight(0)
-    })
+    // Android only emits the "Did" pair; the "Will" events are iOS-only.
+    const ios = Platform.OS === 'ios'
+    const change = Keyboard.addListener(
+      ios ? 'keyboardWillChangeFrame' : 'keyboardDidShow',
+      (event) => setKeyboardHeight(Math.max(0, event.endCoordinates.height)),
+    )
+    const hide = Keyboard.addListener(
+      ios ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setKeyboardHeight(0),
+    )
     return () => {
       change.remove()
       hide.remove()
@@ -112,7 +117,9 @@ export function SearchDock({
       style={[
         styles.slot,
         {
-          bottom: keyboardHeight,
+          // A little extra lift keeps the dock clear of the Android IME
+          // suggestion strip and matches the design's breathing room.
+          bottom: keyboardHeight + 5,
           paddingBottom: softwareKeyboard ? 8 : Math.max(insets.bottom, 12),
         },
       ]}

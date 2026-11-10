@@ -6,13 +6,22 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native'
 import { useLogin } from '@/auth/use-login'
 import { useRouteTransitionSettled } from '@/components/navigation/use-route-transition-settled'
 import { AppText, Button, SinkPressable, WellInput } from '@/components/ui'
+import { showToast } from '@/components/ui/toast-store'
 import { useTranslations } from '@/i18n'
 import { openExternalUrl } from '@/lib/open-external'
-import { getPrivacyUrl, siteHref } from '@/lib/site-url'
+import { getPrivacyUrl, getSiteUrl, siteHref } from '@/lib/site-url'
 import { usePalette } from '@/theme/palette'
 
 import { ProviderButton } from './provider-button'
 import { hasProviderIcon } from './provider-icon'
+
+function siteLabelFrom(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
+}
 
 const brandMark = {
   light: require('../../../assets/images/splash-icon.png'),
@@ -25,16 +34,18 @@ export function LoginSheet() {
   const palette = usePalette()
   const router = useRouter()
   const queriesEnabled = useRouteTransitionSettled('login')
-  const { providers, busy, signInSocial, signInEmail } =
+  const { providers, busy, lastError, signInSocial, signInEmail } =
     useLogin(queriesEnabled)
   const [mode, setMode] = useState<'social' | 'email'>('social')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [termsHint, setTermsHint] = useState(false)
 
   const social = providers?.filter((p) => hasProviderIcon(p))
   const locked = busy !== null
+  const siteLabel = siteLabelFrom(getSiteUrl())
   const termsUrl = siteHref('/terms')
   const privacyUrl = getPrivacyUrl()
 
@@ -42,13 +53,26 @@ export function LoginSheet() {
     if (social?.length === 0) setMode('email')
   }, [social?.length])
 
+  /**
+   * The agreement gate used to return silently, which on Android looked like a
+   * dead button. Every blocked tap now explains itself.
+   */
+  const requireTerms = () => {
+    if (acceptedTerms) return true
+    setTermsHint(true)
+    showToast(t('termsRequired'))
+    return false
+  }
+
   const onSocial = async (provider: string) => {
-    if (!acceptedTerms) return
-    if (await signInSocial(provider)) router.back()
+    if (locked) return
+    if (!requireTerms()) return
+    const ok = await signInSocial(provider)
+    if (ok) router.back()
   }
 
   const onEmail = async () => {
-    if (!acceptedTerms) return
+    if (!requireTerms()) return
     setEmailError(false)
     if (await signInEmail(email.trim(), password)) {
       router.back()
@@ -63,10 +87,27 @@ export function LoginSheet() {
     <View style={[styles.sheet, { backgroundColor: palette.surface.desk }]}>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Image source={brandMark[palette.theme]} style={styles.mark} />
-          <AppText variant="entryTitle">{t('sheetTitle')}</AppText>
+          <Image
+            pointerEvents="none"
+            source={brandMark[palette.theme]}
+            style={styles.mark}
+          />
+          <AppText variant="entryTitle">
+                {t('sheetTitle', { site: siteLabel })}
+              </AppText>
           <AppText variant="secondary">{t('sheetSubtitle')}</AppText>
         </View>
+
+        {lastError ? (
+          <AppText
+            color={palette.semantic.error}
+            numberOfLines={2}
+            style={styles.status}
+            variant="meta"
+          >
+            {lastError}
+          </AppText>
+        ) : null}
 
         {mode === 'social' ? (
           <>
@@ -137,7 +178,6 @@ export function LoginSheet() {
               style={styles.submit}
               disabled={
                 locked ||
-                !acceptedTerms ||
                 email.trim().length === 0 ||
                 password.length === 0
               }
@@ -175,12 +215,17 @@ export function LoginSheet() {
                 backgroundColor: acceptedTerms
                   ? palette.neutral[10]
                   : 'transparent',
-                borderColor: acceptedTerms
-                  ? palette.neutral[10]
-                  : palette.neutral[5],
+                borderColor: termsHint && !acceptedTerms
+                  ? palette.accent
+                  : acceptedTerms
+                    ? palette.neutral[10]
+                    : palette.neutral[5],
               },
             ]}
-            onPress={() => setAcceptedTerms((current) => !current)}
+            onPress={() => {
+              setTermsHint(false)
+              setAcceptedTerms((current) => !current)
+            }}
           >
             <AppText color={palette.neutral[1]} variant="meta">
               {acceptedTerms ? '✓' : ''}
@@ -189,9 +234,15 @@ export function LoginSheet() {
           <View style={styles.agreementCopy}>
             <SinkPressable
               disabled={locked}
-              onPress={() => setAcceptedTerms((current) => !current)}
+              onPress={() => {
+                setTermsHint(false)
+                setAcceptedTerms((current) => !current)
+              }}
             >
-              <AppText color={palette.neutral[7]} variant="meta">
+              <AppText
+                color={termsHint && !acceptedTerms ? palette.accent : palette.neutral[7]}
+                variant="meta"
+              >
                 {t('termsAgreement')}
               </AppText>
             </SinkPressable>
@@ -215,6 +266,15 @@ export function LoginSheet() {
             </View>
           </View>
         </View>
+        {termsHint && !acceptedTerms ? (
+          <AppText
+            color={palette.accent}
+            style={styles.termsHint}
+            variant="meta"
+          >
+            {t('termsRequired')}
+          </AppText>
+        ) : null}
       </View>
     </View>
   )
@@ -258,6 +318,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 10,
   },
+  status: {
+    marginTop: -12,
+    textAlign: 'center',
+  },
   agreementCopy: {
     flex: 1,
     gap: 6,
@@ -273,6 +337,10 @@ const styles = StyleSheet.create({
   policyLinks: {
     flexDirection: 'row',
     gap: 16,
+  },
+  termsHint: {
+    marginTop: -20,
+    paddingLeft: 32,
   },
   submit: {
     alignSelf: 'stretch',

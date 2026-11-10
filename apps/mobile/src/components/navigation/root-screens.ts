@@ -1,4 +1,5 @@
 import type { NativeStackNavigationOptions } from 'expo-router/native-stack'
+import { Platform } from 'react-native'
 
 import { parseTocDetents } from '@/lib/article-toc'
 import { timings } from '@/theme/motion'
@@ -67,9 +68,17 @@ export function rootScreens(deskColor: string): RootScreen[] {
       name: 'login',
       options: {
         headerShown: false,
-        presentation: 'formSheet',
-        sheetAllowedDetents: [0.72, 1],
-        sheetGrabberVisible: true,
+        // On Android a formSheet keeps the screen underneath interactive in
+        // the area it does not cover, and that native surface swallows the
+        // taps aimed at the provider buttons. A full-screen modal gives the
+        // sheet its own window, so the social buttons are reachable.
+        presentation: Platform.OS === 'android' ? 'fullScreenModal' : 'formSheet',
+        ...(Platform.OS === 'android'
+          ? { animation: 'slide_from_bottom' as const }
+          : {
+              sheetAllowedDetents: [0.72, 1],
+              sheetGrabberVisible: true,
+            }),
       },
     },
     {

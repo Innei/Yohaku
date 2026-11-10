@@ -1,4 +1,5 @@
 import { requireNativeModule } from 'expo-modules-core'
+import { Platform } from 'react-native'
 
 type NativeDuoSpike = {
   dismiss: () => Promise<void>
@@ -11,15 +12,23 @@ type NativeDuoSpike = {
   setOuterBarOnPage: (visible: boolean) => Promise<void>
 }
 
-const native = requireNativeModule<NativeDuoSpike>('YohakuDuoSpike')
+// The Duo spike is an iPad experiment; Android keeps the dev screens inert.
+const native: NativeDuoSpike | null =
+  Platform.OS === 'android'
+    ? null
+    : requireNativeModule<NativeDuoSpike>('YohakuDuoSpike')
 
-export const isDuoArrangementAvailable = () => native.isArrangementAvailable()
-export const presentDuoSpike = () => native.present()
-export const pushDuoSpikeOuter = (label: string) => native.pushOuter(label)
-export const popDuoSpikeOuter = () => native.popOuter()
+const noop = async () => {}
+
+export const isDuoArrangementAvailable = () =>
+  native?.isArrangementAvailable() ?? false
+export const presentDuoSpike = () => native?.present() ?? noop()
+export const pushDuoSpikeOuter = (label: string) =>
+  native?.pushOuter(label) ?? noop()
+export const popDuoSpikeOuter = () => native?.popOuter() ?? noop()
 export const setDuoSpikeOuterBar = (visible: boolean) =>
-  native.setOuterBarOnPage(visible)
+  native?.setOuterBarOnPage(visible) ?? noop()
 export const duoLab = (action: string, first = '', second = '') =>
-  native.lab(action, first, second)
-export const duoMain = (action: string) => native.main(action)
-export const dismissDuoSpike = () => native.dismiss()
+  native?.lab(action, first, second) ?? noop()
+export const duoMain = (action: string) => native?.main(action) ?? noop()
+export const dismissDuoSpike = () => native?.dismiss() ?? noop()

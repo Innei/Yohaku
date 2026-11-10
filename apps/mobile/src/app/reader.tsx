@@ -1,3 +1,4 @@
+import { Toolbar } from '@/components/navigation/header-toolbar'
 import { Stack, useRouter } from 'expo-router'
 
 import { useDuoBarItems, useInDuoStack } from '@/components/navigation/duo/bar-items'
@@ -22,23 +23,23 @@ export default function ReaderRoute() {
       {inDuoStack ? (
         <DuoCloseItem label={tc('close')} onClose={() => router.back()} />
       ) : usesPaperNavigationControls ? (
-        <Stack.Toolbar asChild placement="right">
+        <Toolbar asChild placement="right">
           <PaperNavigationControl
             accessibilityLabel={tc('close')}
             icon="xmark"
             identifier="account-close"
             onPress={() => router.back()}
           />
-        </Stack.Toolbar>
+        </Toolbar>
       ) : (
-        <Stack.Toolbar placement="right">
-          <Stack.Toolbar.Button
+        <Toolbar placement="right">
+          <Toolbar.Button
             accessibilityLabel={tc('close')}
             icon="xmark"
             tintColor={palette.neutral[9]}
             onPress={() => router.back()}
           />
-        </Stack.Toolbar>
+        </Toolbar>
       )}
       <ReaderScreen />
     </>

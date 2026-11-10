@@ -14,8 +14,14 @@ const errorUtils = (
 if (!__DEV__ && errorUtils) {
   const originalHandler = errorUtils.getGlobalHandler()
   errorUtils.setGlobalHandler((error, isFatal) => {
-    if (!isFatal || !captureFatalError(error)) {
-      originalHandler(error, isFatal)
+    const captured = isFatal && captureFatalError(error)
+    if (captured) {
+      // Release builds otherwise swallow the stack behind the recovery card.
+      // Keeping it in logcat is what makes Android field reports actionable.
+      const detail = error instanceof Error ? error.stack : String(error)
+      console.error('[fatal-js]', detail)
+      return
     }
+    originalHandler(error, isFatal)
   })
 }

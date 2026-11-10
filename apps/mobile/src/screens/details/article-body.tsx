@@ -6,7 +6,7 @@ import {
 } from 'expo-router'
 import type { SerializedEditorState } from 'lexical'
 import type { RefObject } from 'react'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Component, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollViewInstance } from 'react-native'
 import {
   Modal,
@@ -36,9 +36,11 @@ import {
 } from '@/rich/anchors'
 import type { RichDocumentHandlers } from '@/rich/lexical/context'
 import { FOOTNOTE_SCHEME } from '@/rich/lexical/footnotes'
+import { type RichSegment } from '@/rich/lexical/group'
 import { RichDocument } from '@/rich/lexical/rich-document'
 import type { MarkdownArticle } from '@/rich/markdown/article'
 import { MarkdownDocument } from '@/rich/markdown/markdown-document'
+import { markdownArticle } from '@/rich/markdown/parse'
 import { usePalette } from '@/theme/palette'
 
 import { useReservedBodyHeight } from './body-slot'
@@ -60,10 +62,31 @@ export function parseState(content: string): SerializedEditorState | null {
   }
 }
 
+class BodyErrorBoundary extends Component<
+  { children?: React.ReactNode; fallback?: React.ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false }
+
+  static getDerivedStateFromError() {
+    return { failed: true }
+  }
+
+  componentDidCatch(error: unknown) {
+    console.error('[article-body] rich document failed', error)
+  }
+
+  render() {
+    if (this.state.failed) return this.props.fallback ?? null
+    return this.props.children
+  }
+}
+
 export function ArticleBody({
   autoFollow = false,
   content,
   enrichments,
+  fallbackText = null,
   highlightBlockId = null,
   markdown = null,
   queriesEnabled = true,
@@ -76,6 +99,7 @@ export function ArticleBody({
   autoFollow?: boolean
   content: string
   enrichments?: Record<string, ApiEnrichment> | null
+  fallbackText?: string | null
   highlightBlockId?: string | null
   markdown?: MarkdownArticle | null
   queriesEnabled?: boolean
@@ -98,6 +122,9 @@ export function ArticleBody({
   const bodyTopRef = useRef(0)
   const footnoteSectionRef = useRef<string | null>(null)
   const [slotTop, setSlotTop] = useState<number | null>(null)
+  const [renderedSegments, setRenderedSegments] = useState<
+    RichSegment[] | null
+  >(null)
   const [nestedDoc, setNestedDoc] = useState<NestedDoc | null>(null)
   const [blockMap, setBlockMap] = useState<NativeBlockMap>(() => new Map())
   const {
@@ -122,6 +149,36 @@ export function ArticleBody({
   const blockInfos = useMemo(
     () => (markdown ? [] : extractBlockInfos(content)),
     [content, markdown],
+  )
+
+  // A lexical body can parse yet still render nothing. Two ways that happens:
+  // an unknown node type makes the headless editor drop the whole document
+  // (0 segments), or the segments come back with no text runs at all so every
+  // block collapses to zero height. Either way, fall back to the markdown text
+  // so the article is never a blank page.
+  const lexicalTextLength = useMemo(() => {
+    if (!renderedSegments) return null
+    let total = 0
+    for (const segment of renderedSegments) {
+      if (segment.kind !== 'text') continue
+      for (const block of segment.blocks)
+        for (const run of block.runs) total += run.text.length
+    }
+    return total
+  }, [renderedSegments])
+
+  const lexicalCameOutEmpty =
+    !markdown &&
+    value !== null &&
+    renderedSegments !== null &&
+    (value.root?.children?.length ?? 0) > 0 &&
+    (renderedSegments.length === 0 || lexicalTextLength === 0)
+  const fallbackMarkdown = useMemo(
+    () =>
+      lexicalCameOutEmpty && fallbackText
+        ? markdownArticle(fallbackText)
+        : null,
+    [lexicalCameOutEmpty, fallbackText],
   )
   const activeAnchor = selectionSheet?.anchor ?? null
   const highlights = useMemo(
@@ -248,6 +305,7 @@ export function ArticleBody({
       invalidateTocOffsets()
     },
     onSegments: (segments) => {
+      setRenderedSegments(segments)
       footnoteSectionRef.current =
         segments.flatMap((segment) =>
           segment.kind === 'view' && segment.node.type === 'footnote-section'
@@ -268,9 +326,21 @@ export function ArticleBody({
         setSlotTop(y)
       }}
     >
-      {markdown ? (
+      {fallbackMarkdown ? (
+        <MarkdownDocument article={fallbackMarkdown} {...documentHandlers} />
+      ) : markdown ? (
         <MarkdownDocument article={markdown} {...documentHandlers} />
       ) : value ? (
+        <BodyErrorBoundary
+          fallback={
+            fallbackMarkdown ? (
+              <MarkdownDocument
+                article={fallbackMarkdown}
+                {...documentHandlers}
+              />
+            ) : null
+          }
+        >
         <RichDocument
           value={value}
           {...documentHandlers}
@@ -293,6 +363,7 @@ export function ArticleBody({
             )
           }
         />
+        </BodyErrorBoundary>
       ) : null}
       <Modal
         animationType="slide"

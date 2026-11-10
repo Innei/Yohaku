@@ -1,7 +1,8 @@
 import { radius } from '@yohaku/design-system/tokens'
+import type { ComponentType } from 'react'
 import { useCallback } from 'react'
 import type { NativeSyntheticEvent } from 'react-native'
-import { StyleSheet } from 'react-native'
+import { Platform, StyleSheet } from 'react-native'
 
 import { usePalette } from '@/theme/palette'
 
@@ -9,6 +10,17 @@ import {
   NavigationHeaderControl,
   type NavigationHeaderMenuItem,
 } from '../../../modules/yohaku'
+
+/**
+ * Android renders the control inside the native header, where it needs the
+ * bare-icon variant; iOS keeps the floating paper pill. The extra `chrome`
+ * prop only exists in the Android implementation, so it is widened here.
+ */
+const Control = NavigationHeaderControl as unknown as ComponentType<
+  React.ComponentProps<typeof NavigationHeaderControl> & {
+    chrome?: 'paper' | 'header'
+  }
+>
 
 export function PaperNavigationControl({
   accessibilityLabel,
@@ -37,8 +49,9 @@ export function PaperNavigationControl({
   }, [onPress])
 
   return (
-    <NavigationHeaderControl
+    <Control
       haptic
+      chrome={Platform.OS === 'android' ? 'header' : 'paper'}
       controlIdentifier={identifier}
       controlKind={menuItems.length > 0 ? 'menu' : 'button'}
       controlLabel={accessibilityLabel}

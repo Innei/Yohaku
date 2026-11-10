@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
+import { articleIdsFromVisible } from './flatten-posts-list'
 import {
   flattenNotesList,
   NOTE_LIST_FOOTER_ID,
   NOTE_LIST_RULE_ID,
   noteYearItemId,
 } from './flatten-notes-list'
-import { articleIdsFromVisible } from './flatten-posts-list'
 
 describe('flattenNotesList', () => {
   it('puts latest first, then older rule, years, and notes', () => {

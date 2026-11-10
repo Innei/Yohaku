@@ -11,10 +11,9 @@ import {
   useInitialPollState,
   usePollDataAdapter,
 } from '@haklex/rich-compose/modules/poll'
+import { usePrintFallback } from '../../../host'
 import clsx from 'clsx'
 import { useCallback, useMemo, useState } from 'react'
-
-import { usePrintFallback } from '../../../host'
 
 const FALLBACK_STATE: PollState = {
   tallies: {},

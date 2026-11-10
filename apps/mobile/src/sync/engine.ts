@@ -429,7 +429,7 @@ export async function refreshPostBody(
       data: detail,
       enrichments,
       meta,
-    } = await api.postDetail(categorySlug, row.slug, lang)
+    } = await api.postDetail(categorySlug, row.slug, lang, row.id)
     await db
       .update(posts)
       .set({

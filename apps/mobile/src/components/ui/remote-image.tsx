@@ -1,6 +1,15 @@
+import { Image } from 'expo-image'
 import { requireNativeViewManager } from 'expo-modules-core'
 import type { ComponentType } from 'react'
-import type { StyleProp, ViewProps, ViewStyle } from 'react-native'
+import {
+  Platform,
+  Pressable,
+  type StyleProp,
+  type ViewProps,
+  type ViewStyle,
+} from 'react-native'
+
+import { presentImagePreview } from '@/lib/image-cache'
 
 export type RemoteImageContentFit = 'contain' | 'cover' | 'fill'
 
@@ -22,8 +31,15 @@ type NativeRemoteImageProps = ViewProps & {
   uri: string
 }
 
-const NativeRemoteImage: ComponentType<NativeRemoteImageProps> =
-  requireNativeViewManager('ExpoDomWebViewModule', 'RemoteImage')
+// iOS renders through the vendored SDWebImage view (Referer + native viewer).
+// Android uses expo-image with the same header and the JS preview host.
+const NativeRemoteImage: ComponentType<NativeRemoteImageProps> | null =
+  Platform.OS === 'ios'
+    ? requireNativeViewManager<NativeRemoteImageProps>(
+        'ExpoDomWebViewModule',
+        'RemoteImage',
+      )
+    : null
 
 export function RemoteImage({
   accessibilityLabel,
@@ -31,19 +47,52 @@ export function RemoteImage({
   images,
   index = 0,
   siteReferer,
+  style,
   uri,
   ...rest
 }: RemoteImageProps) {
+  if (NativeRemoteImage) {
+    return (
+      <NativeRemoteImage
+        {...rest}
+        accessibilityLabel={accessibilityLabel}
+        contentFit={contentFit}
+        images={images ?? []}
+        index={index}
+        label={accessibilityLabel}
+        siteReferer={siteReferer}
+        uri={uri}
+      />
+    )
+  }
+
   return (
-    <NativeRemoteImage
+    <Pressable
       {...rest}
       accessibilityLabel={accessibilityLabel}
-      contentFit={contentFit}
-      images={images ?? []}
-      index={index}
-      label={accessibilityLabel}
-      siteReferer={siteReferer}
-      uri={uri}
-    />
+      accessibilityRole="imagebutton"
+      onPress={() => {
+        void presentImagePreview({
+          index,
+          siteReferer,
+          urls: images && images.length > 0 ? images : [uri],
+        })
+      }}
+      style={style}
+    >
+      <Image
+        accessible
+        accessibilityLabel={accessibilityLabel}
+        contentFit={contentFit}
+        recyclingKey={uri}
+        source={
+          siteReferer
+            ? { headers: { Referer: siteReferer }, uri }
+            : { uri }
+        }
+        style={{ height: '100%', width: '100%' }}
+        transition={160}
+      />
+    </Pressable>
   )
 }

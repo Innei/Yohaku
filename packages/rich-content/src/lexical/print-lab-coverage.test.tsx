@@ -2,7 +2,6 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { expect, it } from 'vitest'
 
 import { type HostCapabilities, HostProvider } from '../host'
-import fixture from './__fixtures__/print-lab.json'
 import { collectLexicalNodeTypes } from './collect-node-types'
 import {
   createYohakuLexicalRenderer,
@@ -10,6 +9,7 @@ import {
 } from './create-renderer'
 import { withLexicalElementDefaults } from './element-defaults'
 import { sanitizeEditorState } from './sanitize'
+import fixture from './__fixtures__/print-lab.json'
 
 const host: HostCapabilities = {
   apiBase: 'https://example.com/api',

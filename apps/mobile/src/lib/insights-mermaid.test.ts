@@ -1,7 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { renderInsightsMermaid } from './insights-mermaid'
-
 const renderMermaid = vi.hoisted(() =>
   vi.fn(async (payload: { bg: string; fg: string; source: string }) => ({
     height: 40,
@@ -13,6 +11,8 @@ const renderMermaid = vi.hoisted(() =>
 vi.mock('@modules/yohaku', () => ({
   YohakuNative: { renderMermaid },
 }))
+
+import { renderInsightsMermaid } from './insights-mermaid'
 
 describe('renderInsightsMermaid', () => {
   beforeEach(() => {

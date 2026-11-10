@@ -1,4 +1,5 @@
 import { useHeaderHeight } from 'expo-router/react-navigation'
+import { Platform } from 'react-native'
 import { useCallback, useMemo, useRef } from 'react'
 import type {
   LayoutChangeEvent,
@@ -215,7 +216,8 @@ export function useCollapsingTitle(
     () => ({
       headerBackButtonDisplayMode: 'minimal' as const,
       headerBackButtonMenuEnabled: true,
-      headerBackVisible: !usesPaperNavigationControls,
+      headerBackVisible:
+        Platform.OS === 'android' || !usesPaperNavigationControls,
       headerTitle: () =>
         title ? (
           <CollapsingHeaderTitle

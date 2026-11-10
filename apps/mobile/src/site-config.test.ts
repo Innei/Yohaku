@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vitest'
 
+import rawSiteConfig from '../site.config.json'
 import { mergeSite, privacyUrlFrom, publicSite } from './site-config'
 
 const require = createRequire(import.meta.url)
@@ -24,14 +25,17 @@ const { findWorkspaceRoot, resolveOverlayDir } =
 const mobileRoot = path.dirname(fileURLToPath(import.meta.url))
 
 describe('publicSite', () => {
-  it('has empty runtime identity and the public bundle id', () => {
+  it('mirrors site.config.json', () => {
     expect(publicSite).toMatchObject({
-      apiUrl: '',
-      siteUrl: '',
-      siteHosts: [],
-      privacyUrl: '',
-      scheme: 'yohaku',
-      bundleId: 'dev.yohaku.app',
+      apiUrl: rawSiteConfig.apiUrl,
+      siteUrl: rawSiteConfig.siteUrl,
+      siteHosts: [...rawSiteConfig.siteHosts],
+      privacyUrl: privacyUrlFrom(
+        rawSiteConfig.siteUrl,
+        rawSiteConfig.privacyUrl,
+      ),
+      scheme: rawSiteConfig.scheme,
+      bundleId: rawSiteConfig.bundleId,
       bundledOwner: null,
     })
   })
@@ -99,7 +103,7 @@ describe('workspace root + overlay', () => {
     expect(
       resolveOverlayDir(path.join(mobileRoot, 'does-not-exist')),
     ).toBeNull()
-    expect(mergeSite(null).apiUrl).toBe('')
+    expect(mergeSite(null).apiUrl).toBe(rawSiteConfig.apiUrl)
     expect(mergeSite(null).bundleId).toBe('dev.yohaku.app')
     expect(mergeSite(null).bundledOwner).toBeNull()
   })

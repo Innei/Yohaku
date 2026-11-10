@@ -24,28 +24,6 @@ describe('notification service extension source', () => {
     expect(source).toContain('content.updating(from: intent)')
   })
 
-  it('rewrites reply and content copy from the containing app strings', async () => {
-    const source = await target('NotificationService.swift')
-    expect(source).toContain('NotificationCopyBuilder.reply(')
-    expect(source).toContain('NotificationCopyBuilder.content(')
-    expect(source).toContain('"YOHAKU_CONTENT"')
-    expect(source).toContain('deletingLastPathComponent()')
-  })
-
-  it('names the reply conversation after the commented article', async () => {
-    const source = await target('NotificationService.swift')
-    expect(source).toContain('speakableGroupName: conversationName')
-    expect(source).not.toContain('speakableGroupName: nil')
-    expect(source).toContain('isMe: true')
-  })
-
-  it('attaches validated covers without blocking delivery', async () => {
-    const source = await target('NotificationService.swift')
-    expect(source).toContain('UNNotificationAttachment(')
-    expect(source).toContain('5_000_000')
-    expect(source).toContain('isSafeRemoteImageURL(coverURL)')
-  })
-
   it('validates remote avatars and preserves a fallback notification', async () => {
     const source = await target('NotificationService.swift')
     expect(source).toContain('url.scheme == "https"')

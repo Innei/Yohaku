@@ -4,8 +4,10 @@ export type ThinkingBlock =
   | { markdown: string; type: 'markdown' }
   | { enrichment: ApiEnrichment; href: string; type: 'card' }
 
-// Its fix strips the \] escape that regexp/strict requires.
+/* eslint-disable unicorn/better-regex -- its fix strips the \] escape that
+   regexp/strict requires, so the two autofixes loop forever */
 const LINK_ONLY_LINE = /^(?:\[[^\]]+\]\((\S+?)\)|(https?:\/\/\S+))$/
+/* eslint-enable unicorn/better-regex */
 
 export function thinkingBlocks(
   content: string,

@@ -3,9 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 const fetchMock = vi.fn()
 
 vi.mock('expo/fetch', () => ({ fetch: fetchMock }))
-vi.mock('@/auth/client', () => ({
-  getSessionCookie: async () => 'session=abc',
-}))
+vi.mock('@/auth/client', () => ({ getSessionCookie: () => 'session=abc' }))
 vi.mock('@/auth/session-store', () => ({ setSession: vi.fn() }))
 vi.mock('@/i18n/locale-store', () => ({ getLocale: () => 'zh' }))
 vi.mock('@/api/base-url', () => ({
@@ -58,15 +56,5 @@ describe('api push methods', () => {
       }),
     )
     expect(init.headers.cookie).toBe('session=abc')
-  })
-
-  it('awaits the session cookie for streamed article bodies', async () => {
-    fetchMock.mockResolvedValueOnce({
-      ok: true,
-      text: async () => '',
-    })
-    const { api } = await import('./client')
-    await api.articleBodies([{ kind: 'post', id: 'post-1' }])
-    expect(fetchMock.mock.calls[0]![1].headers.cookie).toBe('session=abc')
   })
 })

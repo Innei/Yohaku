@@ -1,5 +1,7 @@
 import type { OwnerSnapshot } from '@/owner/snapshot'
 
+import rawSiteConfig from '../site.config.json'
+
 export interface SiteOverlay {
   apiUrl?: string
   bundledOwner?: OwnerSnapshot | null
@@ -21,12 +23,12 @@ export interface SiteConfig {
 }
 
 export const publicSite: SiteConfig = {
-  apiUrl: '',
-  siteUrl: '',
-  siteHosts: [],
-  privacyUrl: '',
-  scheme: 'yohaku',
-  bundleId: 'dev.yohaku.app',
+  apiUrl: rawSiteConfig.apiUrl,
+  siteUrl: rawSiteConfig.siteUrl,
+  siteHosts: [...rawSiteConfig.siteHosts],
+  privacyUrl: privacyUrlFrom(rawSiteConfig.siteUrl, rawSiteConfig.privacyUrl),
+  scheme: rawSiteConfig.scheme,
+  bundleId: rawSiteConfig.bundleId,
   bundledOwner: null,
 }
 

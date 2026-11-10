@@ -1,6 +1,5 @@
-import { ActivityIndicator } from 'react-native'
+import { ActivityIndicator, Pressable } from 'react-native'
 
-import { SinkPressable } from '@/components/ui'
 import { usePalette } from '@/theme/palette'
 import { shadow } from '@/theme/surfaces'
 
@@ -21,20 +20,29 @@ export function ProviderButton({
 }) {
   const palette = usePalette()
   return (
-    <SinkPressable
-      disabled={busy || dimmed}
-      style={{
+    // Plain Pressable: the Reanimated-wrapped Pressable did not receive taps
+    // on Android, which left the social provider buttons unclickable.
+    <Pressable
+      accessibilityLabel={provider}
+      accessibilityRole="button"
+      onPress={() => {
+        if (busy) return
+        onPress()
+      }}
+      style={({ pressed }) => ({
         width: size,
         height: size,
         borderRadius: size / 2,
-        borderCurve: 'continuous',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: palette.surface.paper,
-        boxShadow: shadow.paperSmall[palette.theme],
-        opacity: dimmed ? 0.4 : 1,
-      }}
-      onPress={onPress}
+        elevation: 2,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.12,
+        shadowRadius: 8,
+        opacity: dimmed ? 0.4 : pressed ? 0.8 : 1,
+      })}
     >
       {busy ? (
         <ActivityIndicator color={palette.neutral[7]} size="small" />
@@ -45,6 +53,6 @@ export function ProviderButton({
           size={size >= 44 ? 22 : 18}
         />
       )}
-    </SinkPressable>
+    </Pressable>
   )
 }

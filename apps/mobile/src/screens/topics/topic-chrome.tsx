@@ -1,3 +1,4 @@
+import { Toolbar } from '@/components/navigation/header-toolbar'
 import { Stack, useRouter } from 'expo-router'
 
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
@@ -10,14 +11,14 @@ export function TopicBackControl() {
 
   if (usesPaperNavigationControls) {
     return router.canGoBack() ? (
-      <Stack.Toolbar asChild placement="left">
+      <Toolbar asChild placement="left">
         <PaperNavigationControl
           accessibilityLabel={t('back')}
           icon="arrow.left"
           identifier="topic-back"
           onPress={() => router.back()}
         />
-      </Stack.Toolbar>
+      </Toolbar>
     ) : null
   }
 

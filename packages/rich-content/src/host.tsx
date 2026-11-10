@@ -151,9 +151,12 @@ export interface HostCapabilities {
   locale?: string
   nestedDocPresentation: 'inline' | 'modal'
   openImage(payload: OpenImagePayload): void | Promise<void>
-  openLink(url: string): void | Promise<void>
-  printCaption?(kind: string, fields?: Record<string, string | number>): string
+  printCaption?(
+    kind: string,
+    fields?: Record<string, string | number>,
+  ): string
   printMode?: boolean
+  openLink(url: string): void | Promise<void>
   scrollToAnchor(id: string): void | Promise<void>
   site?: {
     ownerAvatar?: string | null

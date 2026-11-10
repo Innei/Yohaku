@@ -212,7 +212,7 @@ importers:
         version: 5.0.0(expo@58.0.23)(supports-color@8.1.1)
       '@better-auth/expo':
         specifier: 1.7.16
-        version: 1.7.16(@better-auth/core@1.7.16(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-call@1.4.5(zod@4.6.7))(jose@6.2.9)(kysely@0.29.5)(nanostores@1.4.2))(better-auth@1.7.16(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(expo-sqlite@58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1))(kysely@0.29.5))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vitest@5.1.0(@types/node@26.2.0)(happy-dom@21.0.4)(vite@8.3.6(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.50.0)(tsx@4.23.15)(yaml@2.9.0))))(expo-constants@58.0.15)(expo-linking@58.0.16)
+        version: 1.7.16(3fddb89cb664b36a2c4a0a0b8a6ea4b6)
       '@expo-google-fonts/noto-serif-sc':
         specifier: 0.4.4
         version: 0.4.4
@@ -240,6 +240,9 @@ importers:
       '@icons-pack/react-simple-icons':
         specifier: 13.15.1
         version: 13.15.1(react@19.3.1)
+      '@lexical/link':
+        specifier: 0.53.0
+        version: 0.53.0
       '@lexical/react':
         specifier: 0.53.0
         version: 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
@@ -275,10 +278,13 @@ importers:
         version: 2.3.0
       expo:
         specifier: ~58.0.23
-        version: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+        version: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-asset:
         specifier: ~58.0.20
         version: 58.0.20(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo-audio:
+        specifier: ~58.0.11
+        version: 58.0.11(expo-asset@58.0.20(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       expo-build-properties:
         specifier: ~58.0.12
         version: 58.0.12(expo@58.0.23)
@@ -339,6 +345,12 @@ importers:
       expo-updates:
         specifier: ~58.0.21
         version: 58.0.21(expo-dev-client@58.0.18(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)))(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo-video:
+        specifier: ~58.0.13
+        version: 58.0.13(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
+      expo-web-browser:
+        specifier: ~58.0.7
+        version: 58.0.7(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))
       jsondiffpatch:
         specifier: ^0.7.7
         version: 0.7.7
@@ -351,9 +363,15 @@ importers:
       lucide-react:
         specifier: 1.59.0
         version: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      lucide-react-native:
+        specifier: 0.302.0
+        version: 0.302.0(prop-types@15.8.1)(react-native-svg@15.16.0(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       lumeo:
         specifier: ^0.1.1
         version: 0.1.1
+      markdown-it:
+        specifier: 14.1.0
+        version: 14.1.0
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -378,9 +396,15 @@ importers:
       react-native-screens:
         specifier: ~4.30.1
         version: 4.30.1(patch_hash=356e36e738e8bb3901e636475756f4743d9ca20aaa8903ae1b8a4d4f28386825)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
+      react-native-svg:
+        specifier: 15.16.0
+        version: 15.16.0(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       react-native-web:
         specifier: ~0.21.4
         version: 0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react-native-webview:
+        specifier: 13.15.0
+        version: 13.15.0(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       react-native-worklets:
         specifier: 0.13.0
         version: 0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
@@ -422,7 +446,7 @@ importers:
   design-system:
     devDependencies:
       '@tailwindcss/vite':
-        specifier: ^4.3.4
+        specifier: ^4.3.3
         version: 4.3.4(vite@8.3.6(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.50.0)(tsx@4.23.15)(yaml@2.9.0))
       '@types/react':
         specifier: ^19.3.0
@@ -431,7 +455,7 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(@types/react@19.3.0)
       '@vitejs/plugin-react':
-        specifier: ^6.2.1
+        specifier: ^6.1.2
         version: 6.2.1(babel-plugin-react-compiler@1.0.0)(vite@8.3.6(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.50.0)(tsx@4.23.15)(yaml@2.9.0))
       react:
         specifier: 19.3.1
@@ -446,14 +470,14 @@ importers:
         specifier: ^4.23.15
         version: 4.23.15
       vite:
-        specifier: ^8.3.6
+        specifier: ^8.3.4
         version: 8.3.6(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.50.0)(tsx@4.23.15)(yaml@2.9.0)
 
   packages/dom-webview:
     dependencies:
       expo:
         specifier: '*'
-        version: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+        version: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react:
         specifier: 19.3.1
         version: 19.3.1
@@ -464,11 +488,8 @@ importers:
       '@types/react':
         specifier: ~19.3.0
         version: 19.3.0
-      oxc-parser:
-        specifier: ^0.155.0
-        version: 0.155.0
       vitest:
-        specifier: ^5.1.0
+        specifier: ^5.0.5
         version: 5.1.0(@types/node@26.2.0)(happy-dom@21.0.4)(vite@8.3.6(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.50.0)(tsx@4.23.15)(yaml@2.9.0))
 
   packages/rich-content:
@@ -486,7 +507,7 @@ importers:
         specifier: 2.3.0
         version: 2.3.0
       jsondiffpatch:
-        specifier: ^0.7.7
+        specifier: ^0.7.6
         version: 0.7.7
       lightweight-charts:
         specifier: ^5.2.1
@@ -514,26 +535,26 @@ importers:
         specifier: 1.9.2
         version: 1.9.2(tailwindcss@4.3.3)
       '@haklex/rich-compose':
-        specifier: 0.64.2
-        version: 0.64.2(3b32bfdf52c1b94e658cdbd83e8de609)
+        specifier: 0.63.0
+        version: 0.63.0(2244a5218d62bd7221b50cb765cb26df)
       '@haklex/rich-editor':
-        specifier: 0.64.2
-        version: 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        specifier: 0.63.0
+        version: 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@haklex/rich-ext-chat':
-        specifier: 0.64.2
-        version: 0.64.2(05139ec3e5db158efda226d2df71c8ac)
+        specifier: 0.63.0
+        version: 0.63.0(fca6a1dd318e0ad105ef1fb8512946cd)
       '@haklex/rich-ext-dynamic':
-        specifier: 0.64.2
-        version: 0.64.2(9b69c35799d23a673a41c88b0673f0f4)
+        specifier: 0.63.0
+        version: 0.63.0(6289a2824628ae3189c69f7d7aff9409)
       '@haklex/rich-ext-embed':
-        specifier: 0.64.2
-        version: 0.64.2(9b69c35799d23a673a41c88b0673f0f4)
+        specifier: 0.63.0
+        version: 0.63.0(6289a2824628ae3189c69f7d7aff9409)
       '@haklex/rich-ext-nested-doc':
-        specifier: 0.64.2
-        version: 0.64.2(42d67ebbb1456f168ffb12a8775d5019)
+        specifier: 0.63.0
+        version: 0.63.0(998b8d5b2659451a77dfcd0c7c45b6a8)
       '@haklex/rich-ext-steps':
-        specifier: 0.64.2
-        version: 0.64.2(59c4c51b120111f627950f72d3eec8db)
+        specifier: 0.63.0
+        version: 0.63.0(4542c7a0830a695cf6dc8fd6486300ba)
       '@iconify-json/material-symbols':
         specifier: 1.2.95
         version: 1.2.95
@@ -547,7 +568,7 @@ importers:
         specifier: 0.3.0
         version: 0.3.0
       '@tailwindcss/cli':
-        specifier: ^4.3.4
+        specifier: ^4.3.3
         version: 4.3.4
       '@types/react':
         specifier: ^19.3.0
@@ -556,7 +577,7 @@ importers:
         specifier: ^19.3.0
         version: 19.3.0(@types/react@19.3.0)
       happy-dom:
-        specifier: ^21.0.4
+        specifier: ^21.0.3
         version: 21.0.4
       lexical:
         specifier: 0.53.0
@@ -574,7 +595,7 @@ importers:
         specifier: ^4.3.3
         version: 4.3.3
       vitest:
-        specifier: ^5.1.0
+        specifier: ^5.0.5
         version: 5.1.0(@types/node@26.2.0)(happy-dom@21.0.4)(vite@8.3.6(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.50.0)(tsx@4.23.15)(yaml@2.9.0))
 
 packages:
@@ -1997,8 +2018,25 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
+  '@haklex/cm-editor@0.63.0':
+    resolution: {integrity: sha512-aKY6e7NHb7sxLHZhCsOyIa294XmnGkk343tuwsJKyUR+pxbpLiXSBWNmucX4Yi+KXDEeepFTDI8LkEDY+vVUZQ==}
+
   '@haklex/cm-editor@0.64.2':
     resolution: {integrity: sha512-RxgQvpy5tBpGDoCRVqwj3l75/J2jzvN5Hx2o+cAP05CXg5HLOmTE3iNEdrgWC40b10RyYcrDVyOEUG/olKaUVg==}
+
+  '@haklex/rich-compose@0.63.0':
+    resolution: {integrity: sha512-bONBYK6VyWta3oXaenl+i2jRgRVwCCE/yrWGwNcACA4mIJxhATwqD/0utA2nkQjMgyqC1kNPjrQmRoVwkwfiog==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-ext-dynamic': ^0.63.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+    peerDependenciesMeta:
+      '@haklex/rich-ext-dynamic':
+        optional: true
 
   '@haklex/rich-compose@0.64.2':
     resolution: {integrity: sha512-yyEE8O09LsXbNsIKY+EYOQchcvLBVAtVmShay5C90qCXBX865fxCHeGF9lOqBPOZh6UiKvFtvsXOFrzZX+5vWg==}
@@ -2014,6 +2052,17 @@ packages:
       '@haklex/rich-ext-dynamic':
         optional: true
 
+  '@haklex/rich-dynamic-protocol@0.63.0':
+    resolution: {integrity: sha512-4WSxWQFSDSIU5pGz3Otgptuzo6jcv/HchhnfH70yCaLz49GKbTA/rN2o72x8jUX3Az4S1vGqnoQltKDsINbzGQ==}
+    peerDependencies:
+      react: 19.3.1
+      react-dom: 19.3.1
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
+
   '@haklex/rich-dynamic-protocol@0.64.2':
     resolution: {integrity: sha512-5lKeVSVtGYi1koWYQdMM4N1Fn5RPF4f8WjTFa4mU0ZEJG+pOkVMXIzJzzGGxY1DbpiAFXZc7rGfy3XS5CgJrlw==}
     peerDependencies:
@@ -2023,6 +2072,21 @@ packages:
       react:
         optional: true
       react-dom:
+        optional: true
+
+  '@haklex/rich-editor-ui@0.63.0':
+    resolution: {integrity: sha512-rMsdxsUikbb8rzHfZwu1wFIoq3rEYtG9odXLsbBEOArH2B8m0rLo4cIYw335WDywilZ+DduXXcZWoSv5CLeFXA==}
+    peerDependencies:
+      '@base-ui/react': '>=1.5.0'
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+    peerDependenciesMeta:
+      '@lexical/react':
+        optional: true
+      lexical:
         optional: true
 
   '@haklex/rich-editor-ui@0.64.2':
@@ -2038,6 +2102,26 @@ packages:
       '@lexical/react':
         optional: true
       lexical:
+        optional: true
+
+  '@haklex/rich-editor@0.63.0':
+    resolution: {integrity: sha512-kXOVAJYNZdcbyGhSJ+V2AHtT89DnGsszftqhotuqmDAF0SVYYpe77jRXSD6t/Pt+oyOW7MEBqwgzbaELjHFcBQ==}
+    peerDependencies:
+      '@base-ui/react': '>=1.5.0'
+      '@lexical/extension': 0.53.0
+      '@lexical/link': 0.53.0
+      '@lexical/list': 0.53.0
+      '@lexical/markdown': 0.53.0
+      '@lexical/react': 0.53.0
+      '@lexical/rich-text': 0.53.0
+      '@lexical/table': 0.53.0
+      katex: '>=0.16.0'
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+    peerDependenciesMeta:
+      katex:
         optional: true
 
   '@haklex/rich-editor@0.64.2':
@@ -2060,6 +2144,18 @@ packages:
       katex:
         optional: true
 
+  '@haklex/rich-ext-chart@0.63.0':
+    resolution: {integrity: sha512-ephYhXxKZsX/+9OyLzSmmJLR0slssric/Tw9xzBvNf2/AU4IQd0W3heowTFm3eRMnXgnvZj5req+k0Bksa1w3A==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
   '@haklex/rich-ext-chart@0.64.2':
     resolution: {integrity: sha512-YuiEuYQXfCGH4R1FkLLBKOLKUzqfRfuzMwVtcOMyh9j945NtwiBxrmcSekyAispYOnBlQT6Fk+/+1l4dcgrVJw==}
     peerDependencies:
@@ -2072,12 +2168,34 @@ packages:
       react: 19.3.1
       react-dom: 19.3.1
 
+  '@haklex/rich-ext-chat@0.63.0':
+    resolution: {integrity: sha512-xuW31s7n8EO+JDTF4WvjSSax1FTjrO9o86HNSsMn8lHepqAiv/+MLU/Do8OiurwAdjH9iMmhXr+JWQVYP2g2Mw==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+
   '@haklex/rich-ext-chat@0.64.2':
     resolution: {integrity: sha512-jK1/E20KrW/jMl86e7Bhs9F25lduNp/vDMclkX2Df7yMSQfZ/mQ/AiQK7JAXB+TjhjQw1DEXjCUkYMZe5bKWfQ==}
     peerDependencies:
       '@haklex/rich-editor': ^0.64.2
       '@haklex/rich-editor-ui': ^0.64.2
       '@haklex/rich-style-token': ^0.64.2
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+
+  '@haklex/rich-ext-code-snippet@0.63.0':
+    resolution: {integrity: sha512-RHmuFl5j1IbD0UK0aKYLK/9xojTPkSvIrxAJmc9emb6ljxmk9BCjx0Cxru0G4Bpel7229JVxsNrmE+LKiwTn6w==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
       '@lexical/react': 0.53.0
       lexical: 0.53.0
       lucide-react: ^1.0.0
@@ -2094,12 +2212,36 @@ packages:
       lucide-react: ^1.0.0
       react: 19.3.1
 
+  '@haklex/rich-ext-dynamic@0.63.0':
+    resolution: {integrity: sha512-3h8Ypu7IjSPGdTR0cROk63whgNalgciJ/McyA/GQi0By0ZJ7AfB1dSMjBZBAnvBUfznhrLDRkHi2W1iTOON2xg==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
   '@haklex/rich-ext-dynamic@0.64.2':
     resolution: {integrity: sha512-EwnBxlZmjquNRvkuWbfaUiZN8n5nbgVaEGHOnBI8FMmt7+F6YHDH0T0ZXNew/CyG2aw1g668251J/rNUT6h+Iw==}
     peerDependencies:
       '@haklex/rich-editor': ^0.64.2
       '@haklex/rich-editor-ui': ^0.64.2
       '@haklex/rich-style-token': ^0.64.2
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
+  '@haklex/rich-ext-embed@0.63.0':
+    resolution: {integrity: sha512-rz1HRUtGNexZdquy3uE/H3HYKcvfGJmPQuqBMiax95zgg/Ev6B2/3bcMGNi+KXGIXGM7YW6SUq7RPl9kUOFD3Q==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
       '@lexical/react': 0.53.0
       lexical: 0.53.0
       lucide-react: ^1.0.0
@@ -2118,6 +2260,22 @@ packages:
       react: 19.3.1
       react-dom: 19.3.1
 
+  '@haklex/rich-ext-excalidraw@0.63.0':
+    resolution: {integrity: sha512-EZ2Foh/Yfb+ZzdOt9YT2JvOf69aEWxC2g5syKK9BS7qgKz1F8W6YcRai3WaOC9EjWnMwgS4E2HyoU7FrHYZV1A==}
+    peerDependencies:
+      '@excalidraw/excalidraw': '>=0.18.0'
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+    peerDependenciesMeta:
+      '@excalidraw/excalidraw':
+        optional: true
+
   '@haklex/rich-ext-excalidraw@0.64.2':
     resolution: {integrity: sha512-H07t+1A2FjjY0WQWgEVKWZ7Iu3Ra/BCW506d/ijpXYsNjzY6zgnTNnUrt5KunwkIAYzQDlEKX0T2x5/iEfaasg==}
     peerDependencies:
@@ -2134,12 +2292,36 @@ packages:
       '@excalidraw/excalidraw':
         optional: true
 
+  '@haklex/rich-ext-gallery@0.63.0':
+    resolution: {integrity: sha512-eJNNbsUOZc7TBef0Jg1LuEwlOh8hGiX0GnQCrYK3nQrJ8g7xYTefAx1tr6/w4RMuwWaPHmaPiGHcZWr6S1b1HA==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
   '@haklex/rich-ext-gallery@0.64.2':
     resolution: {integrity: sha512-4WuMvV9KcFgxSQcPBpbA7xAFjxJn1iAzlZMy0ZH8erGunwnvO+jxzYAmmr9DNrlV/+6xGwF+6iHoQ4WtZf0p/A==}
     peerDependencies:
       '@haklex/rich-editor': ^0.64.2
       '@haklex/rich-editor-ui': ^0.64.2
       '@haklex/rich-style-token': ^0.64.2
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
+  '@haklex/rich-ext-nested-doc@0.63.0':
+    resolution: {integrity: sha512-ZBLRACjfDHLkzn+UkroW1dwX+0XcFNxoNLyuwsTOHkyrvc559Gf2e03Ap7nfyjERSiLaoosxdF16Ethxi4/VZA==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/markdown': 0.53.0
+      '@lexical/react': 0.53.0
       lexical: 0.53.0
       lucide-react: ^1.0.0
       react: 19.3.1
@@ -2158,11 +2340,32 @@ packages:
       react: 19.3.1
       react-dom: 19.3.1
 
+  '@haklex/rich-ext-poll@0.63.0':
+    resolution: {integrity: sha512-wU2ldfR5iuMopAaesf4QUgHoFz86c6BWmkafbNT9DIR2ZKX0i+guMxDEmepC/QJVjL03kfY32N7hLX7Up377xA==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+
   '@haklex/rich-ext-poll@0.64.2':
     resolution: {integrity: sha512-2zP+tLd2IuvaCpsnb/4RD/PjFsxCGcZiDVG9gbaQzSU4v5zOtc6ZnZdDGL6DoedkhlkfP2AHGDJFntNEAWeiZg==}
     peerDependencies:
       '@haklex/rich-editor': ^0.64.2
       '@haklex/rich-editor-ui': ^0.64.2
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+
+  '@haklex/rich-ext-steps@0.63.0':
+    resolution: {integrity: sha512-gvq5I54IizUf9q/l6RlJbvLjS1OEz6gdZfqsrvzkvL7qfFkRY5OuFymh4v8NLe1KmRyBZAAKlV7bo0LARZiuog==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
       '@lexical/react': 0.53.0
       lexical: 0.53.0
       lucide-react: ^1.0.0
@@ -2184,6 +2387,11 @@ packages:
     peerDependencies:
       lexical: 0.53.0
 
+  '@haklex/rich-headless@0.63.0':
+    resolution: {integrity: sha512-OpXzFkAorN8kPw3AV546yRU/X0ITMheXvCl3UXsogdYO2H0bIcnya298+cuRDBKARoT1k1vkb6tzFVtn7AMsEw==}
+    peerDependencies:
+      lexical: 0.53.0
+
   '@haklex/rich-headless@0.64.2':
     resolution: {integrity: sha512-opdLjnnDNZdpjh+pRWSOFPq6WPbUwg0jeDEi7qyHZkunmxsv/NYi5wtyNZ+quH+dHi+i/w1c5OnlB7nvlQO+TQ==}
     peerDependencies:
@@ -2192,8 +2400,27 @@ packages:
   '@haklex/rich-litexml@0.33.0':
     resolution: {integrity: sha512-NThXADGCzy2a89BRAVipZye6aStWupYqK25wr+QFTwZ3lTZnEKBXAkad5P9ouasxblHt23USLMATCXVJSrG++w==}
 
+  '@haklex/rich-litexml@0.63.0':
+    resolution: {integrity: sha512-V6U0xt59UtI6oxH4YGrM5YxP55OP432s6scOTO7pTOsi155PYsnjOBZu7Uxjkzt9W0Z2IdMoG6f+JB3QXI8N8w==}
+
   '@haklex/rich-litexml@0.64.2':
     resolution: {integrity: sha512-beWuT1XFpP/wg2wRZMz2ieRj4Ag4xghqUcRY/5jivbbNOc1PI7SUczOKNE6beOxTGVI7rdAVn20XTXneI86lpA==}
+
+  '@haklex/rich-plugin-slash-menu@0.63.0':
+    resolution: {integrity: sha512-7/00iYycC8v6u98GyF4EfJE6GXkPUFHhFGxWW/FDNJdZSPzAY4Cao0SndtEy47/j9bdKZZSJXiQfZSl273nrGQ==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/list': 0.53.0
+      '@lexical/react': 0.53.0
+      '@lexical/rich-text': 0.53.0
+      '@lexical/selection': 0.53.0
+      '@lexical/table': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
 
   '@haklex/rich-plugin-slash-menu@0.64.2':
     resolution: {integrity: sha512-rYcbqtjl+mQno6gXmjo1qzEHPs9je8y0M6nbrkkukymTzIQgw2Ugbv+EjyYv65AGrieMMcmQL5dNoNoXABEgMQ==}
@@ -2211,12 +2438,32 @@ packages:
       react: 19.3.1
       react-dom: 19.3.1
 
+  '@haklex/rich-renderer-alert@0.63.0':
+    resolution: {integrity: sha512-s/I9Z6Yyaj47WjIUB7fzOsc5kLi83iLMZZ20gJeTDWlBxbiL9FlPPUcmWSUDyxeYZo0XXl7IhtQFqkFjDqQETQ==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
   '@haklex/rich-renderer-alert@0.64.2':
     resolution: {integrity: sha512-OJa6U9eM2Mt498xgcRBz4pC61Uq6dqL8x9LsAYMMjKjFDw3MaVtJMw/AWMf90vpEb0lJdMdzDwe01w+LCd101A==}
     peerDependencies:
       '@haklex/rich-editor': ^0.64.2
       '@haklex/rich-editor-ui': ^0.64.2
       '@haklex/rich-style-token': ^0.64.2
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
+  '@haklex/rich-renderer-banner@0.63.0':
+    resolution: {integrity: sha512-IWdW4dxw1wQiQnD/v9kNDh+8ltNzarF9meG60en/EqYHunoWvCqBYBd4lAHgIAF3edXfXvaOBxp8am4ctyHfOg==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
       lucide-react: ^1.0.0
       react: 19.3.1
       react-dom: 19.3.1
@@ -2231,12 +2478,35 @@ packages:
       react: 19.3.1
       react-dom: 19.3.1
 
+  '@haklex/rich-renderer-codeblock@0.63.0':
+    resolution: {integrity: sha512-XBUVfnr6nBexGgo+Lygl34tgrifo5RPrrEIKzktEDwXthROvPxmB2hwVvrQn8ai/TWGm/Cb2hySy5EAK6flp6w==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
   '@haklex/rich-renderer-codeblock@0.64.2':
     resolution: {integrity: sha512-3H66RYvqe8397ZWpoV3kxw7QCdEOIl64T7uwxVHxYSO8w0k9bFJi1wJ00cVg33ASGFwl/qqZS2h+cy7o6K+2Og==}
     peerDependencies:
       '@haklex/rich-editor': ^0.64.2
       '@haklex/rich-editor-ui': ^0.64.2
       '@haklex/rich-style-token': ^0.64.2
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
+  '@haklex/rich-renderer-file@0.63.0':
+    resolution: {integrity: sha512-umm7+d6Bj5ff+XkWE84nLZS5bq7dIua4EMgfvattpV2QQUMdCEg5bxH1CoHKxFaNNis07hhqTwASR+IkmgOjQg==}
+    peerDependencies:
+      '@base-ui/react': '>=1.5.0'
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
       lucide-react: ^1.0.0
       react: 19.3.1
       react-dom: 19.3.1
@@ -2249,6 +2519,19 @@ packages:
       '@haklex/rich-editor-ui': ^0.64.2
       '@haklex/rich-style-token': ^0.64.2
       '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
+  '@haklex/rich-renderer-image@0.63.0':
+    resolution: {integrity: sha512-Yzf9ztOJOIc+tjg+oYJnY9pXs5qec11edhqWM0HUvEcSHOZnfPOIe6Sx2HLj8ZBhHyi9NzUFM9qD9nSg3iZo+Q==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/react': 0.53.0
+      jotai: '>=2'
       lexical: 0.53.0
       lucide-react: ^1.0.0
       react: 19.3.1
@@ -2267,6 +2550,22 @@ packages:
       react: 19.3.1
       react-dom: 19.3.1
 
+  '@haklex/rich-renderer-katex@0.63.0':
+    resolution: {integrity: sha512-09eKvlauSpHladSMvLTlXv22QhoAxsu97Rrt9/nTTXY7vl0F/Ew/pZ9khJVqzLRBo7oOzKtDNVnAXlxmAtOznw==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/react': 0.53.0
+      katex: '>=0.16.0'
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+    peerDependenciesMeta:
+      katex:
+        optional: true
+
   '@haklex/rich-renderer-katex@0.64.2':
     resolution: {integrity: sha512-PWJ60YKWJqbS8mvLtUIY2gb3W6XEWtJ0N97Bof2sY3wq5qLQj0oQP7wpaaNgWQedp9KPD8Ma96BLHesNy4GZQg==}
     peerDependencies:
@@ -2283,6 +2582,19 @@ packages:
       katex:
         optional: true
 
+  '@haklex/rich-renderer-linkcard@0.63.0':
+    resolution: {integrity: sha512-AYbUTwxWR5K+76HBrZ/7YvovvXWdAb4pqAeYpMzn8j6z2j3S57leJ7O+pcSG18k1YGA24Rwl/xxZFvK9lL9KFw==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/link': 0.53.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
   '@haklex/rich-renderer-linkcard@0.64.2':
     resolution: {integrity: sha512-MfrKsunhEQM29sY4C9WxTh4z4NOwa5MV0lTUKSC/1CQwvT7YCBAOxBpMFXCXQNlwtqiN9UCXxTBdpcZpTTEykQ==}
     peerDependencies:
@@ -2290,6 +2602,18 @@ packages:
       '@haklex/rich-editor-ui': ^0.64.2
       '@haklex/rich-style-token': ^0.64.2
       '@lexical/link': 0.53.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
+  '@haklex/rich-renderer-mention@0.63.0':
+    resolution: {integrity: sha512-kRuiGY4g1GzjB8TcXB0Bu+3GHm+1YYkfM+MzQ8H4S/S3GIQlQAwji/yZK8+xHHpWijV8yC5LRqQbnzrmCI7vvA==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
       '@lexical/react': 0.53.0
       lexical: 0.53.0
       lucide-react: ^1.0.0
@@ -2308,6 +2632,16 @@ packages:
       react: 19.3.1
       react-dom: 19.3.1
 
+  '@haklex/rich-renderer-mermaid@0.63.0':
+    resolution: {integrity: sha512-jwU9MRZ3fxPqEIcak6mfSqHhmTk35DKIZWggRygDeNbHT/A9vvQUAeEH3AsWBnCQUZPYapJIVl8nbCwo/2qxPQ==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      lucide-react: ^1.0.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
   '@haklex/rich-renderer-mermaid@0.64.2':
     resolution: {integrity: sha512-3PuwSthZPzhr2rGiDm2anOYm9f1IHYY41X27ShBEyWvMvDu2rF5/HoH/+xtcsVR98cw8vLzo2gKAWQPg++90+A==}
     peerDependencies:
@@ -2318,11 +2652,32 @@ packages:
       react: 19.3.1
       react-dom: 19.3.1
 
+  '@haklex/rich-renderer-ruby@0.63.0':
+    resolution: {integrity: sha512-BKNkYQF24NVEqtMeu5TVeC6H7mszNwTPV8yvwLjOy/mvVmMN9HCXSNF58HWn7z1DVOoKMmyNtMc614NuCqlYMg==}
+    peerDependencies:
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      react: 19.3.1
+      react-dom: 19.3.1
+
   '@haklex/rich-renderer-ruby@0.64.2':
     resolution: {integrity: sha512-dF/BoOFZvGAmAzlJ6JSeXpiRB+KI9LuUQ3F7bX6mg/DPEKB2cfeoAOhbEQ96bCAVF4iihKu747EqW6b03WanCw==}
     peerDependencies:
       '@haklex/rich-editor': ^0.64.2
       '@haklex/rich-style-token': ^0.64.2
+      react: 19.3.1
+      react-dom: 19.3.1
+
+  '@haklex/rich-renderer-video@0.63.0':
+    resolution: {integrity: sha512-llvhSVM2mNnWx729AJ/3hZhgaRy/axLgsrADWVyisy9RKTVhF3mNveOIiBsVhy8IWAbclJMGBw+yPxf2A+Km9g==}
+    peerDependencies:
+      '@base-ui/react': '>=1.5.0'
+      '@haklex/rich-editor': ^0.63.0
+      '@haklex/rich-editor-ui': ^0.63.0
+      '@haklex/rich-style-token': ^0.63.0
+      '@lexical/react': 0.53.0
+      lexical: 0.53.0
+      lucide-react: ^1.0.0
       react: 19.3.1
       react-dom: 19.3.1
 
@@ -2338,6 +2693,11 @@ packages:
       lucide-react: ^1.0.0
       react: 19.3.1
       react-dom: 19.3.1
+
+  '@haklex/rich-style-token@0.63.0':
+    resolution: {integrity: sha512-Ce1mC6whGEUREnFHNHVOpUER77XashEzmbOsAdiN/EdIbbsKPwrMo5XNhj3Uah5AD/I7NhuLSHlFOnxzsqu6xg==}
+    peerDependencies:
+      react: 19.3.1
 
   '@haklex/rich-style-token@0.64.2':
     resolution: {integrity: sha512-59WYxALaIXwETbopXvUb1HHmHgfbrQgmuxHF7EQZy9BhyvRebKmNbetL1Etgi+mS+uilPsoXTUFKh6XumlVcWA==}
@@ -2631,133 +2991,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@oxc-parser/binding-android-arm-eabi@0.155.0':
-    resolution: {integrity: sha512-A6xv7hDtnTm+xlZ7utn6rRQpRMJHRhVr3gjRGqlx0RUX84mNk0pAsy6YN/wWhuOTkaZhRrrzaLxf0NfbH77j2w==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm]
-    os: [android]
-
-  '@oxc-parser/binding-android-arm64@0.155.0':
-    resolution: {integrity: sha512-T1wWwH9/JI5g7Z4kEQwDOwhToxdDhRyOTklH+uuNpJ16m3MZFmGl+l2rKc0NHQdbVRG2LTOBsNjpW3h1BWytPA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [android]
-
-  '@oxc-parser/binding-darwin-arm64@0.155.0':
-    resolution: {integrity: sha512-ZoRB3qJxJ8DWA41jHja+YeB0lLfjBy4T+Kr15vnN1k65X3zbJt3rPZftEwN4Ju4tmA4K/T9dWWD7Z8ewQLnrVA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@oxc-parser/binding-darwin-x64@0.155.0':
-    resolution: {integrity: sha512-vxtL86BtM+IgrpejA86nbTk5j0HKTIMeuaJ1fQciw6p9RfavPtIPjI7gN34owap0yG9txXBaAWpGdxokNwdqIw==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [darwin]
-
-  '@oxc-parser/binding-freebsd-x64@0.155.0':
-    resolution: {integrity: sha512-tN6Ru5e0UVnWaIuiH8jEwnvxuxg7FvhWwSd3oe5oDhOD4ObsSr9/N6WfHLjilUWlPPj65ptwrSDH0Y7lzwTzmw==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [freebsd]
-
-  '@oxc-parser/binding-linux-arm-gnueabihf@0.155.0':
-    resolution: {integrity: sha512-h4ozA5n6L6lwolsz9iwunEhKWnIVbmFRots5QxEix0H6nJ5ICpuDa7PuShuhfpIDFe3+Qvyscioyiv+9g+4Syg==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm]
-    os: [linux]
-
-  '@oxc-parser/binding-linux-arm-musleabihf@0.155.0':
-    resolution: {integrity: sha512-058/+LardpfuUlsKIvBGk/CYoakEVcMgqYx8GgyUZeOxFWTojYLlCc1Gb60/y21v3esDhHidgiY/Zbq9LpBhaQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm]
-    os: [linux]
-
-  '@oxc-parser/binding-linux-arm64-gnu@0.155.0':
-    resolution: {integrity: sha512-nrOt2Y3xIAzu+lSPzH0864ieO+iCCXgoo9qFlGANE8Xh0cQ+RP8Wstfp+/wXN2YCyb98cAGzX0VruKYw7it/jw==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@oxc-parser/binding-linux-arm64-musl@0.155.0':
-    resolution: {integrity: sha512-KYAayyN5hQbJPtGKtRxlyc8XYmyntOplyXSQzTDrmbz7l/GCrzQbSswvyJFBTH1LGtsZrbXOAfN52i/Kz6kLKg==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
-  '@oxc-parser/binding-linux-ppc64-gnu@0.155.0':
-    resolution: {integrity: sha512-CSuSY5hfjtsBnHXydOj8jiNfS1qHbdPZuPz1YL1cSgK7VmNYP+QlZIbG0BBYYBgX/vYEgZwbG9mBdW4YairZ5w==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [ppc64]
-    os: [linux]
-    libc: [glibc]
-
-  '@oxc-parser/binding-linux-riscv64-gnu@0.155.0':
-    resolution: {integrity: sha512-7KCfOQm+Nz2N8trAXbQkal4TQ5756WVEmhm35y816YHvyFnEfVsICsiV5k0pEszNf/fRm4cm2i6i18SJ6/iCWg==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [riscv64]
-    os: [linux]
-    libc: [glibc]
-
-  '@oxc-parser/binding-linux-riscv64-musl@0.155.0':
-    resolution: {integrity: sha512-JSlhgoK+/g1TGJI5NuADx2+6syhxnQNLCWLXyO5QLFyetomcr/vIxSdiNlmyAv963YXUzCuwAwRG6npZ5xyJ1A==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [riscv64]
-    os: [linux]
-    libc: [musl]
-
-  '@oxc-parser/binding-linux-s390x-gnu@0.155.0':
-    resolution: {integrity: sha512-WFIX+dPokWp64mi434Md3U3lJaTwNxAphvGjpltoyQjGUsdXavOIRrnp9dOS34Hd75HOAwDxAI+YwWOwqmJbtg==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [s390x]
-    os: [linux]
-    libc: [glibc]
-
-  '@oxc-parser/binding-linux-x64-gnu@0.155.0':
-    resolution: {integrity: sha512-g6xSDC/JpbnVOz5uafMGyK3txBVRFMQTx8opv/yHXGxqV3ZMVl3bf7W8XrSnF68dmy3gM4dgReNryuE53+WkeQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@oxc-parser/binding-linux-x64-musl@0.155.0':
-    resolution: {integrity: sha512-6/4xlxKlZJWrQ0uwDFPc0H9+xLu7068CKhX3vIDW3SbvP/lVgnVuT5v6dyugeWskWpuxqF/WJ4WKwhxjU3pG2w==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@oxc-parser/binding-openharmony-arm64@0.155.0':
-    resolution: {integrity: sha512-tltklL0J0XjDxIRTBXWOBhvc2mitcmES45pIxhwDWfxRyqz7Vkeu0NekTZEIxGE4f/lXgq3vZcjjffteQOVorg==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [openharmony]
-
-  '@oxc-parser/binding-win32-arm64-msvc@0.155.0':
-    resolution: {integrity: sha512-alAb9TzjatUEsOeoncAziUnfdTDxfyswhalFZ9sC6plUgATIUx2NIZ0+bMn6aJ28AduS1OpG/OAisr/YISn4Ig==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [win32]
-
-  '@oxc-parser/binding-win32-ia32-msvc@0.155.0':
-    resolution: {integrity: sha512-yc5cbSfcGmRv/KpxDFuyk8adEBaWd/9HilWvBbQ4bFbus1V2PUh2mGB2Cfq9rqZTqLeiMT8x0skV+LKp9hOMgQ==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [ia32]
-    os: [win32]
-
-  '@oxc-parser/binding-win32-x64-msvc@0.155.0':
-    resolution: {integrity: sha512-8heq6jGq+rfpTDRDjoQiBHw0maQZf3IXkS99pdHQZPoTL5kyF5qyPS0RidUlSdnWDIqxXb5nux7GBD9cT+imUw==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [win32]
-
   '@oxc-project/types@0.154.0':
     resolution: {integrity: sha512-KYOUGQFlLWR+s4QMV2Q9ko38TZm7EdO87Qm7rvZLqk/webse/cDjtyxKhg/47l0byCbs/k46LT8qc4PKjAikzA==}
-
-  '@oxc-project/types@0.155.0':
-    resolution: {integrity: sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q==}
 
   '@oxc-project/types@0.156.0':
     resolution: {integrity: sha512-1Duyg48TdJNdyhEB8Xn1L36bT9Pv6GUtlKjHxOys8xkaF/rQq3XJE+bAurSK/AgIz5mGFsb77cn9Pb20+WCScw==}
@@ -4140,6 +4375,9 @@ packages:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
 
+  boolbase@1.0.0:
+    resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
+
   boolbase@2.0.0:
     resolution: {integrity: sha512-DkVaaQHymRhpYEYo9x1oo7Q7B0Y6KJUsjm3c9eTyFDby4MHLBTwZ6ZDWBel5zrYxj1WsZgC5oLpiz+93MluXeA==}
     engines: {node: '>=20.19.0'}
@@ -4366,9 +4604,20 @@ packages:
   css-mediaquery@0.1.2:
     resolution: {integrity: sha512-COtn4EROW5dBGlE/4PiKnh6rZpAPxDeFLaEEwt4i10jpDMFt2EhQGS79QmmrO+iKCHv0PU/HrOWEhijFd1x99Q==}
 
+  css-select@5.2.2:
+    resolution: {integrity: sha512-TizTzUddG/xYLA3NXodFM0fSbNizXjOKhqiQQwvhlspadZokn1KDy0NZFS0wuEubIYAV5/c1/lAr0TaaFXEXzw==}
+
   css-select@7.0.0:
     resolution: {integrity: sha512-snmjEVXy+1LnwXdxhYvTMj1d9tOh4HxkA1YmoayVBeeyR2C14Pum7fcxJIm4SswYspVy866eYNwlH6xC3/VH5g==}
     engines: {node: '>=20.19.0'}
+
+  css-tree@1.1.3:
+    resolution: {integrity: sha512-tRpdppF7TRazZrjJ6v3stzv93qxRcSsFmW6cX0Zm2NVKpxE1WV1HblnghVv9TreireHkqI/VDEsfolRF1p6y7Q==}
+    engines: {node: '>=8.0.0'}
+
+  css-what@6.2.2:
+    resolution: {integrity: sha512-u/O3vwbptzhMs3L1fQE82ZSLHQQfto5gyZzwteVIEyeaY5Fc7R4dapF/BvRoSYFeqfBk4m0V1Vafq5Pjv25wvA==}
+    engines: {node: '>= 6'}
 
   css-what@8.0.0:
     resolution: {integrity: sha512-DH0Bqq3DNp5tdOReuNyAA+Ev4Y2GS5FMbZpeTLP6C4CDi0h5nL0BmUPChXw3o/qbHLDWHl49sbNqQVY7bMSDdw==}
@@ -4842,6 +5091,10 @@ packages:
     resolution: {integrity: sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg==}
     engines: {node: '>=0.8.0'}
 
+  escape-string-regexp@4.0.0:
+    resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
+    engines: {node: '>=10'}
+
   escape-string-regexp@5.0.0:
     resolution: {integrity: sha512-/veY75JbMK4j1yjvuUxuVsiS/hr/4iHs9FTT6cgTexxdE0Ly/glccBAkloH/DofkjRbZU3bnoj38mOmhkZ0lHw==}
     engines: {node: '>=12'}
@@ -4876,6 +5129,14 @@ packages:
     resolution: {integrity: sha512-atirOtDsH0l+4zxnByf4WKc7Iw2k5e2bSNAkuu79d4SLOAjAROoDizeP0qNQSMyZNoHPArw7EwTpoc8LuWvg4Q==}
     peerDependencies:
       expo: '*'
+      react: 19.3.1
+      react-native: '*'
+
+  expo-audio@58.0.11:
+    resolution: {integrity: sha512-r/3QzCZ+rHUrjAFoZpczUaC1N3uuHhjKr9YfsOlT3tnXFF+AC6EVofOc8S4OYPdgveIljLpouFcNps6ynf0U2A==}
+    peerDependencies:
+      expo: '*'
+      expo-asset: '*'
       react: 19.3.1
       react-native: '*'
 
@@ -5119,6 +5380,19 @@ packages:
     peerDependenciesMeta:
       expo-dev-client:
         optional: true
+
+  expo-video@58.0.13:
+    resolution: {integrity: sha512-3+ubjwi3L1QwCjGB39SOqhPy3hEtB5iWsd99k4jhBATB5UL0/qW5jfPnempJr6fGGL/2MBQy9NNFNL5OGwvV4w==}
+    peerDependencies:
+      expo: '*'
+      react: 19.3.1
+      react-native: '*'
+
+  expo-web-browser@58.0.7:
+    resolution: {integrity: sha512-dQ2/lkw+GR0+5xG6L2cixH+Zk7tY0IeWGhS2PRw+JIPDbqU+8eAb3F0twB7vMFBls4B/DdaLYoEj/hhq7msLHQ==}
+    peerDependencies:
+      expo: '*'
+      react-native: '*'
 
   expo@58.0.23:
     resolution: {integrity: sha512-FRpmfd1mdjWS9bRSMoZkwpF8ugbN+w6BDtNs+DYEio7rdSguTJ6fs/gaeWSeN60AJAbz80Uj36AMWtpHkShG0g==}
@@ -5683,6 +5957,9 @@ packages:
       canvas:
         optional: true
 
+  linkify-it@5.0.2:
+    resolution: {integrity: sha512-ONTm2jCMAVZjgQa/Fy1kScXsuOoF5NPTsoFBdE1KVIZ2vAh/r9+Bqo+0jINCBYnavTPQZz38QzFTme79ENoN3Q==}
+
   lodash-es@4.17.21:
     resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
 
@@ -5716,6 +5993,14 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
+  lucide-react-native@0.302.0:
+    resolution: {integrity: sha512-WSIje9q1hMBkb098y0TyAjaY6whBc1YiAmkk8uIgbS8qmcwGzH3p8auEN9VURlSERNHqUavqSul4pibZyhG3Uw==}
+    peerDependencies:
+      prop-types: ^15.7.2
+      react: 19.3.1
+      react-native: '*'
+      react-native-svg: ^12.0.0 || ^13.0.0 || ^14.0.0
+
   lucide-react@1.59.0:
     resolution: {integrity: sha512-5qgMyyCPU6OvnKpLS2t693+ZtiqA8oaSweWoUows0BLFKFf6V75m4+CptpmohZHpD5IuOVIBXHBBiv2vpLJmtw==}
     peerDependencies:
@@ -5733,6 +6018,10 @@ packages:
 
   makeerror@1.0.12:
     resolution: {integrity: sha512-JmqCvUhmt43madlpFzG4BQzG2Z3m6tvQDNKdClZnO3VbIudJYmxsT0FNJMeiB2+JTSlTQTSbU8QdesVmwJcmLg==}
+
+  markdown-it@14.1.0:
+    resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
+    hasBin: true
 
   markdown-table@3.0.4:
     resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
@@ -5791,6 +6080,12 @@ packages:
 
   mdast-util-to-string@4.0.0:
     resolution: {integrity: sha512-0H44vDimn51F0YwvxSJSm0eCDOJTRlmN0R1yBh4HLj9wiV1Dn0QoXGbvFAWj2hSItVTlCmBF1hqKlIyUBVFLPg==}
+
+  mdn-data@2.0.14:
+    resolution: {integrity: sha512-dn6wd0uw5GsdswPFfsgMp5NSB0/aDe6fK94YJV/AJDYXL6HVLWBsxeq7js7Ad+mU2K9LAlwpk6kN2D5mwCPVow==}
+
+  mdurl@2.1.0:
+    resolution: {integrity: sha512-1+HBaOx0zi/dQWht8rNv9MYf9qqpqL/kxI0hXImU6Y547zM6Sni8BQibt7ifgMcYtQg41ao3Ivd6cnSM86inpg==}
 
   memoize-one@5.2.1:
     resolution: {integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==}
@@ -6141,6 +6436,9 @@ packages:
     resolution: {integrity: sha512-sHGJy8sOC1YraBywpzQlIKBE4pBbGbiF95U6Auspzyem956E0+FtDtsx1ZxlOJkQCZ1AFXAY/yuvtFYrOxF+Bw==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
+  nth-check@2.1.1:
+    resolution: {integrity: sha512-lqjrjmaOoAnWfMmBPL+XNnynZh2+swxiX3WUE0s4yEHI6m+AwrK2UZOimIRl3X/4QctVqS8AiZjFqyOGrMXb/w==}
+
   nth-check@3.0.1:
     resolution: {integrity: sha512-GX0gsdbGVCgnRgbeGaubfjpBXyYRWOOCVeYh08bSQvDZqxz5ndXs1OTfAt/h36G1xvI94YIspsI0sVFqAV9+RQ==}
     engines: {node: '>=20.19.0'}
@@ -6190,10 +6488,6 @@ packages:
   ora@3.4.0:
     resolution: {integrity: sha512-eNwHudNbO1folBP3JsZ19v9azXWtQZjICdr3Q0TDPIaeBQ3mXLrh54wM+er0+hSp+dWKf+Z8KM58CYzEyIYxYg==}
     engines: {node: '>=6'}
-
-  oxc-parser@0.155.0:
-    resolution: {integrity: sha512-C/ReSf1JUFukK/zvk6jhcNibSssvas5+ktIzK7fbKVd3CedWe59C3QwHEOrEZj/4Rt9+xg0Jeis/Jv1F/KM1mw==}
-    engines: {node: ^20.19.0 || >=22.12.0}
 
   package-json-from-dist@1.0.1:
     resolution: {integrity: sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw==}
@@ -6319,8 +6613,15 @@ packages:
     resolution: {integrity: sha512-NxNv/kLguCA7p3jE8oL2aEBsrJWgAakBpgmgK6lpPWV+WuOmY6r2/zbAVnP+T8bQlA0nzHXSJSJW0Hq7ylaD2Q==}
     engines: {node: '>= 6'}
 
+  prop-types@15.8.1:
+    resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
+
   property-information@7.2.0:
     resolution: {integrity: sha512-IAtzIB6sUiWaJYrX9smp3V46pBGbBeLFRGdh25kg1334VcBlD8HzhPeNIWQH9zhGmo2itIe25EHt9dQP7G5hmg==}
+
+  punycode.js@2.3.1:
+    resolution: {integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==}
+    engines: {node: '>=6'}
 
   pwacompat@2.0.17:
     resolution: {integrity: sha512-6Du7IZdIy7cHiv7AhtDy4X2QRM8IAD5DII69mt5qWibC2d15ZU8DmBG1WdZKekG11cChSu4zkSUGPF9sweOl6w==}
@@ -6354,6 +6655,9 @@ packages:
     peerDependenciesMeta:
       react-dom:
         optional: true
+
+  react-is@16.13.1:
+    resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
   react-is@18.3.1:
     resolution: {integrity: sha512-/LLMVyas0ljjAtoYiPqYiL8VWXzUUdThrmU5+n20DZv+a+ClRoevUzw5JxU+Ieh5/c87ytoTBV9G1FiKfNJdmg==}
@@ -6410,11 +6714,23 @@ packages:
       react: 19.3.1
       react-native: '*'
 
+  react-native-svg@15.16.0:
+    resolution: {integrity: sha512-uh8yktufYeRU3W9Omi8+SPyLF9BVN4JmLflSgc9oOcKkSKk/S5JUmmTjKZq/L8GHfQUtCvcu/W6X4xhEfBBAjQ==}
+    peerDependencies:
+      react: 19.3.1
+      react-native: '*'
+
   react-native-web@0.21.4:
     resolution: {integrity: sha512-77B6KlalB4osNIck91TNFixPkYPsTbuNEvw8P7IV+4v4/5wZSBRKZnw0Zhx6YjuauDTz71gc8IW+fVhcBMjr5A==}
     peerDependencies:
       react: 19.3.1
       react-dom: 19.3.1
+
+  react-native-webview@13.15.0:
+    resolution: {integrity: sha512-Vzjgy8mmxa/JO6l5KZrsTC7YemSdq+qB01diA0FqjUTaWGAGwuykpJ73MDj3+mzBSlaDxAEugHzTtkUQkQEQeQ==}
+    peerDependencies:
+      react: 19.3.1
+      react-native: '*'
 
   react-native-worklets@0.13.0:
     resolution: {integrity: sha512-1OrhAeAKaZF4XrBa4YbPQbKzNOpjh52HDlId8e6ete1OCHNdAlrQHzG4gznJ225EAj3dgQXHViJvK51M9B52jQ==}
@@ -6917,6 +7233,9 @@ packages:
   ua-parser-js@1.0.41:
     resolution: {integrity: sha512-LbBDqdIC5s8iROCUjMbW1f5dJQTEFB1+KO9ogbvlb3nm9n4YHa5p4KTvFPWvh2Hs8gZMBuiB1/8+pdfe/tDPug==}
     hasBin: true
+
+  uc.micro@2.1.0:
+    resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
   uhyphen@0.2.0:
     resolution: {integrity: sha512-qz3o9CHXmJJPGBdqzab7qAYuW8kQGKNEuoHFYrBwV6hWIMcpAmxDLXojcHfFr9US1Pe6zUswEIJIbLI610fuqA==}
@@ -7805,7 +8124,7 @@ snapshots:
       '@expo/prebuild-config': 55.0.20(expo@58.0.23)(supports-color@8.1.1)
       '@react-native/normalize-colors': 0.79.7
       debug: 4.4.3(supports-color@8.1.1)
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       glob: 10.5.0
     transitivePeerDependencies:
       - supports-color
@@ -7859,7 +8178,7 @@ snapshots:
     optionalDependencies:
       drizzle-orm: 0.45.4(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(expo-sqlite@58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1))(kysely@0.29.5)
 
-  '@better-auth/expo@1.7.16(@better-auth/core@1.7.16(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-call@1.4.5(zod@4.6.7))(jose@6.2.9)(kysely@0.29.5)(nanostores@1.4.2))(better-auth@1.7.16(drizzle-kit@0.31.11)(drizzle-orm@0.45.4(@types/better-sqlite3@9.6.0)(better-sqlite3@13.0.3)(expo-sqlite@58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1))(kysely@0.29.5))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(vitest@5.1.0(@types/node@26.2.0)(happy-dom@21.0.4)(vite@8.3.6(@types/node@26.2.0)(esbuild@0.28.1)(jiti@2.7.0)(terser@5.50.0)(tsx@4.23.15)(yaml@2.9.0))))(expo-constants@58.0.15)(expo-linking@58.0.16)':
+  '@better-auth/expo@1.7.16(3fddb89cb664b36a2c4a0a0b8a6ea4b6)':
     dependencies:
       '@better-auth/core': 1.7.16(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-call@1.4.5(zod@4.6.7))(jose@6.2.9)(kysely@0.29.5)(nanostores@1.4.2)
       '@better-fetch/fetch': 1.3.3
@@ -7869,6 +8188,7 @@ snapshots:
     optionalDependencies:
       expo-constants: 58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(supports-color@8.1.1)
       expo-linking: 58.0.16(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo-web-browser: 58.0.7(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))
 
   '@better-auth/kysely-adapter@1.7.16(@better-auth/core@1.7.16(@better-auth/utils@0.5.1)(@better-fetch/fetch@1.3.3)(better-call@1.4.5(zod@4.6.7))(jose@6.2.9)(kysely@0.29.5)(nanostores@1.4.2))(@better-auth/utils@0.5.1)(kysely@0.29.5)':
     dependencies:
@@ -8564,7 +8884,7 @@ snapshots:
       compression: 1.8.1(supports-color@8.1.1)
       connect: 3.7.0(supports-color@8.1.1)
       dnssd-advertise: 1.1.6
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-server: 58.0.6
       fetch-nodeshim: 0.4.10
       getenv: 2.0.0
@@ -8688,7 +9008,7 @@ snapshots:
     dependencies:
       chalk: 4.1.2
     optionalDependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
 
@@ -8779,7 +9099,7 @@ snapshots:
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
       stacktrace-parser: 0.1.11
     optionalDependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
 
   '@expo/metro-config@58.0.21(expo@58.0.23)(supports-color@8.1.1)':
     dependencies:
@@ -8812,7 +9132,7 @@ snapshots:
       resolve-from: 5.0.0
       tinyglobby: 0.2.17
     optionalDependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -8833,7 +9153,7 @@ snapshots:
     dependencies:
       '@expo/log-box': 58.0.15(@expo/dom-webview@packages+dom-webview)(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       anser: 1.4.10
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       pretty-format: 29.7.0
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
@@ -8917,7 +9237,7 @@ snapshots:
       '@expo/json-file': 10.2.0
       '@react-native/normalize-colors': 0.83.10
       debug: 4.4.3(supports-color@8.1.1)
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       resolve-from: 5.0.0
       semver: 7.8.5
       xml2js: 0.6.0
@@ -8958,7 +9278,7 @@ snapshots:
   '@expo/router-server@58.0.21(@expo/metro-runtime@58.0.17)(expo-constants@58.0.15)(expo-font@58.0.11)(expo-router@58.0.30)(expo-server@58.0.6)(expo@58.0.23)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@8.1.1)':
     dependencies:
       debug: 4.4.3(supports-color@8.1.1)
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-constants: 58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(supports-color@8.1.1)
       expo-font: 58.0.11(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       expo-server: 58.0.6
@@ -9017,6 +9337,14 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
+  '@haklex/cm-editor@0.63.0':
+    dependencies:
+      '@codemirror/language': 6.13.1
+      '@codemirror/language-data': 6.5.2
+      '@codemirror/state': 6.7.6
+      '@codemirror/theme-one-dark': 6.1.3
+      '@codemirror/view': 6.43.15
+
   '@haklex/cm-editor@0.64.2':
     dependencies:
       '@codemirror/language': 6.13.1
@@ -9024,6 +9352,58 @@ snapshots:
       '@codemirror/state': 6.7.6
       '@codemirror/theme-one-dark': 6.1.3
       '@codemirror/view': 6.43.15
+
+  '@haklex/rich-compose@0.63.0(2244a5218d62bd7221b50cb765cb26df)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-ext-chart': 0.63.0(21252213655879c3e8ef711fb1bce480)
+      '@haklex/rich-ext-chat': 0.63.0(fca6a1dd318e0ad105ef1fb8512946cd)
+      '@haklex/rich-ext-code-snippet': 0.63.0(6289a2824628ae3189c69f7d7aff9409)
+      '@haklex/rich-ext-embed': 0.63.0(6289a2824628ae3189c69f7d7aff9409)
+      '@haklex/rich-ext-excalidraw': 0.63.0(88152b2916b9e05fe96e9e07a637e185)
+      '@haklex/rich-ext-gallery': 0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-ext-nested-doc': 0.63.0(998b8d5b2659451a77dfcd0c7c45b6a8)
+      '@haklex/rich-ext-poll': 0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-ext-steps': 0.63.0(4542c7a0830a695cf6dc8fd6486300ba)
+      '@haklex/rich-litexml': 0.63.0
+      '@haklex/rich-plugin-slash-menu': 0.63.0(63efd4b7a29eeed80a247a0e23078c31)
+      '@haklex/rich-renderer-alert': 0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-renderer-banner': 0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-renderer-codeblock': 0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-renderer-file': 0.63.0(5f2ebb1452e2bba4ed3a8e5f3f3336e1)
+      '@haklex/rich-renderer-image': 0.63.0(ef0bfe4ade72924d941df604148bc46f)
+      '@haklex/rich-renderer-katex': 0.63.0(1dbacf40dcfc2e0cbb73dde12eb67008)
+      '@haklex/rich-renderer-linkcard': 0.63.0(73a3f0090bf9e230c952f79c8a416977)
+      '@haklex/rich-renderer-mention': 0.63.0(6289a2824628ae3189c69f7d7aff9409)
+      '@haklex/rich-renderer-mermaid': 0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-renderer-ruby': 0.63.0(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-renderer-video': 0.63.0(5f2ebb1452e2bba4ed3a8e5f3f3336e1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/headless': 0.53.0
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+    optionalDependencies:
+      '@haklex/rich-ext-dynamic': 0.63.0(6289a2824628ae3189c69f7d7aff9409)
+    transitivePeerDependencies:
+      - '@base-ui/react'
+      - '@excalidraw/excalidraw'
+      - '@haklex/rich-editor-ui'
+      - '@lexical/link'
+      - '@lexical/list'
+      - '@lexical/markdown'
+      - '@lexical/rich-text'
+      - '@lexical/selection'
+      - '@lexical/table'
+      - '@types/react'
+      - bufferutil
+      - canvas
+      - jotai
+      - katex
+      - supports-color
+      - utf-8-validate
 
   '@haklex/rich-compose@0.64.2(3b32bfdf52c1b94e658cdbd83e8de609)':
     dependencies:
@@ -9077,10 +9457,27 @@ snapshots:
       - supports-color
       - utf-8-validate
 
+  '@haklex/rich-dynamic-protocol@0.63.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    optionalDependencies:
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
   '@haklex/rich-dynamic-protocol@0.64.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     optionalDependencies:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
+
+  '@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@base-ui/react': 1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@pierre/highlights': 0.2.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+    optionalDependencies:
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
 
   '@haklex/rich-editor-ui@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
@@ -9093,6 +9490,29 @@ snapshots:
     optionalDependencies:
       '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
       lexical: 0.53.0
+
+  '@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@base-ui/react': 1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-headless': 0.63.0(lexical@0.53.0)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/code-core': 0.53.0
+      '@lexical/extension': 0.53.0
+      '@lexical/link': 0.53.0
+      '@lexical/list': 0.53.0
+      '@lexical/markdown': 0.53.0
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      '@lexical/rich-text': 0.53.0
+      '@lexical/table': 0.53.0
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      nanoid: 6.0.2
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+      thumbhash: 0.1.1
+    optionalDependencies:
+      katex: 0.19.0
 
   '@haklex/rich-editor@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
@@ -9117,6 +9537,21 @@ snapshots:
     optionalDependencies:
       katex: 0.19.0
 
+  '@haklex/rich-ext-chart@0.63.0(21252213655879c3e8ef711fb1bce480)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      '@visx/scale': 4.0.0
+      '@visx/shape': 4.0.0(@types/react@19.3.0)(react@19.3.1)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+    transitivePeerDependencies:
+      - '@types/react'
+
   '@haklex/rich-ext-chart@0.64.2(643f131287449e2faa3ab7a2f5a57c4d)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9132,6 +9567,21 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
+  '@haklex/rich-ext-chat@0.63.0(fca6a1dd318e0ad105ef1fb8512946cd)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      nanoid: 6.0.2
+      react: 19.3.1
+      streamdown: 2.7.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(supports-color@8.1.1)
+    transitivePeerDependencies:
+      - react-dom
+      - supports-color
+
   '@haklex/rich-ext-chat@0.64.2(05139ec3e5db158efda226d2df71c8ac)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9146,6 +9596,27 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
       - supports-color
+
+  '@haklex/rich-ext-code-snippet@0.63.0(6289a2824628ae3189c69f7d7aff9409)':
+    dependencies:
+      '@codemirror/commands': 6.11.1
+      '@codemirror/state': 6.7.6
+      '@codemirror/view': 6.43.15
+      '@dnd-kit/core': 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@19.3.1)
+      '@haklex/cm-editor': 0.63.0
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-headless': 0.63.0(lexical@0.53.0)
+      '@haklex/rich-renderer-codeblock': 0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+    transitivePeerDependencies:
+      - react-dom
 
   '@haklex/rich-ext-code-snippet@0.64.2(9b69c35799d23a673a41c88b0673f0f4)':
     dependencies:
@@ -9168,6 +9639,18 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
 
+  '@haklex/rich-ext-dynamic@0.63.0(6289a2824628ae3189c69f7d7aff9409)':
+    dependencies:
+      '@haklex/rich-dynamic-protocol': 0.63.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
   '@haklex/rich-ext-dynamic@0.64.2(9b69c35799d23a673a41c88b0673f0f4)':
     dependencies:
       '@haklex/rich-dynamic-protocol': 0.64.2(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9179,6 +9662,19 @@ snapshots:
       lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
+
+  '@haklex/rich-ext-embed@0.63.0(6289a2824628ae3189c69f7d7aff9409)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@icons-pack/react-simple-icons': 13.15.1(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+      react-tweet: '@innei/react-tweet@4.0.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)'
 
   '@haklex/rich-ext-embed@0.64.2(9b69c35799d23a673a41c88b0673f0f4)':
     dependencies:
@@ -9192,6 +9688,22 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
       react-tweet: '@innei/react-tweet@4.0.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)'
+
+  '@haklex/rich-ext-excalidraw@0.63.0(88152b2916b9e05fe96e9e07a637e185)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-headless': 0.63.0(lexical@0.53.0)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      jsondiffpatch: 0.7.7
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+      roughjs: 4.6.6
+    optionalDependencies:
+      '@excalidraw/excalidraw': 0.18.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
   '@haklex/rich-ext-excalidraw@0.64.2(a1f7aaa912589da6f06d49e014b6f514)':
     dependencies:
@@ -9209,6 +9721,20 @@ snapshots:
     optionalDependencies:
       '@excalidraw/excalidraw': 0.18.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
+  '@haklex/rich-ext-gallery@0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@dnd-kit/core': 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react@19.3.1)
+      '@dnd-kit/utilities': 3.2.2(react@19.3.1)
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+      react-intersection-observer: 11.0.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+
   '@haklex/rich-ext-gallery@0.64.2(@haklex/rich-editor-ui@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.64.2(react@19.3.1))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9223,6 +9749,18 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
       react-intersection-observer: 11.0.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
+  '@haklex/rich-ext-nested-doc@0.63.0(998b8d5b2659451a77dfcd0c7c45b6a8)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/markdown': 0.53.0
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
   '@haklex/rich-ext-nested-doc@0.64.2(42d67ebbb1456f168ffb12a8775d5019)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9235,11 +9773,33 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
+  '@haklex/rich-ext-poll@0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      nanoid: 6.0.2
+      react: 19.3.1
+
   '@haklex/rich-ext-poll@0.64.2(@haklex/rich-editor-ui@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@haklex/rich-editor-ui': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@haklex/rich-style-token': 0.64.2(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      nanoid: 6.0.2
+      react: 19.3.1
+
+  '@haklex/rich-ext-steps@0.63.0(4542c7a0830a695cf6dc8fd6486300ba)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
       '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
       lexical: 0.53.0
       lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
@@ -9258,6 +9818,17 @@ snapshots:
       react: 19.3.1
 
   '@haklex/rich-headless@0.33.0(lexical@0.53.0)':
+    dependencies:
+      '@lexical/code-core': 0.53.0
+      '@lexical/extension': 0.53.0
+      '@lexical/link': 0.53.0
+      '@lexical/list': 0.53.0
+      '@lexical/markdown': 0.53.0
+      '@lexical/rich-text': 0.53.0
+      '@lexical/table': 0.53.0
+      lexical: 0.53.0
+
+  '@haklex/rich-headless@0.63.0(lexical@0.53.0)':
     dependencies:
       '@lexical/code-core': 0.53.0
       '@lexical/extension': 0.53.0
@@ -9287,6 +9858,14 @@ snapshots:
     transitivePeerDependencies:
       - canvas
 
+  '@haklex/rich-litexml@0.63.0':
+    dependencies:
+      lexical: 0.53.0
+      linkedom: 0.18.14
+      nanoid: 6.0.2
+    transitivePeerDependencies:
+      - canvas
+
   '@haklex/rich-litexml@0.64.2':
     dependencies:
       lexical: 0.53.0
@@ -9294,6 +9873,22 @@ snapshots:
       nanoid: 6.0.2
     transitivePeerDependencies:
       - canvas
+
+  '@haklex/rich-plugin-slash-menu@0.63.0(63efd4b7a29eeed80a247a0e23078c31)':
+    dependencies:
+      '@floating-ui/react-dom': 2.1.9(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/list': 0.53.0
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      '@lexical/rich-text': 0.53.0
+      '@lexical/selection': 0.53.0
+      '@lexical/table': 0.53.0
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
 
   '@haklex/rich-plugin-slash-menu@0.64.2(a0ef896361c29d2ac2369cf3bcc1c311)':
     dependencies:
@@ -9311,6 +9906,15 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
+  '@haklex/rich-renderer-alert@0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
   '@haklex/rich-renderer-alert@0.64.2(@haklex/rich-editor-ui@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.64.2(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9320,11 +9924,35 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
+  '@haklex/rich-renderer-banner@0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
   '@haklex/rich-renderer-banner@0.64.2(@haklex/rich-editor-ui@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.64.2(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@haklex/rich-editor-ui': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@haklex/rich-style-token': 0.64.2(react@19.3.1)
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
+  '@haklex/rich-renderer-codeblock@0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@codemirror/commands': 6.11.1
+      '@codemirror/state': 6.7.6
+      '@codemirror/view': 6.43.15
+      '@haklex/cm-editor': 0.63.0
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@iconify-json/material-icon-theme': 1.2.75
+      '@iconify/utils': 3.1.7
       lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
@@ -9344,6 +9972,18 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
+  '@haklex/rich-renderer-file@0.63.0(5f2ebb1452e2bba4ed3a8e5f3f3336e1)':
+    dependencies:
+      '@base-ui/react': 1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
   '@haklex/rich-renderer-file@0.64.2(b5c28748c9352999ee959dc9a3c7b123)':
     dependencies:
       '@base-ui/react': 1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9351,6 +9991,18 @@ snapshots:
       '@haklex/rich-editor-ui': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@haklex/rich-style-token': 0.64.2(react@19.3.1)
       '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
+  '@haklex/rich-renderer-image@0.63.0(ef0bfe4ade72924d941df604148bc46f)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      jotai: 2.20.2(@babel/core@7.29.7(supports-color@8.1.1))(@babel/template@7.29.7)(@types/react@19.3.0)(react@19.3.1)
       lexical: 0.53.0
       lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
       react: 19.3.1
@@ -9368,6 +10020,19 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
+  '@haklex/rich-renderer-katex@0.63.0(1dbacf40dcfc2e0cbb73dde12eb67008)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+    optionalDependencies:
+      katex: 0.19.0
+
   '@haklex/rich-renderer-katex@0.64.2(f68bf0fd21203e6f1e37731fa7d08d28)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9380,6 +10045,19 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
     optionalDependencies:
       katex: 0.19.0
+
+  '@haklex/rich-renderer-linkcard@0.63.0(73a3f0090bf9e230c952f79c8a416977)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/link': 0.53.0
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+      react-intersection-observer: 11.0.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
   '@haklex/rich-renderer-linkcard@0.64.2(50f448a73c886dae48cf55a1db28dc80)':
     dependencies:
@@ -9394,6 +10072,18 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
       react-intersection-observer: 11.0.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
+  '@haklex/rich-renderer-mention@0.63.0(6289a2824628ae3189c69f7d7aff9409)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@icons-pack/react-simple-icons': 13.15.1(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
   '@haklex/rich-renderer-mention@0.64.2(9b69c35799d23a673a41c88b0673f0f4)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9406,6 +10096,17 @@ snapshots:
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
+  '@haklex/rich-renderer-mermaid@0.63.0(@haklex/rich-editor-ui@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
+      pele: 1.7.0
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+      react-zoom-pan-pinch: 4.2.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+
   '@haklex/rich-renderer-mermaid@0.64.2(@haklex/rich-editor-ui@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-editor@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.64.2(react@19.3.1))(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -9417,10 +10118,29 @@ snapshots:
       react-dom: 19.3.1(react@19.3.1)
       react-zoom-pan-pinch: 4.2.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
+  '@haklex/rich-renderer-ruby@0.63.0(@haklex/rich-editor@0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.63.0(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+    dependencies:
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
   '@haklex/rich-renderer-ruby@0.64.2(@haklex/rich-editor@0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@haklex/rich-style-token@0.64.2(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@haklex/rich-editor': 0.64.2(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@haklex/rich-style-token': 0.64.2(react@19.3.1)
+      react: 19.3.1
+      react-dom: 19.3.1(react@19.3.1)
+
+  '@haklex/rich-renderer-video@0.63.0(5f2ebb1452e2bba4ed3a8e5f3f3336e1)':
+    dependencies:
+      '@base-ui/react': 1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/extension@0.53.0)(@lexical/link@0.53.0)(@lexical/list@0.53.0)(@lexical/markdown@0.53.0)(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(@lexical/rich-text@0.53.0)(@lexical/table@0.53.0)(katex@0.19.0)(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-editor-ui': 0.63.0(@base-ui/react@1.7.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(@lexical/react@0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32))(lexical@0.53.0)(lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@haklex/rich-style-token': 0.63.0(react@19.3.1)
+      '@lexical/react': 0.53.0(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(yjs@13.6.32)
+      lexical: 0.53.0
+      lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
 
@@ -9435,6 +10155,10 @@ snapshots:
       lucide-react: 1.59.0(@types/react@19.3.0)(react@19.3.1)
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
+
+  '@haklex/rich-style-token@0.63.0(react@19.3.1)':
+    dependencies:
+      react: 19.3.1
 
   '@haklex/rich-style-token@0.64.2(react@19.3.1)':
     dependencies:
@@ -9882,66 +10606,7 @@ snapshots:
   '@noxcturnal/noxcturnal-win32-x64-msvc@0.1.11':
     optional: true
 
-  '@oxc-parser/binding-android-arm-eabi@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-android-arm64@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-darwin-arm64@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-darwin-x64@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-freebsd-x64@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-arm-gnueabihf@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-arm-musleabihf@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-arm64-gnu@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-arm64-musl@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-ppc64-gnu@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-riscv64-gnu@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-riscv64-musl@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-s390x-gnu@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-x64-gnu@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-linux-x64-musl@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-openharmony-arm64@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-win32-arm64-msvc@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-win32-ia32-msvc@0.155.0':
-    optional: true
-
-  '@oxc-parser/binding-win32-x64-msvc@0.155.0':
-    optional: true
-
   '@oxc-project/types@0.154.0': {}
-
-  '@oxc-project/types@0.155.0': {}
 
   '@oxc-project/types@0.156.0': {}
 
@@ -11277,7 +11942,7 @@ snapshots:
       react-refresh: 0.14.2
     optionalDependencies:
       '@babel/runtime': 7.29.7
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
     transitivePeerDependencies:
       - '@babel/core'
       - supports-color
@@ -11339,6 +12004,8 @@ snapshots:
 
   binary-extensions@2.3.0:
     optional: true
+
+  boolbase@1.0.0: {}
 
   boolbase@2.0.0: {}
 
@@ -11579,6 +12246,14 @@ snapshots:
 
   css-mediaquery@0.1.2: {}
 
+  css-select@5.2.2:
+    dependencies:
+      boolbase: 1.0.0
+      css-what: 6.2.2
+      domhandler: 5.0.3
+      domutils: 3.2.2
+      nth-check: 2.1.1
+
   css-select@7.0.0:
     dependencies:
       boolbase: 2.0.0
@@ -11586,6 +12261,13 @@ snapshots:
       domhandler: 6.0.1
       domutils: 4.0.2
       nth-check: 3.0.1
+
+  css-tree@1.1.3:
+    dependencies:
+      mdn-data: 2.0.14
+      source-map: 0.6.1
+
+  css-what@6.2.2: {}
 
   css-what@8.0.0: {}
 
@@ -12062,6 +12744,8 @@ snapshots:
 
   escape-string-regexp@1.0.5: {}
 
+  escape-string-regexp@4.0.0: {}
+
   escape-string-regexp@5.0.0: {}
 
   estree-util-is-identifier-name@3.0.0: {}
@@ -12080,28 +12764,35 @@ snapshots:
 
   expo-application@58.1.2(expo@58.0.23):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
 
   expo-asset@58.0.20(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1):
     dependencies:
       '@expo/image-utils': 0.12.6(supports-color@8.1.1)
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-constants: 58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(supports-color@8.1.1)
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
+  expo-audio@58.0.11(expo-asset@58.0.20(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
+    dependencies:
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
+      expo-asset: 58.0.20(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      react: 19.3.1
+      react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
+
   expo-build-properties@58.0.12(expo@58.0.23):
     dependencies:
       '@expo/schema-utils': 58.0.3
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       resolve-from: 5.0.0
       semver: 7.8.5
 
   expo-clipboard@58.0.4(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
 
@@ -12109,14 +12800,14 @@ snapshots:
     dependencies:
       '@expo/env': 2.5.4(supports-color@8.1.1)
       '@expo/require-utils': 58.0.5(supports-color@8.1.1)
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
   expo-dev-client@58.0.18(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-dev-launcher: 58.0.18(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))
       expo-dev-menu: 58.0.12(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))
       expo-dev-menu-interface: 58.0.1(expo@58.0.23)
@@ -12128,47 +12819,47 @@ snapshots:
   expo-dev-launcher@58.0.18(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)):
     dependencies:
       '@expo/schema-utils': 58.0.3
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-dev-menu: 58.0.12(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))
       expo-manifests: 58.0.1(expo@58.0.23)
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
 
   expo-dev-menu-interface@58.0.1(expo@58.0.23):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
 
   expo-dev-menu@58.0.12(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-dev-menu-interface: 58.0.1(expo@58.0.23)
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
 
   expo-device@58.0.5(expo@58.0.23):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       ua-parser-js: 0.7.41
 
   expo-eas-client@58.0.2: {}
 
   expo-font@58.0.11(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
 
   expo-glass-effect@58.0.5(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
 
   expo-haptics@58.0.7(expo@58.0.23):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
 
   expo-image@58.0.16(patch_hash=c02c7a1d05a8d1b613372110fd873d49b4197f4f70b59a88b757d9ae054ae89f)(expo@58.0.23)(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
       sf-symbols-typescript: 2.2.0
@@ -12179,12 +12870,12 @@ snapshots:
 
   expo-keep-awake@58.0.3(expo@58.0.23)(react@19.3.1):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react: 19.3.1
 
   expo-linking@58.0.16(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-constants: 58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(supports-color@8.1.1)
       invariant: 2.2.4
       react: 19.3.1
@@ -12194,13 +12885,13 @@ snapshots:
 
   expo-localization@58.0.5(expo@58.0.23)(react@19.3.1):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react: 19.3.1
       rtl-detect: 1.1.2
 
   expo-manifests@58.0.1(expo@58.0.23):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-json-utils: 58.0.1
 
   expo-modules-autolinking@58.0.17(supports-color@8.1.1):
@@ -12244,7 +12935,7 @@ snapshots:
       '@expo/image-utils': 0.12.6(supports-color@8.1.1)
       abort-controller: 3.0.0
       badgin: 1.2.3
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-application: 58.1.2(expo@58.0.23)
       expo-constants: 58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(supports-color@8.1.1)
       react: 19.3.1
@@ -12262,7 +12953,7 @@ snapshots:
       '@react-native-masked-view/masked-view': 0.3.2(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       '@react-native/normalize-colors': 0.88.1
       client-only: 0.0.1
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-constants: 58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(supports-color@8.1.1)
       expo-glass-effect: 58.0.5(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       expo-linking: 58.0.16(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
@@ -12296,7 +12987,7 @@ snapshots:
     dependencies:
       '@expo/config-plugins': 58.0.12(supports-color@8.1.1)
       '@expo/image-utils': 0.12.6(supports-color@8.1.1)
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       xml2js: 0.6.0
     transitivePeerDependencies:
       - supports-color
@@ -12304,13 +12995,13 @@ snapshots:
   expo-sqlite@58.0.15(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
     dependencies:
       await-lock: 2.2.2
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
 
   expo-status-bar@58.0.4(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
 
@@ -12319,7 +13010,7 @@ snapshots:
   expo-symbols@58.0.4(expo-font@58.0.11)(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
     dependencies:
       '@expo-google-fonts/material-symbols': 0.4.44
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-font: 58.0.11(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       react: 19.3.1
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
@@ -12329,7 +13020,7 @@ snapshots:
     dependencies:
       '@react-native/normalize-colors': 0.88.1
       debug: 4.4.3(supports-color@8.1.1)
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
     optionalDependencies:
       react-native-web: 0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -12338,7 +13029,7 @@ snapshots:
 
   expo-updates-interface@58.0.1(expo@58.0.23):
     dependencies:
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
 
   expo-updates@58.0.21(expo-dev-client@58.0.18(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)))(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1):
     dependencies:
@@ -12350,7 +13041,7 @@ snapshots:
       arg: 4.1.3
       chalk: 4.1.2
       debug: 4.4.3(supports-color@8.1.1)
-      expo: 58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
       expo-eas-client: 58.0.2
       expo-manifests: 58.0.1(expo@58.0.23)
       expo-structured-headers: 58.0.1
@@ -12366,7 +13057,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  expo@58.0.23(@babel/core@7.29.7(supports-color@8.1.1))(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-router@58.0.30)(react-dom@19.3.1(react@19.3.1))(react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1):
+  expo-video@58.0.13(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
+    dependencies:
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
+      react: 19.3.1
+      react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
+
+  expo-web-browser@58.0.7(expo@58.0.23)(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)):
+    dependencies:
+      expo: 58.0.23(d5384610d1016c25f8ae0b8f4614e969)
+      react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
+
+  expo@58.0.23(d5384610d1016c25f8ae0b8f4614e969):
     dependencies:
       '@babel/runtime': 7.29.7
       '@expo/cli': 58.1.19(@expo/dom-webview@packages+dom-webview)(@expo/metro-runtime@58.0.17)(expo-constants@58.0.15)(expo-font@58.0.11)(expo-router@58.0.30)(expo@58.0.23)(react-dom@19.3.1(react@19.3.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1)
@@ -12398,6 +13100,7 @@ snapshots:
       '@expo/metro-runtime': 58.0.17(@expo/log-box@58.0.15)(expo@58.0.23)(react-dom@19.3.1(react@19.3.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
       react-dom: 19.3.1(react@19.3.1)
       react-native-web: 0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      react-native-webview: 13.15.0(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
     transitivePeerDependencies:
       - '@babel/core'
       - bufferutil
@@ -12947,6 +13650,10 @@ snapshots:
       htmlparser2: 10.1.0
       uhyphen: 0.2.0
 
+  linkify-it@5.0.2:
+    dependencies:
+      uc.micro: 2.1.0
+
   lodash-es@4.17.21:
     optional: true
 
@@ -12975,6 +13682,13 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
+  lucide-react-native@0.302.0(prop-types@15.8.1)(react-native-svg@15.16.0(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
+    dependencies:
+      prop-types: 15.8.1
+      react: 19.3.1
+      react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
+      react-native-svg: 15.16.0(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)
+
   lucide-react@1.59.0(@types/react@19.3.0)(react@19.3.1):
     dependencies:
       react: 19.3.1
@@ -12990,6 +13704,15 @@ snapshots:
   makeerror@1.0.12:
     dependencies:
       tmpl: 1.0.5
+
+  markdown-it@14.1.0:
+    dependencies:
+      argparse: 2.0.1
+      entities: 4.5.0
+      linkify-it: 5.0.2
+      mdurl: 2.1.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
 
   markdown-table@3.0.4: {}
 
@@ -13150,6 +13873,10 @@ snapshots:
   mdast-util-to-string@4.0.0:
     dependencies:
       '@types/mdast': 4.0.4
+
+  mdn-data@2.0.14: {}
+
+  mdurl@2.1.0: {}
 
   memoize-one@5.2.1: {}
 
@@ -13815,6 +14542,10 @@ snapshots:
       semver: 7.8.5
       validate-npm-package-name: 5.0.1
 
+  nth-check@2.1.1:
+    dependencies:
+      boolbase: 1.0.0
+
   nth-check@3.0.1:
     dependencies:
       boolbase: 2.0.0
@@ -13864,30 +14595,6 @@ snapshots:
       log-symbols: 2.2.0
       strip-ansi: 5.2.0
       wcwidth: 1.0.1
-
-  oxc-parser@0.155.0:
-    dependencies:
-      '@oxc-project/types': 0.155.0
-    optionalDependencies:
-      '@oxc-parser/binding-android-arm-eabi': 0.155.0
-      '@oxc-parser/binding-android-arm64': 0.155.0
-      '@oxc-parser/binding-darwin-arm64': 0.155.0
-      '@oxc-parser/binding-darwin-x64': 0.155.0
-      '@oxc-parser/binding-freebsd-x64': 0.155.0
-      '@oxc-parser/binding-linux-arm-gnueabihf': 0.155.0
-      '@oxc-parser/binding-linux-arm-musleabihf': 0.155.0
-      '@oxc-parser/binding-linux-arm64-gnu': 0.155.0
-      '@oxc-parser/binding-linux-arm64-musl': 0.155.0
-      '@oxc-parser/binding-linux-ppc64-gnu': 0.155.0
-      '@oxc-parser/binding-linux-riscv64-gnu': 0.155.0
-      '@oxc-parser/binding-linux-riscv64-musl': 0.155.0
-      '@oxc-parser/binding-linux-s390x-gnu': 0.155.0
-      '@oxc-parser/binding-linux-x64-gnu': 0.155.0
-      '@oxc-parser/binding-linux-x64-musl': 0.155.0
-      '@oxc-parser/binding-openharmony-arm64': 0.155.0
-      '@oxc-parser/binding-win32-arm64-msvc': 0.155.0
-      '@oxc-parser/binding-win32-ia32-msvc': 0.155.0
-      '@oxc-parser/binding-win32-x64-msvc': 0.155.0
 
   package-json-from-dist@1.0.1: {}
 
@@ -14023,7 +14730,15 @@ snapshots:
       kleur: 3.0.3
       sisteransi: 1.0.5
 
+  prop-types@15.8.1:
+    dependencies:
+      loose-envify: 1.4.0
+      object-assign: 4.1.1
+      react-is: 16.13.1
+
   property-information@7.2.0: {}
+
+  punycode.js@2.3.1: {}
 
   pwacompat@2.0.17:
     optional: true
@@ -14054,6 +14769,8 @@ snapshots:
       react: 19.3.1
     optionalDependencies:
       react-dom: 19.3.1(react@19.3.1)
+
+  react-is@16.13.1: {}
 
   react-is@18.3.1: {}
 
@@ -14107,6 +14824,13 @@ snapshots:
       react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
       warn-once: 0.1.1
 
+  react-native-svg@15.16.0(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
+    dependencies:
+      css-select: 5.2.2
+      css-tree: 1.1.3
+      react: 19.3.1
+      react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
+
   react-native-web@0.21.4(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       '@babel/runtime': 7.29.7
@@ -14121,6 +14845,13 @@ snapshots:
       styleq: 0.1.3
     transitivePeerDependencies:
       - encoding
+
+  react-native-webview@13.15.0(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1):
+    dependencies:
+      escape-string-regexp: 4.0.0
+      invariant: 2.2.4
+      react: 19.3.1
+      react-native: 0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1)
 
   react-native-worklets@0.13.0(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(react-native@0.88.1(@babel/core@7.29.7(supports-color@8.1.1))(@react-native/metro-config@0.86.3(@babel/core@7.29.7(supports-color@8.1.1))(supports-color@8.1.1))(@types/react@19.3.0)(react@19.3.1)(supports-color@8.1.1))(react@19.3.1)(supports-color@8.1.1):
     dependencies:
@@ -14682,6 +15413,8 @@ snapshots:
   ua-parser-js@0.7.41: {}
 
   ua-parser-js@1.0.41: {}
+
+  uc.micro@2.1.0: {}
 
   uhyphen@0.2.0: {}
 

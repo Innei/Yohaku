@@ -1,4 +1,5 @@
 import { requireNativeModule } from 'expo-modules-core'
+import { Platform } from 'react-native'
 
 interface ExpoDomWebViewNativeModule {
   vendor?: string
@@ -12,6 +13,8 @@ interface ExpoDomWebViewNativeModule {
  * only our vendored copy defines, so a resolution regression fails loudly.
  */
 export function assertVendoredDomWebView() {
+  // Android does not ship the vendored DOM WebView; nothing to assert.
+  if (Platform.OS === 'android') return
   const native = requireNativeModule<ExpoDomWebViewNativeModule>(
     'ExpoDomWebViewModule',
   )

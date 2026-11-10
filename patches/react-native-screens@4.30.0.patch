@@ -1,0 +1,114 @@
+diff --git a/ios/RNSScreen.mm b/ios/RNSScreen.mm
+index 049fd22..d20eeec 100644
+--- a/ios/RNSScreen.mm
++++ b/ios/RNSScreen.mm
+@@ -62,6 +62,7 @@ @implementation RNSScreenView {
+   ContentWrapperBox _contentWrapperBox;
+   bool _sheetHasInitialDetentSet;
+   BOOL _shouldUpdateScrollEdgeEffects;
++  BOOL _hasConfiguredScrollEdgeEffects;
+   UITapGestureRecognizer *_backdropTapGestureRecognizer;
+   RCTSurfaceTouchHandler *_touchHandler;
+   react::RNSScreenShadowNode::ConcreteState::Shared _state;
+@@ -98,6 +99,7 @@ - (void)initCommonProps
+   _fullScreenSwipeEnabled = RNSOptionalBooleanUndefined;
+   _fullScreenSwipeShadowEnabled = YES;
+   _shouldUpdateScrollEdgeEffects = NO;
++  _hasConfiguredScrollEdgeEffects = NO;
+ #if !TARGET_OS_TV
+   _sheetExpandsWhenScrolledToEdge = YES;
+ #endif // !TARGET_OS_TV
+@@ -642,6 +644,17 @@ - (void)didMoveToWindow
+   } else {
+     [_touchHandler detachFromView:self];
+   }
++
++  if (self.window != nil && _hasConfiguredScrollEdgeEffects) {
++    [self updateContentScrollViewEdgeEffectsIfExists];
++    __weak RNSScreenView *weakSelf = self;
++    dispatch_async(dispatch_get_main_queue(), ^{
++      RNSScreenView *strongSelf = weakSelf;
++      if (strongSelf != nil && strongSelf.window != nil) {
++        [strongSelf updateContentScrollViewEdgeEffectsIfExists];
++      }
++    });
++  }
+ }
+ 
+ - (nullable RCTSurfaceTouchHandler *)touchHandler
+@@ -1153,7 +1166,7 @@ - (void)overrideScrollViewBehaviorInFirstDescendantChainIfNeeded
+ 
+ - (void)updateContentScrollViewEdgeEffectsIfExists
+ {
+-  [RNSScrollEdgeEffectApplicator applyToScrollView:[RNSScrollViewFinder findScrollViewInFirstDescendantChainFrom:self]
++  [RNSScrollEdgeEffectApplicator applyToScrollView:[RNSScrollViewFinder findFirstScrollViewInSubtreeOf:self]
+                                       withProvider:self];
+ }
+ 
+@@ -1422,6 +1435,7 @@ - (void)finalizeUpdates:(RNComponentViewUpdateMask)updateMask
+ {
+   [super finalizeUpdates:updateMask];
+   if (_shouldUpdateScrollEdgeEffects) {
++    _hasConfiguredScrollEdgeEffects = YES;
+     [self updateContentScrollViewEdgeEffectsIfExists];
+     _shouldUpdateScrollEdgeEffects = NO;
+   }
+diff --git a/ios/helpers/scroll-view/RNSScrollViewFinder.h b/ios/helpers/scroll-view/RNSScrollViewFinder.h
+index 04d40b3..a91d2dc 100644
+--- a/ios/helpers/scroll-view/RNSScrollViewFinder.h
++++ b/ios/helpers/scroll-view/RNSScrollViewFinder.h
+@@ -25,4 +25,6 @@
+  */
+ + (nullable UIScrollView *)findContentScrollViewWithDelegatingToProvider:(nullable UIView *)view;
+ 
+++ (nullable UIScrollView *)findFirstScrollViewInSubtreeOf:(nullable UIView *)view;
++
+ @end
+diff --git a/ios/helpers/scroll-view/RNSScrollViewFinder.mm b/ios/helpers/scroll-view/RNSScrollViewFinder.mm
+index 2434c61..ad9016f 100644
+--- a/ios/helpers/scroll-view/RNSScrollViewFinder.mm
++++ b/ios/helpers/scroll-view/RNSScrollViewFinder.mm
+@@ -1,4 +1,8 @@
+ #import "RNSScrollViewFinder.h"
++#import "RNSScreen.h"
++#import "RNSScreenStackHeaderConfig.h"
++
++static const NSUInteger kRNSScrollViewSearchVisitLimit = 250;
+ 
+ @implementation RNSScrollViewFinder
+ 
+@@ -41,4 +45,34 @@ + (nullable UIScrollView *)findContentScrollViewWithDelegatingToProvider:(nullab
+   return nil;
+ }
+ 
+++ (nullable UIScrollView *)findFirstScrollViewInSubtreeOf:(nullable UIView *)view
++{
++  if (view == nil) {
++    return nil;
++  }
++
++  NSMutableArray<UIView *> *stack = [NSMutableArray arrayWithObject:view];
++  NSUInteger visitedCount = 0;
++
++  while (stack.count > 0 && visitedCount < kRNSScrollViewSearchVisitLimit) {
++    UIView *currentView = stack.lastObject;
++    [stack removeLastObject];
++    visitedCount += 1;
++
++    if ([currentView isKindOfClass:UIScrollView.class]) {
++      return static_cast<UIScrollView *>(currentView);
++    }
++
++    for (UIView *subview in [currentView.subviews reverseObjectEnumerator]) {
++      if ([subview isKindOfClass:RNSScreenView.class] ||
++          [subview isKindOfClass:RNSScreenStackHeaderConfig.class]) {
++        continue;
++      }
++      [stack addObject:subview];
++    }
++  }
++
++  return nil;
++}
++
+ @end

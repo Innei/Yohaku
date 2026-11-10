@@ -1,3 +1,5 @@
+import { Platform } from 'react-native'
+
 export type ArticleMoreIcon =
   | 'headphones'
   | 'wand.and.stars'
@@ -52,7 +54,9 @@ export function buildArticleMoreItems(input: {
     },
     {
       category: 'share',
-      hidden: !input.printAvailable,
+      // Android has no PDFKit print renderer in this port; the share sheet and
+      // open-in-browser entries cover the same need.
+      hidden: !input.printAvailable || Platform.OS === 'android',
       icon: 'printer',
       id: 'print',
       title: input.print,
