@@ -1,5 +1,6 @@
 import { RichRenderer } from '@haklex/rich-compose/core'
 import { allNodes } from '@haklex/rich-editor/static'
+import { AutoLinkNode, LinkNode } from '@lexical/link'
 import type { SerializedEditorState } from 'lexical'
 import { type ReactNode, useEffect, useMemo, useRef } from 'react'
 import { View } from 'react-native'
@@ -18,7 +19,12 @@ import { passthroughNodes } from './generic-node'
 import { groupSegments, type RichSegment } from './group'
 import { nativeBlockAnchor, nativeBuiltinOverrides } from './overrides'
 
-export const extraNodes = passthroughNodes(allNodes)
+// Post bodies written by the web editor contain `link`/`autolink` nodes from
+// @lexical/link. The haklex static node set does not include them, and a single
+// unknown type makes the headless editor drop the whole document, which renders
+// as a blank article body. `overrides.tsx` already renders both as inline link
+// runs, so only the node classes were missing.
+export const extraNodes = [...passthroughNodes(allNodes), LinkNode, AutoLinkNode]
 
 // Horizontal padding of the post/note screens; bleeding blocks scroll into it.
 const PAGE_GUTTER = 20

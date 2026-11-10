@@ -158,6 +158,28 @@ async function requestDetail<T>(
   }
 }
 
+/**
+ * Some posts are published with a category the slug route cannot resolve
+ * (the server answers POST_NOT_FOUND / CATEGORY_NOT_FOUND) while `/posts/{id}`
+ * still serves them. Fall back to the id route so those articles stay readable.
+ */
+async function requestPostDetail<T>(
+  categorySlug: string,
+  slug: string,
+  lang = getLocale(),
+  postId?: string,
+): Promise<DetailEnvelope<T>> {
+  try {
+    return await requestDetail<T>(
+      `/posts/${encodeURIComponent(categorySlug)}/${encodeURIComponent(slug)}`,
+      lang,
+    )
+  } catch (error) {
+    if (!postId) throw error
+    return requestDetail<T>(`/posts/${encodeURIComponent(postId)}`, lang)
+  }
+}
+
 interface PagedEnvelope<T> {
   data?: T[] | PagedEnvelope<T>
   meta?: { pagination?: ApiPagination }
@@ -253,11 +275,12 @@ export const api = {
   articleBodies: streamArticleBodies,
   postList: (page: number, size: number, lang = getLocale()) =>
     requestPaged<ApiPost>('/posts', { page, size, truncate: 160, lang }),
-  postDetail: (categorySlug: string, slug: string, lang = getLocale()) =>
-    requestDetail<ApiPost>(
-      `/posts/${encodeURIComponent(categorySlug)}/${encodeURIComponent(slug)}`,
-      lang,
-    ),
+  postDetail: (
+    categorySlug: string,
+    slug: string,
+    lang = getLocale(),
+    postId?: string,
+  ) => requestPostDetail<ApiPost>(categorySlug, slug, lang, postId),
   // ponytail: mx-core's GET /pages has no truncate option, so every row drags
   // its full body along (~100KB). Swap to a summary endpoint if it grows.
   pageList: (lang = getLocale()) =>
