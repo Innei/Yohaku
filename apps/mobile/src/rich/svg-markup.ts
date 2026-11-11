@@ -1,7 +1,9 @@
 import { Fragment, isValidElement, type ReactNode } from 'react'
 
 const MEMO = Symbol.for('react.memo')
-const KEEP_CAMEL = new Set(['viewBox', 'preserveAspectRatio'])
+const KEEP_CAMEL = new Set(['viewBox', 'preserveAspectRatio', 'stdDeviation'])
+// The markup is parsed as HTML inside foreignObject, where `</br>` is a second break.
+const VOID = new Set(['br'])
 
 function escapeText(value: string): string {
   return value
@@ -57,6 +59,7 @@ export function reactToSvg(node: ReactNode): string {
   const type = node.type as unknown
   if (type === Fragment) return reactToSvg(props.children as ReactNode)
   if (typeof type === 'string') {
+    if (VOID.has(type)) return `<${type}${attributes(props)}/>`
     const inner = props.dangerouslySetInnerHTML
       ? String((props.dangerouslySetInnerHTML as { __html: string }).__html)
       : reactToSvg(props.children as ReactNode)

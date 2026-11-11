@@ -15,7 +15,7 @@ import {
   openSceneInNewWindow,
   serializeStandaloneSceneSvg,
 } from './open-in-new-window'
-import { computeSceneBounds, SceneContent } from './Scene'
+import { computeSceneBounds, DARK_SCENE_FILTER, SceneContent } from './Scene'
 import type { BinaryFiles, ExcalidrawScene, StaticTheme } from './types'
 
 interface Transform {
@@ -354,14 +354,12 @@ export const InteractiveScene: FC<InteractiveSceneProps> = ({
         role="img"
         viewBox={`0 0 ${size.w || 1} ${size.h || 1}`}
         xmlns="http://www.w3.org/2000/svg"
-        style={
-          isDark ? { filter: 'invert(93%) hue-rotate(180deg)' } : undefined
-        }
+        style={isDark ? { filter: DARK_SCENE_FILTER } : undefined}
       >
         <g
           transform={`translate(${transform.tx} ${transform.ty}) scale(${transform.s})`}
         >
-          <SceneContent files={files} scene={scene} />
+          <SceneContent dark={isDark} files={files} scene={scene} />
         </g>
       </svg>
 

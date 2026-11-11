@@ -21,6 +21,8 @@ export type ElementType =
   | 'magicframe'
   | 'embeddable'
   | 'iframe'
+  | 'svg'
+  | 'richtext'
   | 'selection'
 
 export interface BaseElement {
@@ -38,6 +40,7 @@ export interface BaseElement {
   roughness: number
   roundness?: { type: number; value?: number } | null
   seed: number
+  shadow?: boolean
   strokeColor: string
   strokeStyle: StrokeStyle
   strokeWidth: number
@@ -126,6 +129,16 @@ export interface EmbedElement extends BaseElement {
   type: 'embeddable' | 'iframe'
 }
 
+export interface SvgElement extends BaseElement {
+  svg: string
+  type: 'svg'
+}
+
+export interface RichTextElement extends BaseElement {
+  content: unknown
+  type: 'richtext'
+}
+
 export type ExcalidrawElement =
   | RectangleElement
   | EllipseElement
@@ -136,6 +149,8 @@ export type ExcalidrawElement =
   | ImageElement
   | FrameLikeElement
   | EmbedElement
+  | SvgElement
+  | RichTextElement
   | (BaseElement & { type: 'selection' })
 
 export interface BinaryFileData {

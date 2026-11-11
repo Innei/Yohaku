@@ -6,9 +6,15 @@ export const EXCALIDRAW_FONT_STACK = {
   mono: '"Cascadia Code", "Cascadia", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace',
 } as const
 
-export function fontFamilyToCss(id: FontFamilyId | undefined): string {
+export function fontFamilyToCss(id: FontFamilyId | number | undefined): string {
   switch (id) {
-    case 3: {
+    case 2:
+    case 6:
+    case 9: {
+      return EXCALIDRAW_FONT_STACK.sans
+    }
+    case 3:
+    case 8: {
       return EXCALIDRAW_FONT_STACK.mono
     }
     default: {

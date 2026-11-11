@@ -6,6 +6,8 @@ import type { CSSProperties, FC } from 'react'
 import { Fragment, memo } from 'react'
 
 import { fontFamilyToCss } from './fonts'
+import { resolveRichTextHeights } from './richtext'
+import { RichTextBody } from './RichTextBody'
 import {
   curve,
   diamond,
@@ -18,6 +20,7 @@ import {
   roughOptionsForElement,
   roundedRectPath,
 } from './rough'
+import { isSvgSource, svgDataUrl } from './svg'
 import type {
   BinaryFiles,
   EllipseElement,
@@ -27,6 +30,7 @@ import type {
   ImageElement,
   LinearElement,
   RectangleElement,
+  SvgElement,
   TextElement,
 } from './types'
 
@@ -39,7 +43,8 @@ export interface SceneBounds {
   width: number
 }
 
-export function computeSceneBounds(elements: ExcalidrawElement[]): SceneBounds {
+export function computeSceneBounds(input: ExcalidrawElement[]): SceneBounds {
+  const elements = resolveRichTextHeights(input)
   if (elements.length === 0) {
     return { minX: 0, minY: 0, width: 100, height: 100 }
   }
@@ -68,19 +73,97 @@ export function computeSceneBounds(elements: ExcalidrawElement[]): SceneBounds {
   }
 }
 
+export const DARK_SCENE_FILTER = 'invert(93%) hue-rotate(180deg)'
+
+const SHADOW_TYPES = new Set([
+  'rectangle',
+  'diamond',
+  'ellipse',
+  'image',
+  'svg',
+  'richtext',
+])
+
+const hasShadow = (el: ExcalidrawElement) =>
+  el.shadow === true && SHADOW_TYPES.has(el.type)
+
+const angleOf = (el: ExcalidrawElement) =>
+  typeof el.angle === 'number' && Number.isFinite(el.angle) ? el.angle : 0
+
+// `url(#id)` resolves to the first match in the page, so each scene needs its
+// own ids; the scene is serialised without React on iOS, which rules out useId.
+function sceneUid(elements: readonly ExcalidrawElement[], dark: boolean) {
+  let hash = dark ? 7 : 3
+  for (const el of elements) {
+    for (let i = 0; i < el.id.length; i++) {
+      hash = (Math.imul(hash, 31) + el.id.charCodeAt(i)) | 0
+    }
+  }
+  return (hash >>> 0).toString(36)
+}
+
+// Exact inverse of DARK_SCENE_FILTER, so images keep their colours inside the
+// inverted drawing. CSS filters run in sRGB, so the SVG filter must too.
+const CounterInvertFilter: FC<{ id: string }> = ({ id }) => (
+  <filter colorInterpolationFilters="sRGB" id={id}>
+    <feColorMatrix type="hueRotate" values="180" />
+    <feColorMatrix
+      type="matrix"
+      values="-1.16279 0 0 0 1.081395 0 -1.16279 0 0 1.081395 0 0 -1.16279 0 1.081395 0 0 0 1 0"
+    />
+  </filter>
+)
+
+// The dark scene is inverted, so a white flood comes out as a dark shadow.
+const ShadowFilter: FC<{ dark: boolean; id: string }> = ({ dark, id }) => (
+  <filter height="160%" id={id} width="140%" x="-20%" y="-20%">
+    <feDropShadow
+      dx="0"
+      dy="3"
+      floodColor={dark ? '#fff' : '#000'}
+      floodOpacity="0.14"
+      stdDeviation="4"
+    />
+  </filter>
+)
+
 interface SceneContentProps {
+  dark?: boolean
   files?: BinaryFiles
   scene: ExcalidrawScene
 }
 
 export const SceneContent: FC<SceneContentProps> = memo(
-  ({ files, scene }) => {
-    const elements = scene.elements.filter((el) => !el.isDeleted)
+  ({ dark = false, files, scene }) => {
+    const elements = resolveRichTextHeights(
+      scene.elements.filter((el) => !el.isDeleted),
+    )
+    const uid = sceneUid(elements, dark)
+    const invertId = dark ? `excalidraw-counter-invert-${uid}` : undefined
+    const shadowId = `excalidraw-shadow-${uid}`
+    const anyShadow = elements.some(hasShadow)
     return (
       <>
-        {elements.map((el) => (
-          <ElementGroup el={el} files={files} key={el.id} />
-        ))}
+        {(invertId || anyShadow) && (
+          <defs>
+            {invertId && <CounterInvertFilter id={invertId} />}
+            {anyShadow && <ShadowFilter dark={dark} id={shadowId} />}
+          </defs>
+        )}
+        {elements.map((el) =>
+          hasShadow(el) ? (
+            <g filter={`url(#${shadowId})`} key={el.id}>
+              <ElementGroup el={el} files={files} invertId={invertId} />
+            </g>
+          ) : (
+            <ElementGroup
+              el={el}
+              files={files}
+              invertId={invertId}
+              key={el.id}
+            />
+          ),
+        )}
       </>
     )
   },
@@ -115,22 +198,25 @@ export const Scene: FC<SceneProps> = ({
         width: '100%',
         height: '100%',
         display: 'block',
-        ...(isDark ? { filter: 'invert(93%) hue-rotate(180deg)' } : null),
+        ...(isDark ? { filter: DARK_SCENE_FILTER } : null),
         ...style,
       }}
     >
-      <SceneContent files={files} scene={scene} />
+      <SceneContent dark={isDark} files={files ?? scene.files} scene={scene} />
     </svg>
   )
 }
 
-const ElementGroup: FC<{ el: ExcalidrawElement; files?: BinaryFiles }> = ({
-  el,
-  files,
-}) => {
+interface ElementProps {
+  el: ExcalidrawElement
+  files?: BinaryFiles
+  invertId?: string
+}
+
+const ElementGroup: FC<ElementProps> = ({ el, files, invertId }) => {
   const cx = el.x + el.width / 2
   const cy = el.y + el.height / 2
-  const angleDeg = (el.angle * 180) / Math.PI
+  const angleDeg = (angleOf(el) * 180) / Math.PI
   const transform = `translate(${el.x} ${el.y}) rotate(${angleDeg} ${el.width / 2} ${el.height / 2})`
 
   return (
@@ -142,15 +228,12 @@ const ElementGroup: FC<{ el: ExcalidrawElement; files?: BinaryFiles }> = ({
       opacity={el.opacity != null ? el.opacity / 100 : 1}
       transform={transform}
     >
-      <ElementContent el={el} files={files} />
+      <ElementContent el={el} files={files} invertId={invertId} />
     </g>
   )
 }
 
-const ElementContent: FC<{ el: ExcalidrawElement; files?: BinaryFiles }> = ({
-  el,
-  files,
-}) => {
+const ElementContent: FC<ElementProps> = ({ el, files, invertId }) => {
   switch (el.type) {
     case 'rectangle': {
       return <RectangleRender el={el} />
@@ -172,7 +255,18 @@ const ElementContent: FC<{ el: ExcalidrawElement; files?: BinaryFiles }> = ({
       return <TextRender el={el} />
     }
     case 'image': {
-      return <ImageRender el={el} files={files} />
+      return <ImageRender el={el} files={files} invertId={invertId} />
+    }
+    case 'svg': {
+      return <SvgRender el={el} invertId={invertId} />
+    }
+    case 'richtext': {
+      return (
+        <>
+          <RectangleRender el={el as unknown as RectangleElement} />
+          <RichTextBody el={el} />
+        </>
+      )
     }
     case 'frame':
     case 'magicframe': {
@@ -187,6 +281,8 @@ const ElementContent: FC<{ el: ExcalidrawElement; files?: BinaryFiles }> = ({
     }
   }
 }
+
+const EVENODD_SHAPES = new Set(['curve', 'polygon'])
 
 const PathSet: FC<{
   drawable: ReturnType<typeof rectangle>
@@ -216,7 +312,9 @@ const PathSet: FC<{
             <path
               d={set.d}
               fill={fillColor || 'none'}
-              fillRule="evenodd"
+              fillRule={
+                EVENODD_SHAPES.has(drawable.shape) ? 'evenodd' : undefined
+              }
               key={i}
               stroke="none"
             />
@@ -508,10 +606,38 @@ const TextRender: FC<{ el: TextElement }> = ({ el }) => {
   )
 }
 
-const ImageRender: FC<{ el: ImageElement; files?: BinaryFiles }> = ({
+const SvgRender: FC<{ el: SvgElement; invertId?: string }> = ({
   el,
-  files,
+  invertId,
 }) => {
+  if (!isSvgSource(el.svg)) {
+    return (
+      <rect
+        fill="none"
+        height={el.height}
+        stroke="#888"
+        strokeDasharray="4 4"
+        strokeWidth={1}
+        width={el.width}
+      />
+    )
+  }
+  return (
+    <image
+      filter={invertId ? `url(#${invertId})` : undefined}
+      height={el.height}
+      href={svgDataUrl(el.svg)}
+      preserveAspectRatio="xMidYMid meet"
+      width={el.width}
+    />
+  )
+}
+
+const ImageRender: FC<{
+  el: ImageElement
+  files?: BinaryFiles
+  invertId?: string
+}> = ({ el, files, invertId }) => {
   const file = el.fileId && files ? files[el.fileId] : undefined
   if (!file?.dataURL) {
     return <ImagePlaceholder el={el} label="Image" />
@@ -520,6 +646,7 @@ const ImageRender: FC<{ el: ImageElement; files?: BinaryFiles }> = ({
   const scaleY = el.scale?.[1] ?? 1
   return (
     <image
+      filter={invertId ? `url(#${invertId})` : undefined}
       height={el.height}
       href={file.dataURL}
       preserveAspectRatio="none"
