@@ -54,11 +54,17 @@ const NativeWebSocket = WebSocket as unknown as new (
   options?: { headers?: Record<string, string> },
 ) => WebSocket
 
+// A WebSocket constructor is synchronous, but the session cookie is read
+// asynchronously (the Better Auth plugin's storage adapter). The cookie is
+// therefore captured before the client is created and read from here, so the
+// handshake carries a real value instead of "[object Promise]".
+let handshakeCookie = ''
+
 const GatewayWebSocket = class {
   constructor(url: string) {
     return new NativeWebSocket(url, null, {
       headers: {
-        cookie: getSessionCookie(),
+        cookie: handshakeCookie,
         'user-agent': 'Yohaku-Mobile/1.0 (iOS)',
       },
     })
@@ -83,7 +89,7 @@ export function subscribeGatewayDebug(listener: () => void) {
   return () => debugListeners.delete(listener)
 }
 
-export function connectGateway() {
+export async function connectGateway() {
   if (!apiBaseUrl()) return
   const url = socketGatewayUrl(apiBaseUrl())
   if (
@@ -93,6 +99,8 @@ export function connectGateway() {
   ) {
     return
   }
+  // Read the session cookie before constructing the socket; see handshakeCookie.
+  handshakeCookie = await getSessionCookie()
   disconnectGateway()
   currentUrl = url
   const anonymousId = getAnonymousSessionId()
@@ -135,7 +143,7 @@ export function connectGateway() {
 
 export function reconnectGateway() {
   disconnectGateway()
-  connectGateway()
+  void connectGateway()
 }
 
 export function disconnectGateway() {

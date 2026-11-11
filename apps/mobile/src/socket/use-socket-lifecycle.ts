@@ -19,7 +19,7 @@ export function useSocketLifecycle() {
   const sessionIdRef = useRef(session?.id)
 
   useEffect(() => {
-    connectGateway()
+    void connectGateway()
     const unsubscribe = subscribeApiBaseUrl(() => reconnectGateway())
     return () => {
       unsubscribe()
@@ -39,7 +39,7 @@ export function useSocketLifecycle() {
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active' && !getGatewaySid()) connectGateway()
+      if (state === 'active' && !getGatewaySid()) void connectGateway()
     })
     return () => sub.remove()
   }, [])

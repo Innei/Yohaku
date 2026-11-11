@@ -18,8 +18,8 @@ import {
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>
 
 export interface CodeLanguageInfo {
-  Icon: IconComponent | null
   color: string | null
+  Icon: IconComponent | null
   label: string
 }
 

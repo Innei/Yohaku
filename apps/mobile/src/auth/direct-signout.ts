@@ -15,7 +15,10 @@ const COOKIE_KEY = 'yohaku_cookie'
 const SESSION_CACHE_KEY = 'yohaku_session_data'
 
 export async function signOutDirect(): Promise<void> {
-  const cookie = getSessionCookie()
+  // getSessionCookie() is async: the Better Auth plugin's cookie read returns a
+  // promise. Awaiting matters — without it the header below serialises to
+  // "[object Promise]" and the server never invalidates the session.
+  const cookie = await getSessionCookie()
   try {
     if (cookie) {
       await fetch(`${apiBaseUrl()}/auth/sign-out`, {

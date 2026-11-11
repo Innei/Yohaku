@@ -22,8 +22,19 @@ describe('react-native-screens scroll-edge patch', () => {
     // The workspace root is this repo in the public checkout and its parent
     // when this repo is a submodule, so resolve the configured patch path
     // instead of hardcoding the submodule prefix.
-    const entry = /react-native-screens@4\.30\.0:\s*(\S+)/.exec(workspace)
-    expect(entry).not.toBeNull()
+    const { version } = JSON.parse(
+      readFileSync(
+        path.join(
+          import.meta.dirname,
+          '../../../node_modules/react-native-screens/package.json',
+        ),
+        'utf8',
+      ),
+    ) as { version: string }
+    const entry = new RegExp(
+      `react-native-screens@${version.replaceAll('.', '\\.')}:\\s*(\\S+)`,
+    ).exec(workspace)
+    expect(entry, `no patch registered for react-native-screens@${version}`).not.toBeNull()
 
     const patch = readFileSync(path.resolve(workspaceRoot, entry![1]), 'utf8')
     expect(patch).toContain('findFirstScrollViewInSubtreeOf')

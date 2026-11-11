@@ -4,7 +4,6 @@ import clsx from 'clsx'
 import { useMemo } from 'react'
 
 import { usePrintFallback } from '../../../host'
-
 import { ImagePlaceholder } from '../../../lib/image-placeholder'
 import {
   AfilmoryGlyph,
@@ -34,7 +33,8 @@ const DEFAULT_LIMIT_LIST = 24
 
 export function AfilmoryRenderer(props: AfilmorySlotProps) {
   const printFallback = usePrintFallback('afilmory', {
-    title: 'title' in props && typeof props.title === 'string' ? props.title : '',
+    title:
+      'title' in props && typeof props.title === 'string' ? props.title : '',
   })
   if (printFallback !== null) {
     return <p className="print-block-fallback">{printFallback}</p>

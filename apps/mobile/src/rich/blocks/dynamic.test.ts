@@ -12,6 +12,28 @@ describe('catalogUrls', () => {
     expect(catalogUrls(null).size).toBe(0)
     expect(catalogUrls({ components: 'nope' }).size).toBe(0)
   })
+
+  it('accepts previousUrls and parentUrl so revised components keep rendering', () => {
+    const urls = catalogUrls({
+      components: [
+        {
+          url: 'https://a/v3.js',
+          previousUrls: ['https://a/v1.js', 'https://a/v2.js', 7],
+        },
+        { url: 'https://a/fork.js', parentUrl: 'https://a/original.js' },
+      ],
+    })
+    expect([...urls].sort()).toEqual(
+      [
+        'https://a/fork.js',
+        'https://a/original.js',
+        'https://a/v1.js',
+        'https://a/v2.js',
+        'https://a/v3.js',
+      ].sort(),
+    )
+    expect(urls.has('https://a/unknown.js')).toBe(false)
+  })
 })
 
 describe('dynamicInput', () => {

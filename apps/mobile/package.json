@@ -25,6 +25,13 @@
       "ios": {
         "buildFromSource": [
           "expo-image"
+        ],
+        "exclude": [
+          "expo-audio",
+          "expo-video",
+          "expo-web-browser",
+          "react-native-svg",
+          "react-native-webview"
         ]
       }
     }

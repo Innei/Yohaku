@@ -2,7 +2,7 @@ import { and, eq } from 'drizzle-orm'
 import { Stack, useIsPreview } from 'expo-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollViewInstance } from 'react-native'
-import { StyleSheet, View } from 'react-native'
+import { Platform, StyleSheet, View } from 'react-native'
 
 import { translatedBodyNeedsRefresh } from '@/api/article-meta'
 import { api } from '@/api/client'
@@ -208,18 +208,28 @@ export function PostDetailScreen({
     })
   }, [postId, shouldUnlock, updatesEnabled])
 
-  // Android renders posts from the markdown body the API always ships alongside
-  // the lexical document. The lexical renderer drops the entire document when it
-  // meets a node type it cannot build, which on device showed up as a completely
-  // blank article (the words line still rendered, the body did not). Markdown
-  // renders reliably, so it wins whenever the API has it; lexical is only the
-  // last resort for posts that have a lexical body but no markdown text.
-  const markdownSource =
-    post && post.bodyVersion !== null && post.text ? post.text : null
-  const body =
-    !markdownSource && post?.contentFormat === 'lexical' && post.content
-      ? post.content
+  // iOS keeps its existing format choice: whatever the API declares is what gets
+  // rendered. Android prefers markdown, because the lexical renderer drops the
+  // entire document when it meets a node type it cannot build — on device that
+  // showed up as a completely blank article (the words line rendered, the body
+  // did not). `ArticleBody` also falls back to markdown when a lexical document
+  // renders empty, so an unknown node can never blank a page on either platform.
+  const preferMarkdown = Platform.OS === 'android'
+  const declaredMarkdown =
+    post?.contentFormat === 'markdown' && post.bodyVersion !== null
+      ? post.text
       : null
+  const markdownSource = preferMarkdown
+    ? post && post.bodyVersion !== null && post.text
+      ? post.text
+      : null
+    : declaredMarkdown
+  const body =
+    preferMarkdown && markdownSource
+      ? null
+      : post?.contentFormat === 'lexical' && post.content
+        ? post.content
+        : null
   const markdown = useMemo(
     () => (markdownSource ? markdownArticle(markdownSource) : null),
     [markdownSource],

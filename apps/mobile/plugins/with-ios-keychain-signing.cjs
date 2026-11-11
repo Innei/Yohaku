@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-require-imports -- Expo loads local config plugins through CommonJS. */
+// Expo loads local config plugins through CommonJS.
 
 const { withXcodeProject } = require('expo/config-plugins')
 

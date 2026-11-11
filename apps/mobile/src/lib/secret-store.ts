@@ -7,8 +7,14 @@ export const secretStore = {
   getItem(key: string): string | null {
     return YohakuNative.secretGet(key)
   },
+  async getItemAsync(key: string): Promise<string | null> {
+    return secretStore.getItem(key)
+  },
   setItem(key: string, value: string) {
     YohakuNative.secretSet(key, value)
+  },
+  async setItemAsync(key: string, value: string): Promise<void> {
+    secretStore.setItem(key, value)
   },
 }
 

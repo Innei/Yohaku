@@ -9,12 +9,19 @@ export function catalogUrls(payload: unknown): Set<string> {
       ? (payload as { components?: unknown }).components
       : undefined
   if (!Array.isArray(components)) return urls
-  for (const entry of components) {
-    const url =
-      entry && typeof entry === 'object'
-        ? (entry as { url?: unknown }).url
-        : undefined
+  const add = (url: unknown) => {
     if (typeof url === 'string' && url) urls.add(url)
+  }
+  for (const entry of components) {
+    if (!entry || typeof entry !== 'object') continue
+    const { url, parentUrl, previousUrls } = entry as {
+      url?: unknown
+      parentUrl?: unknown
+      previousUrls?: unknown
+    }
+    add(url)
+    add(parentUrl)
+    if (Array.isArray(previousUrls)) previousUrls.forEach(add)
   }
   return urls
 }

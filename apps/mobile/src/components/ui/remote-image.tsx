@@ -61,6 +61,7 @@ export function RemoteImage({
         index={index}
         label={accessibilityLabel}
         siteReferer={siteReferer}
+        style={style}
         uri={uri}
       />
     )

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { openSocialLink, socialLinks, type SocialLinking } from './social-links'
+import { openSocialLink, type SocialLinking,socialLinks } from './social-links'
 
 describe('socialLinks', () => {
   it('builds hrefs and resolves aliases', () => {

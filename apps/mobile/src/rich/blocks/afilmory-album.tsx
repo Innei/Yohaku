@@ -177,7 +177,7 @@ export function AfilmoryAlbum({
               (ratio) => (
                 <View
                   key={ratio}
-                  style={[{ aspectRatio: ratio, backgroundColor: bone }]}
+                  style={{ aspectRatio: ratio, backgroundColor: bone }}
                 />
               ),
             )}
@@ -272,7 +272,12 @@ const styles = StyleSheet.create({
   summary: { ...fonts.mono, fontSize: 10.5, lineHeight: 14 },
   viewAll: { justifyContent: 'center', minHeight: 44 },
   body: { padding: BODY_PADDING },
-  mark: { alignItems: 'flex-end', paddingBottom: 10, paddingHorizontal: 14, paddingTop: 6 },
+  mark: {
+    alignItems: 'flex-end',
+    paddingBottom: 10,
+    paddingHorizontal: 14,
+    paddingTop: 6,
+  },
   masonry: { flexDirection: 'row', gap: 4 },
   column: { flex: 1, gap: 4, minWidth: 0 },
   masonryTile: { overflow: 'hidden', width: '100%' },

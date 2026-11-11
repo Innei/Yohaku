@@ -8,7 +8,7 @@ import type { HostCapabilities } from '../host'
 const CATALOG_SNIPPET_PATH = 's/dynamic-widgets-catalog'
 
 interface DynamicCatalogPayload {
-  components?: { url: string }[]
+  components?: { url: string; parentUrl?: string; previousUrls?: string[] }[]
 }
 
 const catalogUrls = new Set<string>()
@@ -23,7 +23,11 @@ export function setDynamicCatalogHost(host: HostCapabilities) {
   )
     .catch(() => fetchJSON<DynamicCatalogPayload>(`/${CATALOG_SNIPPET_PATH}`))
     .then((catalog) => {
-      for (const c of catalog?.components ?? []) catalogUrls.add(c.url)
+      for (const c of catalog?.components ?? []) {
+        catalogUrls.add(c.url)
+        if (c.parentUrl) catalogUrls.add(c.parentUrl)
+        for (const url of c.previousUrls ?? []) catalogUrls.add(url)
+      }
     })
     .catch(() => {})
     .finally(() => {
@@ -47,7 +51,7 @@ function useCatalogSettled() {
   )
 }
 
-function isAllowedDynamicUrl(url: string): boolean {
+export function isAllowedDynamicUrl(url: string): boolean {
   return catalogUrls.has(url)
 }
 

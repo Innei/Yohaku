@@ -155,7 +155,9 @@ export function ArticleBody({
   // an unknown node type makes the headless editor drop the whole document
   // (0 segments), or the segments come back with no text runs at all so every
   // block collapses to zero height. Either way, fall back to the markdown text
-  // so the article is never a blank page.
+  // so the article is never a blank page. This is a blank-page guard, not a
+  // format choice: it only fires when the declared renderer produced nothing,
+  // so the declared format keeps priority on every platform.
   const lexicalTextLength = useMemo(() => {
     if (!renderedSegments) return null
     let total = 0

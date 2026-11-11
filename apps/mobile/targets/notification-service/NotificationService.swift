@@ -2,14 +2,18 @@ import Foundation
 import Intents
 import UserNotifications
 
-private final class AvatarLoader: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
-  private static let maximumBytes = 1_500_000
-
-  private var completion: ((Data?) -> Void)?
+private final class RemoteImageLoader: NSObject, URLSessionDataDelegate, URLSessionTaskDelegate {
+  private let maximumBytes: Int
+  private var completion: ((Data?, String?) -> Void)?
   private var received = Data()
+  private var mimeType: String?
   private var session: URLSession?
 
-  func load(_ url: URL, completion: @escaping (Data?) -> Void) {
+  init(maximumBytes: Int) {
+    self.maximumBytes = maximumBytes
+  }
+
+  func load(_ url: URL, completion: @escaping (Data?, String?) -> Void) {
     self.completion = completion
     let configuration = URLSessionConfiguration.ephemeral
     configuration.timeoutIntervalForRequest = 5
@@ -34,12 +38,13 @@ private final class AvatarLoader: NSObject, URLSessionDataDelegate, URLSessionTa
       let response = response as? HTTPURLResponse,
       (200...299).contains(response.statusCode),
       response.mimeType?.hasPrefix("image/") == true,
-      response.expectedContentLength <= Int64(Self.maximumBytes)
+      response.expectedContentLength <= Int64(maximumBytes)
     else {
       completionHandler(.cancel)
       finish(nil)
       return
     }
+    mimeType = response.mimeType
     completionHandler(.allow)
   }
 
@@ -48,7 +53,7 @@ private final class AvatarLoader: NSObject, URLSessionDataDelegate, URLSessionTa
     dataTask: URLSessionDataTask,
     didReceive data: Data
   ) {
-    guard received.count + data.count <= Self.maximumBytes else {
+    guard received.count + data.count <= maximumBytes else {
       dataTask.cancel()
       finish(nil)
       return
@@ -80,15 +85,37 @@ private final class AvatarLoader: NSObject, URLSessionDataDelegate, URLSessionTa
     self.completion = nil
     session?.invalidateAndCancel()
     session = nil
-    completion(data)
+    completion(data, data == nil ? nil : mimeType)
   }
 }
 
 final class NotificationService: UNNotificationServiceExtension {
+  private static let avatarMaximumBytes = 1_500_000
+  private static let coverMaximumBytes = 5_000_000
+
+  // Extensions do not ship the notification string catalog; it lives in the containing app bundle.
+  private static let appBundle: Bundle = {
+    let appURL = Bundle.main.bundleURL
+      .deletingLastPathComponent()
+      .deletingLastPathComponent()
+    return Bundle(url: appURL) ?? Bundle.main
+  }()
+
+  private static let currentReader = INPerson(
+    personHandle: INPersonHandle(value: "me", type: .unknown),
+    nameComponents: nil,
+    displayName: nil,
+    image: nil,
+    contactIdentifier: nil,
+    customIdentifier: nil,
+    isMe: true,
+    suggestionType: .none
+  )
+
   private let completionLock = NSLock()
   private var contentHandler: ((UNNotificationContent) -> Void)?
   private var bestAttemptContent: UNMutableNotificationContent?
-  private var avatarLoader: AvatarLoader?
+  private var imageLoader: RemoteImageLoader?
   private var didFinish = false
 
   override func didReceive(
@@ -98,21 +125,56 @@ final class NotificationService: UNNotificationServiceExtension {
     self.contentHandler = contentHandler
     bestAttemptContent = request.content.mutableCopy() as? UNMutableNotificationContent
 
+    guard let content = bestAttemptContent else {
+      finish(with: request.content)
+      return
+    }
+
+    switch request.content.categoryIdentifier {
+    case "YOHAKU_COMMENT_REPLIED":
+      handleReply(content)
+    case "YOHAKU_CONTENT":
+      handleContent(content)
+    default:
+      finish(with: request.content)
+    }
+  }
+
+  override func serviceExtensionTimeWillExpire() {
+    if let bestAttemptContent {
+      finish(with: bestAttemptContent)
+    }
+  }
+
+  private static func localize(_ key: String) -> String {
+    appBundle.localizedString(forKey: key, value: key, table: nil)
+  }
+
+  private func handleReply(_ content: UNMutableNotificationContent) {
     guard
-      request.content.categoryIdentifier == "YOHAKU_COMMENT_REPLIED",
-      let content = bestAttemptContent,
       let senderID = content.userInfo["sender_id"] as? String,
       let senderName = content.userInfo["sender_name"] as? String,
       let targetPath = content.userInfo["target_path"] as? String
     else {
-      finish(with: request.content)
+      finish(with: content)
       return
+    }
+
+    if let copy = NotificationCopyBuilder.reply(
+      userInfo: content.userInfo,
+      localize: Self.localize
+    ) {
+      if let title = copy.title {
+        content.title = title
+      }
+      content.subtitle = copy.subtitle
+      content.body = copy.body
     }
 
     guard
       let rawAvatarURL = content.userInfo["sender_avatar_url"] as? String,
       let avatarURL = URL(string: rawAvatarURL),
-      isSafeAvatarURL(avatarURL)
+      isSafeRemoteImageURL(avatarURL)
     else {
       donateIntent(
         content: content,
@@ -124,9 +186,9 @@ final class NotificationService: UNNotificationServiceExtension {
       return
     }
 
-    let loader = AvatarLoader()
-    avatarLoader = loader
-    loader.load(avatarURL) { [weak self] imageData in
+    let loader = RemoteImageLoader(maximumBytes: Self.avatarMaximumBytes)
+    imageLoader = loader
+    loader.load(avatarURL) { [weak self] imageData, _ in
       guard let self else { return }
       self.donateIntent(
         content: content,
@@ -138,9 +200,62 @@ final class NotificationService: UNNotificationServiceExtension {
     }
   }
 
-  override func serviceExtensionTimeWillExpire() {
-    if let bestAttemptContent {
-      finish(with: bestAttemptContent)
+  private func handleContent(_ content: UNMutableNotificationContent) {
+    if let copy = NotificationCopyBuilder.content(
+      userInfo: content.userInfo,
+      localize: Self.localize
+    ) {
+      if let title = copy.title {
+        content.title = title
+      }
+      content.subtitle = copy.subtitle
+      content.body = copy.body
+    }
+
+    guard
+      let rawCoverURL = content.userInfo["cover_url"] as? String,
+      let coverURL = URL(string: rawCoverURL),
+      isSafeRemoteImageURL(coverURL)
+    else {
+      finish(with: content)
+      return
+    }
+
+    let loader = RemoteImageLoader(maximumBytes: Self.coverMaximumBytes)
+    imageLoader = loader
+    loader.load(coverURL) { [weak self] imageData, mimeType in
+      guard let self else { return }
+      if let imageData,
+        let attachment = self.coverAttachment(
+          data: imageData,
+          mimeType: mimeType,
+          url: coverURL
+        )
+      {
+        content.attachments = [attachment]
+      }
+      self.finish(with: content)
+    }
+  }
+
+  private func coverAttachment(data: Data, mimeType: String?, url: URL) -> UNNotificationAttachment? {
+    guard
+      let pathExtension = NotificationCopyBuilder.attachmentExtension(
+        mimeType: mimeType,
+        url: url
+      )
+    else {
+      return nil
+    }
+    let fileURL = FileManager.default.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString)
+      .appendingPathExtension(pathExtension)
+    do {
+      try data.write(to: fileURL)
+      return try UNNotificationAttachment(identifier: "cover", url: fileURL)
+    } catch {
+      try? FileManager.default.removeItem(at: fileURL)
+      return nil
     }
   }
 
@@ -162,11 +277,15 @@ final class NotificationService: UNNotificationServiceExtension {
       isMe: false,
       suggestionType: .none
     )
+    let conversationName = (content.userInfo["target_title"] as? String)
+      .flatMap { $0.isEmpty ? nil : INSpeakableString(spokenPhrase: $0) }
+    // iOS only renders speakableGroupName for conversations with more than one recipient.
+    let recipients = conversationName.map { _ in [Self.currentReader, sender] }
     let intent = INSendMessageIntent(
-      recipients: nil,
+      recipients: recipients,
       outgoingMessageType: .outgoingMessageText,
       content: content.body,
-      speakableGroupName: nil,
+      speakableGroupName: conversationName,
       conversationIdentifier: targetPath,
       serviceName: "Yohaku",
       sender: sender,
@@ -194,11 +313,11 @@ final class NotificationService: UNNotificationServiceExtension {
     guard !didFinish, let contentHandler else { return }
     didFinish = true
     self.contentHandler = nil
-    avatarLoader = nil
+    imageLoader = nil
     contentHandler(content)
   }
 
-  private func isSafeAvatarURL(_ url: URL) -> Bool {
+  private func isSafeRemoteImageURL(_ url: URL) -> Bool {
     guard
       url.scheme == "https",
       url.user == nil,
