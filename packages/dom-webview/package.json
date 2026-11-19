@@ -26,8 +26,8 @@
   "dependencies": {},
   "devDependencies": {
     "@types/react": "~19.3.0",
-    "oxc-parser": "^0.155.0",
-    "vitest": "^5.1.0"
+    "oxc-parser": "^0.159.0",
+    "vitest": "^5.1.1"
   },
   "peerDependencies": {
     "expo": "*",
