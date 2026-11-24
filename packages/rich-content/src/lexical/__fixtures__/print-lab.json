@@ -171,6 +171,11 @@
         }
       },
       { "type": "mermaid", "version": 1, "diagram": "graph TD\n  A --> B" },
+      {
+        "type": "chart",
+        "version": 1,
+        "spec": "{\"version\":1,\"type\":\"bar\",\"x\":\"k\",\"series\":[{\"key\":\"v\"}],\"data\":[{\"k\":\"a\",\"v\":1},{\"k\":\"b\",\"v\":2}]}"
+      },
       { "type": "excalidraw", "version": 1, "snapshot": "{\"elements\":[]}" },
       {
         "type": "nested-doc",

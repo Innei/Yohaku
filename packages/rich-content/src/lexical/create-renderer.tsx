@@ -7,6 +7,7 @@ import type {
 import { composeRenderer } from '@haklex/rich-compose'
 import { ALERT_MODULE_NAME } from '@haklex/rich-compose/modules/alert'
 import { BANNER_MODULE_NAME } from '@haklex/rich-compose/modules/banner'
+import { chartModule } from '@haklex/rich-compose/modules/chart'
 import { codeSnippetModule } from '@haklex/rich-compose/modules/code-snippet'
 import { embedModule } from '@haklex/rich-compose/modules/embed'
 import { galleryModule } from '@haklex/rich-compose/modules/gallery'
@@ -238,6 +239,7 @@ const modules: RichRendererModule[] = [
   withPrintRenderers('video', videoModule),
   yohakuFileModule,
   mermaidModule,
+  chartModule,
   boundedPollModule,
   boundedMapModule,
   boundedAfilmoryModule,

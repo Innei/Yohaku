@@ -12,6 +12,7 @@
 // TweetRenderer lazy-loads IsolatedTweet without bundling its theme stylesheet.
 
 import '@haklex/rich-compose/style/foundation.css'
+import '@haklex/rich-compose/style/chart.css'
 import '@haklex/rich-compose/style/chat.css'
 import '@haklex/rich-compose/style/dynamic.css'
 import '@haklex/rich-compose/style/embed.css'

@@ -234,3 +234,33 @@ it('code-snippet 走本地渲染器而非上游', () => {
   expect(html).toContain('yohaku-code__tab')
   expect(html).not.toContain('rcs-container')
 })
+
+it('renders a chart block as an SVG chart instead of the placeholder', () => {
+  const spec = JSON.stringify({
+    data: [{ after: 9, before: 36, component: 'Toolbar' }],
+    series: [{ key: 'before' }, { key: 'after' }],
+    type: 'bar',
+    version: 1,
+    x: 'component',
+  })
+  const state = sanitizeEditorState(
+    {
+      root: {
+        children: [{ spec, type: 'chart', version: 1 }],
+        direction: 'ltr',
+        format: '',
+        indent: 0,
+        type: 'root',
+        version: 1,
+      },
+    } as never,
+    REGISTERED_NODE_TYPES,
+  )
+  const html = renderToStaticMarkup(
+    <HostProvider host={mobileHost}>
+      <RichContent theme="light" value={state} variant="article" />
+    </HostProvider>,
+  )
+  expect(html).toContain('<svg')
+  expect(html).not.toContain('请在网页中查看')
+})
