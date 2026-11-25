@@ -115,11 +115,18 @@ describe('svg element', () => {
 })
 
 describe('richtext card', () => {
-  it('renders its content inside the card body', () => {
+  it('renders its content inside the card body in the handwritten font by default', () => {
     const html = render([card()])
     expect(html).toContain('<foreignObject')
     expect(html).toMatch(/<h3[^>]*><span>Brew<\/span><\/h3>/)
     expect(html).toContain('color:#6b6b6b')
+    expect(html).toContain('Excalifont')
+  })
+
+  it('allows switching a richtext card to sans-serif via fontFamily 2', () => {
+    const html = render([card({ fontFamily: 2 })])
+    expect(html).toContain('Helvetica')
+    expect(html).not.toContain('Excalifont')
   })
 
   it('draws with the card defaults when only required fields are written', () => {

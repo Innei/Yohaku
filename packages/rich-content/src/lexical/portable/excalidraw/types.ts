@@ -95,7 +95,7 @@ export interface FreedrawElement extends BaseElement {
   type: 'freedraw'
 }
 
-export type FontFamilyId = 1 | 2 | 3 | 4 | 5 | 6 | 7
+export type FontFamilyId = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 export interface TextElement extends BaseElement {
   autoResize?: boolean
@@ -136,6 +136,7 @@ export interface SvgElement extends BaseElement {
 
 export interface RichTextElement extends BaseElement {
   content: unknown
+  fontFamily?: FontFamilyId
   type: 'richtext'
 }
 

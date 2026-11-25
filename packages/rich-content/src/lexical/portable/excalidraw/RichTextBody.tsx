@@ -1,6 +1,6 @@
 import type { CSSProperties, FC, ReactNode } from 'react'
 
-import { EXCALIDRAW_FONT_STACK } from './fonts'
+import { fontFamilyToCss } from './fonts'
 import type { RichNode } from './richtext'
 import {
   blockTypography,
@@ -182,7 +182,7 @@ export const RichTextBody: FC<{ el: RichTextElement }> = ({ el }) => (
       style={{
         boxSizing: 'border-box',
         color: RICHTEXT_TEXT_COLOR,
-        fontFamily: EXCALIDRAW_FONT_STACK.sans,
+        fontFamily: fontFamilyToCss(el.fontFamily),
         minHeight: px(el.height),
         overflowWrap: 'break-word',
         padding: px(RICHTEXT_PADDING),

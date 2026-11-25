@@ -1,5 +1,5 @@
-import { EXCALIDRAW_FONT_STACK } from './fonts'
-import type { ExcalidrawElement, RichTextElement } from './types'
+import { fontFamilyToCss } from './fonts'
+import type { ExcalidrawElement, FontFamilyId, RichTextElement } from './types'
 
 export interface RichNode {
   [key: string]: unknown
@@ -156,9 +156,13 @@ function countLines(
   return lines + 1
 }
 
-function blockHeight(node: RichNode, width: number): number {
+function blockHeight(
+  node: RichNode,
+  width: number,
+  fontFamily?: FontFamilyId,
+): number {
   const { fontSize, fontWeight, lineHeight } = blockTypography(node)
-  const font = `${fontWeight === 600 ? 'bold ' : ''}${fontSize}px ${EXCALIDRAW_FONT_STACK.sans}`
+  const font = `${fontWeight === 600 ? 'bold ' : ''}${fontSize}px ${fontFamilyToCss(fontFamily)}`
   const maxWidth = Math.max(1, width)
   const lines = richTextPlainText(node)
     .split('\n')
@@ -184,33 +188,42 @@ function hasBlockChildren(node: RichNode): boolean {
   )
 }
 
-function stackHeight(nodes: readonly RichNode[], width: number): number {
+function stackHeight(
+  nodes: readonly RichNode[],
+  width: number,
+  fontFamily?: FontFamilyId,
+): number {
   let total = 0
   for (const node of nodes) {
     total +=
       BLOCK_CONTAINERS.has(node.type) && hasBlockChildren(node)
-        ? stackHeight(node.children ?? [], width - childIndent(node))
-        : blockHeight(node, width - childIndent(node))
+        ? stackHeight(node.children ?? [], width - childIndent(node), fontFamily)
+        : blockHeight(node, width - childIndent(node), fontFamily)
   }
   return total
 }
 
-const cache = new WeakMap<object, Map<number, number>>()
+const cache = new WeakMap<object, Map<string, number>>()
 
-export function measureRichTextHeight(content: unknown, width: number): number {
+export function measureRichTextHeight(
+  content: unknown,
+  width: number,
+  fontFamily?: FontFamilyId,
+): number {
   const root = contentRoot(content)
-  const byWidth = cache.get(root)
-  const cached = byWidth?.get(width)
+  const key = `${width}:${fontFamily ?? ''}`
+  const byKey = cache.get(root)
+  const cached = byKey?.get(key)
   if (cached !== undefined) return cached
   const inner = width - RICHTEXT_PADDING * 2
   const blocks = root.children ?? []
   const body =
     blocks.length === 0
-      ? blockHeight({ type: 'paragraph' }, inner)
-      : stackHeight(blocks, inner)
+      ? blockHeight({ type: 'paragraph' }, inner, fontFamily)
+      : stackHeight(blocks, inner, fontFamily)
   const height = body + RICHTEXT_PADDING * 2
-  if (byWidth) byWidth.set(width, height)
-  else cache.set(root, new Map([[width, height]]))
+  if (byKey) byKey.set(key, height)
+  else cache.set(root, new Map([[key, height]]))
   return height
 }
 
@@ -259,7 +272,7 @@ export function resolveRichTextHeights(
   const next = elements.map((input) => {
     if (input.type !== 'richtext' || input.isDeleted) return input
     const el = withCardDefaults(input)
-    const needed = measureRichTextHeight(el.content, el.width)
+    const needed = measureRichTextHeight(el.content, el.width, el.fontFamily)
     const resolved = needed > el.height ? { ...el, height: needed } : el
     if (resolved !== input) changed = true
     return resolved
